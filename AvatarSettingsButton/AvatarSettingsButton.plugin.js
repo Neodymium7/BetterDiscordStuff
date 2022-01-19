@@ -87,13 +87,13 @@ module.exports = (() => {
         }
 
         onStart() {
-            document.querySelector(settingsSelector).style.display = "none";
+            BdApi.injectCSS("hideSettings", settingsSelector + "{display:none}");
             this.addEventListeners();
             this.addTooltip();
         }
 
         onStop() {
-            document.querySelector(settingsSelector).style.display = "flex";
+            BdApi.clearCSS("hideSettings");
             this.refreshAvatar();
         }
 
