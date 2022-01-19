@@ -1,0 +1,14 @@
+/* Hide Own Note Section */
+[data-user-id="340614112331694081"] .bodyInnerWrapper-2bQs1k h3:nth-last-child(2), /* Popout */
+[data-user-id="340614112331694081"] .note-Go5ZP2,
+[data-user-id="340614112331694081"] .userBio-2-tr00 + h3, /* Modal */
+[data-user-id="340614112331694081"] .note-3M15gE {
+    display: none;
+}
+[data-user-id="340614112331694081"] .rolesList-3uZoaa,
+[data-user-id="340614112331694081"] .aboutMeSection-PUghFQ {  /* Fix margins */
+    margin-bottom: 0px;
+}
+[data-user-id="340614112331694081"] .bodyInnerWrapper-2bQs1k h3:nth-child(1) { /* Fix margins part II */
+    margin-top: 16px;
+}
