@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 0.0.2
+ * @version 0.0.3
  * @description Moves the User Settings button to the user avatar, with the status picker still available on right click. (Helps reduce clutter, especially with plugins like GameActivityToggle)
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
@@ -39,17 +39,11 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "0.0.1",
+            "version": "0.0.3",
             "description": "Moves the User Settings button to the user avatar, with the status picker still available on right click. (Helps reduce clutter, especially with plugins like GameActivityToggle)",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
         },
-        "defaultConfig": [
-            {
-                "id": "showTooltip",
-                "value": "false"
-            }
-        ],
         "main": "index.js"
     };
 
@@ -76,37 +70,37 @@ module.exports = (() => {
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Library) => {
 
-    const { Tooltip, Settings } = Library;
+    const { Settings, Tooltip } = Library;
+    const { SettingPanel, Switch } = Settings;
 
-    let userAvatar = document.querySelector(".avatar-1EWyVD.wrapper-1VLyxH");
+    const settingsSelector = ".container-YkUktl .button-12Fmur:nth-last-child(1)";
     const statusButton = document.querySelector(".avatarWrapper-1B9FTW");
+    let userAvatar = document.querySelector(".avatar-1EWyVD.wrapper-1VLyxH");
     let tooltip;
 
     return class AvatarSettingsButton extends Plugin {
         constructor() {
             super();
+            this.defaultSettings = {
+                showTooltip: false
+            };
         }
 
         onStart() {
-            BdApi.injectCSS("remove settings button", ".container-YkUktl .button-12Fmur:nth-last-child(1) {display: none}");
+            document.querySelector(settingsSelector).style.display = "none";
             this.addEventListeners();
             this.addTooltip();
         }
 
         onStop() {
-            BdApi.clearCSS("remove settings button")
+            document.querySelector(settingsSelector).style.display = "flex";
             this.refreshAvatar();
-        }
-
-        addEventListeners() {
-            userAvatar.addEventListener("click", this.openSettings);
-            userAvatar.addEventListener("contextmenu", this.openStatusPicker);
         }
 
         openSettings(e) {
             e.preventDefault();
             e.stopPropagation();
-            document.querySelector(".container-YkUktl .button-12Fmur:nth-last-child(1)").click();
+            document.querySelector(settingsSelector).click();
             
             if (document.getElementById("status-picker")) {
                 statusButton.click();
@@ -116,6 +110,11 @@ module.exports = (() => {
         openStatusPicker() {
             statusButton.click();
             tooltip.hide();
+        }
+
+        addEventListeners() {
+            userAvatar.addEventListener("click", this.openSettings);
+            userAvatar.addEventListener("contextmenu", this.openStatusPicker);
         }
 
         addTooltip() {
@@ -131,15 +130,15 @@ module.exports = (() => {
         }
 
         getSettingsPanel() {
-            return Settings.SettingPanel.build(() => this.saveSettings(),
-				new Settings.Switch("Tooltip", "Show tooltip when hovering over user avatar.", this.settings.showTooltip, (i) => {
+            return SettingPanel.build(this.saveSettings.bind(this),
+				new Switch("Tooltip", "Show tooltip when hovering over user avatar.", this.settings.showTooltip, (i) => {
 					this.settings.showTooltip = i;
 
                     this.refreshAvatar();
                     this.addEventListeners();
                     this.addTooltip();
 				})
-			)
+			);
         }
 
     };
