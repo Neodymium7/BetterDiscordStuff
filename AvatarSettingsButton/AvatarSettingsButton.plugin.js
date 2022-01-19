@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @description Moves the User Settings button to the user avatar, with the status picker still available on right click.
+ * @description Moves the User Settings button to the user avatar, with the status picker still available on right click. (Helps reduce clutter, especially with plugins like GameActivityToggle)
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  */
@@ -39,7 +39,7 @@ module.exports = (() => {
                 }
             ],
             "version": "0.0.1",
-            "description": "Moves the User Settings button to the user avatar, with the status picker still available on right click.",
+            "description": "Moves the User Settings button to the user avatar, with the status picker still available on right click. (Helps reduce clutter, especially with plugins like GameActivityToggle)",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
         },
