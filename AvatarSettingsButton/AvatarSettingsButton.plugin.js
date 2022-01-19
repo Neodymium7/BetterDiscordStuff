@@ -1,6 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
+ * @version 0.0.2
  * @description Moves the User Settings button to the user avatar, with the status picker still available on right click. (Helps reduce clutter, especially with plugins like GameActivityToggle)
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
@@ -77,8 +78,9 @@ module.exports = (() => {
 
     const { Tooltip, Settings } = Library;
 
-    var userAvatar = document.querySelector(".avatar-1EWyVD.wrapper-1VLyxH");
+    let userAvatar = document.querySelector(".avatar-1EWyVD.wrapper-1VLyxH");
     const statusButton = document.querySelector(".avatarWrapper-1B9FTW");
+    let tooltip;
 
     return class AvatarSettingsButton extends Plugin {
         constructor() {
@@ -113,11 +115,12 @@ module.exports = (() => {
 
         openStatusPicker() {
             statusButton.click();
+            tooltip.hide();
         }
 
         addTooltip() {
             if (this.settings.showTooltip) {
-                new Tooltip(userAvatar, "User Settings");
+                tooltip = new Tooltip(userAvatar, "User Settings");
             }
         }
 
