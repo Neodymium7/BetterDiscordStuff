@@ -1,8 +1,8 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 0.0.3
- * @description Moves the User Settings button to the user avatar, with the status picker still available on right click. (Helps reduce clutter, especially with plugins like GameActivityToggle)
+ * @version 1.0.0
+ * @description Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions. (Helps reduce clutter, especially with plugins like GameActivityToggle)
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  */
@@ -39,8 +39,8 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "0.0.3",
-            "description": "Moves the User Settings button to the user avatar, with the status picker still available on right click. (Helps reduce clutter, especially with plugins like GameActivityToggle)",
+            "version": "1.0.0",
+            "description": "Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions. (Helps reduce clutter, especially with plugins like GameActivityToggle)",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
         },
@@ -71,7 +71,7 @@ module.exports = (() => {
         const plugin = (Plugin, Library) => {
 
     const { Settings, Tooltip } = Library;
-    const { SettingPanel, Switch } = Settings;
+    const { Dropdown, SettingPanel, Switch } = Settings;
 
     const settingsSelector = ".container-YkUktl .button-12Fmur:nth-last-child(1)";
     const statusButton = document.querySelector(".avatarWrapper-1B9FTW");
@@ -82,7 +82,10 @@ module.exports = (() => {
         constructor() {
             super();
             this.defaultSettings = {
-                showTooltip: false
+                showTooltip: false,
+                click: 1,
+                contextmenu: 3,
+                middleclick: 2
             };
         }
 
@@ -107,19 +110,39 @@ module.exports = (() => {
             }
         }
 
-        openStatusPicker() {
+        openContextMenu(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            document.querySelector(settingsSelector).dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, clientX: e.clientX, clientY: (screen.height - 12)}));
+            
+            if (document.getElementById("status-picker")) {
+                statusButton.click();
+            }
+        }
+
+        openStatusPicker(e) {
+            e.preventDefault();
+            e.stopPropagation();
             statusButton.click();
-            tooltip.hide();
+            if (tooltip) tooltip.hide();
+        }
+
+        doNothing(e) {
+            e.preventDefault();
+            e.stopPropagation();
         }
 
         addEventListeners() {
-            userAvatar.addEventListener("click", this.openSettings);
-            userAvatar.addEventListener("contextmenu", this.openStatusPicker);
+            const actions = [this.doNothing, this.openSettings, this.openContextMenu, this.openStatusPicker];
+            userAvatar.addEventListener("click", actions[this.settings.click]);
+            userAvatar.addEventListener("contextmenu", actions[this.settings.contextmenu]);
+            userAvatar.addEventListener("mousedown", e => {if (e.button === 1) actions[this.settings.middleclick](e);});
         }
 
         addTooltip() {
-            if (this.settings.showTooltip) {
-                tooltip = new Tooltip(userAvatar, "User Settings");
+            const tooltips = ["", "User Settings", "Settings Shortcuts", "Set Status"];
+            if (this.settings.showTooltip && this.settings.click !== 0) {
+                tooltip = new Tooltip(userAvatar, tooltips[this.settings.click]);
             }
         }
 
@@ -130,14 +153,31 @@ module.exports = (() => {
         }
 
         getSettingsPanel() {
-            return SettingPanel.build(this.saveSettings.bind(this),
-				new Switch("Tooltip", "Show tooltip when hovering over user avatar.", this.settings.showTooltip, (i) => {
-					this.settings.showTooltip = i;
-
+            return SettingPanel.build(() => {
+                    this.saveSettings();
                     this.refreshAvatar();
                     this.addEventListeners();
                     this.addTooltip();
-				})
+                },
+                new Dropdown("Click", "What opens when clicking on the user avatar. REMEMBER If nothing is bound to open settings, you can use the Ctrl + , shortcut.", this.settings.click, [
+                    {label: "Settings (Default)", value: 1},
+                    {label: "Settings Context Menu", value: 2},
+                    {label: "Status Picker", value: 3},
+                    {label: "Nothing", value: 0}
+                ], i => {this.settings.click = i;}),
+                new Dropdown("Right Click", "What opens when right clicking on the user avatar.", this.settings.contextmenu, [
+                    {label: "Settings", value: 1},
+                    {label: "Settings Context Menu", value: 2},
+                    {label: "Status Picker (Default)", value: 3},
+                    {label: "Nothing", value: 0}
+                ], i => {this.settings.middleclick = i;}),
+                new Dropdown("Middle Click", "What opens when middle clicking on the username.", this.settings.middleclick, [
+                    {label: "Settings", value: 1},
+                    {label: "Settings Context Menu (Default)", value: 2},
+                    {label: "Status Picker", value: 3},
+                    {label: "Nothing", value: 0}
+                ], i => {this.settings.middleclick = i;}),
+				new Switch("Tooltip", "Show tooltip when hovering over user avatar.", this.settings.showTooltip, (i) => {this.settings.showTooltip = i;})
 			);
         }
 
