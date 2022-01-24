@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 1.0.0
+ * @version 1.0.1
  * @description Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions. (Helps reduce clutter, especially with plugins like GameActivityToggle)
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
@@ -39,7 +39,7 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.0.0",
+            "version": "1.0.1",
             "description": "Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions. (Helps reduce clutter, especially with plugins like GameActivityToggle)",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
@@ -73,9 +73,12 @@ module.exports = (() => {
     const { Settings, Tooltip } = Library;
     const { Dropdown, SettingPanel, Switch } = Settings;
 
+    const wrapperSelector = ".avatarWrapper-1B9FTW";
+    const avatarSelector = ".avatar-1EWyVD.wrapper-1VLyxH";
     const settingsSelector = ".container-YkUktl .button-12Fmur:nth-last-child(1)";
-    const statusButton = document.querySelector(".avatarWrapper-1B9FTW");
-    let userAvatar = document.querySelector(".avatar-1EWyVD.wrapper-1VLyxH");
+
+    const statusButton = document.querySelector(wrapperSelector);
+    let userAvatar = document.querySelector(avatarSelector);
     let tooltip;
 
     return class AvatarSettingsButton extends Plugin {
@@ -90,13 +93,13 @@ module.exports = (() => {
         }
 
         onStart() {
-            BdApi.injectCSS("hideSettings", settingsSelector + "{display:none}");
+            BdApi.injectCSS("css", settingsSelector + "{display:none}" + wrapperSelector + "{pointer-events: none}" + avatarSelector + "{pointer-events: all}");
             this.addEventListeners();
             this.addTooltip();
         }
 
         onStop() {
-            BdApi.clearCSS("hideSettings");
+            BdApi.clearCSS("css");
             this.refreshAvatar();
         }
 
