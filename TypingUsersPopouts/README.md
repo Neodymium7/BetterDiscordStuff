@@ -1,2 +1,2 @@
 # TypingUsersPopouts
-Opens User Popout when clicking on a user's name in the typing area.
+Opens the user's popout when clicking on a name in the typing area.

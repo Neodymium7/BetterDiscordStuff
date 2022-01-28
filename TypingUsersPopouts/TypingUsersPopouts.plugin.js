@@ -1,7 +1,8 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @description Opens User Popout when clicking on a user in the typing notification
+ * @version 1.0.0
+ * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  */
@@ -39,7 +40,7 @@ module.exports = (() => {
                 }
             ],
             "version": "1.0.0",
-            "description": "Opens User Popout when clicking on a user's name in the typing area.",
+            "description": "Opens the user's popout when clicking on a name in the typing area.",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js"
         },
