@@ -1,0 +1,36 @@
+/* Adjusts the appearance and adds hover/transition effects to UserBackgrounds badges 
+   Preview: https://cdn.discordapp.com/attachments/470024236497502218/937081774712958996/preview.gif */
+.UserBackgrounds-banner-badge {
+    background-color: rgba(32, 34, 37, 0.8) !important;
+    font-size: 11px;
+    opacity: 0;
+    transform: matrix(1, 0, 0, 1, 0, 5);
+    transition-delay: 0s, 0s, 0s;
+    transition-duration: 0.15s, 0.15s, 0.15s;
+    transition-property: opacity, transform;
+    transition-timing-function: ease-out, ease-out, ease-out;
+}
+.UserBackgrounds-banner-container:hover .UserBackgrounds-banner-badge {
+    opacity: 1;
+    transform: matrix(1, 0, 0, 1, 0, 0);
+}
+.UserBackgrounds-banner-arrow {
+    opacity: 0 !important;
+    transform: matrix(1, 0, 0, 1, 0, -5);
+    transition-delay: 0s, 0s, 0s;
+    transition-duration: 0.15s, 0.15s, 0.15s;
+    transition-property: opacity, transform;
+    transition-timing-function: ease-out, ease-out, ease-out;
+}
+.UserBackgrounds-banner-container:hover .UserBackgrounds-banner-arrow:not([disabled]) {
+    opacity: 1 !important;
+    transform: matrix(1, 0, 0, 1, 0, 0);
+}
+.UserBackgrounds-banner-container:hover .UserBackgrounds-banner-arrow[disabled] {
+    opacity: 0.5 !important;
+    transform: matrix(1, 0, 0, 1, 0, 0);
+}
+.accountProfileCard-lbN7n- .UserBackgrounds-banner-badge {
+    display: none !important;
+}
+/* Get UserBackgrounds plugin here: https://github.com/Strencher/BetterDiscordStuff/blob/master/UserBackgrounds/UserBackgrounds.plugin.js */
