@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.0.1
+ * @version 1.0.2
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
@@ -39,7 +39,7 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.0.1",
+            "version": "1.0.2",
             "description": "Opens the user's popout when clicking on a name in the typing area.",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js"
@@ -70,31 +70,30 @@ module.exports = (() => {
         const plugin = (Plugin, Library) => {
 
     const { DiscordModules, DiscordSelectors, Patcher, Popouts, ReactComponents } = Library;
-    const { RelationshipStore, Strings, UserStore } = DiscordModules;
     
-    const nameSelector = ".typing-2J1mQU > span > strong";
-    const popoutSelector = ".userPopout-2j1gM4";
+    const nameSelector = `${DiscordSelectors.Typing.typing} > span > strong`;
+    const popoutSelector = DiscordSelectors.UserPopout.userPopout;
     const rolePopoutSelector = ".container-2O1UgZ";
-    const tooltipSelector = ".tooltip-14MtrL";
+    const tooltipSelector = DiscordSelectors.Tooltips.tooltip;
     const avatarSelector = ".avatarWrapper-eenWra";
 
-    function remove(e) {
+    function remove(e) { // Quick fix for popout not closing when it should
         const isInPopout = document.querySelector("#ZeresPluginLibraryPopouts").contains(e.target);
         const isName = document.querySelector(nameSelector) ? document.querySelector(nameSelector).isEqualNode(e.target) : false;
 
         if (!isInPopout && !isName) {
-            if (document.querySelector(popoutSelector)) document.querySelector(popoutSelector).remove();
-            if (document.querySelector(rolePopoutSelector)) document.querySelector(rolePopoutSelector).remove();
-            if (document.querySelector(tooltipSelector)) document.querySelector(tooltipSelector).remove();
+            document.querySelector(popoutSelector)?.remove();
+            document.querySelector(rolePopoutSelector)?.remove();
+            document.querySelector(tooltipSelector)?.remove();
         }
         else if (document.querySelector(avatarSelector).contains(e.target) && e.button === 0) {
             document.querySelector(avatarSelector).click();
             document.querySelector(popoutSelector).remove();
-            if (document.querySelector(rolePopoutSelector)) document.querySelector(rolePopoutSelector).remove();
-            if (document.querySelector(tooltipSelector)) document.querySelector(tooltipSelector).remove();
+            document.querySelector(rolePopoutSelector)?.remove();
+            document.querySelector(tooltipSelector)?.remove();
         }
         else if (!isName) {
-            document.addEventListener("mousedown", remove, {once: true});
+            document.addEventListener("mouseup", remove, {once: true});
         }
     }
 
@@ -105,7 +104,7 @@ module.exports = (() => {
 
         onStart() {
             this.patch();
-            BdApi.injectCSS("TypingUsersPopouts", nameSelector + "{cursor: pointer;}");
+            BdApi.injectCSS("TypingUsersPopouts", `${nameSelector}{cursor: pointer;}`);
         }
 
         onStop() {
@@ -114,20 +113,20 @@ module.exports = (() => {
         }
         
         async patch() {
-            const TypingUsers = await ReactComponents.getComponentByName('TypingUsers', DiscordSelectors.Typing.typing);
+            const TypingUsers = await ReactComponents.getComponentByName("TypingUsers", DiscordSelectors.Typing.typing);
             Patcher.after(TypingUsers.component.prototype, 'render', (component, [props], ret) => {
-                if(ret.props.children && ret.props.children[1].props.children && ret.props.children[1].props.children !== Strings.SEVERAL_USERS_TYPING) {
-                    const typingUsers = Object.keys(component.props.typingUsers).filter(id => id !== UserStore.getCurrentUser().id && !RelationshipStore.isBlocked(id));
+                if(ret.props.children && ret.props.children[1].props.children) {
+                    const typingUsers = Object.keys(component.props.typingUsers).filter(id => id !== DiscordModules.UserStore.getCurrentUser().id && !DiscordModules.RelationshipStore.isBlocked(id));
                     const names = ret.props.children[1].props.children.filter(child => child.type === "strong");
                     for (let i = 0; i < typingUsers.length; i++) {
-                        names[i].props.className = "typing-user-" + typingUsers[i];
+                        names[i].props.className = `typing-user-${typingUsers[i]}`;
                         names[i].props.onClick = e => {
-                            if (!document.querySelector(popoutSelector + "[data-user-id='" + typingUsers[i] + "']")) {
-                                if (document.querySelector(popoutSelector)) document.querySelector(popoutSelector).remove();
+                            if (!document.querySelector(`${popoutSelector}[data-user-id="${typingUsers[i]}"]`)) {
+                                document.querySelector(popoutSelector)?.remove();
                                 e.stopPropagation();
                                 BdApi.findModuleByProps("fetchProfile").fetchProfile(typingUsers[i]);
-                                Popouts.showUserPopout(document.querySelector(".typing-user-" + typingUsers[i]), UserStore.getUser(typingUsers[i])/* , {position: "top"} */);
-                                document.addEventListener("mousedown", remove, {once: true}); // Quick fix for popout not closing when it should
+                                Popouts.showUserPopout(document.querySelector(`.typing-user-${typingUsers[i]}`), DiscordModules.UserStore.getUser(typingUsers[i])/* , {position: "top"} */);
+                                document.addEventListener("mouseup", remove, {once: true}); // Quick fix for popout not closing when it should
                             }
                         }
                     }

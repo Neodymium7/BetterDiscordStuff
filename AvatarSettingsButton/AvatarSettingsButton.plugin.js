@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 1.0.1
+ * @version 1.0.2
  * @description Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions. (Helps reduce clutter, especially with plugins like GameActivityToggle)
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
@@ -39,7 +39,7 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.0.1",
+            "version": "1.0.2",
             "description": "Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions. (Helps reduce clutter, especially with plugins like GameActivityToggle)",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
@@ -70,16 +70,15 @@ module.exports = (() => {
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Library) => {
 
-    const { Settings, Tooltip } = Library;
+    const { DiscordSelectors, Settings, Tooltip } = Library;
     const { Dropdown, SettingPanel, Switch } = Settings;
 
-    const wrapperSelector = ".avatarWrapper-1B9FTW";
-    const avatarSelector = ".avatar-1EWyVD.wrapper-1VLyxH";
-    const settingsSelector = ".container-YkUktl .button-12Fmur:nth-last-child(1)";
+    const wrapperSelector = DiscordSelectors.AccountDetails.avatarWrapper;
+    const avatarSelector = DiscordSelectors.AccountDetails.avatar;
+    const settingsSelector = `${DiscordSelectors.AccountDetails.container} button:nth-last-child(1)`;
 
     const statusButton = document.querySelector(wrapperSelector);
-    let userAvatar = document.querySelector(avatarSelector);
-    let tooltip;
+    let userAvatar, tooltip;
 
     return class AvatarSettingsButton extends Plugin {
         constructor() {
@@ -93,7 +92,8 @@ module.exports = (() => {
         }
 
         onStart() {
-            BdApi.injectCSS("css", settingsSelector + "{display:none}" + wrapperSelector + "{pointer-events: none}" + avatarSelector + "{pointer-events: all}");
+            userAvatar = document.querySelector(avatarSelector);
+            BdApi.injectCSS("css", `${settingsSelector}{display:none} ${wrapperSelector}{pointer-events: none} ${avatarSelector}{pointer-events: all}`);
             this.addEventListeners();
             this.addTooltip();
         }
@@ -139,7 +139,7 @@ module.exports = (() => {
             const actions = [this.doNothing, this.openSettings, this.openContextMenu, this.openStatusPicker];
             userAvatar.addEventListener("click", actions[this.settings.click]);
             userAvatar.addEventListener("contextmenu", actions[this.settings.contextmenu]);
-            userAvatar.addEventListener("mousedown", e => {if (e.button === 1) actions[this.settings.middleclick](e);});
+            userAvatar.addEventListener("mouseup", e => {if (e.button === 1) actions[this.settings.middleclick](e);});
         }
 
         addTooltip() {
@@ -151,7 +151,7 @@ module.exports = (() => {
 
         refreshAvatar() {
             let newNode = userAvatar.cloneNode(true);
-            userAvatar.parentNode.replaceChild(newNode, userAvatar);
+            userAvatar.replaceWith(newNode);
             userAvatar = newNode;
         }
 

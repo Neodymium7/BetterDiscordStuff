@@ -1,5 +1,4 @@
-/* Adjusts the appearance of and adds hover/transition effects to UserBackgrounds badges 
-   Preview: https://cdn.discordapp.com/attachments/470024236497502218/937081774712958996/preview.gif */
+/* Adjusts the appearance of and adds hover/transition effects to UserBackgrounds badges */
 .UserBackgrounds-banner-badge {
     background-color: rgba(32, 34, 37, 0.8) !important;
     font-size: 11px;
@@ -33,4 +32,33 @@
 .accountProfileCard-lbN7n- .UserBackgrounds-banner-badge {
     display: none !important;
 }
-/* Get UserBackgrounds plugin here: https://github.com/Strencher/BetterDiscordStuff/blob/master/UserBackgrounds/UserBackgrounds.plugin.js */
+
+/* Display Badges at top like default, move arrows to middle */
+/* .UserBackgrounds-banner-badge {
+    transform: matrix(1, 0, 0, 1, 0, -5);
+}
+.userPopout-2j1gM4 .UserBackgrounds-banner-badge {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+}
+.root-8LYsGj .UserBackgrounds-banner-badge {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+}
+.UserBackgrounds-banner-arrow {
+    position: absolute;
+    top: calc(50% - 20px) !important;
+}
+.UserBackgrounds-banner-right {
+    transform: matrix(1, 0, 0, 1, 5, 0);
+}
+.UserBackgrounds-banner-left {
+    transform: matrix(1, 0, 0, 1, -5, 0);
+} */
+
+/* Just remove arrows ¯\_(ツ)_/¯ */
+/*.UserBackgrounds-banner-arrow {
+    display: none;
+} */

@@ -1,7 +1,7 @@
 /**
  * @name RoleMentionIcons
  * @author Neodymium
- * @version 1.0.0
+ * @version 1.0.1
  * @description Displays icons next to role mentions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js
@@ -39,7 +39,7 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.0.0",
+            "version": "1.0.1",
             "description": "Displays icons next to role mentions.",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js"
@@ -70,9 +70,9 @@ module.exports = (() => {
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Library) => {
 
-    const { Settings } = Library;
-    const { React, Patcher } = BdApi;
-    const { SettingPanel, Switch } = Settings;
+    const { SettingPanel, Switch } = Library.Settings;
+
+    const People = BdApi.findModuleByDisplayName("People");
 
     return class RoleMentionIcons extends Plugin {
         constructor() {
@@ -84,24 +84,13 @@ module.exports = (() => {
         }
 
         onStart() {
-            Patcher.after("RoleMentionIcons", BdApi.findModule(m => m?.default.displayName === "RoleMention"), "default", (_, [props], ret) => {
+            BdApi.Patcher.after("RoleMentionIcons", BdApi.findModule(m => m?.default.displayName === "RoleMention"), "default", (_, [props], ret) => {
                 const isEveryone = props.roleName === "@everyone";
                 const isHere = props.roleName === "@here";
                 if (!(!this.settings.everyone && isEveryone) && !(!this.settings.here && isHere)) {
-                    props.children.push(React.createElement("div", {
-                            "class": "role-mention-icon"
-                        },
-                        React.createElement("svg", {
-                                xmlns: "http://www.w3.org/2000/svg", width: "24", height: "24", viewBox: "0 0 24 24"
-                            },
-                            React.createElement("path", {fill: "currentColor", fillRule: "evenodd", d: "M14 8.006c0 2.205-1.794 4-4 4-2.205 0-4-1.795-4-4s1.794-4 4-4 4 1.795 4 4zm-12 11c0-3.533 3.29-6 8-6 4.711 0 8 2.467 8 6v1H2v-1z", clipRule: "evenodd"}),
-                            React.createElement("path", {fill: "currentColor", fillRule: "evenodd", d: "M14 8.006c0 2.205-1.794 4-4 4-2.205 0-4-1.795-4-4s1.794-4 4-4 4 1.795 4 4zm-12 11c0-3.533 3.29-6 8-6 4.711 0 8 2.467 8 6v1H2v-1z", clipRule: "evenodd"}),
-                            React.createElement("path", {fill: "currentColor", d: "M20 20.006h2v-1c0-2.563-1.73-4.565-4.479-5.47 1.541 1.377 2.48 3.27 2.48 5.47v1zM14.883 11.908A4.007 4.007 0 0018 8.006a4.006 4.006 0 00-3.503-3.97A5.977 5.977 0 0116 8.007a5.974 5.974 0 01-1.362 3.804c.082.032.164.064.245.098z"})
-                        )
-                    ));
+                    props.children.push(BdApi.React.createElement("div", {"class": "role-mention-icon"}, BdApi.React.createElement(People)));
                 }
             });
-
             BdApi.injectCSS("RoleMentionIcons", `
             .role-mention-icon svg {
                 position: relative;
@@ -116,16 +105,12 @@ module.exports = (() => {
         }
 
         onStop() {
-            Patcher.unpatchAll("RoleMentionIcons");
+            BdApi.Patcher.unpatchAll("RoleMentionIcons");
             BdApi.clearCSS("RoleMentionIcons");
         }
 
         getSettingsPanel() {
-            return SettingPanel.build(() => {
-                    this.saveSettings();
-                    this.onStop();
-                    this.onStart();
-                },
+            return SettingPanel.build(this.saveSettings.bind(this),
                 new Switch("@eveyone", "Shows icons on \"@everyone\" mentions.", this.settings.everyone, (i) => {this.settings.everyone = i;}),
                 new Switch("@here", "Shows icons on \"@here\" mentions.", this.settings.here, (i) => {this.settings.here = i;}),
 			);

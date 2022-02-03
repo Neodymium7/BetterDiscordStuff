@@ -1,2 +1,2 @@
 # BetterDiscordStuff
-Plugins and themes for BetterDiscord
+Plugins and CSS Snippets for BetterDiscord
