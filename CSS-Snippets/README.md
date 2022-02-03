@@ -9,7 +9,7 @@ Hides your own note section in the user popout and modal.
 
 ![popout](https://cdn.discordapp.com/attachments/470024236497502218/937857409555234866/popout-preview.png) <img src="https://cdn.discordapp.com/attachments/470024236497502218/937857409366499348/modal-preview.png" alt="modal" height="315" />
 
-## [UserBackgroundsImprovements](https://github.com/Neodymium7/BetterDiscordStuff/blob/main/CSS-Snippets/UserBackgroundImprovements.css)
+## [UserBackgroundsImprovements](https://github.com/Neodymium7/BetterDiscordStuff/blob/main/CSS-Snippets/UserBackgroundsImprovements.css)
 Adds hover effects to badges from the UserBackgrounds plugin, and makes them look more like the native badges.
 
 ![userbackgrounds](https://cdn.discordapp.com/attachments/470024236497502218/937081774712958996/preview.gif)  
