@@ -7,7 +7,7 @@ Alters the hover effects of hidden, locked, and full channels.
 ## [HideOwnNoteSection](https://github.com/Neodymium7/BetterDiscordStuff/blob/main/CSS-Snippets/HideOwnNoteSection.css)
 Hides your own note section in the user popout and modal.
 
-![popout](https://cdn.discordapp.com/attachments/470024236497502218/937857409555234866/popout-preview.png) <img src="https://cdn.discordapp.com/attachments/470024236497502218/937857409366499348/modal-preview.png" alt="modal" height="315" />
+![popout](https://cdn.discordapp.com/attachments/470024236497502218/937857409555234866/popout-preview.png) ![modal](https://cdn.discordapp.com/attachments/470024236497502218/939372197129113691/modal-preview.png)
 
 ## [UserBackgroundsImprovements](https://github.com/Neodymium7/BetterDiscordStuff/blob/main/CSS-Snippets/UserBackgroundsImprovements.css)
 Adds hover effects to badges from the UserBackgrounds plugin, and makes them look more like the native badges.
