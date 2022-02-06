@@ -7,6 +7,9 @@
     background-color: #2f3136;
     box-shadow: inset 0 1px 0 rgb(47 49 54 / 60%);
 }
+.theme-light .thin-31rlnD::-webkit-scrollbar-thumb{
+    background-color: #202225;
+}
 .theme-light .subtitle-3m-md1,
 .theme-light .colorHeaderSecondary-g5teka,
 .theme-light .guidelines-FvqqF2,
