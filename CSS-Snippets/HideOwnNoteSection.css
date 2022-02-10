@@ -1,16 +1,20 @@
 /* Hide Own Note Section */
-[data-user-id="USER-ID-HERE"] .bodyInnerWrapper-2bQs1k h3:nth-last-child(2), /* Popout */
+[data-user-id="USER-ID-HERE"] .bodyInnerWrapper-2bQs1k > h3:last-of-type, /* Popout */
 [data-user-id="USER-ID-HERE"] .note-Go5ZP2,
 [data-user-id="USER-ID-HERE"] .userBio-2-tr00 + h3, /* Modal */
 [data-user-id="USER-ID-HERE"] .note-3M15gE {
     display: none;
 }
-[data-user-id="USER-ID-HERE"] .rolesList-3uZoaa,
-[data-user-id="USER-ID-HERE"] .aboutMeSection-PUghFQ {  /* Fix margins */
+/* Fix Margins (Commented out portion for compatibility with ShowAllActivities Plugin) */
+[data-user-id="USER-ID-HERE"] .bodyInnerWrapper-2bQs1k > div:nth-last-of-type(2),
+/* [data-user-id="USER-ID-HERE"] .bodyInnerWrapper-2bQs1k > div:nth-last-of-type(2).ShowAllActivities-wrapper-wrapper > div, */
+[data-user-id="USER-ID-HERE"] .aboutMeSection-PUghFQ {
     margin-bottom: 0px;
+    padding-bottom: 0px;
 }
-[data-user-id="USER-ID-HERE"] .bodyInnerWrapper-2bQs1k h3:nth-child(1) { /* Fix margins part II */
+[data-user-id="USER-ID-HERE"] .bodyInnerWrapper-2bQs1k > :first-child {
     margin-top: 16px;
 }
 
 /* Replace USER-ID-HERE with your User ID */
+/* You can also delete the parts in square brackets to hide ALL note sections :D */

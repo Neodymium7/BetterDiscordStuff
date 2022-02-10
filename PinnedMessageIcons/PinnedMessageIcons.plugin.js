@@ -35,10 +35,10 @@ module.exports = class PinnedMessageIcons {
                 ));
             }
         });
-    };
+    }
 
     stop() {
         BdApi.Patcher.unpatchAll("PinnedMessageIcons");
         BdApi.clearCSS("PinnedMessageIcons");
-    };
+    }
 }
