@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.0.2
+ * @version 1.0.3
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
@@ -39,7 +39,7 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.0.2",
+            "version": "1.0.3",
             "description": "Opens the user's popout when clicking on a name in the typing area.",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js"
@@ -79,7 +79,7 @@ module.exports = (() => {
 
     function remove(e) { // Quick fix for popout not closing when it should
         const isInPopout = document.querySelector("#ZeresPluginLibraryPopouts").contains(e.target);
-        const isName = document.querySelector(nameSelector) ? document.querySelector(nameSelector).isEqualNode(e.target) : false;
+        const isName = Array.from(document.querySelectorAll(nameSelector)).some(node => node.isEqualNode(e.target));
 
         if (!isInPopout && !isName) {
             document.querySelector(popoutSelector)?.remove();
@@ -104,7 +104,7 @@ module.exports = (() => {
 
         onStart() {
             this.patch();
-            BdApi.injectCSS("TypingUsersPopouts", `${nameSelector}{cursor: pointer;}`);
+            BdApi.injectCSS("TypingUsersPopouts", `${nameSelector}{cursor: pointer;} ${nameSelector}:hover{text-decoration: underline;}`);
         }
 
         onStop() {
@@ -115,7 +115,7 @@ module.exports = (() => {
         async patch() {
             const TypingUsers = await ReactComponents.getComponentByName("TypingUsers", DiscordSelectors.Typing.typing);
             Patcher.after(TypingUsers.component.prototype, 'render', (component, [props], ret) => {
-                if(ret.props.children && ret.props.children[1].props.children) {
+                if(ret.props.children && Array.isArray(ret.props.children[1].props.children)) {
                     const typingUsers = Object.keys(component.props.typingUsers).filter(id => id !== DiscordModules.UserStore.getCurrentUser().id && !DiscordModules.RelationshipStore.isBlocked(id));
                     const names = ret.props.children[1].props.children.filter(child => child.type === "strong");
                     for (let i = 0; i < typingUsers.length; i++) {
