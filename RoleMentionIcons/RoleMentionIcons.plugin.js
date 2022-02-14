@@ -1,7 +1,7 @@
 /**
  * @name RoleMentionIcons
  * @author Neodymium
- * @version 1.0.1
+ * @version 1.0.2
  * @description Displays icons next to role mentions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js
@@ -39,11 +39,14 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.0.1",
+            "version": "1.0.2",
             "description": "Displays icons next to role mentions.",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js"
         },
+        "changelog": [
+            {"title": "Fixed", "type": "fixed", "items": ["Icon sometimes displays twice"]},
+        ],
         "main": "index.js"
     };
 
@@ -87,7 +90,7 @@ module.exports = (() => {
             BdApi.Patcher.after("RoleMentionIcons", BdApi.findModule(m => m?.default.displayName === "RoleMention"), "default", (_, [props], ret) => {
                 const isEveryone = props.roleName === "@everyone";
                 const isHere = props.roleName === "@here";
-                if (!(!this.settings.everyone && isEveryone) && !(!this.settings.here && isHere)) {
+                if (!props.children.some(child => child.props?.class === "role-mention-icon") && (this.settings.everyone || !isEveryone) && (this.settings.here || !isHere)) {
                     props.children.push(BdApi.React.createElement("div", {"class": "role-mention-icon"}, BdApi.React.createElement(People)));
                 }
             });

@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.0.3
+ * @version 1.1.0
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
@@ -39,11 +39,14 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.0.3",
+            "version": "1.1.0",
             "description": "Opens the user's popout when clicking on a name in the typing area.",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js"
         },
+        "changelog": [
+            {"title": "Improved", "type": "improved", "items": ["Popouts now display above the names", "Added a loading popout while fetching the profile if needed", "Rewrote a bit of the code, should be more efficient with less issues"]},
+        ],
         "main": "index.js"};
 
     return !global.ZeresPluginLibrary ? class {
@@ -70,31 +73,27 @@ module.exports = (() => {
         const plugin = (Plugin, Library) => {
 
     const { DiscordModules, DiscordSelectors, Patcher, Popouts, ReactComponents } = Library;
+
+    const fetchProfile = BdApi.findModuleByProps("fetchProfile").fetchProfile;
+    const getUserProfile = BdApi.findModuleByProps("getUserProfile").getUserProfile;
+
+    const LoadingPopout = BdApi.findModuleByDisplayName("LoadingPopout");
     
     const nameSelector = `${DiscordSelectors.Typing.typing} > span > strong`;
-    const popoutSelector = DiscordSelectors.UserPopout.userPopout;
-    const rolePopoutSelector = ".container-2O1UgZ";
-    const tooltipSelector = DiscordSelectors.Tooltips.tooltip;
-    const avatarSelector = ".avatarWrapper-eenWra";
+    const avatarSelector = `${DiscordSelectors.UserPopout.userPopout} > :nth-child(2)`;
+
+    let currentPopoutId;
 
     function remove(e) { // Quick fix for popout not closing when it should
-        const isInPopout = document.querySelector("#ZeresPluginLibraryPopouts").contains(e.target);
+        const inPopout = document.querySelector("#ZeresPluginLibraryPopouts").contains(e.target);
         const isName = Array.from(document.querySelectorAll(nameSelector)).some(node => node.isEqualNode(e.target));
 
-        if (!isInPopout && !isName) {
-            document.querySelector(popoutSelector)?.remove();
-            document.querySelector(rolePopoutSelector)?.remove();
-            document.querySelector(tooltipSelector)?.remove();
-        }
+        if (!inPopout && !isName) Popouts.closePopout(currentPopoutId);
         else if (document.querySelector(avatarSelector).contains(e.target) && e.button === 0) {
             document.querySelector(avatarSelector).click();
-            document.querySelector(popoutSelector).remove();
-            document.querySelector(rolePopoutSelector)?.remove();
-            document.querySelector(tooltipSelector)?.remove();
+            Popouts.closePopout(currentPopoutId);
         }
-        else if (!isName) {
-            document.addEventListener("mouseup", remove, {once: true});
-        }
+        else if (!isName) document.addEventListener("mouseup", remove, {once: true});
     }
 
     return class TypingUsersPopouts extends Plugin {
@@ -120,14 +119,18 @@ module.exports = (() => {
                     const names = ret.props.children[1].props.children.filter(child => child.type === "strong");
                     for (let i = 0; i < typingUsers.length; i++) {
                         names[i].props.className = `typing-user-${typingUsers[i]}`;
-                        names[i].props.onClick = e => {
-                            if (!document.querySelector(`${popoutSelector}[data-user-id="${typingUsers[i]}"]`)) {
-                                document.querySelector(popoutSelector)?.remove();
-                                e.stopPropagation();
-                                BdApi.findModuleByProps("fetchProfile").fetchProfile(typingUsers[i]);
-                                Popouts.showUserPopout(document.querySelector(`.typing-user-${typingUsers[i]}`), DiscordModules.UserStore.getUser(typingUsers[i])/* , {position: "top"} */);
-                                document.addEventListener("mouseup", remove, {once: true}); // Quick fix for popout not closing when it should
+                        names[i].props.onClick = async e => {
+                            if (document.querySelector(`#ZeresPluginLibraryPopouts ${DiscordSelectors.UserPopout.userPopout}[data-user-id="${typingUsers[i]}"]`)) return;
+                            const name = document.querySelector(`.typing-user-${typingUsers[i]}`);
+                            e.stopPropagation();
+                            await Popouts.closePopout(currentPopoutId);
+                            if (!getUserProfile(typingUsers[i])) {
+                                const loadingId = Popouts.openPopout(name, {position: "top", align: "left", spacing: 8, render: () => BdApi.React.createElement(LoadingPopout)});
+                                await fetchProfile(typingUsers[i]);
+                                Popouts.closePopout(loadingId);
                             }
+                            currentPopoutId = Popouts.openPopout(name, {position: "top", align: "left", nudgeAlignIntoViewport: true, spacing: 8, animation: Popouts.AnimationTypes.TRANSLATE, render: () => BdApi.React.createElement(DiscordModules.UserPopout, {userId: typingUsers[i], guildId: DiscordModules.SelectedGuildStore.getGuildId(), channelId: DiscordModules.SelectedChannelStore.getChannelId()})});
+                            document.addEventListener("mouseup", remove, {once: true}); // Quick fix for popout not closing when it should
                         }
                     }
                 }
