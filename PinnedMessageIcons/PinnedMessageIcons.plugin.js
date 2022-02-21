@@ -7,15 +7,12 @@
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/PinnedMessageIcons/PinnedMessageIcons.plugin.js
  */
 
-const TooltipContainer = BdApi.findModuleByProps("TooltipContainer").TooltipContainer;
 const Pin = BdApi.findModuleByDisplayName("Pin");
 
 module.exports = class PinnedMessageIcons {
     start() {
         BdApi.injectCSS("PinnedMessageIcons", `
         .pinned-message-icon {
-            width: 20px;
-            height: 20px;
             position: absolute;
             bottom: calc(50% - 10px);
             right: 16px;
@@ -26,13 +23,7 @@ module.exports = class PinnedMessageIcons {
             const isPinned = props.childrenMessageContent.props.message.pinned;
             if (isPinned && Array.isArray(ret.props.children.props.children) && !props["data-list-item-id"].includes("pin")) {
                 ret.props.children.props.className += " pinned-message";
-                ret.props.children.props.children.push(BdApi.React.createElement("div", 
-                    {className: "pinned-message-icon"},
-                    BdApi.React.createElement(TooltipContainer, 
-                        {text: "Pinned", position: "top"},
-                        BdApi.React.createElement(Pin, {width: "20px", height: "20px"})
-                    )
-                ));
+                ret.props.children.props.children.push(BdApi.React.createElement(Pin, {"class": "pinned-message-icon", width: "20px", height: "20px"}));
             }
         });
     }

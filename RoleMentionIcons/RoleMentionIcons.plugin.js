@@ -87,24 +87,19 @@ module.exports = (() => {
         }
 
         onStart() {
+            BdApi.injectCSS("RoleMentionIcons", `
+            .role-mention-icon {
+                position: relative;
+                top: 2px;
+                margin-left: 4px;
+            }`);
             BdApi.Patcher.after("RoleMentionIcons", BdApi.findModule(m => m?.default.displayName === "RoleMention"), "default", (_, [props], ret) => {
                 const isEveryone = props.roleName === "@everyone";
                 const isHere = props.roleName === "@here";
                 if (!props.children.some(child => child.props?.class === "role-mention-icon") && (this.settings.everyone || !isEveryone) && (this.settings.here || !isHere)) {
-                    props.children.push(BdApi.React.createElement("div", {"class": "role-mention-icon"}, BdApi.React.createElement(People)));
+                    props.children.push(BdApi.React.createElement(People, {"class": "role-mention-icon", width: 14, height: 14}));
                 }
             });
-            BdApi.injectCSS("RoleMentionIcons", `
-            .role-mention-icon svg {
-                position: relative;
-                bottom: -2px;
-                width: 14px;
-                height: 14px;
-                margin-left: 4px;
-            }
-            .role-mention-icon {
-                display: inline;
-            }`);
         }
 
         onStop() {
