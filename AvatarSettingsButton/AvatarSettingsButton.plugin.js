@@ -1,8 +1,8 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 1.0.2
- * @description Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions. (Helps reduce clutter, especially with plugins like GameActivityToggle)
+ * @version 1.0.3
+ * @description Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  */
@@ -39,11 +39,14 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.0.2",
-            "description": "Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions. (Helps reduce clutter, especially with plugins like GameActivityToggle)",
+            "version": "1.0.3",
+            "description": "Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
         },
+        "changelog": [
+            {"title": "Fixed", "type": "fixed", "items": ["Fixed an issue with saving settings, should now work as expected"]},
+        ],
         "main": "index.js"
     };
 
@@ -173,7 +176,7 @@ module.exports = (() => {
                     {label: "Settings Context Menu", value: 2},
                     {label: "Status Picker (Default)", value: 3},
                     {label: "Nothing", value: 0}
-                ], i => {this.settings.middleclick = i;}),
+                ], i => {this.settings.contextmenu = i;}),
                 new Dropdown("Middle Click", "What opens when middle clicking on the username.", this.settings.middleclick, [
                     {label: "Settings", value: 1},
                     {label: "Settings Context Menu (Default)", value: 2},
