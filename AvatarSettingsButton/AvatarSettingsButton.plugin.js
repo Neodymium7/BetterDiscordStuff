@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 1.0.3
+ * @version 1.0.4
  * @description Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
@@ -39,13 +39,13 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.0.3",
+            "version": "1.0.4",
             "description": "Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
         },
         "changelog": [
-            {"title": "Fixed", "type": "fixed", "items": ["Fixed an issue with saving settings, should now work as expected"]},
+            {"title": "Fixed", "type": "fixed", "items": ["Fixed actions not working after status is automatically changed to idle"]},
         ],
         "main": "index.js"
     };
@@ -73,7 +73,7 @@ module.exports = (() => {
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Library) => {
 
-    const { DiscordSelectors, Settings, Tooltip } = Library;
+    const { DiscordSelectors, DiscordClasses, Settings, Tooltip } = Library;
     const { Dropdown, SettingPanel, Switch } = Settings;
 
     const wrapperSelector = DiscordSelectors.AccountDetails.avatarWrapper;
@@ -99,6 +99,17 @@ module.exports = (() => {
             BdApi.injectCSS("css", `${settingsSelector}{display:none} ${wrapperSelector}{pointer-events: none} ${avatarSelector}{pointer-events: all}`);
             this.addEventListeners();
             this.addTooltip();
+        }
+
+        /* Fix avatar being reset on automatic idle status */
+        observer(mutation) {
+            mutation.removedNodes.forEach((node) => {
+                if (node.classList?.contains(DiscordClasses.AccountDetails.avatar)) {
+                    userAvatar = document.querySelector(avatarSelector);
+                    this.addEventListeners();
+                    this.addTooltip();
+                }
+            });
         }
 
         onStop() {
@@ -162,8 +173,6 @@ module.exports = (() => {
             return SettingPanel.build(() => {
                     this.saveSettings();
                     this.refreshAvatar();
-                    this.addEventListeners();
-                    this.addTooltip();
                 },
                 new Dropdown("Click", "What opens when clicking on the user avatar. REMEMBER If nothing is bound to open settings, you can use the Ctrl + , shortcut.", this.settings.click, [
                     {label: "Settings (Default)", value: 1},
