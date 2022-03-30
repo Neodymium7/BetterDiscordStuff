@@ -45,17 +45,17 @@ module.exports = (() => {
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js"
         },
         "changelog": [
-            {"title": "Fixed", "type": "fixed", "items": ["Icon sometimes displays twice"]},
+            { "title": "Fixed", "type": "fixed", "items": ["Icon sometimes displays twice"] },
         ],
         "main": "index.js"
     };
 
     return !global.ZeresPluginLibrary ? class {
-        constructor() {this._config = config;}
-        getName() {return config.info.name;}
-        getAuthor() {return config.info.authors.map(a => a.name).join(", ");}
-        getDescription() {return config.info.description;}
-        getVersion() {return config.info.version;}
+        constructor() { this._config = config; }
+        getName() { return config.info.name; }
+        getAuthor() { return config.info.authors.map(a => a.name).join(", "); }
+        getDescription() { return config.info.description; }
+        getVersion() { return config.info.version; }
         load() {
             BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
                 confirmText: "Download Now",
@@ -68,55 +68,68 @@ module.exports = (() => {
                 }
             });
         }
-        start() {}
-        stop() {}
+        start() { }
+        stop() { }
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Library) => {
+            const { DiscordModules } = Api;
+            const { SettingPanel, Switch } = Library.Settings;
+            const People = BdApi.findModuleByDisplayName("People");
+            const RoleMention = BdApi.findModule(m => m?.default.displayName === "RoleMention")
+            const GuildStore = DiscordModules.GuildStore;
 
-    const { SettingPanel, Switch } = Library.Settings;
+            // From https://github.com/rauenzi/BetterDiscordAddons/blob/692abbd1877ff6d837dc8a606767d019e52ebe23/Plugins/RoleMembers/RoleMembers.plugin.js#L60-L61
+            const from = arr => arr && arr.length > 0 && Object.assign(...arr.map(([k, v]) => ({ [k]: v })));
+            const filter = (obj, predicate) => from(Object.entries(obj).filter((o) => { return predicate(o[1]); }));
 
-    const People = BdApi.findModuleByDisplayName("People");
-
-    return class RoleMentionIcons extends Plugin {
-        constructor() {
-            super();
-            this.defaultSettings = {
-                everyone: true,
-                here: true
-            };
-        }
-
-        onStart() {
-            BdApi.injectCSS("RoleMentionIcons", `
-            .role-mention-icon {
-                position: relative;
-                top: 2px;
-                margin-left: 4px;
-            }`);
-            BdApi.Patcher.after("RoleMentionIcons", BdApi.findModule(m => m?.default.displayName === "RoleMention"), "default", (_, [props], ret) => {
-                const isEveryone = props.roleName === "@everyone";
-                const isHere = props.roleName === "@here";
-                if (!props.children.some(child => child.props?.class === "role-mention-icon") && (this.settings.everyone || !isEveryone) && (this.settings.here || !isHere)) {
-                    props.children.push(BdApi.React.createElement(People, {"class": "role-mention-icon", width: 14, height: 14}));
+            return class RoleMentionIcons extends Plugin {
+                constructor() {
+                    super();
+                    this.defaultSettings = {
+                        everyone: true,
+                        here: true
+                    };
                 }
-            });
-        }
 
-        onStop() {
-            BdApi.Patcher.unpatchAll("RoleMentionIcons");
-            BdApi.clearCSS("RoleMentionIcons");
-        }
+                onStart() {
+                    BdApi.injectCSS("RoleMentionIcons", `
+                        .role-mention-icon {
+                            position: relative;
+                            top: 2px;
+                            margin-left: 4px;
+                        }`);
+                    BdApi.Patcher.after("RoleMentionIcons", RoleMention, "default", (_, [props], ret) => {
+                        const isEveryone = props.roleName === "@everyone";
+                        const isHere = props.roleName === "@here";
+                        let role = filter(GuildStore.getGuild(props.guildId)?.roles, r => r.id === props.roleId);
+                        role = role[Object.keys(role)[0]];
+                        const hasIcon = role?.icon;
+                        console.log(`https://cdn.discordapp.com/role-icons/${role.id}/${role?.icon}.webp?size=24&quality=lossless`);
+                        if (!props.children.some(child => child.props?.class === "role-mention-icon") && (this.settings.everyone || !isEveryone) && (this.settings.here || !isHere)) {
+                            if (hasIcon) {
+                                props.children.push(BdApi.React.createElement("img", { "class": "role-mention-icon", style: { width: 14, height: 14, borderRadius: "3px", objectFit: "contain" }, src: `https://cdn.discordapp.com/role-icons/${role.id}/${role?.icon}.webp?size=24&quality=lossless` }));
+                            } else {
+                                props.children.push(BdApi.React.createElement(People, { "class": "role-mention-icon", width: 14, height: 14 }));
+                            }
+                        }
+                    });
+                }
 
-        getSettingsPanel() {
-            return SettingPanel.build(this.saveSettings.bind(this),
-                new Switch("@eveyone", "Shows icons on \"@everyone\" mentions.", this.settings.everyone, (i) => {this.settings.everyone = i;}),
-                new Switch("@here", "Shows icons on \"@here\" mentions.", this.settings.here, (i) => {this.settings.here = i;}),
-			);
-        }
+                onStop() {
+                    BdApi.Patcher.unpatchAll("RoleMentionIcons");
+                    BdApi.clearCSS("RoleMentionIcons");
+                }
 
-    };
+                getSettingsPanel() {
+                    return SettingPanel.build(this.saveSettings.bind(this),
+                        new Switch("@eveyone", "Shows icons on \"@everyone\" mentions.", this.settings.everyone, (i) => { this.settings.everyone = i; }),
+                        new Switch("@here", "Shows icons on \"@here\" mentions.", this.settings.here, (i) => { this.settings.here = i; }),
+                    );
+                }
 
-};
+            };
+
+        };
         return plugin(Plugin, Api);
     })(global.ZeresPluginLibrary.buildPlugin(config));
 })();
