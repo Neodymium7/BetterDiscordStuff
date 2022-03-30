@@ -87,7 +87,8 @@ module.exports = (() => {
                     super();
                     this.defaultSettings = {
                         everyone: true,
-                        here: true
+                        here: true,
+                        showRoleIcons: true
                     };
                 }
 
@@ -104,11 +105,8 @@ module.exports = (() => {
                         let role = filter(GuildStore.getGuild(props.guildId)?.roles, r => r.id === props.roleId);
                         role = role[Object.keys(role)[0]];
                         if (!props.children.some(child => child.props?.class === "role-mention-icon") && (this.settings.everyone || !isEveryone) && (this.settings.here || !isHere)) {
-                            if (role?.icon) {
-                                props.children.push(BdApi.React.createElement("img", { "class": "role-mention-icon", style: { width: 14, height: 14, borderRadius: "3px", objectFit: "contain" }, src: `https://cdn.discordapp.com/role-icons/${role.id}/${role?.icon}.webp?size=24&quality=lossless` }));
-                            } else {
-                                props.children.push(BdApi.React.createElement(People, { "class": "role-mention-icon", width: 14, height: 14 }));
-                            }
+                            if (role?.icon && this.settings.showRoleIcons) props.children.push(BdApi.React.createElement("img", { "class": "role-mention-icon", style: { width: 14, height: 14, borderRadius: "3px", objectFit: "contain" }, src: `https://cdn.discordapp.com/role-icons/${role.id}/${role?.icon}.webp?size=24&quality=lossless` }));
+                            else props.children.push(BdApi.React.createElement(People, { "class": "role-mention-icon", width: 14, height: 14 }));
                         }
                     });
                 }
@@ -120,8 +118,9 @@ module.exports = (() => {
 
                 getSettingsPanel() {
                     return SettingPanel.build(this.saveSettings.bind(this),
-                        new Switch("@eveyone", "Shows icons on \"@everyone\" mentions.", this.settings.everyone, (i) => { this.settings.everyone = i; }),
+                        new Switch("@everyone", "Shows icons on \"@everyone\" mentions.", this.settings.everyone, (i) => { this.settings.everyone = i; }),
                         new Switch("@here", "Shows icons on \"@here\" mentions.", this.settings.here, (i) => { this.settings.here = i; }),
+                        new Switch("Role Image", "Shows the image of the role on mentions.", this.settings.showRoleIcons, (i) => { this.settings.showRoleIcons = i; })
                     );
                 }
 
