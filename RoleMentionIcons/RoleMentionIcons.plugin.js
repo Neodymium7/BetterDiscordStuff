@@ -103,10 +103,8 @@ module.exports = (() => {
                         const isHere = props.roleName === "@here";
                         let role = filter(GuildStore.getGuild(props.guildId)?.roles, r => r.id === props.roleId);
                         role = role[Object.keys(role)[0]];
-                        const hasIcon = role?.icon;
-                        console.log(`https://cdn.discordapp.com/role-icons/${role.id}/${role?.icon}.webp?size=24&quality=lossless`);
                         if (!props.children.some(child => child.props?.class === "role-mention-icon") && (this.settings.everyone || !isEveryone) && (this.settings.here || !isHere)) {
-                            if (hasIcon) {
+                            if (role?.icon) {
                                 props.children.push(BdApi.React.createElement("img", { "class": "role-mention-icon", style: { width: 14, height: 14, borderRadius: "3px", objectFit: "contain" }, src: `https://cdn.discordapp.com/role-icons/${role.id}/${role?.icon}.webp?size=24&quality=lossless` }));
                             } else {
                                 props.children.push(BdApi.React.createElement(People, { "class": "role-mention-icon", width: 14, height: 14 }));
