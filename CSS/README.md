@@ -24,5 +24,5 @@ Adds a highlight to pinned messages similar to mentions.
 ## [AddServerDarkMode](https://github.com/Neodymium7/BetterDiscordStuff/blob/main/CSS-Snippets/AddServerDarkMode.css)
 Adds a dark theme to the add/join server server modal.
 
-![addserverdark](https://cdn.discordapp.com/attachments/470024236497502218/939688922173309008/addserverdark.gif)  
+![addserverdark](https://cdn.discordapp.com/attachments/470024236497502218/959590244171255808/addserverdark.gif)  
 ***(Note: Messes up colors on light theme)***

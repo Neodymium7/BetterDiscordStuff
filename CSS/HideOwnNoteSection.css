@@ -5,9 +5,9 @@
 [data-user-id="USER-ID-HERE"] .note-3M15gE {
     display: none;
 }
-/* Fix Margins (Commented out portion for compatibility with ShowAllActivities Plugin) */
+/* Fix Margins */
 [data-user-id="USER-ID-HERE"] .bodyInnerWrapper-2bQs1k > div:nth-last-of-type(2),
-/* [data-user-id="USER-ID-HERE"] .bodyInnerWrapper-2bQs1k > div:nth-last-of-type(2).ShowAllActivities-wrapper-wrapper > div, */
+[data-user-id="USER-ID-HERE"] .bodyInnerWrapper-2bQs1k > div:nth-last-of-type(2).ShowAllActivities-wrapper-wrapper > div, /* for compatibility with ShowAllActivities plugin */
 [data-user-id="USER-ID-HERE"] .aboutMeSection-PUghFQ {
     margin-bottom: 0px;
     padding-bottom: 0px;
