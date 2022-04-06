@@ -418,7 +418,6 @@ module.exports = (() => {
                 async patchMemberListItem() {
                     const MemberListItem = await ReactComponents.getComponentByName("MemberListItem", `${DiscordSelectors.MemberList.members} > div > div:not(:first-child)`);
                     BdApi.Patcher.after("VoiceActivityIcons", MemberListItem.component.prototype, "render", (thisObject, _, ret) => {
-                        console.log(ret);
                         ret.props.children = React.createElement(VoiceIcon, {userId: thisObject.props.user.id, currentChannelColor: this.settings.currentChannelColor});
                     });
                 }
