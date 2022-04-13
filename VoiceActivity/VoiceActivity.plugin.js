@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.0
+ * @version 1.0.1
  * @description Shows icons on the member list and info in User Popouts when somemone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
@@ -39,11 +39,14 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.0",
+            "version": "1.0.1",
             "description": "Shows icons on the member list and info in User Popouts when somemone is in a voice channel.",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
         },
+        "changelog": [
+            {"title": "Fixed", "type": "fixed", "items": ["A few minor fixes", "Attempted to fix some issues with crashing"]},
+        ],
         "main": "index.js"
     };
 
@@ -71,7 +74,7 @@ module.exports = (() => {
         const plugin = (Plugin, Library) => {
 
             const { DiscordModules, DiscordSelectors, ContextMenu, ReactComponents, Settings } = Library;
-            const { ChannelStore, ChannelActions, GuildStore, GuildActions, NavigationUtils, UserStore, React } = DiscordModules;
+            const { ChannelStore, SelectedChannelStore, ChannelActions, GuildStore, GuildActions, NavigationUtils, UserStore, React } = DiscordModules;
             const { SettingPanel, Switch } = Settings;
             const VoiceStateStore = BdApi.findModuleByProps("getVoiceStateForUser");
             const Dispatcher = BdApi.findModuleByProps("dirtyDispatch");
@@ -81,6 +84,7 @@ module.exports = (() => {
             const Speaker = BdApi.findModuleByDisplayName("Speaker");
             const People = BdApi.findModuleByDisplayName("People");
             const CallJoin = BdApi.findModuleByDisplayName("CallJoin");
+            const Stage = BdApi.findModuleByDisplayName("Stage");
 
             const defaultGroupIcon = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAABgmlDQ1BJQ0MgUHJvZmlsZQAAKM+VkTtIw1AYhb9WxQcVBzuIOGSoThZERRyliiIolFrB12CS2io0sSQtLo6Cq+DgY7Hq4OKsq4OrIAg+QBydnBRdROJ/U6FFqOCFcD/OzTnce34IFrOm5db2gGXnncRYTJuZndPqn6mlBmikTzfd3OTUaJKq6+OWgNpvoiqL/63m1JJrQkATHjJzTl54UXhgLZ9TvCscNpf1lPCpcLcjFxS+V7pR4hfFGZ+DKjPsJBPDwmFhLVPBRgWby44l3C8cSVm25AdnSpxSvK7YyhbMn3uqF4aW7OkppcvXwRjjTBJHw6DAClnyRGW3RXFJyHmsir/d98fFZYhrBVMcI6xioft+1Ax+d+um+3pLSaEY1D153lsn1G/D15bnfR563tcR1DzChV32rxZh8F30rbIWOYCWDTi7LGvGDpxvQttDTnd0X1LzD6bT8HoiY5qF1mtomi/19nPO8R0kpauJK9jbh66MZC9UeXdDZW9//uP3R+wbNjlyjzeozyoAAABgUExURVhl8oGK9LW7+erq/f///97i+7/F+mx38qGo92Ft8mFv8ujs/IuW9PP2/Wx384GM9Kux+MDF+urs/d/i+7S9+Jae9uDj/Jad9srO+tXY+4yU9aqy+MDE+qGn9/T1/neC9Liz/RcAAAAJcEhZcwAACxMAAAsTAQCanBgAAATqaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNC40LjAtRXhpdjIiPg0KICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPg0KICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOkdJTVA9Imh0dHA6Ly93d3cuZ2ltcC5vcmcveG1wLyIgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1wTU06RG9jdW1lbnRJRD0iZ2ltcDpkb2NpZDpnaW1wOmIzMjk5M2JmLTliZTUtNGJmMy04ZWEwLWY3ZDkzNTMyMTY2YiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowNjhkOWE3MS1lYWU3LTRmZjAtYmMxZS04MGUwYmMxMTFkZDUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDplZjU1ZGE0YS0wZTBhLTRjNTctODdmOC1lMmFmMGUyZGEzOGUiIGRjOkZvcm1hdD0iaW1hZ2UvcG5nIiBHSU1QOkFQST0iMi4wIiBHSU1QOlBsYXRmb3JtPSJXaW5kb3dzIiBHSU1QOlRpbWVTdGFtcD0iMTY0ODk0NDg1NjM4ODc5MSIgR0lNUDpWZXJzaW9uPSIyLjEwLjI0IiB0aWZmOk9yaWVudGF0aW9uPSIxIiB4bXA6Q3JlYXRvclRvb2w9IkdJTVAgMi4xMCI+DQogICAgICA8eG1wTU06SGlzdG9yeT4NCiAgICAgICAgPHJkZjpTZXE+DQogICAgICAgICAgPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDpjaGFuZ2VkPSIvIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ3NmFhOGE3LTVhNGEtNDcyNS05YTBjLWU1NzVmMzE1MzFmOCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iR2ltcCAyLjEwIChXaW5kb3dzKSIgc3RFdnQ6d2hlbj0iMjAyMi0wNC0wMlQxNzoxNDoxNiIgLz4NCiAgICAgICAgPC9yZGY6U2VxPg0KICAgICAgPC94bXBNTTpIaXN0b3J5Pg0KICAgIDwvcmRmOkRlc2NyaXB0aW9uPg0KICA8L3JkZjpSREY+DQo8L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9InIiPz6JoorbAAABV0lEQVRoQ+3W23KDIBAGYIOYBk20prWNPb7/W3Z3WQ9lGmeKe/l/N/+IzAYDggUAAAAAAMB/HVzpfXV8kIuTpp3gvHJ8WTcx7VRanlSBrs+aVubxMxn7RdNGq6VVR02Pmjb6WHjCQ+80baxmgDXUxA/FaSPWXUxtctOCVF2Z2uSmhauUnT1RU61p49cq9b6npoOmDV4yK7xN8G8abhfPsXIkq7MxfdGKOt0qBuOtoqjnZ3BcN9BmZ1qftP2L91cXt4ezJszCq7uVtENfytEN1ocZLZlRJ1iNQ2zvNHd6oyWfamLpd809wofWTBxllY6a+UJyFCzkPWsve9+35N9fG/k+nZySufjkveuTOvCuzZmp/WN+F1/859AjSuahLW0LD/2kmWdjBtiNunxr5kmOyhR/VfAk5H9dxDr3TX2kcw6psmHqI51zSJUNUx/pDAAAAAAAsKkofgB06RBbh+d86AAAAABJRU5ErkJggg==";
 
@@ -116,24 +120,30 @@ module.exports = (() => {
                 let text, subtext, icon, channelPath;
                 const className = channel.id === VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser().id)?.channelId && props.currentChannelColor ? "voiceActivityIcon voiceActivityIcon-currentCall" : "voiceActivityIcon";
 
+                if (guild) {
+                    text = guild.name;
+                    subtext = channel.name;
+                    icon = Speaker;
+                    channelPath = `/channels/${guild.id}/${channel.id}`;
+                }
+                else {
+                    text = channel.name;
+                    subtext = "Voice Call";
+                    icon = CallJoin;
+                    channelPath = `/channels/@me/${channel.id}`;
+                }
                 switch (channel.type) {
                     case 1:
                         text = UserStore.getUser(channel.recipients[0]).username;
                         subtext = "Private Call";
-                        icon = CallJoin;
-                        channelPath = `/channels/@me/${channel.id}`;
-                        break;
-                    case 2:
-                        text = guild.name;
-                        subtext = channel.name;
-                        icon = Speaker;
-                        channelPath = `/channels/${guild.id}/${channel.id}`;
                         break;
                     case 3:
                         text = channel.name ? channel.name : groupDMName(channel.recipients);
                         subtext = "Group Call";
                         icon = People;
-                        channelPath = `/channels/@me/${channel.id}`;
+                        break;
+                    case 13:
+                        icon = Stage;
                 }
                 
                 return React.createElement("div", 
@@ -177,33 +187,39 @@ module.exports = (() => {
                 let headerText, text, viewButton, joinButton, icon, channelPath, image;
                 const members = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id)).map(id => UserStore.getUser(id));
                 const inCurrentChannel = channel.id === VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser().id)?.channelId;
+                const channelSelected = channel.id === SelectedChannelStore.getChannelId();
                 const isCurrentUser = props.userId === UserStore.getCurrentUser().id;
 
+                if (guild) {
+                    headerText = "In a Voice Channel";
+                    text = [React.createElement("div", {style: {"font-weight": "600"}}, guild.name), React.createElement("div", {style: {"font-weight": "400"}}, channel.name)];
+                    viewButton = "View Channel";
+                    joinButton = inCurrentChannel ? "Already in Channel" : "Join Channel";
+                    icon = Speaker;
+                    channelPath = `/channels/${guild.id}/${channel.id}`;
+                    image = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=96`;
+                }
+                else {
+                    headerText = "In a Voice Call";
+                    text = React.createElement("div", {style: {"font-weight": "600"}}, channel.name);
+                    viewButton = "View Call";
+                    joinButton = inCurrentChannel ? "Already in Call" : "Join Call";
+                    icon = CallJoin;
+                    channelPath = `/channels/@me/${channel.id}`;
+                    image = channel.icon ? `https://cdn.discordapp.com/channel-icons/${channel.id}/${channel.icon}.webp?size=32` : defaultGroupIcon;
+                }
                 switch (channel.type) {
                     case 1:
-                        headerText = "In A Private Call";
-                        viewButton = "View Call";
-                        joinButton = inCurrentChannel ? "Already in Call" : "Join Call";
-                        icon = CallJoin;
-                        channelPath = `/channels/@me/${channel.id}`;
-                        break;
-                    case 2:
-                        headerText = "In A Voice Channel";
-                        text = [React.createElement("div", {style: {"font-weight": "600"}}, guild.name), React.createElement("div", {style: {"font-weight": "400"}}, channel.name)];
-                        viewButton = "View Channel";
-                        joinButton = inCurrentChannel ? "Already in Channel" : "Join Channel"
-                        icon = Speaker;
-                        channelPath = `/channels/${guild.id}/${channel.id}`;
-                        image = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=96`;
+                        headerText = "In a Private Call";
                         break;
                     case 3:
-                        headerText = "In A Group Call";
+                        headerText = "In a Group Call";
                         text = React.createElement("div", {style: {"font-weight": "600"}}, channel.name ? channel.name : groupDMName(channel.recipients));
-                        viewButton = "View Call";
-                        joinButton = inCurrentChannel ? "Already in Call" : "Join Call"
-                        icon = CallJoin;
-                        channelPath = `/channels/@me/${channel.id}`;
                         image = channel.icon ? `https://cdn.discordapp.com/channel-icons/${channel.id}/${channel.icon}.webp?size=32` : defaultGroupIcon;
+                        break;
+                    case 13:
+                        headerText = "In a Stage Channel";
+                        icon = Stage;
                 }
 
                 return React.createElement("div", {"class": "voiceActivitySection"}, 
@@ -217,17 +233,18 @@ module.exports = (() => {
                                 height: 48, 
                                 style: {"border-radius": "16px", "cursor": "pointer"},
                                 onClick: () => {
-                                    if (channel.type === 2) GuildActions.transitionToGuildSync(guild.id);
+                                    if (guild) GuildActions.transitionToGuildSync(guild.id);
                                     else if (channelPath) NavigationUtils.transitionTo(channelPath);
                                 }
                             }
                         ),
-                        React.createElement("div", {"class": channel.type === 2 ? "voiceActivityText" : "voiceActivityText voiceActivityTextPrivate"}, text),
-                        (channel.type === 2) && React.createElement(PartyAvatars, {guildId: guild.id, members: members, partySize: {knownSize: members.length, totalSize: members.length, unknownSize: 0}}), (channel.type === 3) && React.createElement(PartyAvatars, {members: members, partySize: {knownSize: members.length, totalSize: members.length, unknownSize: 0}})
+                        React.createElement("div", {"class": guild ? "voiceActivityText" : "voiceActivityText voiceActivityTextPrivate"}, text),
+                        guild && React.createElement(PartyAvatars, {guildId: guild.id, members: members, partySize: {knownSize: members.length, totalSize: members.length, unknownSize: 0}}), (channel.type === 3) && React.createElement(PartyAvatars, {members: members, partySize: {knownSize: members.length, totalSize: members.length, unknownSize: 0}})
                     ),
                     React.createElement("div", {"class": "voiceActivityButtonWrapper"},
                         React.createElement("button", 
                             {
+                                disabled: channelSelected,
                                 "class": "voiceActivityButton voiceActivityViewButton",
                                 onClick: () => {
                                     if (channelPath) NavigationUtils.transitionTo(channelPath);
@@ -341,6 +358,7 @@ module.exports = (() => {
                             margin: 0 10px;
                             color: var(--text-normal);
                             font-size: 16px;
+                            line-height: 18px;
                             font-family: var(--font-primary);
                             overflow: hidden;
                         }
@@ -395,7 +413,7 @@ module.exports = (() => {
                         .voiceActivityButton:disabled {
                             background-color: var(--button-secondary-background-disabled);
                             opacity: 0.5;
-                            pointer-events: none;
+                            cursor: not-allowed;
                         }
                         .voiceActivityButtonWrapper > div[aria-label] {
                             width: 32px;
@@ -405,6 +423,9 @@ module.exports = (() => {
                             min-width: 32px;
                             max-width: 32px;
                             padding: 0;
+                        }
+                        .voiceActivityJoinButton:disabled {
+                            pointer-events: none;
                         }
                         .voiceActivityJoinWrapperDisabled {
                             cursor: not-allowed;
@@ -418,7 +439,7 @@ module.exports = (() => {
                 async patchMemberListItem() {
                     const MemberListItem = await ReactComponents.getComponentByName("MemberListItem", `${DiscordSelectors.MemberList.members} > div > div:not(:first-child)`);
                     BdApi.Patcher.after("VoiceActivityIcons", MemberListItem.component.prototype, "render", (thisObject, _, ret) => {
-                        ret.props.children = React.createElement(VoiceIcon, {userId: thisObject.props.user.id, currentChannelColor: this.settings.currentChannelColor});
+                        if (thisObject.props.user) ret.props.children = React.createElement(VoiceIcon, {userId: thisObject.props.user.id, currentChannelColor: this.settings.currentChannelColor});
                     });
                 }
 
@@ -438,6 +459,7 @@ module.exports = (() => {
                     BdApi.Patcher.unpatchAll("VoiceActivity");
                     BdApi.Patcher.unpatchAll("VoiceActivityIcons");
                     VoiceStateStore.removeChangeListener(this.updateItems);
+                    BdApi.clearCSS("VoiceActivity");
                 }
 
                 getSettingsPanel() {
