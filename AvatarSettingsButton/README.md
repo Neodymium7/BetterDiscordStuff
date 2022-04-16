@@ -3,4 +3,4 @@ Moves the User Settings button to the user avatar, with the status picker and co
 
 (Helps reduce clutter, especially with plugins like GameActivityToggle)
 
-![preview](./assets/preview.gif)
+![preview](https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/assets/preview.gif)

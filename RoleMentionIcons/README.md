@@ -1,4 +1,4 @@
 # RoleMentionIcons
 Displays icons next to role mentions.
 
-![preview](./assets/preview.png)
+![preview](https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/assets/preview.png)
