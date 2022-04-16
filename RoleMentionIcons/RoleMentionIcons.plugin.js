@@ -5,6 +5,7 @@
  * @description Displays icons next to role mentions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js
+ * @invite fRbsqH87Av
  */
 /*@cc_on
 @if (@_jscript)

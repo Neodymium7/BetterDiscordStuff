@@ -5,6 +5,7 @@
  * @description Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
+ * @invite fRbsqH87Av
  */
 /*@cc_on
 @if (@_jscript)

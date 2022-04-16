@@ -5,6 +5,7 @@
  * @description Improves the default icons next to statuses
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js
+ * @invite fRbsqH87Av
  */
 /*@cc_on
 @if (@_jscript)

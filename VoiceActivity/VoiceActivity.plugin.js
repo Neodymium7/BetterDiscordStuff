@@ -5,6 +5,7 @@
  * @description Shows icons on the member list and info in User Popouts when somemone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
+ * @invite fRbsqH87Av
  */
 /*@cc_on
 @if (@_jscript)

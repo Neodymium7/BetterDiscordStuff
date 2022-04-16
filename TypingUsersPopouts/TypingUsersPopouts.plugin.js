@@ -5,6 +5,7 @@
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
+ * @invite fRbsqH87Av
  */
 /*@cc_on
 @if (@_jscript)
