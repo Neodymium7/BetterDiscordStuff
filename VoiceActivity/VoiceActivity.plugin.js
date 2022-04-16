@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.0.1
+ * @version 1.0.2
  * @description Shows icons on the member list and info in User Popouts when somemone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
@@ -39,13 +39,14 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.0.1",
+            "version": "1.0.2",
             "description": "Shows icons on the member list and info in User Popouts when somemone is in a voice channel.",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
         },
         "changelog": [
-            {"title": "Fixed", "type": "fixed", "items": ["A few minor fixes", "Attempted to fix some issues with crashing"]},
+            {"title": "Improved", "type": "improved", "items": ["Shows a \"Live\" badge on the member list when someone is streaming (like on mobile)"]},
+            {"title": "Fixed", "type": "fixed", "items": ["Now loads default server icons"]},
         ],
         "main": "index.js"
     };
@@ -103,6 +104,12 @@ module.exports = (() => {
                 return "Unnamed";
             }
 
+            function getAcronym(name) {
+                let words = name.split(" "), acronym = "";
+                for (let i = 0; i < words.length && i < 7; i++) acronym += words[i].substring("0", "1");
+                return acronym;
+            }
+
             function VoiceIcon(props) {
                 const [, forceUpdate] = React.useReducer(n => !n, true);
                 React.useEffect(() => {
@@ -118,7 +125,10 @@ module.exports = (() => {
                 const guild = GuildStore.getGuild(channel.guild_id);
 
                 let text, subtext, icon, channelPath;
-                const className = channel.id === VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser().id)?.channelId && props.currentChannelColor ? "voiceActivityIcon voiceActivityIcon-currentCall" : "voiceActivityIcon";
+                let className = "voiceActivityIcon";
+                if (channel.id === VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser().id)?.channelId && props.currentChannelColor) className = "voiceActivityIcon voiceActivityIcon-currentCall";
+                if (voiceState.selfStream) className = "voiceActivityLiveIcon";
+                
 
                 if (guild) {
                     text = guild.name;
@@ -165,7 +175,8 @@ module.exports = (() => {
                             ), 
                             position: "top"
                         }, 
-                        React.createElement(Speaker, {width: 14, height: 14})
+                        !voiceState.selfStream && React.createElement(Speaker, {width: 14, height: 14}),
+                        voiceState.selfStream && "LIVE"
                     )
                 );
             }
@@ -197,7 +208,7 @@ module.exports = (() => {
                     joinButton = inCurrentChannel ? "Already in Channel" : "Join Channel";
                     icon = Speaker;
                     channelPath = `/channels/${guild.id}/${channel.id}`;
-                    image = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=96`;
+                    image = guild.icon ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=96` : undefined;
                 }
                 else {
                     headerText = "In a Voice Call";
@@ -206,7 +217,7 @@ module.exports = (() => {
                     joinButton = inCurrentChannel ? "Already in Call" : "Join Call";
                     icon = CallJoin;
                     channelPath = `/channels/@me/${channel.id}`;
-                    image = channel.icon ? `https://cdn.discordapp.com/channel-icons/${channel.id}/${channel.icon}.webp?size=32` : defaultGroupIcon;
+                    image = channel.icon ? `https://cdn.discordapp.com/channel-icons/${channel.id}/${channel.icon}.webp?size=32` : undefined;
                 }
                 switch (channel.type) {
                     case 1:
@@ -225,7 +236,7 @@ module.exports = (() => {
                 return React.createElement("div", {"class": "voiceActivitySection"}, 
                     React.createElement("h3", {"class": "voiceActivityHeader"}, headerText),
                     !(channel.type === 1) && React.createElement("div", {"class": "voiceActivityBody"}, 
-                        React.createElement("img", 
+                        image && React.createElement("img", 
                             {
                                 "class": "voiceActivityGuildIcon", 
                                 src: image, 
@@ -237,6 +248,16 @@ module.exports = (() => {
                                     else if (channelPath) NavigationUtils.transitionTo(channelPath);
                                 }
                             }
+                        ),
+                        !image && React.createElement("div", 
+                            {
+                                "className": "voiceActivityDefaultIcon", 
+                                onClick: () => {
+                                    if (guild) GuildActions.transitionToGuildSync(guild.id);
+                                    else if (channelPath) NavigationUtils.transitionTo(channelPath);
+                                }
+                            }, 
+                            getAcronym(guild ? guild.name : channel.name)
                         ),
                         React.createElement("div", {"class": guild ? "voiceActivityText" : "voiceActivityText voiceActivityTextPrivate"}, text),
                         guild && React.createElement(PartyAvatars, {guildId: guild.id, members: members, partySize: {knownSize: members.length, totalSize: members.length, unknownSize: 0}}), (channel.type === 3) && React.createElement(PartyAvatars, {members: members, partySize: {knownSize: members.length, totalSize: members.length, unknownSize: 0}})
@@ -252,29 +273,28 @@ module.exports = (() => {
                             }, 
                             viewButton
                         ),
-                        !isCurrentUser && React.createElement(TooltipContainer, {text: joinButton, position: "top"},
-                            React.createElement("div", {"class": inCurrentChannel ? "voiceActivityJoinWrapper voiceActivityJoinWrapperDisabled" : "voiceActivityJoinWrapper"},
-                                React.createElement("button", 
-                                    {
-                                        disabled: inCurrentChannel,
-                                        "class": "voiceActivityButton voiceActivityJoinButton",
-                                        onClick: () => {
-                                            if (channel.id) ChannelActions.selectVoiceChannel(channel.id);
-                                        },
-                                        onContextMenu: (e) => {
-                                            ContextMenu.openContextMenu(e, ContextMenu.buildMenu([{
-                                                    label: "Join With Video",
-                                                    id: "voice-activity-join-with-video",
-                                                    action: () => {
-                                                        if (channel.id) ChannelActions.selectVoiceChannel(channel.id, true);
-                                                    }
-                                            }]));
-                                        }
-                                    }, 
-                                    React.createElement(icon, {width: 18, height: 18})
-                                )
+                        !isCurrentUser && React.createElement(TooltipContainer, {text: joinButton, position: "top", className: inCurrentChannel ? "voiceActivityJoinWrapper voiceActivityJoinWrapperDisabled" : "voiceActivityJoinWrapper"},
+                            React.createElement("button", 
+                                {
+                                    disabled: inCurrentChannel,
+                                    "class": "voiceActivityButton voiceActivityJoinButton",
+                                    onClick: () => {
+                                        if (channel.id) ChannelActions.selectVoiceChannel(channel.id);
+                                    },
+                                    onContextMenu: (e) => {
+                                        if (channel.type === 13) return;
+                                        ContextMenu.openContextMenu(e, ContextMenu.buildMenu([{
+                                                label: "Join With Video",
+                                                id: "voice-activity-join-with-video",
+                                                action: () => {
+                                                    if (channel.id) ChannelActions.selectVoiceChannel(channel.id, true);
+                                                }
+                                        }]));
+                                    }
+                                }, 
+                                React.createElement(icon, {width: 18, height: 18})
                             )
-                        ),
+                        )
                     )
                 );
             }
@@ -306,13 +326,29 @@ module.exports = (() => {
                             color: var(--interactive-normal);
                         }
                         .voiceActivityIcon-currentCall {
-                            background-color: var(--button-outline-positive-background-hover);
+                            background-color: var(--status-positive);
                         }
                         .voiceActivityIcon-currentCall:hover {
-                            background-color: var(--status-positive);
+                            background-color: var(--button-positive-background);
                         }
                         .voiceActivityIcon-currentCall svg {
                             color: #fff;
+                        }
+                        .voiceActivityLiveIcon {
+                            height: 16px;
+                            border-radius: 16px;
+                            background-color: var(--status-danger);
+                            color: #fff;
+                            font-size: 12px;
+                            line-height: 16px;
+                            font-weight: 600;
+                            font-family: var(--font-display);
+                        }
+                        .voiceActivityLiveIcon > div {
+                            padding: 0 6px;
+                        }
+                        .voiceActivityLiveIcon:hover {
+                            background-color: var(--button-danger-background);
                         }
 
                         .voiceActivityTooltipHeader {
@@ -352,6 +388,21 @@ module.exports = (() => {
                         .voiceActivityBody {
                             display: flex;
                             flex-direction: row;
+                        }
+                        .voiceActivityDefaultIcon {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 18px;
+                            font-weight: 500;
+                            line-height: 1.2em;
+                            white-space: nowrap;
+                            background-color: var(--background-primary);
+                            color: var(--text-normal);
+                            width: 48px;
+                            height: 48px;
+                            border-radius: 16px;
+                            cursor: pointer;
                         }
                         .voiceActivityText {
                             padding-top: 8px;
