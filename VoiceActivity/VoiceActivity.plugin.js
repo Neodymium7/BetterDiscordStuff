@@ -120,7 +120,7 @@ module.exports = (() => {
                 const channel = ChannelStore.getChannel(voiceState.channelId);
                 if (!channel) return null;
                 const guild = GuildStore.getGuild(channel.guild_id);
-                if (!Permissions.can({permission: DiscordPermissions.VIEW_CHANNEL, user: UserStore.getCurrentUser(), context: channel})) return null;
+                if (guild && !Permissions.can({permission: DiscordPermissions.VIEW_CHANNEL, user: UserStore.getCurrentUser(), context: channel})) return null;
 
                 let text, subtext, icon, channelPath;
                 let className = "voiceActivityIcon";
@@ -192,7 +192,7 @@ module.exports = (() => {
                 const channel = ChannelStore.getChannel(voiceState.channelId);
                 if (!channel) return null;
                 const guild = GuildStore.getGuild(channel.guild_id);
-                if (!Permissions.can({permission: DiscordPermissions.VIEW_CHANNEL, user: UserStore.getCurrentUser(), context: channel})) return null;
+                if (guild && !Permissions.can({permission: DiscordPermissions.VIEW_CHANNEL, user: UserStore.getCurrentUser(), context: channel})) return null;
 
                 let headerText, text, viewButton, joinButton, icon, channelPath, image;
                 const members = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id)).map(id => UserStore.getUser(id));
