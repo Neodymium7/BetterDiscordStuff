@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.0.3
+ * @version 1.1.0
  * @description Shows icons on the member list and info in User Popouts when somemone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
@@ -40,11 +40,14 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.0.3",
+            "version": "1.1.0",
             "description": "Shows icons on the member list and info in User Popouts when somemone is in a voice channel.",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
         },
+        "changelog": [
+            {"title": "Added", "type": "improved", "items": ["New setting to ignore channels and guilds from showing icons/info on users"]},
+        ],
         "main": "index.js"
     };
 
@@ -121,10 +124,11 @@ module.exports = (() => {
                 if (!channel) return null;
                 const guild = GuildStore.getGuild(channel.guild_id);
                 if (guild && !Permissions.can({permission: DiscordPermissions.VIEW_CHANNEL, user: UserStore.getCurrentUser(), context: channel})) return null;
+                if (props.settings.ignore.enabled && (props.settings.ignore.channels.includes(channel.id) || props.settings.ignore.guilds.includes(guild.id))) return null;
 
                 let text, subtext, icon, channelPath;
                 let className = "voiceActivityIcon";
-                if (channel.id === VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser().id)?.channelId && props.currentChannelColor) className = "voiceActivityIcon voiceActivityIcon-currentCall";
+                if (channel.id === VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser().id)?.channelId && props.settings.currentChannelColor) className = "voiceActivityIcon voiceActivityIcon-currentCall";
                 if (voiceState.selfStream) className = "voiceActivityLiveIcon";
                 
 
@@ -193,6 +197,7 @@ module.exports = (() => {
                 if (!channel) return null;
                 const guild = GuildStore.getGuild(channel.guild_id);
                 if (guild && !Permissions.can({permission: DiscordPermissions.VIEW_CHANNEL, user: UserStore.getCurrentUser(), context: channel})) return null;
+                if (props.settings.ignore.enabled && (props.settings.ignore.channels.includes(channel.id) || props.settings.ignore.guilds.includes(guild.id))) return null;
 
                 let headerText, text, viewButton, joinButton, icon, channelPath, image;
                 const members = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id)).map(id => UserStore.getUser(id));
@@ -303,7 +308,12 @@ module.exports = (() => {
                     super();
                     this.defaultSettings = {
                         showMemberListIcons: true,
-                        currentChannelColor: true
+                        currentChannelColor: true,
+                        ignore: {
+                            enabled: false,
+                            channels: [],
+                            guilds: []
+                        }
                     };
                 }
 
@@ -481,22 +491,58 @@ module.exports = (() => {
                             cursor: not-allowed;
                         }
                     `);
-                    if (this.settings.showMemberListIcons) this.patchMemberListItem();
                     this.patchUserPopoutBody();
+                    if (this.settings.showMemberListIcons) this.patchMemberListItem();
+                    if (this.settings.ignore.enabled) this.patchContextMenu();
                     VoiceStateStore.addChangeListener(this.updateItems);
                 }
 
                 async patchMemberListItem() {
                     const MemberListItem = await ReactComponents.getComponentByName("MemberListItem", `${DiscordSelectors.MemberList.members} > div > div:not(:first-child)`);
-                    BdApi.Patcher.after("VoiceActivityIcons", MemberListItem.component.prototype, "render", (thisObject, _, ret) => {
-                        if (thisObject.props.user) ret.props.children = React.createElement(VoiceIcon, {userId: thisObject.props.user.id, currentChannelColor: this.settings.currentChannelColor});
+                    BdApi.Patcher.after("VoiceActivity", MemberListItem.component.prototype, "render", (thisObject, _, ret) => {
+                        if (thisObject.props.user) ret.props.children = React.createElement(VoiceIcon, {userId: thisObject.props.user.id, settings: this.settings});
                     });
                 }
 
                 patchUserPopoutBody() {
                     const UserPopoutBody = BdApi.findModule(m => m.default.displayName === "UserPopoutBody");
                     BdApi.Patcher.after("VoiceActivity", UserPopoutBody, "default", (_, [props], ret) => {
-                        ret?.props.children.unshift(React.createElement(VoiceActivitySection, {userId: props.user.id}));
+                        ret?.props.children.unshift(React.createElement(VoiceActivitySection, {userId: props.user.id, settings: this.settings}));
+                    });
+                }
+
+                async patchContextMenu() {
+                    const HideNamesItem = await ContextMenu.getDiscordMenu("useChannelHideNamesItem");
+                    BdApi.Patcher.after("VoiceActivity", HideNamesItem, "default", (_, [channel], ret) => {
+                        const menuItem = ContextMenu.buildMenuItem({
+                            type: "toggle",
+                            label: "Ignore in Voice Activity",
+                            checked: this.settings.ignore.channels.includes(channel.id),
+                            action: () => {
+                                const index = this.settings.ignore.channels.indexOf(channel.id)
+                                if (index >= 0) this.settings.ignore.channels.splice(index, 1);
+                                else this.settings.ignore.channels.push(channel.id);
+                                this.saveSettings();
+                                this.updateItems();
+                            }
+                        });
+                        return [ret, menuItem];
+                    });
+                    const GuildContextMenu = await ContextMenu.getDiscordMenu("GuildContextMenu");
+                    BdApi.Patcher.after("VoiceActivity", GuildContextMenu, "default", (_, [props], ret) => {
+                        const menuItem = ContextMenu.buildMenuItem({
+                            type: "toggle",
+                            label: "Ignore in Voice Activity",
+                            checked: this.settings.ignore.guilds.includes(props.guild.id),
+                            action: () => {
+                                const index = this.settings.ignore.guilds.indexOf(props.guild.id)
+                                if (index >= 0) this.settings.ignore.guilds.splice(index, 1);
+                                else this.settings.ignore.guilds.push(props.guild.id);
+                                this.saveSettings();
+                                this.updateItems();
+                            }
+                        });
+                        ret.props.children[2].props.children.push(menuItem);
                     });
                 }
 
@@ -507,7 +553,6 @@ module.exports = (() => {
 
                 onStop() {
                     BdApi.Patcher.unpatchAll("VoiceActivity");
-                    BdApi.Patcher.unpatchAll("VoiceActivityIcons");
                     VoiceStateStore.removeChangeListener(this.updateItems);
                     BdApi.clearCSS("VoiceActivity");
                 }
@@ -515,14 +560,14 @@ module.exports = (() => {
                 getSettingsPanel() {
                     return SettingPanel.build(() => {
                         this.saveSettings();
-                        if (!this.settings.showMemberListIcons) BdApi.Patcher.unpatchAll("VoiceActivityIcons");
-                        else {
-                            BdApi.Patcher.unpatchAll("VoiceActivityIcons");
-                            this.patchMemberListItem();
-                        }
+                        BdApi.Patcher.unpatchAll("VoiceActivity");
+                        this.patchUserPopoutBody();
+                        if (this.settings.showMemberListIcons) this.patchMemberListItem();
+                        if (this.settings.ignore) this.patchContextMenu();
                     },
                         new Switch("Member List Icons", "Shows icons on the member list when someone is in a voice channel", this.settings.showMemberListIcons, (i) => { this.settings.showMemberListIcons = i; }),
-                        new Switch("Current Channel Icon Color", "Makes the Member List icons green when the person is in your current voice channel", this.settings.currentChannelColor, (i) => { this.settings.currentChannelColor = i; })
+                        new Switch("Current Channel Icon Color", "Makes the Member List icons green when the person is in your current voice channel", this.settings.currentChannelColor, (i) => { this.settings.currentChannelColor = i; }),
+                        new Switch("Ignore", "Adds an option on Voice Channel and Guild context menus to ignore that channel/guild in Member List Icons and User Popouts", this.settings.ignore.enabled, (i) => { this.settings.ignore.enabled = i; })
                     );
                 }
 
