@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.0.2
+ * @version 1.0.3
  * @description Shows icons on the member list and info in User Popouts when somemone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
@@ -40,15 +40,11 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.0.2",
+            "version": "1.0.3",
             "description": "Shows icons on the member list and info in User Popouts when somemone is in a voice channel.",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
         },
-        "changelog": [
-            {"title": "Improved", "type": "improved", "items": ["Shows a \"Live\" badge on the member list when someone is streaming (like on mobile)"]},
-            {"title": "Fixed", "type": "fixed", "items": ["Now loads default server icons"]},
-        ],
         "main": "index.js"
     };
 
@@ -76,7 +72,7 @@ module.exports = (() => {
         const plugin = (Plugin, Library) => {
 
             const { DiscordModules, DiscordSelectors, ContextMenu, ReactComponents, Settings } = Library;
-            const { ChannelStore, SelectedChannelStore, ChannelActions, GuildStore, GuildActions, NavigationUtils, UserStore, React } = DiscordModules;
+            const { ChannelStore, SelectedChannelStore, ChannelActions, GuildStore, GuildActions, NavigationUtils, UserStore, React, Permissions, DiscordPermissions } = DiscordModules;
             const { SettingPanel, Switch } = Settings;
             const VoiceStateStore = BdApi.findModuleByProps("getVoiceStateForUser");
             const Dispatcher = BdApi.findModuleByProps("dirtyDispatch");
@@ -124,6 +120,7 @@ module.exports = (() => {
                 const channel = ChannelStore.getChannel(voiceState.channelId);
                 if (!channel) return null;
                 const guild = GuildStore.getGuild(channel.guild_id);
+                if (!Permissions.can({permission: DiscordPermissions.VIEW_CHANNEL, user: UserStore.getCurrentUser(), context: channel})) return null;
 
                 let text, subtext, icon, channelPath;
                 let className = "voiceActivityIcon";
@@ -195,6 +192,7 @@ module.exports = (() => {
                 const channel = ChannelStore.getChannel(voiceState.channelId);
                 if (!channel) return null;
                 const guild = GuildStore.getGuild(channel.guild_id);
+                if (!Permissions.can({permission: DiscordPermissions.VIEW_CHANNEL, user: UserStore.getCurrentUser(), context: channel})) return null;
 
                 let headerText, text, viewButton, joinButton, icon, channelPath, image;
                 const members = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id)).map(id => UserStore.getUser(id));
