@@ -1,7 +1,7 @@
 /**
  * @name ActivityIcons
  * @author Neodymium
- * @version 1.2.0
+ * @version 1.2.1
  * @description Improves the default icons next to statuses
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js
@@ -40,13 +40,13 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.2.0",
+            "version": "1.2.1",
             "description": "Improves the default icons next to statuses",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
             "github_raw": " https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js"
         },
         "changelog": [
-            {"title": "Added", "type": "improved", "items": ["New settings options to customize displaying normal activity (game controller) icons"]},
+            {"title": "Fixed", "type": "fixed", "items": ["Attempted to fix some console errors"]},
         ],
         "main": "index.js"
     };
@@ -149,7 +149,7 @@ module.exports = (() => {
                         ret.props.children.push(wrapper);
                     }
                     if (listeningActivity) {
-                        const listeningWrapper = BdApi.React.createElement("div", {"class": "activity-icon"}, BdApi.React.createElement(TooltipContainer, {text: [BdApi.React.createElement("div", {style: {"font-weight": "600"}}, listeningActivity.details), BdApi.React.createElement("div", {style: {"font-weight": "400"}}, `by ${listeningActivity.state.replace(/;/g, ",")}`)], position: "top"}, BdApi.React.createElement(Headset, {"class": "activity-icon-small", width: "14", height: "14"})));
+                        const listeningWrapper = BdApi.React.createElement("div", {"class": "activity-icon"}, BdApi.React.createElement(TooltipContainer, {text: [BdApi.React.createElement("div", {style: {"font-weight": "600"}}, listeningActivity.details), listeningActivity.state && BdApi.React.createElement("div", {style: {"font-weight": "400"}}, `by ${listeningActivity.state.replace(/;/g, ",")}`)], position: "top"}, BdApi.React.createElement(Headset, {"class": "activity-icon-small", width: "14", height: "14"})));
                         ret.props.children.push(listeningWrapper);
                     }
                 }
