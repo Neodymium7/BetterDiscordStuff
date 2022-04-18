@@ -197,7 +197,7 @@ module.exports = (() => {
                 if (!channel) return null;
                 const guild = GuildStore.getGuild(channel.guild_id);
                 if (guild && !Permissions.can({permission: DiscordPermissions.VIEW_CHANNEL, user: UserStore.getCurrentUser(), context: channel})) return null;
-                if (props.settings.ignore.enabled && (props.settings.ignore.channels.includes(channel.id) || props.settings.ignore.guilds.includes(guild.id))) return null;
+                if (props.settings.ignore.enabled && (props.settings.ignore.channels.includes(channel.id) || props.settings.ignore.guilds.includes(guild?.id))) return null;
 
                 let headerText, text, viewButton, joinButton, icon, channelPath, image;
                 const members = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id)).map(id => UserStore.getUser(id));
