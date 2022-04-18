@@ -201,7 +201,7 @@ module.exports = (() => {
                 if (!channel) return null;
                 const guild = GuildStore.getGuild(channel.guild_id);
 
-                const showHiddenUsers = BdApi.Plugins.isEnabled("ShowHiddenChannels") && getSHCBlacklist && !getSHCBlacklist().includes(guild?.id) && BdApi.Plugins.get("ShowHiddenChannels").instance.settings.general.showVoiceUsers;
+                const showHiddenUsers = BdApi.Plugins.isEnabled("ShowHiddenChannels") && getSHCBlacklist && !getSHCBlacklist().includes(guild?.id) && BdApi.Plugins.get("ShowHiddenChannels").instance.settings?.general.showVoiceUsers;
                 if (guild && !showHiddenUsers && !Permissions.can({permission: DiscordPermissions.VIEW_CHANNEL, user: UserStore.getCurrentUser(), context: channel})) return null;
                 if (props.settings.ignore.enabled && (props.settings.ignore.channels.includes(channel.id) || props.settings.ignore.guilds.includes(guild?.id))) return null;
 
