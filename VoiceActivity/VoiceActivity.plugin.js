@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.1.0
+ * @version 1.1.1
  * @description Shows icons on the member list and info in User Popouts when somemone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
@@ -40,13 +40,13 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.1.0",
+            "version": "1.1.1",
             "description": "Shows icons on the member list and info in User Popouts when somemone is in a voice channel.",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
         },
         "changelog": [
-            {"title": "Added", "type": "improved", "items": ["New setting to ignore channels and guilds from showing icons/info on users"]},
+            {"title": "Fixed", "type": "fixed", "items": ["Fixed crashing in private calls"]},
         ],
         "main": "index.js"
     };
@@ -124,7 +124,7 @@ module.exports = (() => {
                 if (!channel) return null;
                 const guild = GuildStore.getGuild(channel.guild_id);
                 if (guild && !Permissions.can({permission: DiscordPermissions.VIEW_CHANNEL, user: UserStore.getCurrentUser(), context: channel})) return null;
-                if (props.settings.ignore.enabled && (props.settings.ignore.channels.includes(channel.id) || props.settings.ignore.guilds.includes(guild.id))) return null;
+                if (props.settings.ignore.enabled && (props.settings.ignore.channels.includes(channel.id) || props.settings.ignore.guilds.includes(guild?.id))) return null;
 
                 let text, subtext, icon, channelPath;
                 let className = "voiceActivityIcon";
@@ -517,6 +517,7 @@ module.exports = (() => {
                         const menuItem = ContextMenu.buildMenuItem({
                             type: "toggle",
                             label: "Ignore in Voice Activity",
+                            id: "voiceactivity-ignore",
                             checked: this.settings.ignore.channels.includes(channel.id),
                             action: () => {
                                 const index = this.settings.ignore.channels.indexOf(channel.id)
@@ -533,6 +534,7 @@ module.exports = (() => {
                         const menuItem = ContextMenu.buildMenuItem({
                             type: "toggle",
                             label: "Ignore in Voice Activity",
+                            id: "voiceactivity-ignore",
                             checked: this.settings.ignore.guilds.includes(props.guild.id),
                             action: () => {
                                 const index = this.settings.ignore.guilds.indexOf(props.guild.id)
