@@ -1,7 +1,7 @@
 /**
  * @name ActivityIcons
  * @author Neodymium
- * @version 1.2.3
+ * @version 1.2.4
  * @description Improves the default icons next to statuses
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js
@@ -17,7 +17,7 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.2.3",
+            "version": "1.2.4",
             "description": "Improves the default icons next to statuses",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
             "github_raw": " https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js"
@@ -131,16 +131,16 @@ module.exports = (() => {
                         }
                     });
                     document.querySelectorAll(memberListItem).forEach(node => ReactTools.getReactInstance(node).return.return.return.return.stateNode.forceUpdate());
-                    document.querySelectorAll(peopleListItem).forEach(node => ReactTools.getReactInstance(node).return.stateNode.forceUpdate());
-                    document.querySelectorAll(privateChannel).forEach(node => ReactTools.getReactInstance(node).return.return.return.return.stateNode.forceUpdate());
+                    document.querySelectorAll(peopleListItem).forEach(node => ReactTools.getReactInstance(node).return.return.return.return.stateNode.forceUpdate());
+                    document.querySelectorAll(privateChannel).forEach(node => ReactTools.getReactInstance(node).return.return.return.return.stateNode?.forceUpdate());
                 };
             
                 onStop() {
                     BdApi.Patcher.unpatchAll("ActivityIcons");
                     BdApi.clearCSS("ActivityIcons");
                     document.querySelectorAll(memberListItem).forEach(node => ReactTools.getReactInstance(node).return.return.return.return.stateNode.forceUpdate());
-                    document.querySelectorAll(peopleListItem).forEach(node => ReactTools.getReactInstance(node).return.stateNode.forceUpdate());
-                    document.querySelectorAll(privateChannel).forEach(node => ReactTools.getReactInstance(node).return.return.return.return.stateNode.forceUpdate());
+                    document.querySelectorAll(peopleListItem).forEach(node => ReactTools.getReactInstance(node).return.return.return.return.stateNode.forceUpdate());
+                    document.querySelectorAll(privateChannel).forEach(node => ReactTools.getReactInstance(node).return.return.return.return.stateNode?.forceUpdate());
                 };
             
                 getSettingsPanel() {
