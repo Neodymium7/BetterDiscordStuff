@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.1.5
+ * @version 1.1.6
  * @description Shows icons on the member list and info in User Popouts when somemone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
@@ -17,7 +17,7 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.1.5",
+            "version": "1.1.6",
             "description": "Shows icons on the member list and info in User Popouts when somemone is in a voice channel.",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -536,6 +536,7 @@ module.exports = (() => {
                 onStop() {
                     BdApi.Patcher.unpatchAll("VoiceActivity");
                     VoiceStateStore.removeChangeListener(this.updateItems);
+                    document.querySelectorAll(memberListItem).forEach(node => ReactTools.getReactInstance(node).return.return.return.return.stateNode.forceUpdate());
                     BdApi.clearCSS("VoiceActivity");
                 }
 
@@ -543,6 +544,7 @@ module.exports = (() => {
                     return SettingPanel.build(() => {
                         this.saveSettings();
                         BdApi.Patcher.unpatchAll("VoiceActivity");
+                        document.querySelectorAll(memberListItem).forEach(node => ReactTools.getReactInstance(node).return.return.return.return.stateNode.forceUpdate());
                         this.patchUserPopoutBody();
                         if (this.settings.showMemberListIcons) this.patchMemberListItem();
                         if (this.settings.ignore) this.patchContextMenu();
