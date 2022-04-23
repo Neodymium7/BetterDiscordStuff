@@ -8,7 +8,7 @@
  * @invite fRbsqH87Av
  */
 
- module.exports = (() => {
+module.exports = (() => {
     const config = {
         "info": {
             "name": "AvatarSettingsButton",
@@ -46,100 +46,100 @@
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Library) => {
 
-        const { DiscordSelectors, DiscordModules, ReactComponents, Settings } = Library;
-        const { Dropdown, SettingPanel, Switch } = Settings;
-        const TooltipContainer = BdApi.findModuleByProps("TooltipContainer").TooltipContainer;
-
-        const settingsSelector = `${DiscordSelectors.AccountDetails.container} button:nth-last-child(1)`;
-
-        return class AvatarSettingsButton extends Plugin {
-            constructor() {
-                super();
-                this.defaultSettings = {
-                    showTooltip: false,
-                    click: 1,
-                    contextmenu: 3,
-                    middleclick: 2
-                };
-            }
-
-            onStart() {
-                BdApi.injectCSS("AvatarSettingsButton", `${settingsSelector} {display: none}`);
-                this.patchAccountArea();
-            }
-
-            async patchAccountArea() {
-                const Account = await ReactComponents.getComponentByName("Account", DiscordSelectors.AccountDetails.container);
-                BdApi.Patcher.after("AvatarSettingsButton", Account.component.prototype, "render", (thisObject, _, ret) => {
-                    const renderAvatar = ret.props.children[0].props.children[0].props.children;
-                    ret.props.children[0].props.children[0].props.children = (avatarProps) => {
-                        const avatar = Reflect.apply(renderAvatar, thisObject, [avatarProps]);
-                        const renderPopout = avatar.props.children.props.children;
-                        avatar.props.children.props.children = (popoutProps) => {
-                            const popout = Reflect.apply(renderPopout, thisObject, [popoutProps]);
-
-                            const openStatusPicker = popout.props.onClick;
-                            const openSettings = (e) => {
-                                DiscordModules.UserSettingsWindow.setSection(DiscordModules.DiscordConstants.UserSettingsSections.ACCOUNT);
-                                DiscordModules.UserSettingsWindow.open();
-                                if (document.querySelector("#status-picker") || document.querySelector("#account")) openStatusPicker(e);
+            const { DiscordSelectors, DiscordModules, ReactComponents, Settings } = Library;
+            const { Dropdown, SettingPanel, Switch } = Settings;
+            const TooltipContainer = BdApi.findModuleByProps("TooltipContainer").TooltipContainer;
+            
+            const settingsSelector = `${DiscordSelectors.AccountDetails.container} button:nth-last-child(1)`;
+            
+            return class AvatarSettingsButton extends Plugin {
+                constructor() {
+                    super();
+                    this.defaultSettings = {
+                        showTooltip: false,
+                        click: 1,
+                        contextmenu: 3,
+                        middleclick: 2
+                    };
+                }
+            
+                onStart() {
+                    BdApi.injectCSS("AvatarSettingsButton", `${settingsSelector} {display: none}`);
+                    this.patchAccountArea();
+                }
+            
+                async patchAccountArea() {
+                    const Account = await ReactComponents.getComponentByName("Account", DiscordSelectors.AccountDetails.container);
+                    BdApi.Patcher.after("AvatarSettingsButton", Account.component.prototype, "render", (thisObject, _, ret) => {
+                        const renderAvatar = ret.props.children[0].props.children[0].props.children;
+                        ret.props.children[0].props.children[0].props.children = (avatarProps) => {
+                            const avatar = Reflect.apply(renderAvatar, thisObject, [avatarProps]);
+                            const renderPopout = avatar.props.children.props.children;
+                            avatar.props.children.props.children = (popoutProps) => {
+                                const popout = Reflect.apply(renderPopout, thisObject, [popoutProps]);
+                            
+                                const openStatusPicker = popout.props.onClick;
+                                const openSettings = (e) => {
+                                    DiscordModules.UserSettingsWindow.setSection(DiscordModules.DiscordConstants.UserSettingsSections.ACCOUNT);
+                                    DiscordModules.UserSettingsWindow.open();
+                                    if (document.querySelector("#status-picker") || document.querySelector("#account")) openStatusPicker(e);
+                                }
+                                const openContextMenu = (e) => {
+                                    document.querySelector(settingsSelector).dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, clientX: e.clientX, clientY: (screen.height - 12)}));
+                                    if (document.querySelector("#status-picker") || document.querySelector("#account")) openStatusPicker(e);
+                                }
+                                const actions = [null, openSettings, openContextMenu, openStatusPicker];
+                                const tooltips = ["", "User Settings", "Settings Shortcuts", "Set Status"];
+                            
+                                popout.props.onClick = actions[this.settings.click];
+                                popout.props.onContextMenu = actions[this.settings.contextmenu];
+                                popout.props.onMouseUp = (e) => {
+                                    if (e.button === 1) actions[this.settings.middleclick](e);
+                                };
+                                if (this.settings.showTooltip && this.settings.click !== 0) {
+                                    return BdApi.React.createElement("div", {"class": "avatarSettingsButtonTooltip"}, BdApi.React.createElement(TooltipContainer, {text: tooltips[this.settings.click], position: "top"}, popout));
+                                }
+                                else return popout;
                             }
-                            const openContextMenu = (e) => {
-                                document.querySelector(settingsSelector).dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, clientX: e.clientX, clientY: (screen.height - 12)}));
-                                if (document.querySelector("#status-picker") || document.querySelector("#account")) openStatusPicker(e);
-                            }
-                            const actions = [null, openSettings, openContextMenu, openStatusPicker];
-                            const tooltips = ["", "User Settings", "Settings Shortcuts", "Set Status"];
-
-                            popout.props.onClick = actions[this.settings.click];
-                            popout.props.onContextMenu = actions[this.settings.contextmenu];
-                            popout.props.onMouseUp = (e) => {
-                                if (e.button === 1) actions[this.settings.middleclick](e);
-                            };
-                            if (this.settings.showTooltip && this.settings.click !== 0) {
-                                return BdApi.React.createElement("div", {"class": "avatarSettingsButtonTooltip"}, BdApi.React.createElement(TooltipContainer, {text: tooltips[this.settings.click], position: "top"}, popout));
-                            }
-                            else return popout;
+                            return avatar;
                         }
-                        return avatar;
-                    }
-                });
-            }
-
-            onStop() {
-                BdApi.clearCSS("AvatarSettingsButton");
-                BdApi.Patcher.unpatchAll("AvatarSettingsButton");
-            }
-
-            getSettingsPanel() {
-                return SettingPanel.build(() => {
-                        this.saveSettings();
-                    },
-                    new Dropdown("Click", "What opens when clicking on the user avatar. REMEMBER If nothing is bound to open settings, you can use the Ctrl + , shortcut.", this.settings.click, [
-                        {label: "Settings (Default)", value: 1},
-                        {label: "Settings Context Menu", value: 2},
-                        {label: "Status Picker", value: 3},
-                        {label: "Nothing", value: 0}
-                    ], i => {this.settings.click = i;}),
-                    new Dropdown("Right Click", "What opens when right clicking on the user avatar.", this.settings.contextmenu, [
-                        {label: "Settings", value: 1},
-                        {label: "Settings Context Menu", value: 2},
-                        {label: "Status Picker (Default)", value: 3},
-                        {label: "Nothing", value: 0}
-                    ], i => {this.settings.contextmenu = i;}),
-                    new Dropdown("Middle Click", "What opens when middle clicking on the username.", this.settings.middleclick, [
-                        {label: "Settings", value: 1},
-                        {label: "Settings Context Menu (Default)", value: 2},
-                        {label: "Status Picker", value: 3},
-                        {label: "Nothing", value: 0}
-                    ], i => {this.settings.middleclick = i;}),
-	    			new Switch("Tooltip", "Show tooltip when hovering over user avatar.", this.settings.showTooltip, (i) => {this.settings.showTooltip = i;})
-	    		);
-            }
+                    });
+                }
+            
+                onStop() {
+                    BdApi.clearCSS("AvatarSettingsButton");
+                    BdApi.Patcher.unpatchAll("AvatarSettingsButton");
+                }
+            
+                getSettingsPanel() {
+                    return SettingPanel.build(() => {
+                            this.saveSettings();
+                        },
+                        new Dropdown("Click", "What opens when clicking on the user avatar. REMEMBER If nothing is bound to open settings, you can use the Ctrl + , shortcut.", this.settings.click, [
+                            {label: "Settings (Default)", value: 1},
+                            {label: "Settings Context Menu", value: 2},
+                            {label: "Status Picker", value: 3},
+                            {label: "Nothing", value: 0}
+                        ], i => {this.settings.click = i;}),
+                        new Dropdown("Right Click", "What opens when right clicking on the user avatar.", this.settings.contextmenu, [
+                            {label: "Settings", value: 1},
+                            {label: "Settings Context Menu", value: 2},
+                            {label: "Status Picker (Default)", value: 3},
+                            {label: "Nothing", value: 0}
+                        ], i => {this.settings.contextmenu = i;}),
+                        new Dropdown("Middle Click", "What opens when middle clicking on the username.", this.settings.middleclick, [
+                            {label: "Settings", value: 1},
+                            {label: "Settings Context Menu (Default)", value: 2},
+                            {label: "Status Picker", value: 3},
+                            {label: "Nothing", value: 0}
+                        ], i => {this.settings.middleclick = i;}),
+	        			new Switch("Tooltip", "Show tooltip when hovering over user avatar.", this.settings.showTooltip, (i) => {this.settings.showTooltip = i;})
+	        		);
+                }
+            
+            };
 
         };
-
-};
         return plugin(Plugin, Api);
     })(global.ZeresPluginLibrary.buildPlugin(config));
 })();

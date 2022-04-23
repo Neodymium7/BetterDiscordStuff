@@ -1,7 +1,7 @@
 /**
  * @name CopyCodeblocks
  * @author Neodymium
- * @version 1.0
+ * @version 1.0.1
  * @description Adds a copy button to codeblocks.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/CopyCodeblocks/CopyCodeblocks.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/CopyCodeblocks/CopyCodeblocks.plugin.js
@@ -51,7 +51,24 @@ module.exports = class CopyCodeblocks {
             .codeblockWrapper {
                 position: relative;
                 margin: -7px;
+            }
+            .codeblockContent {
                 padding: 7px;
+                max-width: 100%;
+                overflow-x: scroll;
+                white-space: pre !important;
+            }
+            .codeblockContent::-webkit-scrollbar {
+                width: 4px;
+                height: 4px;
+            }
+            .codeblockContent::-webkit-scrollbar-thumb {
+                background-color: rgba(24,25,28,.6);
+                border-radius: 2px;
+                cursor: move;
+            }
+            .codeblockContent::-webkit-scrollbar-track {
+                background-color: transparent;
             }
             .copyCodeblockButtonWrapper {
                 background-color: var(--background-tertiary);
