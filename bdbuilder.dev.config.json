@@ -1,0 +1,10 @@
+{
+	"extends": ["./bdbuilder.config.json"],
+	"build": {
+		"production": false,
+		"entry": "./[name]/src",
+		"output": "./builds",
+		"install": true,
+		"watch": true
+	}
+}

@@ -1,0 +1,12 @@
+{
+	"name": "betterdiscordstuff",
+	"version": "1.0.0",
+	"description": "Plugins and CSS Snippets for BetterDiscord.",
+	"devDependencies": {
+		"@betterdiscordbuilder/bdbuilder": "^1.2.22"
+	},
+	"scripts": {
+		"dev": "npx bdbuilder --build --config=bdbuilder.dev.config.json",
+		"build": "npx bdbuilder --build --config=bdbuilder.prod.config.json"
+	}
+}

@@ -1,0 +1,29 @@
+{
+	"info": {
+		"name": "VoiceActivity",
+		"version": "1.2.0",
+		"description": "Shows icons on the member list and info in User Popouts when someone is in a voice channel.",
+		"github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
+		"github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js",
+		"authors": [
+			{
+				"name": "Neodymium"
+			}
+		],
+		"invite": "fRbsqH87Av"
+	},
+	"changelog": [
+		{
+			"title": "Improved",
+			"type": "improved",
+			"items": [
+				"Added options to show icons on the DMs List and the Friends page",
+				"Refactored plugin (Now uses BDBuilder behind the scenes)",
+				"A few more minor fixes to make the plugin run smoother"
+			]
+		}
+	],
+	"build": {
+		"zlibrary": true
+	}
+}

@@ -1,0 +1,17 @@
+.defaultIcon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 500;
+	line-height: 1.2em;
+	white-space: nowrap;
+	background-color: var(--background-primary);
+	color: var(--text-normal);
+	min-width: 48px;
+	width: 48px;
+	height: 48px;
+	border-radius: 16px;
+	cursor: pointer;
+	white-space: nowrap;
+	overflow: hidden;
+}

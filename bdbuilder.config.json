@@ -1,0 +1,17 @@
+{
+	"build": {
+		"watch": false,
+		"folder": "./[plugin]",
+		"filename": "[name].plugin.js",
+		"readme": false
+	},
+	"github": {
+		"username": "Neodymium7",
+		"branch": "main",
+		"repo": "BetterDiscordStuff"
+	},
+	"paths": {
+		"bdfolder": "C:/BetterDiscord",
+		"release_folder": "<seret>"
+	}
+}
