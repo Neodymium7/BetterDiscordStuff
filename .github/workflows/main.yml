@@ -6,7 +6,7 @@ name: Autobuild Plugins
 on:
   push:
     branches:
-      - master
+      - main
   workflow_dispatch:
     inputs:
       plugin:
@@ -82,7 +82,7 @@ jobs:
       - name: Restore repo
         uses: actions/checkout@v2
         with:
-          ref: master
+          ref: main
 
       - name: Apply build
         uses: actions/download-artifact@v2
@@ -102,4 +102,4 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ github.token }}
-          branch: master # *release* branch
+          branch: main # *release* branch
