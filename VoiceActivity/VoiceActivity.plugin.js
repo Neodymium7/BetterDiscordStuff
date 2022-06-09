@@ -1,6 +1,6 @@
 /**
  * @name VoiceActivity
- * @version 1.2.0
+ * @version 1.2.1
  * @description Shows icons on the member list and info in User Popouts when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
@@ -33,7 +33,7 @@
 const config = {
 	"info": {
 		"name": "VoiceActivity",
-		"version": "1.2.0",
+		"version": "1.2.1",
 		"description": "Shows icons on the member list and info in User Popouts when someone is in a voice channel.",
 		"github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		"github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js",
@@ -43,12 +43,11 @@ const config = {
 		"invite": "fRbsqH87Av"
 	},
 	"changelog": [{
-		"title": "Improved",
-		"type": "improved",
+		"title": "Fixed",
+		"type": "fixed",
 		"items": [
-			"Added options to show icons on the DMs List and the Friends page",
-			"Refactored plugin (Now uses BDBuilder behind the scenes)",
-			"A few more minor fixes to make the plugin run smoother"
+			"Fixed compatibility issues with PlatformIndicators and UserDetails",
+			"Fixed crashing when clicking on DM icon"
 		]
 	}],
 	"build": {
@@ -590,6 +589,7 @@ function buildPlugin([BasePlugin, PluginApi]) {
 					className,
 					onClick: e => {
 						e.stopPropagation();
+						e.preventDefault();
 						if (channelPath) NavigationUtils.transitionTo(channelPath);
 					}
 				}, external_BdApi_React_default().createElement(TooltipContainer, {
@@ -876,7 +876,15 @@ function buildPlugin([BasePlugin, PluginApi]) {
 				async patchMemberListItem() {
 					const MemberListItem = await external_PluginApi_namespaceObject.ReactComponents.getComponentByName("MemberListItem", memberItemSelector);
 					external_PluginApi_namespaceObject.Patcher.after(MemberListItem.component.prototype, "render", ((thisObject, _, ret) => {
-						if (thisObject.props.user) ret.props.children = external_BdApi_React_default().createElement(VoiceIcon, {
+						if (thisObject.props.user) ret.props.children ? ret.props.children = external_BdApi_React_default().createElement("div", {
+							style: {
+								display: "flex",
+								gap: "8px"
+							}
+						}, ret.props.children, external_BdApi_React_default().createElement(VoiceIcon, {
+							userId: thisObject.props.user.id,
+							context: "memberlist"
+						})) : ret.props.children = external_BdApi_React_default().createElement(VoiceIcon, {
 							userId: thisObject.props.user.id,
 							context: "memberlist"
 						});
@@ -887,10 +895,16 @@ function buildPlugin([BasePlugin, PluginApi]) {
 					const PrivateChannel = await external_PluginApi_namespaceObject.ReactComponents.getComponentByName("PrivateChannel", privateChannelSelector);
 					external_PluginApi_namespaceObject.Patcher.after(PrivateChannel.component.prototype, "render", ((thisObject, _, ret) => {
 						if (!thisObject.props.user) return;
-						const children = ret.props.children;
-						ret.props.children = childrenProps => {
+						const props = external_PluginApi_namespaceObject.Utilities.findInTree(ret, (e => e?.children && e?.id), {
+							walkable: ["children", "props"]
+						});
+						const children = props.children;
+						props.children = childrenProps => {
 							const childrenRet = children(childrenProps);
-							childrenRet.props.children.props.children[0].props.children = [childrenRet.props.children.props.children[0].props.children, external_BdApi_React_default().createElement("div", {
+							const privateChannel = external_PluginApi_namespaceObject.Utilities.findInTree(childrenRet, (e => e?.children?.props?.avatar), {
+								walkable: ["children", "props"]
+							});
+							privateChannel.children = [privateChannel.children, external_BdApi_React_default().createElement("div", {
 								className: voiceicon.Z.iconContainer
 							}, external_BdApi_React_default().createElement(VoiceIcon, {
 								userId: thisObject.props.user.id,
