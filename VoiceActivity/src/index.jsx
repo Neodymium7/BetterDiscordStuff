@@ -2,7 +2,7 @@ import BasePlugin from "@zlibrary/plugin";
 import React from "react";
 import styles from "styles";
 import { useStateFromStores } from "@discord/flux";
-import { ContextMenu, Patcher, ReactComponents, WebpackModules } from "@zlibrary";
+import { ContextMenu, Patcher, ReactComponents, Utilities, WebpackModules } from "@zlibrary";
 import Settings from "./modules/settings";
 import Strings from "./modules/strings";
 import { forceUpdateAll } from "./modules/utils";
@@ -29,7 +29,16 @@ export default class VoiceActivity extends BasePlugin {
 	async patchMemberListItem() {
 		const MemberListItem = await ReactComponents.getComponentByName("MemberListItem", memberItemSelector);
 		Patcher.after(MemberListItem.component.prototype, "render", (thisObject, _, ret) => {
-			if (thisObject.props.user) ret.props.children = <VoiceIcon userId={thisObject.props.user.id} context="memberlist" />;
+			if (thisObject.props.user) {
+				ret.props.children
+					? (ret.props.children = (
+							<div style={{ display: "flex", gap: "8px" }}>
+								{ret.props.children}
+								<VoiceIcon userId={thisObject.props.user.id} context="memberlist" />
+							</div>
+					  ))
+					: (ret.props.children = <VoiceIcon userId={thisObject.props.user.id} context="memberlist" />);
+			}
 		});
 		forceUpdateAll(memberItemSelector);
 	}
@@ -38,11 +47,15 @@ export default class VoiceActivity extends BasePlugin {
 		const PrivateChannel = await ReactComponents.getComponentByName("PrivateChannel", privateChannelSelector);
 		Patcher.after(PrivateChannel.component.prototype, "render", (thisObject, _, ret) => {
 			if (!thisObject.props.user) return;
-			const children = ret.props.children;
-			ret.props.children = childrenProps => {
+			const props = Utilities.findInTree(ret, e => e?.children && e?.id, { walkable: ["children", "props"] });
+			const children = props.children;
+			props.children = childrenProps => {
 				const childrenRet = children(childrenProps);
-				childrenRet.props.children.props.children[0].props.children = [
-					childrenRet.props.children.props.children[0].props.children,
+				const privateChannel = Utilities.findInTree(childrenRet, e => e?.children?.props?.avatar, {
+					walkable: ["children", "props"]
+				});
+				privateChannel.children = [
+					privateChannel.children,
 					<div className={iconStyle.iconContainer}>
 						<VoiceIcon userId={thisObject.props.user.id} context="dmlist" />
 					</div>

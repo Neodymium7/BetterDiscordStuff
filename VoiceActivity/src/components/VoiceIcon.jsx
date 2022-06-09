@@ -71,6 +71,7 @@ export default function VoiceIcon(props) {
 			className={className}
 			onClick={e => {
 				e.stopPropagation();
+				e.preventDefault();
 				if (channelPath) NavigationUtils.transitionTo(channelPath);
 			}}
 		>
