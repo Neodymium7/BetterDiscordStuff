@@ -1,6 +1,6 @@
 /**
  * @name VoiceActivity
- * @version 1.2.1
+ * @version 1.2.2
  * @description Shows icons on the member list and info in User Popouts when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
@@ -33,7 +33,7 @@
 const config = {
 	"info": {
 		"name": "VoiceActivity",
-		"version": "1.2.1",
+		"version": "1.2.2",
 		"description": "Shows icons on the member list and info in User Popouts when someone is in a voice channel.",
 		"github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		"github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js",
@@ -46,8 +46,7 @@ const config = {
 		"title": "Fixed",
 		"type": "fixed",
 		"items": [
-			"Fixed compatibility issues with PlatformIndicators and UserDetails",
-			"Fixed crashing when clicking on DM icon"
+			"Fixed crashing when attempting to switch accounts"
 		]
 	}],
 	"build": {
@@ -547,7 +546,7 @@ function buildPlugin([BasePlugin, PluginApi]) {
 				const ignoredChannels = (0, flux_namespaceObject.useStateFromStores)([settings], (() => settings.get("ignoredChannels", [])));
 				const ignoredGuilds = (0, flux_namespaceObject.useStateFromStores)([settings], (() => settings.get("ignoredGuilds", [])));
 				const voiceState = (0, flux_namespaceObject.useStateFromStores)([VoiceStates], (() => VoiceStates.getVoiceStateForUser(props.userId)));
-				const currentUserVoiceState = (0, flux_namespaceObject.useStateFromStores)([VoiceStates], (() => VoiceStates.getVoiceStateForUser(stores_namespaceObject.Users.getCurrentUser().id)));
+				const currentUserVoiceState = (0, flux_namespaceObject.useStateFromStores)([VoiceStates], (() => VoiceStates.getVoiceStateForUser(stores_namespaceObject.Users.getCurrentUser()?.id)));
 				if ("memberlist" === props.context && !showMemberListIcons) return null;
 				if ("dmlist" === props.context && !showDMListIcons) return null;
 				if ("peoplelist" === props.context && !showPeopleListIcons) return null;
