@@ -23,7 +23,7 @@ export default function VoiceIcon(props) {
 	const ignoredGuilds = useStateFromStores([Settings], () => Settings.get("ignoredGuilds", []));
 
 	const voiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(props.userId));
-	const currentUserVoiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(Users.getCurrentUser().id));
+	const currentUserVoiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(Users.getCurrentUser()?.id));
 
 	if (props.context === "memberlist" && !showMemberListIcons) return null;
 	if (props.context === "dmlist" && !showDMListIcons) return null;

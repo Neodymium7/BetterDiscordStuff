@@ -1,7 +1,7 @@
 {
 	"info": {
 		"name": "VoiceActivity",
-		"version": "1.2.1",
+		"version": "1.2.2",
 		"description": "Shows icons on the member list and info in User Popouts when someone is in a voice channel.",
 		"github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		"github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js",
@@ -17,8 +17,7 @@
 			"title": "Fixed",
 			"type": "fixed",
 			"items": [
-				"Fixed compatibility issues with PlatformIndicators and UserDetails",
-				"Fixed crashing when clicking on DM icon"
+				"Fixed crashing when attempting to switch accounts"
 			]
 		}
 	],
