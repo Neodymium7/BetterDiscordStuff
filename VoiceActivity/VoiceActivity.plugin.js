@@ -1,6 +1,6 @@
 /**
  * @name VoiceActivity
- * @version 1.2.2
+ * @version 1.2.3
  * @description Shows icons on the member list and info in User Popouts when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
@@ -33,7 +33,7 @@
 const config = {
 	"info": {
 		"name": "VoiceActivity",
-		"version": "1.2.2",
+		"version": "1.2.3",
 		"description": "Shows icons on the member list and info in User Popouts when someone is in a voice channel.",
 		"github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		"github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js",
@@ -46,7 +46,7 @@ const config = {
 		"title": "Fixed",
 		"type": "fixed",
 		"items": [
-			"Fixed crashing when attempting to switch accounts"
+			"Fixed unnecessary margins"
 		]
 	}],
 	"build": {
@@ -871,6 +871,7 @@ function buildPlugin([BasePlugin, PluginApi]) {
 					this.patchPrivateChannel();
 					this.patchPeopleListItem();
 					this.patchContextMenu();
+					BdApi.injectCSS("VoiceActivity", `.${external_PluginApi_namespaceObject.WebpackModules.getByProps("avatar", "children").children}:empty{margin-left: 0}`);
 				}
 				async patchMemberListItem() {
 					const MemberListItem = await external_PluginApi_namespaceObject.ReactComponents.getComponentByName("MemberListItem", memberItemSelector);
@@ -983,6 +984,7 @@ function buildPlugin([BasePlugin, PluginApi]) {
 					forceUpdateAll(memberItemSelector);
 					forceUpdateAll(privateChannelSelector);
 					forceUpdateAll(peopleItemSelector);
+					BdApi.clearCSS("VoiceActivity");
 				}
 				getSettingsPanel() {
 					return external_BdApi_React_default().createElement(SettingsPanel, null);
