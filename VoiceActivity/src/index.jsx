@@ -24,6 +24,7 @@ export default class VoiceActivity extends BasePlugin {
 		this.patchPrivateChannel();
 		this.patchPeopleListItem();
 		this.patchContextMenu();
+		BdApi.injectCSS("VoiceActivity", `.${WebpackModules.getByProps("avatar", "children").children}:empty{margin-left: 0}`);
 	}
 
 	async patchMemberListItem() {
@@ -145,6 +146,7 @@ export default class VoiceActivity extends BasePlugin {
 		forceUpdateAll(memberItemSelector);
 		forceUpdateAll(privateChannelSelector);
 		forceUpdateAll(peopleItemSelector);
+		BdApi.clearCSS("VoiceActivity");
 	}
 
 	getSettingsPanel() {
