@@ -1,7 +1,7 @@
 /**
  * @name RoleMentionIcons
  * @author Neodymium
- * @version 1.1.0
+ * @version 1.1.1
  * @description Displays icons next to role mentions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js
@@ -40,13 +40,13 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.1.0",
+            "version": "1.1.1",
             "description": "Displays icons next to role mentions.",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js"
         },
         "changelog": [
-            { "title": "Added", "type": "improved", "items": ["Added support for Role Icons (Thanks HypedDomi for the contribution!)"] },
+            { "title": "Fixed", "type": "fixed", "items": ["Fixed unknown user mentions displaying role icons"] },
         ],
         "main": "index.js"
     };
@@ -99,12 +99,16 @@ module.exports = (() => {
                             position: relative;
                             top: 2px;
                             margin-left: 4px;
-                        }`);
+                    }`);
                     BdApi.Patcher.after("RoleMentionIcons", RoleMention, "default", (_, [props], ret) => {
+                        if (!props.roleName && !props.roleId) return;
                         const isEveryone = props.roleName === "@everyone";
                         const isHere = props.roleName === "@here";
-                        let role = filter(GuildStore.getGuild(props.guildId)?.roles, r => r.id === props.roleId);
-                        role = role[Object.keys(role)[0]];
+                        let role;
+                        if (props.guildId) {
+                            role = filter(GuildStore.getGuild(props.guildId)?.roles, r => r.id === props.roleId);
+                            role = role[Object.keys(role)[0]];
+                        }
                         if (!props.children.some(child => child.props?.class === "role-mention-icon") && (this.settings.everyone || !isEveryone) && (this.settings.here || !isHere)) {
                             if (role?.icon && this.settings.showRoleIcons) props.children.push(BdApi.React.createElement("img", { "class": "role-mention-icon", style: { width: 14, height: 14, borderRadius: "3px", objectFit: "contain" }, src: `https://cdn.discordapp.com/role-icons/${role.id}/${role?.icon}.webp?size=24&quality=lossless` }));
                             else props.children.push(BdApi.React.createElement(People, { "class": "role-mention-icon", width: 14, height: 14 }));
