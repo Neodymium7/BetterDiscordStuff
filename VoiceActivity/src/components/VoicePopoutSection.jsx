@@ -39,14 +39,14 @@ export default function VoicePopoutSection(props) {
 
 	if (guild) {
 		headerText = Strings.get("HEADER");
-		text = [<div style={{ "font-weight": 600 }}>{guild.name}</div>, <div style={{ "font-weight": 400 }}>{channel.name}</div>];
+		text = [<h3>{guild.name}</h3>, <div>{channel.name}</div>];
 		viewButton = Strings.get("VIEW");
 		joinButton = inCurrentChannel ? Strings.get("JOIN_DISABLED") : Strings.get("JOIN");
 		Icon = Speaker;
 		channelPath = `/channels/${guild.id}/${channel.id}`;
 	} else {
 		headerText = Strings.get("HEADER_VOICE");
-		text = <div style={{ "font-weight": 600 }}>{channel.name}</div>;
+		text = <h3>{channel.name}</h3>;
 		viewButton = Strings.get("VIEW_CALL");
 		joinButton = inCurrentChannel ? Strings.get("JOIN_DISABLED_CALL") : Strings.get("JOIN_CALL");
 		Icon = CallJoin;
@@ -58,7 +58,7 @@ export default function VoicePopoutSection(props) {
 			break;
 		case 3:
 			headerText = Strings.get("HEADER_GROUP");
-			text = <div style={{ "font-weight": 600 }}>{channel.name ?? groupDMName(channel.recipients)}</div>;
+			text = <h3>{channel.name ?? groupDMName(channel.recipients)}</h3>;
 			break;
 		case 13:
 			headerText = Strings.get("HEADER_STAGE");
@@ -71,7 +71,7 @@ export default function VoicePopoutSection(props) {
 			{!(channel.type === 1) && (
 				<div className={hasOverflow ? `${style.body} ${style.hasOverflow}` : style.body}>
 					<GuildImage guild={guild} channel={channel} channelPath={channelPath} />
-					<div className={guild ? style.text : `${style.text} ${style.textPrivate}`}>{text}</div>
+					<div className={style.text}>{text}</div>
 					<WrappedPartyAvatars guild={guild} channel={channel} members={members} />
 				</div>
 			)}

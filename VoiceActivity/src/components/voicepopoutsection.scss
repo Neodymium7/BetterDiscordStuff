@@ -16,23 +16,23 @@
 		flex-direction: row;
 
 		.text {
-			padding-top: 8px;
-			margin: 0 10px;
+			margin: auto 10px;
 			color: var(--text-normal);
-			font-size: 16px;
+			font-size: 14px;
 			line-height: 18px;
-			font-family: var(--font-primary);
 			overflow: hidden;
 
-			& > div {
+			& > div,
+			& > h3 {
 				overflow: hidden;
 				white-space: nowrap;
 				text-overflow: ellipsis;
 			}
-		}
 
-		.textPrivate {
-			padding-top: 16px;
+			& > h3 {
+				font-family: var(--font-display);
+				font-weight: 500;
+			}
 		}
 
 		& > :last-child {
