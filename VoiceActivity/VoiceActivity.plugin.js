@@ -1,6 +1,6 @@
 /**
  * @name VoiceActivity
- * @version 1.2.4
+ * @version 1.2.5
  * @description Shows icons on the member list and info in User Popouts when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
@@ -33,7 +33,7 @@
 const config = {
 	"info": {
 		"name": "VoiceActivity",
-		"version": "1.2.4",
+		"version": "1.2.5",
 		"description": "Shows icons on the member list and info in User Popouts when someone is in a voice channel.",
 		"github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		"github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js",
@@ -46,7 +46,8 @@ const config = {
 		"title": "Fixed",
 		"type": "fixed",
 		"items": [
-			"Fixed VoiceActivity not displaying in User Popouts."
+			"Fixed position in user popout",
+			"Fixed some issues with styling"
 		]
 	}],
 	"build": {
@@ -313,13 +314,12 @@ function buildPlugin([BasePlugin, PluginApi]) {
 				var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()((function(i) {
 					return i[1];
 				}));
-				___CSS_LOADER_EXPORT___.push([module.id, ".VoiceActivity-voicepopoutsection-popoutSection{margin-bottom:16px}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-header{margin-bottom:8px;color:var(--header-secondary);font-size:12px;line-height:16px;font-family:var(--font-display);font-weight:700;text-transform:uppercase}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body{display:flex;flex-direction:row}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-text{padding-top:8px;margin:0 10px;color:var(--text-normal);font-size:16px;line-height:18px;font-family:var(--font-primary);overflow:hidden}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-text>div{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-textPrivate{padding-top:16px}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body>:last-child{padding:12px 0;margin-left:auto}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-hasOverflow>:last-child>div>:last-child{background-color:var(--background-tertiary)}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper{display:flex;flex:0 1 auto;flex-direction:row;flex-wrap:nowrap;justify-content:flex-start;align-items:stretch;margin-top:12px}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button{height:32px;min-height:32px;width:100%;display:flex;justify-content:center;align-items:center;padding:2px 16px;border-radius:3px;background-color:var(--button-secondary-background);transition:background-color .17s ease,color .17s ease;color:#fff;font-size:14px;line-height:16px;font-weight:500;user-select:none}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:hover{background-color:var(--button-secondary-background-hover)}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:active{background-color:var(--button-secondary-background-active)}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:disabled{background-color:var(--button-secondary-background-disabled);opacity:.5;cursor:not-allowed}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper>div[aria-label]{width:32px;margin-left:8px}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-joinWrapper .VoiceActivity-voicepopoutsection-joinButton{min-width:32px;max-width:32px;padding:0}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-joinWrapper .VoiceActivity-voicepopoutsection-joinButton:disabled{pointer-events:none}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-joinWrapperDisabled{cursor:not-allowed}", ""]);
+				___CSS_LOADER_EXPORT___.push([module.id, ".VoiceActivity-voicepopoutsection-popoutSection{margin-bottom:16px}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-header{margin-bottom:8px;color:var(--header-secondary);font-size:12px;line-height:16px;font-family:var(--font-display);font-weight:700;text-transform:uppercase}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body{display:flex;flex-direction:row}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-text{margin:auto 10px;color:var(--text-normal);font-size:14px;line-height:18px;overflow:hidden}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-text>div,.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-text>h3{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-text>h3{font-family:var(--font-display);font-weight:500}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body>:last-child{padding:12px 0;margin-left:auto}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-hasOverflow>:last-child>div>:last-child{background-color:var(--background-tertiary)}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper{display:flex;flex:0 1 auto;flex-direction:row;flex-wrap:nowrap;justify-content:flex-start;align-items:stretch;margin-top:12px}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button{height:32px;min-height:32px;width:100%;display:flex;justify-content:center;align-items:center;padding:2px 16px;border-radius:3px;background-color:var(--button-secondary-background);transition:background-color .17s ease,color .17s ease;color:#fff;font-size:14px;line-height:16px;font-weight:500;user-select:none}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:hover{background-color:var(--button-secondary-background-hover)}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:active{background-color:var(--button-secondary-background-active)}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:disabled{background-color:var(--button-secondary-background-disabled);opacity:.5;cursor:not-allowed}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper>div[aria-label]{width:32px;margin-left:8px}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-joinWrapper .VoiceActivity-voicepopoutsection-joinButton{min-width:32px;max-width:32px;padding:0}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-joinWrapper .VoiceActivity-voicepopoutsection-joinButton:disabled{pointer-events:none}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-joinWrapperDisabled{cursor:not-allowed}", ""]);
 				___CSS_LOADER_EXPORT___.locals = {
 					popoutSection: "VoiceActivity-voicepopoutsection-popoutSection",
 					header: "VoiceActivity-voicepopoutsection-header",
 					body: "VoiceActivity-voicepopoutsection-body",
 					text: "VoiceActivity-voicepopoutsection-text",
-					textPrivate: "VoiceActivity-voicepopoutsection-textPrivate",
 					hasOverflow: "VoiceActivity-voicepopoutsection-hasOverflow",
 					buttonWrapper: "VoiceActivity-voicepopoutsection-buttonWrapper",
 					button: "VoiceActivity-voicepopoutsection-button",
@@ -701,26 +701,14 @@ function buildPlugin([BasePlugin, PluginApi]) {
 				const isCurrentUser = props.userId === stores_namespaceObject.Users.getCurrentUser().id;
 				if (guild) {
 					headerText = Strings.get("HEADER");
-					text = [external_BdApi_React_default().createElement("div", {
-						style: {
-							"font-weight": 600
-						}
-					}, guild.name), external_BdApi_React_default().createElement("div", {
-						style: {
-							"font-weight": 400
-						}
-					}, channel.name)];
+					text = [external_BdApi_React_default().createElement("h3", null, guild.name), external_BdApi_React_default().createElement("div", null, channel.name)];
 					viewButton = Strings.get("VIEW");
 					joinButton = inCurrentChannel ? Strings.get("JOIN_DISABLED") : Strings.get("JOIN");
 					Icon = Speaker;
 					channelPath = `/channels/${guild.id}/${channel.id}`;
 				} else {
 					headerText = Strings.get("HEADER_VOICE");
-					text = external_BdApi_React_default().createElement("div", {
-						style: {
-							"font-weight": 600
-						}
-					}, channel.name);
+					text = external_BdApi_React_default().createElement("h3", null, channel.name);
 					viewButton = Strings.get("VIEW_CALL");
 					joinButton = inCurrentChannel ? Strings.get("JOIN_DISABLED_CALL") : Strings.get("JOIN_CALL");
 					Icon = CallJoin;
@@ -732,11 +720,7 @@ function buildPlugin([BasePlugin, PluginApi]) {
 						break;
 					case 3:
 						headerText = Strings.get("HEADER_GROUP");
-						text = external_BdApi_React_default().createElement("div", {
-							style: {
-								"font-weight": 600
-							}
-						}, channel.name ?? groupDMName(channel.recipients));
+						text = external_BdApi_React_default().createElement("h3", null, channel.name ?? groupDMName(channel.recipients));
 						break;
 					case 13:
 						headerText = Strings.get("HEADER_STAGE");
@@ -753,7 +737,7 @@ function buildPlugin([BasePlugin, PluginApi]) {
 					channel,
 					channelPath
 				}), external_BdApi_React_default().createElement("div", {
-					className: guild ? voicepopoutsection.Z.text : `${voicepopoutsection.Z.text} ${voicepopoutsection.Z.textPrivate}`
+					className: voicepopoutsection.Z.text
 				}, text), external_BdApi_React_default().createElement(WrappedPartyAvatars, {
 					guild,
 					channel,
@@ -936,7 +920,7 @@ function buildPlugin([BasePlugin, PluginApi]) {
 				patchUserPopoutBody() {
 					const UserPopoutBody = external_PluginApi_namespaceObject.WebpackModules.getModules((m => "UserPopoutBody" === m.default.displayName))[1];
 					external_PluginApi_namespaceObject.Patcher.after(UserPopoutBody, "default", ((_, [props], ret) => {
-						ret?.props.children.unshift(external_BdApi_React_default().createElement(VoicePopoutSection, {
+						ret?.props.children.splice(1, 0, external_BdApi_React_default().createElement(VoicePopoutSection, {
 							userId: props.user.id
 						}));
 					}));
