@@ -1,6 +1,6 @@
 /**
  * @name VoiceActivity
- * @version 1.2.3
+ * @version 1.2.4
  * @description Shows icons on the member list and info in User Popouts when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
@@ -33,7 +33,7 @@
 const config = {
 	"info": {
 		"name": "VoiceActivity",
-		"version": "1.2.3",
+		"version": "1.2.4",
 		"description": "Shows icons on the member list and info in User Popouts when someone is in a voice channel.",
 		"github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		"github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js",
@@ -46,7 +46,7 @@ const config = {
 		"title": "Fixed",
 		"type": "fixed",
 		"items": [
-			"Fixed unnecessary margins"
+			"Fixed VoiceActivity not displaying in User Popouts."
 		]
 	}],
 	"build": {
@@ -934,7 +934,7 @@ function buildPlugin([BasePlugin, PluginApi]) {
 					forceUpdateAll(peopleItemSelector);
 				}
 				patchUserPopoutBody() {
-					const UserPopoutBody = external_PluginApi_namespaceObject.WebpackModules.getModule((m => "UserPopoutBody" === m.default.displayName));
+					const UserPopoutBody = external_PluginApi_namespaceObject.WebpackModules.getModules((m => "UserPopoutBody" === m.default.displayName))[1];
 					external_PluginApi_namespaceObject.Patcher.after(UserPopoutBody, "default", ((_, [props], ret) => {
 						ret?.props.children.unshift(external_BdApi_React_default().createElement(VoicePopoutSection, {
 							userId: props.user.id
