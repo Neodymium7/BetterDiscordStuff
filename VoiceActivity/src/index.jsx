@@ -88,7 +88,7 @@ export default class VoiceActivity extends BasePlugin {
 	}
 
 	patchUserPopoutBody() {
-		const UserPopoutBody = WebpackModules.getModule(m => m.default.displayName === "UserPopoutBody");
+		const UserPopoutBody = WebpackModules.getModules(m => m.default.displayName === "UserPopoutBody")[1];
 		Patcher.after(UserPopoutBody, "default", (_, [props], ret) => {
 			ret?.props.children.unshift(<VoicePopoutSection userId={props.user.id} />);
 		});
