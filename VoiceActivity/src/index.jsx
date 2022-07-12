@@ -2,29 +2,79 @@ import BasePlugin from "@zlibrary/plugin";
 import React from "react";
 import styles from "styles";
 import { useStateFromStores } from "@discord/flux";
+import { Users } from "@discord/stores";
 import { ContextMenu, Patcher, ReactComponents, Utilities, WebpackModules } from "@zlibrary";
 import Settings from "./modules/settings";
 import Strings from "./modules/strings";
-import { forceUpdateAll } from "./modules/utils";
+import { forceUpdateAll, getLazyModule } from "./modules/utils";
 import iconStyle from "./components/voiceicon.scss";
 import VoiceIcon from "./components/VoiceIcon";
 import VoicePopoutSection from "./components/VoicePopoutSection";
 import SettingsPanel from "./components/SettingsPanel";
+import ModalActivityItem from "./components/ModalActivityItem";
 
 const memberItemSelector = `.${WebpackModules.getByProps("member", "activity").member}`;
 const privateChannelSelector = `.${WebpackModules.getByProps("channel", "activity").channel}`;
 const peopleItemSelector = `.${WebpackModules.getByProps("peopleListItem").peopleListItem}`;
+
+const VoiceStates = WebpackModules.getByProps("getVoiceStateForUser");
 
 export default class VoiceActivity extends BasePlugin {
 	onStart() {
 		styles.inject();
 		Strings.subscribe();
 		this.patchUserPopoutBody();
+		this.patchUserProfileModal();
 		this.patchMemberListItem();
 		this.patchPrivateChannel();
 		this.patchPeopleListItem();
 		this.patchContextMenu();
 		BdApi.injectCSS("VoiceActivity", `.${WebpackModules.getByProps("avatar", "children").children}:empty{margin-left: 0}`);
+	}
+
+	patchUserPopoutBody() {
+		const UserPopoutBody = WebpackModules.getModules(m => m.default.displayName === "UserPopoutBody")[1];
+		Patcher.after(UserPopoutBody, "default", (_, [props], ret) => {
+			ret?.props.children.splice(1, 0, <VoicePopoutSection userId={props.user.id} />);
+		});
+	}
+
+	async patchUserProfileModal() {
+		const UserProfileModal = await getLazyModule(m => m.default?.displayName === "UserProfileModal");
+		const UserProfileBody = WebpackModules.getModule(m => m.default?.toString()?.includes("case s.UserProfileSections"));
+		const UserProfileActivity = WebpackModules.getModule(m => m.default?.displayName === "UserProfileActivity");
+		const tabBarItem = WebpackModules.getByProps("tabBarContainer").tabBarItem;
+		Patcher.after(UserProfileModal, "default", (_, [modalProps], modalRet) => {
+			if (modalProps.user.id !== Users.getCurrentUser().id) {
+				const tabBar = Utilities.findInTree(modalRet, e => e.props?.section && e.props?.user, { walkable: ["props", "children"] });
+				Patcher.instead(tabBar, "type", (_, [props], original) => {
+					const voiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(props.user.id));
+					const ret = original(props);
+					if (!props.hasActivity && voiceState) {
+						const items = Utilities.findInTree(ret, e => Array.isArray(e), { walkable: ["props", "children"] });
+						const Item = items[0].type;
+						items[1] = (
+							<Item className={tabBarItem} id="VOICE_ACTIVITY">
+								Activity
+							</Item>
+						);
+					}
+					if (props.hasActivity && props.section === "VOICE_ACTIVITY") {
+						props.setSection("ACTIVITY");
+					}
+					return ret;
+				});
+			}
+		});
+		Patcher.instead(UserProfileBody, "default", (_, [props], original) => {
+			if (props.selectedSection === "VOICE_ACTIVITY") {
+				return <UserProfileActivity.default user={props.user} />;
+			}
+			return original(props);
+		});
+		Patcher.after(UserProfileActivity, "default", (_, [props], ret) => {
+			ret.props.children[1].unshift(<ModalActivityItem userId={props.user.id} />);
+		});
 	}
 
 	async patchMemberListItem() {
@@ -85,13 +135,6 @@ export default class VoiceActivity extends BasePlugin {
 			};
 		});
 		forceUpdateAll(peopleItemSelector);
-	}
-
-	patchUserPopoutBody() {
-		const UserPopoutBody = WebpackModules.getModules(m => m.default.displayName === "UserPopoutBody")[1];
-		Patcher.after(UserPopoutBody, "default", (_, [props], ret) => {
-			ret?.props.children.splice(1, 0, <VoicePopoutSection userId={props.user.id} />);
-		});
 	}
 
 	async patchContextMenu() {
