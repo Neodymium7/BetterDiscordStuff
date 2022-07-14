@@ -105,4 +105,8 @@
 		top: 20px;
 		right: 16px;
 	}
+
+	.hasOverflow :nth-child(3) {
+		background-color: var(--background-tertiary);
+	}
 }

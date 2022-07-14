@@ -34,6 +34,7 @@ export default function ModalActivityItem(props) {
 
 	let headerText, text, viewButton, joinButton, Icon, channelPath;
 	const members = Object.keys(VoiceStates.getVoiceStatesForChannel(channel.id)).map(id => Users.getUser(id));
+	const hasOverflow = members.length > 3;
 	const inCurrentChannel = channel.id === currentUserVoiceState?.channelId;
 	const isCurrentUser = props.userId === Users.getCurrentUser().id;
 
@@ -118,7 +119,7 @@ export default function ModalActivityItem(props) {
 				</div>
 			</div>
 			{!(channel.type === 1) && (
-				<div className={style.members}>
+				<div className={hasOverflow ? `${style.members} ${style.hasOverflow}` : style.members}>
 					<WrappedPartyAvatars guild={guild} channel={channel} members={members} />
 				</div>
 			)}
