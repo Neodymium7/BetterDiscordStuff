@@ -16,6 +16,7 @@ import ModalActivityItem from "./components/ModalActivityItem";
 const memberItemSelector = `.${WebpackModules.getByProps("member", "activity").member}`;
 const privateChannelSelector = `.${WebpackModules.getByProps("channel", "activity").channel}`;
 const peopleItemSelector = `.${WebpackModules.getByProps("peopleListItem").peopleListItem}`;
+const children = WebpackModules.getByProps("avatar", "children").children;
 
 const VoiceStates = WebpackModules.getByProps("getVoiceStateForUser");
 
@@ -29,7 +30,7 @@ export default class VoiceActivity extends BasePlugin {
 		this.patchPrivateChannel();
 		this.patchPeopleListItem();
 		this.patchContextMenu();
-		BdApi.injectCSS("VoiceActivity", `.${WebpackModules.getByProps("avatar", "children").children}:empty{margin-left: 0}`);
+		BdApi.injectCSS("VoiceActivity", `.${children}:empty { margin-left: 0; } .${children} { display: flex; gap: 8px; }`);
 	}
 
 	patchUserPopoutBody() {
@@ -81,14 +82,9 @@ export default class VoiceActivity extends BasePlugin {
 		const MemberListItem = await ReactComponents.getComponentByName("MemberListItem", memberItemSelector);
 		Patcher.after(MemberListItem.component.prototype, "render", (thisObject, _, ret) => {
 			if (thisObject.props.user) {
-				ret.props.children
-					? (ret.props.children = (
-							<div style={{ display: "flex", gap: "8px" }}>
-								{ret.props.children}
-								<VoiceIcon userId={thisObject.props.user.id} context="memberlist" />
-							</div>
-					  ))
-					: (ret.props.children = <VoiceIcon userId={thisObject.props.user.id} context="memberlist" />);
+				Array.isArray(ret.props.children)
+					? ret.props.children.unshift(<VoiceIcon userId={thisObject.props.user.id} context="memberlist" />)
+					: (ret.props.children = [<VoiceIcon userId={thisObject.props.user.id} context="memberlist" />]);
 			}
 		});
 		forceUpdateAll(memberItemSelector);
