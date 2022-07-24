@@ -1,6 +1,6 @@
 /**
  * @name VoiceActivity
- * @version 1.3.1
+ * @version 1.3.2
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
@@ -33,7 +33,7 @@
 const config = {
 	"info": {
 		"name": "VoiceActivity",
-		"version": "1.3.1",
+		"version": "1.3.2",
 		"description": "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		"github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		"github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js",
@@ -46,8 +46,7 @@ const config = {
 		"title": "Fixed",
 		"type": "fixed",
 		"items": [
-			"Fixed minor styling issues",
-			"Fixed not displaying in user popouts"
+			"Fixed compatibility with UserDetails"
 		]
 	}],
 	"build": {
@@ -991,6 +990,7 @@ function buildPlugin([BasePlugin, PluginApi]) {
 			const memberItemSelector = `.${external_PluginApi_namespaceObject.WebpackModules.getByProps("member", "activity").member}`;
 			const privateChannelSelector = `.${external_PluginApi_namespaceObject.WebpackModules.getByProps("channel", "activity").channel}`;
 			const peopleItemSelector = `.${external_PluginApi_namespaceObject.WebpackModules.getByProps("peopleListItem").peopleListItem}`;
+			const children = external_PluginApi_namespaceObject.WebpackModules.getByProps("avatar", "children").children;
 			const src_VoiceStates = external_PluginApi_namespaceObject.WebpackModules.getByProps("getVoiceStateForUser");
 			class VoiceActivity extends(external_BasePlugin_default()) {
 				onStart() {
@@ -1002,7 +1002,7 @@ function buildPlugin([BasePlugin, PluginApi]) {
 					this.patchPrivateChannel();
 					this.patchPeopleListItem();
 					this.patchContextMenu();
-					BdApi.injectCSS("VoiceActivity", `.${external_PluginApi_namespaceObject.WebpackModules.getByProps("avatar", "children").children}:empty{margin-left: 0}`);
+					BdApi.injectCSS("VoiceActivity", `.${children}:empty { margin-left: 0; } .${children} { display: flex; gap: 8px; }`);
 				}
 				patchUserPopoutBody() {
 					const UserPopoutBody = external_PluginApi_namespaceObject.WebpackModules.getModule((m => "UserPopoutBody" === m.default.displayName));
@@ -1055,18 +1055,13 @@ function buildPlugin([BasePlugin, PluginApi]) {
 				async patchMemberListItem() {
 					const MemberListItem = await external_PluginApi_namespaceObject.ReactComponents.getComponentByName("MemberListItem", memberItemSelector);
 					external_PluginApi_namespaceObject.Patcher.after(MemberListItem.component.prototype, "render", ((thisObject, _, ret) => {
-						if (thisObject.props.user) ret.props.children ? ret.props.children = external_BdApi_React_default().createElement("div", {
-							style: {
-								display: "flex",
-								gap: "8px"
-							}
-						}, ret.props.children, external_BdApi_React_default().createElement(VoiceIcon, {
+						if (thisObject.props.user) Array.isArray(ret.props.children) ? ret.props.children.unshift(external_BdApi_React_default().createElement(VoiceIcon, {
 							userId: thisObject.props.user.id,
 							context: "memberlist"
-						})) : ret.props.children = external_BdApi_React_default().createElement(VoiceIcon, {
+						})) : ret.props.children = [external_BdApi_React_default().createElement(VoiceIcon, {
 							userId: thisObject.props.user.id,
 							context: "memberlist"
-						});
+						})];
 					}));
 					forceUpdateAll(memberItemSelector);
 				}
