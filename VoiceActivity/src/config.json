@@ -1,7 +1,7 @@
 {
 	"meta": {
 		"name": "VoiceActivity",
-		"version": "1.3.3",
+		"version": "1.3.4",
 		"description": "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		"updateUrl": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js",
@@ -12,7 +12,7 @@
 		{
 			"title": "Fixed",
 			"type": "fixed",
-			"items": ["Fixed VoiceActivity not displaying in user profile modals", "Fixed some minor issues"]
+			"items": ["Fixed crashing on startup"]
 		}
 	],
 	"zlibrary": true
