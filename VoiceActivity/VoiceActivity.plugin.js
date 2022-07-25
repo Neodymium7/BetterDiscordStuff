@@ -2,7 +2,7 @@
  * @name VoiceActivity
  * @author Neodymium
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
- * @version 1.3.3
+ * @version 1.3.4
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -37,7 +37,7 @@ const config = {
 		authors: [{
 			name: "Neodymium",
 		}],
-		version: "1.3.3",
+		version: "1.3.4",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -45,7 +45,7 @@ const config = {
 	changelog: [{
 		title: "Fixed",
 		type: "fixed",
-		items: ["Fixed VoiceActivity not displaying in user profile modals", "Fixed some minor issues"]
+		items: ["Fixed crashing on startup"]
 	}]
 };
 
@@ -57,7 +57,7 @@ function buildPlugin([BasePlugin, Library]) {
 			name: "VoiceActivity",
 			author: "Neodymium",
 			description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
-			version: "1.3.3",
+			version: "1.3.4",
 			source: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 			updateUrl: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js",
 			invite: "fRbsqH87Av"
@@ -320,7 +320,7 @@ function buildPlugin([BasePlugin, Library]) {
 					this.defaultSettings = settings
 				}
 				static get(key, defaultValue) {
-					return this.settings[key] ?? defaultValue ?? this.defaultSettings[key]
+					return this.settings?.[key] ?? defaultValue ?? this.defaultSettings?.[key]
 				}
 				static set(key, value) {
 					this.settings[key] = value;
@@ -344,7 +344,7 @@ function buildPlugin([BasePlugin, Library]) {
 					return setting
 				}
 			}
-			Settings.settings = BdApi.loadData(meta.name, "settings");
+			Settings.settings = BdApi.loadData(meta.name, "settings") || {};
 			Settings.listeners = new Set;
 			const Dispatcher = Library ? Library.DiscordModules.Dispatcher : BdApi.findModuleByProps("dirtyDispatch");
 			const LocaleManager = Library ? Library.DiscordModules.LocaleManager : BdApi.findModule((m => m.Messages.CLOSE));
