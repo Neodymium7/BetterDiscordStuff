@@ -1,17 +1,19 @@
 import BasePlugin from "@zlibrary/plugin";
 import React from "react";
-import styles from "styles";
-import { useStateFromStores } from "@discord/flux";
-import { Users } from "@discord/stores";
-import { ContextMenu, Patcher, ReactComponents, Utilities, WebpackModules } from "@zlibrary";
-import Settings from "./modules/settings";
-import Strings from "./modules/strings";
-import { forceUpdateAll, getLazyModule } from "./modules/utils";
-import iconStyle from "./components/voiceicon.scss";
+import Styles from "bundlebd/styles";
+import { ContextMenu, DiscordModules, Patcher, ReactComponents, Utilities, WebpackModules } from "@zlibrary";
+import Settings from "bundlebd/settings";
+import Strings from "bundlebd/strings";
+import locales from "./locales.json";
+import { forceUpdateAll, getLazyModule } from "./utils";
+import iconStyle from "./components/voiceicon.scss?module";
 import VoiceIcon from "./components/VoiceIcon";
 import VoicePopoutSection from "./components/VoicePopoutSection";
 import SettingsPanel from "./components/SettingsPanel";
 import ModalActivityItem from "./components/ModalActivityItem";
+
+const { UserStore } = DiscordModules;
+const { useStateFromStores } = WebpackModules.getByProps("useStateFromStores");
 
 const memberItemSelector = `.${WebpackModules.getByProps("member", "activity").member}`;
 const privateChannelSelector = `.${WebpackModules.getByProps("channel", "activity").channel}`;
@@ -22,15 +24,24 @@ const VoiceStates = WebpackModules.getByProps("getVoiceStateForUser");
 
 export default class VoiceActivity extends BasePlugin {
 	onStart() {
-		styles.inject();
-		Strings.subscribe();
+		Styles.inject();
+		Styles.add(`.${children}:empty { margin-left: 0; } .${children} { display: flex; gap: 8px; }`);
+		Strings.initialize(locales);
+		Settings.setDefaults({
+			showMemberListIcons: true,
+			showDMListIcons: true,
+			showPeopleListIcons: true,
+			currentChannelColor: true,
+			ignoreEnabled: false,
+			ignoredChannels: [],
+			ignoredGuilds: []
+		});
 		this.patchUserPopoutBody();
 		this.patchUserProfileModal();
 		this.patchMemberListItem();
 		this.patchPrivateChannel();
 		this.patchPeopleListItem();
 		this.patchContextMenu();
-		BdApi.injectCSS("VoiceActivity", `.${children}:empty { margin-left: 0; } .${children} { display: flex; gap: 8px; }`);
 	}
 
 	patchUserPopoutBody() {
@@ -42,15 +53,17 @@ export default class VoiceActivity extends BasePlugin {
 
 	async patchUserProfileModal() {
 		const UserProfileModal = await getLazyModule(m => m.default?.displayName === "UserProfileModal");
-		const UserProfileBody = WebpackModules.getModule(m => m.default?.toString()?.includes("case s.UserProfileSections"));
+		const UserProfileBody = WebpackModules.getModule(m => m.default?.toString() && /case .\.UserProfileSections/.test(m.default.toString()));
 		const UserProfileActivity = WebpackModules.getModule(m => m.default?.displayName === "UserProfileActivity");
 		const tabBarItem = WebpackModules.getByProps("tabBarContainer").tabBarItem;
+
 		Patcher.after(UserProfileModal, "default", (_, [modalProps], modalRet) => {
-			if (modalProps.user.id !== Users.getCurrentUser().id) {
+			if (modalProps.user.id !== UserStore.getCurrentUser().id) {
 				const tabBar = Utilities.findInTree(modalRet, e => e.props?.section && e.props?.user, { walkable: ["props", "children"] });
-				Patcher.instead(tabBar, "type", (_, [props], original) => {
+				const type = tabBar.type;
+				tabBar.type = props => {
 					const voiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(props.user.id));
-					const ret = original(props);
+					const ret = type(props);
 					if (!props.hasActivity && voiceState) {
 						const items = Utilities.findInTree(ret, e => Array.isArray(e), { walkable: ["props", "children"] });
 						const Item = items[0].type;
@@ -64,7 +77,7 @@ export default class VoiceActivity extends BasePlugin {
 						props.setSection("ACTIVITY");
 					}
 					return ret;
-				});
+				};
 			}
 		});
 		Patcher.instead(UserProfileBody, "default", (_, [props], original) => {
@@ -136,8 +149,8 @@ export default class VoiceActivity extends BasePlugin {
 	async patchContextMenu() {
 		const HideNamesItem = await ContextMenu.getDiscordMenu("useChannelHideNamesItem");
 		Patcher.after(HideNamesItem, "default", (_, [channel], ret) => {
-			if (!Settings.get("ignoreEnabled", false)) return ret;
-			const ignoredChannels = useStateFromStores([Settings], () => Settings.get("ignoredChannels", []));
+			if (!Settings.get("ignoreEnabled")) return ret;
+			const ignoredChannels = Settings.useSettingState("ignoredChannels");
 			const ignored = ignoredChannels.includes(channel.id);
 			const menuItem = ContextMenu.buildMenuItem({
 				type: "toggle",
@@ -146,19 +159,20 @@ export default class VoiceActivity extends BasePlugin {
 				checked: ignored,
 				action: () => {
 					if (ignored) {
-						Settings.set(
-							"ignoredChannels",
-							ignoredChannels.filter(id => id !== channel.id)
-						);
-					} else Settings.set("ignoredChannels", [...ignoredChannels, channel.id]);
+						const newIgnoredChannels = ignoredChannels.filter(id => id !== channel.id);
+						Settings.set("ignoredChannels", newIgnoredChannels);
+					} else {
+						const newIgnoredChannels = [...ignoredChannels, channel.id];
+						Settings.set("ignoredChannels", newIgnoredChannels);
+					}
 				}
 			});
 			return [ret, menuItem];
 		});
 		const GuildContextMenu = await ContextMenu.getDiscordMenu("GuildContextMenu");
 		Patcher.after(GuildContextMenu, "default", (_, [props], ret) => {
-			if (!Settings.get("ignoreEnabled", false)) return ret;
-			const ignoredGuilds = useStateFromStores([Settings], () => Settings.get("ignoredGuilds", []));
+			if (!Settings.get("ignoreEnabled")) return ret;
+			const ignoredGuilds = Settings.useSettingState("ignoredGuilds");
 			const ignored = ignoredGuilds.includes(props.guild.id);
 			const menuItem = ContextMenu.buildMenuItem({
 				type: "toggle",
@@ -167,11 +181,12 @@ export default class VoiceActivity extends BasePlugin {
 				checked: ignored,
 				action: () => {
 					if (ignored) {
-						Settings.set(
-							"ignoredGuilds",
-							ignoredGuilds.filter(id => id !== props.guild.id)
-						);
-					} else Settings.set("ignoredGuilds", [...ignoredGuilds, props.guild.id]);
+						const newIgnoredGuilds = ignoredGuilds.filter(id => id !== props.guild.id);
+						Settings.set("ignoredGuilds", newIgnoredGuilds);
+					} else {
+						const newIgnoredGuilds = [...ignoredGuilds, props.guild.id];
+						Settings.set("ignoredGuilds", newIgnoredGuilds);
+					}
 				}
 			});
 			ret.props.children[2].props.children.push(menuItem);
@@ -180,12 +195,11 @@ export default class VoiceActivity extends BasePlugin {
 
 	onStop() {
 		Patcher.unpatchAll();
-		styles.remove();
+		Styles.clear();
 		Strings.unsubscribe();
 		forceUpdateAll(memberItemSelector);
 		forceUpdateAll(privateChannelSelector);
 		forceUpdateAll(peopleItemSelector);
-		BdApi.clearCSS("VoiceActivity");
 	}
 
 	getSettingsPanel() {

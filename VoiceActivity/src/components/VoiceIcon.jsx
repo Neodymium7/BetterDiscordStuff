@@ -1,37 +1,36 @@
 import React from "react";
-import { useStateFromStores } from "@discord/flux";
-import { Channels, Guilds, Users } from "@discord/stores";
 import { DiscordModules, WebpackModules } from "@zlibrary";
-import Settings from "../modules/settings";
-import Strings from "../modules/strings";
-import { groupDMName, checkPermissions } from "../modules/utils";
-import style from "./voiceicon.scss";
+import Settings from "bundlebd/settings";
+import Strings from "bundlebd/strings";
+import { groupDMName, checkPermissions } from "../utils";
+import style from "./voiceicon.scss?module";
 import { CallJoin, People, Speaker, Stage } from "./icons";
 
-const { NavigationUtils } = DiscordModules;
+const { NavigationUtils, ChannelStore, GuildStore, UserStore } = DiscordModules;
+const { useStateFromStores } = WebpackModules.getByProps("useStateFromStores");
 const VoiceStates = WebpackModules.getByProps("getVoiceStateForUser");
 
 const { TooltipContainer } = WebpackModules.getByProps("TooltipContainer");
 
 export default function VoiceIcon(props) {
-	const showMemberListIcons = useStateFromStores([Settings], () => Settings.get("showMemberListIcons", true));
-	const showDMListIcons = useStateFromStores([Settings], () => Settings.get("showDMListIcons", true));
-	const showPeopleListIcons = useStateFromStores([Settings], () => Settings.get("showPeopleListIcons", true));
-	const currentChannelColor = useStateFromStores([Settings], () => Settings.get("currentChannelColor", true));
-	const ignoreEnabled = useStateFromStores([Settings], () => Settings.get("ignoreEnabled", false));
-	const ignoredChannels = useStateFromStores([Settings], () => Settings.get("ignoredChannels", []));
-	const ignoredGuilds = useStateFromStores([Settings], () => Settings.get("ignoredGuilds", []));
+	const showMemberListIcons = Settings.useSettingState("showMemberListIcons");
+	const showDMListIcons = Settings.useSettingState("showDMListIcons");
+	const showPeopleListIcons = Settings.useSettingState("showPeopleListIcons");
+	const currentChannelColor = Settings.useSettingState("currentChannelColor");
+	const ignoreEnabled = Settings.useSettingState("ignoreEnabled");
+	const ignoredChannels = Settings.useSettingState("ignoredChannels");
+	const ignoredGuilds = Settings.useSettingState("ignoredGuilds");
 
 	const voiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(props.userId));
-	const currentUserVoiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(Users.getCurrentUser()?.id));
+	const currentUserVoiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(UserStore.getCurrentUser()?.id));
 
 	if (props.context === "memberlist" && !showMemberListIcons) return null;
 	if (props.context === "dmlist" && !showDMListIcons) return null;
 	if (props.context === "peoplelist" && !showPeopleListIcons) return null;
 	if (!voiceState) return null;
-	const channel = Channels.getChannel(voiceState.channelId);
+	const channel = ChannelStore.getChannel(voiceState.channelId);
 	if (!channel) return null;
-	const guild = Guilds.getGuild(channel.guild_id);
+	const guild = GuildStore.getGuild(channel.guild_id);
 
 	if (guild && !checkPermissions(guild, channel)) return null;
 	if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
@@ -54,7 +53,7 @@ export default function VoiceIcon(props) {
 	}
 	switch (channel.type) {
 		case 1:
-			text = Users.getUser(channel.recipients[0]).username;
+			text = UserStore.getUser(channel.recipients[0]).username;
 			subtext = Strings.get("PRIVATE_CALL");
 			break;
 		case 3:
@@ -78,12 +77,12 @@ export default function VoiceIcon(props) {
 			<TooltipContainer
 				text={
 					<div className={style.tooltip}>
-						<div className={style.header} style={{ "font-weight": "600" }}>
+						<div className={style.header} style={{ fontWeight: "600" }}>
 							{text}
 						</div>
 						<div className={style.subtext}>
 							<Icon className={style.tooltipIcon} width="16" height="16" />
-							<div style={{ "font-weight": "400" }}>{subtext}</div>
+							<div style={{ fontWeight: "400" }}>{subtext}</div>
 						</div>
 					</div>
 				}

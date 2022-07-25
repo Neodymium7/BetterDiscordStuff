@@ -1,9 +1,8 @@
-import { GuildActions } from "@discord/actions";
 import { DiscordModules, WebpackModules } from "@zlibrary";
-import { getIconFontSize, getImageLink } from "../modules/utils";
-import style from "./guildimage.scss";
+import { getIconFontSize, getImageLink } from "../utils";
+import style from "./guildimage.scss?module";
 
-const { NavigationUtils } = DiscordModules;
+const { NavigationUtils, GuildActions } = DiscordModules;
 const { getAcronym } = WebpackModules.getByProps("getAcronym");
 
 export default function GuildImage(props) {
@@ -16,7 +15,7 @@ export default function GuildImage(props) {
 				src={image}
 				width="48"
 				height="48"
-				style={{ "border-radius": "16px", cursor: "pointer" }}
+				style={{ borderRadius: "16px", cursor: "pointer" }}
 				onClick={() => {
 					if (props.guild) GuildActions.transitionToGuildSync(props.guild.id);
 					else if (props.channelPath) NavigationUtils.transitionTo(props.channelPath);
@@ -31,7 +30,7 @@ export default function GuildImage(props) {
 					if (props.guild) GuildActions.transitionToGuildSync(props.guild.id);
 					else if (props.channelPath) NavigationUtils.transitionTo(props.channelPath);
 				}}
-				style={{ "font-size": `${getIconFontSize(props.guild ? props.guild.name : props.channel.name)}px` }}
+				style={{ fontSize: `${getIconFontSize(props.guild ? props.guild.name : props.channel.name)}px` }}
 			>
 				{getAcronym(props.guild ? props.guild.name : props.guild.id)}
 			</div>

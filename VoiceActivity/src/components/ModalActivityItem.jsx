@@ -1,42 +1,41 @@
 import React from "react";
-import { useStateFromStores } from "@discord/flux";
-import { ComponentDispatcher } from "@discord/modules";
-import { Channels, Guilds, Users } from "@discord/stores";
 import { WebpackModules, DiscordModules, ContextMenu } from "@zlibrary";
-import Settings from "../modules/settings";
-import Strings from "../modules/strings";
-import { checkPermissions, groupDMName } from "../modules/utils";
-import style from "./modalactivityitem.scss";
+import Settings from "bundlebd/settings";
+import Strings from "bundlebd/strings";
+import { checkPermissions, groupDMName } from "../utils";
+import style from "./modalactivityitem.scss?module";
 import GuildImage from "./GuildImage";
 import { CallJoin, Speaker, Stage } from "./icons";
 import WrappedPartyAvatars from "./WrappedPartyAvatars";
 
-const { NavigationUtils, ChannelActions } = DiscordModules;
+const { NavigationUtils, ChannelActions, ChannelStore, GuildStore, UserStore } = DiscordModules;
+const { useStateFromStores } = WebpackModules.getByProps("useStateFromStores");
 const VoiceStates = WebpackModules.getByProps("getVoiceStateForUser");
+const ComponentDispatcher = WebpackModules.getByProps("ComponentDispatch")?.ComponentDispatch;
 
 const { TooltipContainer } = WebpackModules.getByProps("TooltipContainer");
 
 export default function ModalActivityItem(props) {
-	const ignoreEnabled = useStateFromStores([Settings], () => Settings.get("ignoreEnabled", false));
-	const ignoredChannels = useStateFromStores([Settings], () => Settings.get("ignoredChannels", []));
-	const ignoredGuilds = useStateFromStores([Settings], () => Settings.get("ignoredGuilds", []));
+	const ignoreEnabled = Settings.useSettingState("ignoreEnabled");
+	const ignoredChannels = Settings.useSettingState("ignoredChannels");
+	const ignoredGuilds = Settings.useSettingState("ignoredGuilds");
 
 	const voiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(props.userId));
-	const currentUserVoiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(Users.getCurrentUser()?.id));
+	const currentUserVoiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(UserStore.getCurrentUser()?.id));
 
 	if (!voiceState) return null;
-	const channel = Channels.getChannel(voiceState.channelId);
+	const channel = ChannelStore.getChannel(voiceState.channelId);
 	if (!channel) return null;
-	const guild = Guilds.getGuild(channel.guild_id);
+	const guild = GuildStore.getGuild(channel.guild_id);
 
 	if (guild && !checkPermissions(guild, channel)) return null;
 	if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
 
 	let headerText, text, viewButton, joinButton, Icon, channelPath;
-	const members = Object.keys(VoiceStates.getVoiceStatesForChannel(channel.id)).map(id => Users.getUser(id));
+	const members = Object.keys(VoiceStates.getVoiceStatesForChannel(channel.id)).map(id => UserStore.getUser(id));
 	const hasOverflow = members.length > 3;
 	const inCurrentChannel = channel.id === currentUserVoiceState?.channelId;
-	const isCurrentUser = props.userId === Users.getCurrentUser().id;
+	const isCurrentUser = props.userId === UserStore.getCurrentUser().id;
 
 	if (guild) {
 		headerText = Strings.get("HEADER");
@@ -89,7 +88,11 @@ export default function ModalActivityItem(props) {
 						{viewButton}
 					</button>
 					{!isCurrentUser && (
-						<TooltipContainer text={joinButton} position="top" className={inCurrentChannel ? `${style.joinWrapper} ${style.joinWrapperDisabled}` : style.joinWrapper}>
+						<TooltipContainer
+							text={joinButton}
+							position="top"
+							className={inCurrentChannel ? `${style.joinWrapper} ${style.joinWrapperDisabled}` : style.joinWrapper}
+						>
 							<button
 								className={`${style.button} ${style.joinButton}`}
 								disabled={inCurrentChannel}

@@ -1,7 +1,6 @@
-import { Users } from "@discord/stores";
 import { DiscordModules, ReactTools, WebpackModules } from "@zlibrary";
 
-const { Permissions, DiscordPermissions } = DiscordModules;
+const { Permissions, DiscordPermissions, UserStore } = DiscordModules;
 
 const getSHCBlacklist = BdApi.Plugins.get("ShowHiddenChannels")?.exports.prototype.getBlackList?.bind(BdApi.Plugins.get("ShowHiddenChannels"));
 
@@ -9,7 +8,7 @@ export function checkPermissions(guild, channel) {
 	const onBlacklist = BdApi.Plugins.isEnabled("ShowHiddenChannels") && getSHCBlacklist && getSHCBlacklist().includes(guild?.id);
 	const showVoiceUsers = BdApi.Plugins.get("ShowHiddenChannels")?.instance.settings?.general.showVoiceUsers;
 	const showHiddenUsers = !onBlacklist && showVoiceUsers;
-	const hasPermissions = Permissions.can({ permission: DiscordPermissions.VIEW_CHANNEL, user: Users.getCurrentUser(), context: channel });
+	const hasPermissions = Permissions.can({ permission: DiscordPermissions.VIEW_CHANNEL, user: UserStore.getCurrentUser(), context: channel });
 
 	return showHiddenUsers || hasPermissions;
 }
@@ -55,12 +54,12 @@ export function getLazyModule(filter) {
 
 export function groupDMName(members) {
 	if (members.length === 1) {
-		return Users.getUser(members[0]).username;
+		return UserStore.getUser(members[0]).username;
 	} else if (members.length > 1) {
 		let name = "";
 		for (let i = 0; i < members.length; i++) {
-			if (i === members.length - 1) name += Users.getUser(members[i]).username;
-			else name += Users.getUser(members[i]).username + ", ";
+			if (i === members.length - 1) name += UserStore.getUser(members[i]).username;
+			else name += UserStore.getUser(members[i]).username + ", ";
 		}
 		return name;
 	}
