@@ -1,6 +1,6 @@
 {
 	"meta": {
-		"name": "VoiceActivity",
+		"name": "VoiceActdivity",
 		"version": "1.3.4",
 		"description": "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
