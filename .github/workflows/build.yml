@@ -2,9 +2,7 @@ name: Build Plugins
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
     inputs:
       plugin:
@@ -37,7 +35,7 @@ jobs:
         if: github.event_name != 'workflow_dispatch'
         id: changed-files
         uses: tj-actions/changed-files@v24
-      
+
       - name: Build updated plugins
         id: build
         # crappy workaround for manual run
@@ -49,4 +47,3 @@ jobs:
         with:
           commit_message: ${{ steps.build.outputs.message }}
           commit_author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-
