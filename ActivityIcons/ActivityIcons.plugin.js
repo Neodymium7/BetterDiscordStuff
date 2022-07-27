@@ -1,7 +1,7 @@
 /**
  * @name ActivityIcons
  * @author Neodymium
- * @version 1.2.5
+ * @version 1.2.6
  * @description Improves the default icons next to statuses
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js
@@ -23,7 +23,7 @@ module.exports = (() => {
             "github_raw": " https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js"
         },
         "changelog": [
-            {"title": "Fixed", "type": "fixed", "items": ["Fixed icons not immediately appearing on Discord startup"]},
+            {"title": "Fixed", "type": "fixed", "items": ["Temporarily switched settings input to radio buttons while Zlibrary's dropdown is broken"]},
         ]
     };
 
@@ -51,7 +51,7 @@ module.exports = (() => {
         const plugin = (Plugin, Library) => {
 
             const { ReactTools, DiscordSelectors } = Library;
-            const { Dropdown, SettingPanel } = Library.Settings;
+            const { RadioGroup, SettingPanel } = Library.Settings;
 
             const Activity = BdApi.findModuleByDisplayName("Activity");
             const Headset = BdApi.findModuleByDisplayName("Headset");
@@ -149,10 +149,10 @@ module.exports = (() => {
             
                 getSettingsPanel() {
                     return SettingPanel.build(this.saveSettings.bind(this),
-                        new Dropdown("Normal Activity Icon Behavior", "Conditions under which normal activity icon (game controller) will be displayed", this.settings.normalIconBehavior, [
-                            {label: "Normal Activity (Default)", value: 0},
-                            {label: "Custom Status and Normal Activity", value: 1},
-                            {label: "Never", value: 2}
+                        new RadioGroup("Normal Activity Icon Behavior", "Conditions under which normal activity icon (game controller) will be displayed", this.settings.normalIconBehavior, [
+                            {name: "Normal Activity (Default)", value: 0},
+                            {name: "Custom Status and Normal Activity", value: 1},
+                            {name: "Never", value: 2}
                         ], i => {this.settings.normalIconBehavior = i;}),
 	        		);
                 }
