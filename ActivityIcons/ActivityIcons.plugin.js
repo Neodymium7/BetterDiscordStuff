@@ -17,7 +17,7 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.2.5",
+            "version": "1.2.6",
             "description": "Improves the default icons next to statuses",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
             "github_raw": " https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js"

@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 1.1.3
+ * @version 1.1.4
  * @description Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
@@ -17,13 +17,13 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.1.3",
+            "version": "1.1.4",
             "description": "Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
         },
         "changelog": [
-            {"title": "Fixed", "type": "fixed", "items": ["Some minor fixes"]},
+            {"title": "Fixed", "type": "fixed", "items": ["Temporarily switched settings input to radio buttons while Zlibrary's dropdown is broken"]},
         ]
     };
 
@@ -51,7 +51,7 @@ module.exports = (() => {
         const plugin = (Plugin, Library) => {
 
             const { DiscordSelectors, DiscordModules, ReactComponents, Settings } = Library;
-            const { Dropdown, SettingPanel, Switch } = Settings;
+            const { RadioGroup, SettingPanel, Switch } = Settings;
             const TooltipContainer = BdApi.findModuleByProps("TooltipContainer").TooltipContainer;
             
             const settingsSelector = `${DiscordSelectors.AccountDetails.container} button:nth-last-child(1)`;
@@ -119,23 +119,23 @@ module.exports = (() => {
                     return SettingPanel.build(() => {
                             this.saveSettings();
                         },
-                        new Dropdown("Click", "What opens when clicking on the user avatar. REMEMBER If nothing is bound to open settings, you can use the Ctrl + , shortcut.", this.settings.click, [
-                            {label: "Settings (Default)", value: 1},
-                            {label: "Settings Context Menu", value: 2},
-                            {label: "Status Picker", value: 3},
-                            {label: "Nothing", value: 0}
+                        new RadioGroup("Click", "What opens when clicking on the user avatar. REMEMBER If nothing is bound to open settings, you can use the Ctrl + , shortcut.", this.settings.click, [
+                            {name: "Settings (Default)", value: 1},
+                            {name: "Settings Context Menu", value: 2},
+                            {name: "Status Picker", value: 3},
+                            {name: "Nothing", value: 0}
                         ], i => {this.settings.click = i;}),
-                        new Dropdown("Right Click", "What opens when right clicking on the user avatar.", this.settings.contextmenu, [
-                            {label: "Settings", value: 1},
-                            {label: "Settings Context Menu", value: 2},
-                            {label: "Status Picker (Default)", value: 3},
-                            {label: "Nothing", value: 0}
+                        new RadioGroup("Right Click", "What opens when right clicking on the user avatar.", this.settings.contextmenu, [
+                            {name: "Settings", value: 1},
+                            {name: "Settings Context Menu", value: 2},
+                            {name: "Status Picker (Default)", value: 3},
+                            {name: "Nothing", value: 0}
                         ], i => {this.settings.contextmenu = i;}),
-                        new Dropdown("Middle Click", "What opens when middle clicking on the username.", this.settings.middleclick, [
-                            {label: "Settings", value: 1},
-                            {label: "Settings Context Menu (Default)", value: 2},
-                            {label: "Status Picker", value: 3},
-                            {label: "Nothing", value: 0}
+                        new RadioGroup("Middle Click", "What opens when middle clicking on the username.", this.settings.middleclick, [
+                            {name: "Settings", value: 1},
+                            {name: "Settings Context Menu (Default)", value: 2},
+                            {name: "Status Picker", value: 3},
+                            {name: "Nothing", value: 0}
                         ], i => {this.settings.middleclick = i;}),
 	        			new Switch("Tooltip", "Show tooltip when hovering over user avatar.", this.settings.showTooltip, (i) => {this.settings.showTooltip = i;})
 	        		);
