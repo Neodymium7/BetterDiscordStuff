@@ -2,19 +2,22 @@ import { DiscordModules, ReactTools, WebpackModules } from "@zlibrary";
 
 const { Permissions, DiscordPermissions, UserStore } = DiscordModules;
 
-const getSHCBlacklist = BdApi.Plugins.get("ShowHiddenChannels")?.exports.prototype.getBlackList?.bind(BdApi.Plugins.get("ShowHiddenChannels"));
+const getSHCBlacklist = BdApi.Plugins.get("ShowHiddenChannels")?.exports.prototype.getBlackList?.bind(
+	BdApi.Plugins.get("ShowHiddenChannels")
+);
 
-export function checkPermissions(guild, channel) {
-	const onBlacklist = BdApi.Plugins.isEnabled("ShowHiddenChannels") && getSHCBlacklist && getSHCBlacklist().includes(guild?.id);
-	const showVoiceUsers = BdApi.Plugins.get("ShowHiddenChannels")?.instance.settings?.general.showVoiceUsers;
-	const showHiddenUsers = !onBlacklist && showVoiceUsers;
-	const hasPermissions = Permissions.can({ permission: DiscordPermissions.VIEW_CHANNEL, user: UserStore.getCurrentUser(), context: channel });
-
-	return showHiddenUsers || hasPermissions;
+export function checkPermissions(channel) {
+	return Permissions.can({
+		permission: DiscordPermissions.VIEW_CHANNEL,
+		user: UserStore.getCurrentUser(),
+		context: channel
+	});
 }
 
 export function forceUpdateAll(selector) {
-	document.querySelectorAll(selector).forEach(node => ReactTools.getReactInstance(node).return.return.return.return.stateNode?.forceUpdate());
+	document
+		.querySelectorAll(selector)
+		.forEach((node) => ReactTools.getReactInstance(node).return.return.return.return.stateNode?.forceUpdate());
 }
 
 export function getIconFontSize(name) {
@@ -42,8 +45,8 @@ export function getLazyModule(filter) {
 	const cached = WebpackModules.getModule(filter);
 	if (cached) return Promise.resolve(cached);
 
-	return new Promise(resolve => {
-		const removeListener = WebpackModules.addListener(m => {
+	return new Promise((resolve) => {
+		const removeListener = WebpackModules.addListener((m) => {
 			if (filter(m)) {
 				resolve(m);
 				removeListener();

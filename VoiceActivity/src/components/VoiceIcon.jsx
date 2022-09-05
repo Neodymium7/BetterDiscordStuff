@@ -22,7 +22,9 @@ export default function VoiceIcon(props) {
 	const ignoredGuilds = Settings.useSettingState("ignoredGuilds");
 
 	const voiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(props.userId));
-	const currentUserVoiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(UserStore.getCurrentUser()?.id));
+	const currentUserVoiceState = useStateFromStores([VoiceStates], () =>
+		VoiceStates.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
+	);
 
 	if (props.context === "memberlist" && !showMemberListIcons) return null;
 	if (props.context === "dmlist" && !showDMListIcons) return null;
@@ -30,14 +32,15 @@ export default function VoiceIcon(props) {
 	if (!voiceState) return null;
 	const channel = ChannelStore.getChannel(voiceState.channelId);
 	if (!channel) return null;
+	if (!checkPermissions(channel)) return null;
 	const guild = GuildStore.getGuild(channel.guild_id);
 
-	if (guild && !checkPermissions(guild, channel)) return null;
 	if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
 
 	let text, subtext, Icon, channelPath;
 	let className = style.icon;
-	if (channel.id === currentUserVoiceState?.channelId && currentChannelColor) className = `${style.icon} ${style.iconCurrentCall}`;
+	if (channel.id === currentUserVoiceState?.channelId && currentChannelColor)
+		className = `${style.icon} ${style.iconCurrentCall}`;
 	if (voiceState.selfStream) className = style.iconLive;
 
 	if (guild) {
@@ -68,7 +71,7 @@ export default function VoiceIcon(props) {
 	return (
 		<div
 			className={className}
-			onClick={e => {
+			onClick={(e) => {
 				e.stopPropagation();
 				e.preventDefault();
 				if (channelPath) NavigationUtils.transitionTo(channelPath);

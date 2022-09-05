@@ -20,18 +20,20 @@ export default function VoicePopoutSection(props) {
 	const ignoredGuilds = Settings.useSettingState("ignoredGuilds");
 
 	const voiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(props.userId));
-	const currentUserVoiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(UserStore.getCurrentUser()?.id));
+	const currentUserVoiceState = useStateFromStores([VoiceStates], () =>
+		VoiceStates.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
+	);
 
 	if (!voiceState) return null;
 	const channel = ChannelStore.getChannel(voiceState.channelId);
 	if (!channel) return null;
+	if (!checkPermissions(channel)) return null;
 	const guild = GuildStore.getGuild(channel.guild_id);
 
-	if (guild && !checkPermissions(guild, channel)) return null;
 	if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
 
 	let headerText, text, viewButton, joinButton, Icon, channelPath;
-	const members = Object.keys(VoiceStates.getVoiceStatesForChannel(channel.id)).map(id => UserStore.getUser(id));
+	const members = Object.keys(VoiceStates.getVoiceStatesForChannel(channel.id)).map((id) => UserStore.getUser(id));
 	const hasOverflow = members.length > 3;
 	const inCurrentChannel = channel.id === currentUserVoiceState?.channelId;
 	const channelSelected = channel.id === SelectedChannelStore.getChannelId();
@@ -89,7 +91,9 @@ export default function VoicePopoutSection(props) {
 					<TooltipContainer
 						text={joinButton}
 						position="top"
-						className={inCurrentChannel ? `${style.joinWrapper} ${style.joinWrapperDisabled}` : style.joinWrapper}
+						className={
+							inCurrentChannel ? `${style.joinWrapper} ${style.joinWrapperDisabled}` : style.joinWrapper
+						}
 					>
 						<button
 							className={`${style.button} ${style.joinButton}`}
@@ -97,7 +101,7 @@ export default function VoicePopoutSection(props) {
 							onClick={() => {
 								if (channel.id) ChannelActions.selectVoiceChannel(channel.id);
 							}}
-							onContextMenu={e => {
+							onContextMenu={(e) => {
 								if (channel.type === 13) return;
 								ContextMenu.openContextMenu(
 									e,
