@@ -2,10 +2,6 @@ import { DiscordModules, ReactTools, WebpackModules } from "@zlibrary";
 
 const { Permissions, DiscordPermissions, UserStore } = DiscordModules;
 
-const getSHCBlacklist = BdApi.Plugins.get("ShowHiddenChannels")?.exports.prototype.getBlackList?.bind(
-	BdApi.Plugins.get("ShowHiddenChannels")
-);
-
 export function checkPermissions(channel) {
 	return Permissions.can({
 		permission: DiscordPermissions.VIEW_CHANNEL,
