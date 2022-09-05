@@ -2,7 +2,7 @@
  * @name VoiceActivity
  * @author Neodymium
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
- * @version 1.3.4
+ * @version 1.3.5
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -37,7 +37,7 @@ const config = {
 		authors: [{
 			name: "Neodymium",
 		}],
-		version: "1.3.4",
+		version: "1.3.5",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -45,7 +45,7 @@ const config = {
 	changelog: [{
 		title: "Fixed",
 		type: "fixed",
-		items: ["Fixed crashing on startup"]
+		items: ["Updated some stuff", "A fix for Discord's updated popouts is coming soon"]
 	}]
 };
 
@@ -57,7 +57,7 @@ function buildPlugin([BasePlugin, Library]) {
 			name: "VoiceActivity",
 			author: "Neodymium",
 			description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
-			version: "1.3.4",
+			version: "1.3.5",
 			source: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 			updateUrl: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js",
 			invite: "fRbsqH87Av"
@@ -374,18 +374,13 @@ function buildPlugin([BasePlugin, Library]) {
 				DiscordPermissions,
 				UserStore
 			} = external_Library_namespaceObject.DiscordModules;
-			const getSHCBlacklist = BdApi.Plugins.get("ShowHiddenChannels")?.exports.prototype.getBlackList?.bind(BdApi.Plugins.get("ShowHiddenChannels"));
 
-			function checkPermissions(guild, channel) {
-				const onBlacklist = BdApi.Plugins.isEnabled("ShowHiddenChannels") && getSHCBlacklist && getSHCBlacklist().includes(guild?.id);
-				const showVoiceUsers = BdApi.Plugins.get("ShowHiddenChannels")?.instance.settings?.general.showVoiceUsers;
-				const showHiddenUsers = !onBlacklist && showVoiceUsers;
-				const hasPermissions = Permissions.can({
+			function checkPermissions(channel) {
+				return Permissions.can({
 					permission: DiscordPermissions.VIEW_CHANNEL,
 					user: UserStore.getCurrentUser(),
 					context: channel
-				});
-				return showHiddenUsers || hasPermissions
+				})
 			}
 
 			function forceUpdateAll(selector) {
@@ -467,8 +462,8 @@ function buildPlugin([BasePlugin, Library]) {
 				if (!voiceState) return null;
 				const channel = ChannelStore.getChannel(voiceState.channelId);
 				if (!channel) return null;
+				if (!checkPermissions(channel)) return null;
 				const guild = GuildStore.getGuild(channel.guild_id);
-				if (guild && !checkPermissions(guild, channel)) return null;
 				if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
 				let text, subtext, Icon, channelPath;
 				let className = voiceiconmodule.Z.icon;
@@ -615,8 +610,8 @@ function buildPlugin([BasePlugin, Library]) {
 				if (!voiceState) return null;
 				const channel = VoicePopoutSection_ChannelStore.getChannel(voiceState.channelId);
 				if (!channel) return null;
+				if (!checkPermissions(channel)) return null;
 				const guild = VoicePopoutSection_GuildStore.getGuild(channel.guild_id);
-				if (guild && !checkPermissions(guild, channel)) return null;
 				if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
 				let headerText, text, viewButton, joinButton, Icon, channelPath;
 				const members = Object.keys(VoicePopoutSection_VoiceStates.getVoiceStatesForChannel(channel.id)).map((id => VoicePopoutSection_UserStore.getUser(id)));
@@ -776,8 +771,8 @@ function buildPlugin([BasePlugin, Library]) {
 				if (!voiceState) return null;
 				const channel = ModalActivityItem_ChannelStore.getChannel(voiceState.channelId);
 				if (!channel) return null;
+				if (!checkPermissions(channel)) return null;
 				const guild = ModalActivityItem_GuildStore.getGuild(channel.guild_id);
-				if (guild && !checkPermissions(guild, channel)) return null;
 				if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
 				let headerText, text, viewButton, joinButton, Icon, channelPath;
 				const members = Object.keys(ModalActivityItem_VoiceStates.getVoiceStatesForChannel(channel.id)).map((id => ModalActivityItem_UserStore.getUser(id)));
