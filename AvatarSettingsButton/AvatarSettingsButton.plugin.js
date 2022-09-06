@@ -1,14 +1,14 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 1.1.4
+ * @version 1.1.5
  * @description Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
  */
 
-module.exports = (() => {
+ module.exports = (() => {
     const config = {
         "info": {
             "name": "AvatarSettingsButton",
@@ -17,13 +17,13 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.1.4",
+            "version": "1.1.5",
             "description": "Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
         },
         "changelog": [
-            {"title": "Fixed", "type": "fixed", "items": ["Temporarily switched settings input to radio buttons while Zlibrary's dropdown is broken"]},
+            {"title": "Fixed", "type": "fixed", "items": ["Fixed account details buttons being cut off when the Tooltip setting is enabled"]},
         ]
     };
 
@@ -68,7 +68,7 @@ module.exports = (() => {
                 }
             
                 onStart() {
-                    BdApi.injectCSS("AvatarSettingsButton", `${settingsSelector} {display: none}`);
+                    BdApi.injectCSS("AvatarSettingsButton", `${settingsSelector} {display: none} .avatarSettingsButtonTooltip {min-width: 120px}`);
                     this.patchAccountArea();
                 }
             
