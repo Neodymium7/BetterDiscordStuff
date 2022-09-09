@@ -1,7 +1,0 @@
-{
-	"entry": "[plugin]/src",
-	"output": "[plugin]",
-	"devOutput": "[plugin]/build",
-	"readme": true,
-	"bdPath": "C:/BetterDiscord"
-}
