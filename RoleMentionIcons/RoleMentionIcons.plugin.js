@@ -1,7 +1,7 @@
 /**
  * @name RoleMentionIcons
  * @author Neodymium
- * @version 1.1.1
+ * @version 1.1.2
  * @description Displays icons next to role mentions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js
@@ -40,13 +40,13 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.1.1",
+            "version": "1.1.2",
             "description": "Displays icons next to role mentions.",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js",
             "github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js"
         },
         "changelog": [
-            { "title": "Fixed", "type": "fixed", "items": ["Fixed unknown user mentions displaying role icons"] },
+            { "title": "Fixed", "type": "fixed", "items": ["Fixed console warning on startup"] },
         ],
         "main": "index.js"
     };
@@ -76,7 +76,7 @@ module.exports = (() => {
             const { DiscordModules, Settings } = Library;
             const { SettingPanel, Switch } = Settings;
             const People = BdApi.findModuleByDisplayName("People");
-            const RoleMention = BdApi.findModule(m => m?.default.displayName === "RoleMention");
+            const RoleMention = BdApi.findModule(m => m.default?.displayName === "RoleMention");
             const GuildStore = DiscordModules.GuildStore;
 
             // From https://github.com/rauenzi/BetterDiscordAddons/blob/692abbd1877ff6d837dc8a606767d019e52ebe23/Plugins/RoleMembers/RoleMembers.plugin.js#L60-L61

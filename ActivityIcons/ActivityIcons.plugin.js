@@ -1,7 +1,7 @@
 /**
  * @name ActivityIcons
  * @author Neodymium
- * @version 1.2.6
+ * @version 1.2.7
  * @description Improves the default icons next to statuses
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js
@@ -17,13 +17,13 @@ module.exports = (() => {
                     "name": "Neodymium"
                 }
             ],
-            "version": "1.2.6",
+            "version": "1.2.7",
             "description": "Improves the default icons next to statuses",
             "github": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
             "github_raw": " https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js"
         },
         "changelog": [
-            {"title": "Fixed", "type": "fixed", "items": ["Temporarily switched settings input to radio buttons while Zlibrary's dropdown is broken"]},
+            {"title": "Fixed", "type": "fixed", "items": ["Fixed console warning on startup"]},
         ]
     };
 
@@ -91,7 +91,7 @@ module.exports = (() => {
                         width: inherit;
                         height: inherit;
                     }`);
-                    BdApi.Patcher.after("ActivityIcons", BdApi.findModule(m => "ActivityStatus" === m.default.displayName), "default", (_, [props], ret) => {
+                    BdApi.Patcher.after("ActivityIcons", BdApi.findModule(m => "ActivityStatus" === m.default?.displayName), "default", (_, [props], ret) => {
                         if (props.activities && ret) {
                             if (props.activities.length === 1 && props.activities[0].type === 0 && Object.keys(props.activities[0]).every((value, i) => value === bot[i])) return;
 
