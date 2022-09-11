@@ -1,4 +1,5 @@
 /* To use, put this at the first line of your Custom CSS: @import url(https://neodymium7.github.io/BetterDiscordStuff/CSS/AddServerDarkMode.css); */
+
 .theme-light .root-g14mjS {
 	--dark-background: #36393f;
 	--dark-background-secondary: #2f3136;
@@ -58,7 +59,8 @@
 	background-color: var(--dark-modifier-selected);
 }
 .theme-light .arrow-2yY1Tm {
-	filter: brightness(0) saturate(100%) invert(84%) sepia(4%) saturate(191%) hue-rotate(177deg) brightness(89%) contrast(91%);
+	filter: brightness(0) saturate(100%) invert(84%) sepia(4%) saturate(191%) hue-rotate(177deg) brightness(89%)
+		contrast(91%);
 }
 .theme-light .footerButton-24QPis {
 	background-color: #4f545c;

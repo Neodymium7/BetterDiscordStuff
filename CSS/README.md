@@ -2,22 +2,9 @@
 
 ## [ChannelHoverImprovements](https://github.com/Neodymium7/BetterDiscordStuff/blob/pages/CSS/ChannelHoverImprovements.css)
 
-Alters the hover effects of hidden, locked, and full channels.
+Alters the hover effects of locked and full channels.
 
 ![locked](https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/pages/CSS/assets/channelhoverimprovements-locked.png) ![full](https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/pages/CSS/assets/channelhoverimprovements-full.png)
-
-## [HideOwnNoteSection](https://github.com/Neodymium7/BetterDiscordStuff/blob/pages/CSS/HideOwnNoteSection.css)
-
-Hides your own note section in the user popout and modal.
-
-![popout](https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/pages/CSS/assets/hidenotesection-popout.png) ![modal](https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/pages/CSS/assets/hidenotesection-modal.png)
-
-## [UserBackgroundsImprovements](https://github.com/Neodymium7/BetterDiscordStuff/blob/pages/CSS/UserBackgroundsImprovements.css)
-
-Adds hover effects to badges from the UserBackgrounds plugin, and makes them look more like the native badges.
-
-![userbackgroundsimprovements](https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/pages/CSS/assets/userbackgroundsimprovements.gif)  
-**_(Get UserBackgrounds plugin [here](https://github.com/Strencher/BetterDiscordStuff/blob/master/UserBackgrounds))_**
 
 ## [PinnedMessageBackgrounds](https://github.com/Neodymium7/BetterDiscordStuff/blob/pages/CSS/PinnedMessageBackgrounds.css)
 
