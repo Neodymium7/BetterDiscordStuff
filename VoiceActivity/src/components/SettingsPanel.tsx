@@ -1,11 +1,23 @@
-import { WebpackModules } from "@zlibrary";
-import Settings from "bundlebd/settings";
-import Strings from "bundlebd/strings";
+import { Webpack } from "betterdiscord";
 import { useState } from "react";
+import { Settings, Strings } from "../utils";
 
-const SwitchItem = WebpackModules.getByDisplayName("SwitchItem");
+const {
+	Filters: { byDisplayName },
+	getModule
+} = Webpack;
 
-const SettingsSwitchItem = props => {
+type setting = typeof Settings.keys[number];
+
+interface SwitchItemProps {
+	setting: setting;
+	name: string;
+	note: string;
+}
+
+const SwitchItem = getModule(byDisplayName("SwitchItem"));
+
+const SettingsSwitchItem = (props: SwitchItemProps) => {
 	const [value, setValue] = useState(Settings.get(props.setting));
 
 	return (
@@ -13,7 +25,7 @@ const SettingsSwitchItem = props => {
 			children={props.name}
 			note={props.note}
 			value={value}
-			onChange={v => {
+			onChange={(v: typeof value) => {
 				setValue(v);
 				Settings.set(props.setting, v);
 			}}
@@ -47,7 +59,7 @@ export default function SettingsPanel() {
 
 	return (
 		<>
-			{Object.keys(settings).map(key => {
+			{Object.keys(settings).map((key: setting) => {
 				const { name, note } = settings[key];
 				return <SettingsSwitchItem setting={key} name={name} note={note} />;
 			})}

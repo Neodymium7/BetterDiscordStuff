@@ -1,17 +1,29 @@
-import { DiscordModules, WebpackModules } from "@zlibrary";
+import { Webpack } from "betterdiscord";
+import { DiscordModules } from "zlibrary";
 import { getIconFontSize, getImageLink } from "../utils";
-import style from "./guildimage.scss?module";
+import styles from "../styles/guildimage.scss?module";
+
+const {
+	Filters: { byProps },
+	getModule
+} = Webpack;
 
 const { NavigationUtils, GuildActions } = DiscordModules;
-const { getAcronym } = WebpackModules.getByProps("getAcronym");
+const { getAcronym } = getModule(byProps("getAcronym"));
 
-export default function GuildImage(props) {
+interface GuildImageProps {
+	guild: any;
+	channel: any;
+	channelPath: string;
+}
+
+export default function GuildImage(props: GuildImageProps) {
 	const image = getImageLink(props.guild, props.channel);
 
 	if (image) {
 		return (
 			<img
-				className={style.icon}
+				className={styles.icon}
 				src={image}
 				width="48"
 				height="48"
@@ -25,7 +37,7 @@ export default function GuildImage(props) {
 	} else {
 		return (
 			<div
-				className={style.defaultIcon}
+				className={styles.defaultIcon}
 				onClick={() => {
 					if (props.guild) GuildActions.transitionToGuildSync(props.guild.id);
 					else if (props.channelPath) NavigationUtils.transitionTo(props.channelPath);

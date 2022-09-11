@@ -1,39 +1,44 @@
-import React from "react";
-import { WebpackModules, DiscordModules, ContextMenu } from "@zlibrary";
-import Settings from "bundlebd/settings";
-import Strings from "bundlebd/strings";
-import { checkPermissions, groupDMName } from "../utils";
-import style from "./voicepopoutsection.scss?module";
-import GuildImage from "./GuildImage";
+import { DiscordModules, ContextMenu } from "zlibrary";
+import { Settings, Strings, VoiceStateStore, useStateFromStores, checkPermissions, groupDMName } from "../utils";
+import styles from "../styles/voicepopoutsection.scss?module";
+import TooltipContainer from "./TooltipContainer";
 import { CallJoin, Speaker, Stage } from "./icons";
+import GuildImage from "./GuildImage";
 import WrappedPartyAvatars from "./WrappedPartyAvatars";
 
 const { NavigationUtils, ChannelActions, ChannelStore, GuildStore, SelectedChannelStore, UserStore } = DiscordModules;
-const { useStateFromStores } = WebpackModules.getByProps("useStateFromStores");
-const VoiceStates = WebpackModules.getByProps("getVoiceStateForUser");
 
-const { TooltipContainer } = WebpackModules.getByProps("TooltipContainer");
+interface VoicePopoutSectionProps {
+	userId: string;
+	v2?: boolean;
+}
 
-export default function VoicePopoutSection(props) {
-	const ignoreEnabled = Settings.useSettingState("ignoreEnabled");
-	const ignoredChannels = Settings.useSettingState("ignoredChannels");
-	const ignoredGuilds = Settings.useSettingState("ignoredGuilds");
+export default function VoicePopoutSection(props: VoicePopoutSectionProps) {
+	const { ignoreEnabled, ignoredChannels, ignoredGuilds } = Settings.useSettingsState();
 
-	const voiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(props.userId));
-	const currentUserVoiceState = useStateFromStores([VoiceStates], () =>
-		VoiceStates.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
+	const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
+	const currentUserVoiceState = useStateFromStores([VoiceStateStore], () =>
+		VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
 	);
 
 	if (!voiceState) return null;
 	const channel = ChannelStore.getChannel(voiceState.channelId);
 	if (!channel) return null;
-	if (!checkPermissions(channel)) return null;
 	const guild = GuildStore.getGuild(channel.guild_id);
+	if (guild && !checkPermissions(channel)) return null;
 
 	if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
 
-	let headerText, text, viewButton, joinButton, Icon, channelPath;
-	const members = Object.keys(VoiceStates.getVoiceStatesForChannel(channel.id)).map((id) => UserStore.getUser(id));
+	let headerText: string;
+	let text: string | JSX.Element | JSX.Element[];
+	let viewButton: string;
+	let joinButton: string;
+	let Icon: React.FunctionComponent<{ width: string; height: string }>;
+	let channelPath: string;
+
+	const members = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id)).map((id) =>
+		UserStore.getUser(id)
+	);
 	const hasOverflow = members.length > 3;
 	const inCurrentChannel = channel.id === currentUserVoiceState?.channelId;
 	const channelSelected = channel.id === SelectedChannelStore.getChannelId();
@@ -68,18 +73,18 @@ export default function VoicePopoutSection(props) {
 	}
 
 	return (
-		<div className={style.popoutSection}>
-			<h3 className={style.header}>{headerText}</h3>
+		<div className={props.v2 ? `${styles.popoutSection} ${styles.v2PopoutSection}` : styles.popoutSection}>
+			<h3 className={styles.header}>{headerText}</h3>
 			{!(channel.type === 1) && (
-				<div className={hasOverflow ? `${style.body} ${style.hasOverflow}` : style.body}>
+				<div className={hasOverflow ? `${styles.body} ${styles.hasOverflow}` : styles.body}>
 					<GuildImage guild={guild} channel={channel} channelPath={channelPath} />
-					<div className={style.text}>{text}</div>
+					<div className={styles.text}>{text}</div>
 					<WrappedPartyAvatars guild={guild} channel={channel} members={members} />
 				</div>
 			)}
-			<div className={style.buttonWrapper}>
+			<div className={styles.buttonWrapper}>
 				<button
-					className={`${style.button} ${style.viewButton}`}
+					className={`${styles.button} ${styles.viewButton}`}
 					disabled={channelSelected}
 					onClick={() => {
 						if (channelPath) NavigationUtils.transitionTo(channelPath);
@@ -92,11 +97,13 @@ export default function VoicePopoutSection(props) {
 						text={joinButton}
 						position="top"
 						className={
-							inCurrentChannel ? `${style.joinWrapper} ${style.joinWrapperDisabled}` : style.joinWrapper
+							inCurrentChannel
+								? `${styles.joinWrapper} ${styles.joinWrapperDisabled}`
+								: styles.joinWrapper
 						}
 					>
 						<button
-							className={`${style.button} ${style.joinButton}`}
+							className={`${styles.button} ${styles.joinButton}`}
 							disabled={inCurrentChannel}
 							onClick={() => {
 								if (channel.id) ChannelActions.selectVoiceChannel(channel.id);

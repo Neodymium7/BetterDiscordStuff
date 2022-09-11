@@ -1,29 +1,30 @@
-import React from "react";
-import { DiscordModules, WebpackModules } from "@zlibrary";
-import Settings from "bundlebd/settings";
-import Strings from "bundlebd/strings";
-import { groupDMName, checkPermissions } from "../utils";
-import style from "./voiceicon.scss?module";
+import { DiscordModules } from "zlibrary";
+import { Settings, Strings, VoiceStateStore, useStateFromStores, groupDMName, checkPermissions } from "../utils";
+import styles from "../styles/voiceicon.scss?module";
+import TooltipContainer from "./TooltipContainer";
 import { CallJoin, People, Speaker, Stage } from "./icons";
 
 const { NavigationUtils, ChannelStore, GuildStore, UserStore } = DiscordModules;
-const { useStateFromStores } = WebpackModules.getByProps("useStateFromStores");
-const VoiceStates = WebpackModules.getByProps("getVoiceStateForUser");
 
-const { TooltipContainer } = WebpackModules.getByProps("TooltipContainer");
+interface VoiceIconProps {
+	userId: string;
+	context: string;
+}
 
-export default function VoiceIcon(props) {
-	const showMemberListIcons = Settings.useSettingState("showMemberListIcons");
-	const showDMListIcons = Settings.useSettingState("showDMListIcons");
-	const showPeopleListIcons = Settings.useSettingState("showPeopleListIcons");
-	const currentChannelColor = Settings.useSettingState("currentChannelColor");
-	const ignoreEnabled = Settings.useSettingState("ignoreEnabled");
-	const ignoredChannels = Settings.useSettingState("ignoredChannels");
-	const ignoredGuilds = Settings.useSettingState("ignoredGuilds");
+export default function VoiceIcon(props: VoiceIconProps) {
+	const {
+		showMemberListIcons,
+		showDMListIcons,
+		showPeopleListIcons,
+		ignoreEnabled,
+		ignoredChannels,
+		ignoredGuilds,
+		currentChannelColor
+	} = Settings.useSettingsState();
 
-	const voiceState = useStateFromStores([VoiceStates], () => VoiceStates.getVoiceStateForUser(props.userId));
-	const currentUserVoiceState = useStateFromStores([VoiceStates], () =>
-		VoiceStates.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
+	const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
+	const currentUserVoiceState = useStateFromStores([VoiceStateStore], () =>
+		VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
 	);
 
 	if (props.context === "memberlist" && !showMemberListIcons) return null;
@@ -32,16 +33,20 @@ export default function VoiceIcon(props) {
 	if (!voiceState) return null;
 	const channel = ChannelStore.getChannel(voiceState.channelId);
 	if (!channel) return null;
-	if (!checkPermissions(channel)) return null;
 	const guild = GuildStore.getGuild(channel.guild_id);
+	if (guild && !checkPermissions(channel)) return null;
 
 	if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
 
-	let text, subtext, Icon, channelPath;
-	let className = style.icon;
+	let text: string;
+	let subtext: string;
+	let Icon: React.FunctionComponent<{ width: string; height: string; className: string }>;
+	let channelPath: string;
+	let className = styles.icon;
+
 	if (channel.id === currentUserVoiceState?.channelId && currentChannelColor)
-		className = `${style.icon} ${style.iconCurrentCall}`;
-	if (voiceState.selfStream) className = style.iconLive;
+		className = `${styles.icon} ${styles.iconCurrentCall}`;
+	if (voiceState.selfStream) className = styles.iconLive;
 
 	if (guild) {
 		text = guild.name;
@@ -79,12 +84,12 @@ export default function VoiceIcon(props) {
 		>
 			<TooltipContainer
 				text={
-					<div className={style.tooltip}>
-						<div className={style.header} style={{ fontWeight: "600" }}>
+					<div className={styles.tooltip}>
+						<div className={styles.header} style={{ fontWeight: "600" }}>
 							{text}
 						</div>
-						<div className={style.subtext}>
-							<Icon className={style.tooltipIcon} width="16" height="16" />
+						<div className={styles.subtext}>
+							<Icon className={styles.tooltipIcon} width="16" height="16" />
 							<div style={{ fontWeight: "400" }}>{subtext}</div>
 						</div>
 					</div>

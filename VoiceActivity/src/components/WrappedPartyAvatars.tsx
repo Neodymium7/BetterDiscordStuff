@@ -1,8 +1,19 @@
-import { WebpackModules } from "@zlibrary";
+import { Webpack } from "betterdiscord";
 
-const PartyAvatars = WebpackModules.getByDisplayName("PartyAvatars");
+const {
+	Filters: { byDisplayName },
+	getModule
+} = Webpack;
 
-export default function WrappedPartyAvatars(props) {
+const PartyAvatars = getModule(byDisplayName("PartyAvatars"));
+
+interface WrappedPartyAvatarsProps {
+	guild: any;
+	channel: any;
+	members: any;
+}
+
+export default function WrappedPartyAvatars(props: WrappedPartyAvatarsProps) {
 	if (props.guild) {
 		return (
 			<PartyAvatars

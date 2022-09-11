@@ -1,5 +1,5 @@
 .popoutSection {
-	margin-bottom: 16px;
+	padding-bottom: 16px;
 
 	.header {
 		margin-bottom: 8px;
@@ -105,6 +105,23 @@
 
 		.joinWrapperDisabled {
 			cursor: not-allowed;
+		}
+	}
+}
+
+.v2PopoutSection {
+	.buttonWrapper {
+		.button {
+			background-color: var(--profile-gradient-button-color) !important;
+			transition: opacity 0.2s ease-in-out;
+
+			&:hover {
+				opacity: 0.8;
+			}
+
+			&:active {
+				opacity: 0.9;
+			}
 		}
 	}
 }
