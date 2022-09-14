@@ -84,7 +84,7 @@ export default function VoicePopoutSection(props: VoicePopoutSectionProps) {
 			)}
 			<div className={styles.buttonWrapper}>
 				<button
-					className={`${styles.button} ${styles.viewButton}`}
+					className={styles.button}
 					disabled={channelSelected}
 					onClick={() => {
 						if (channelPath) NavigationUtils.transitionTo(channelPath);
