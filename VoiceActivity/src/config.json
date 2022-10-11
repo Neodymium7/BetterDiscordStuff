@@ -1,7 +1,7 @@
 {
 	"meta": {
 		"name": "VoiceActivity",
-		"version": "1.4.1",
+		"version": "1.5.0",
 		"description": "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		"updateUrl": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js",
@@ -12,7 +12,14 @@
 		{
 			"title": "Fixed",
 			"type": "fixed",
-			"items": ["Fixed some minor styling issues"]
+			"items": ["Fixed plugin not working after Discord's latest update."]
+		},
+		{
+			"title": "However...",
+			"type": "progress",
+			"items": [
+				"The Modal section and possibly some other items are still broken and have been disabled. I'll try to fix them as soon as I can."
+			]
 		}
 	],
 	"zlibrary": true

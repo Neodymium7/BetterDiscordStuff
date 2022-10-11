@@ -5,11 +5,12 @@ import locales from "./locales.json";
 import defaultGroupIcon from "./assets/default_group_icon.png";
 
 const {
-	Filters: { byProps },
+	Filters: { byProps, byStrings },
 	getModule
 } = Webpack;
 
-const { Permissions, DiscordPermissions, UserStore } = DiscordModules;
+const { Permissions, UserStore } = DiscordModules;
+const DiscordPermissions = getModule(byProps("VIEW_CREATOR_MONETIZATION_ANALYTICS"), { searchExports: true });
 
 export const Settings = new SettingsManager({
 	showMemberListIcons: true,
@@ -23,8 +24,14 @@ export const Settings = new SettingsManager({
 
 export const Strings = new StringsManager(locales);
 
-export const { useStateFromStores } = getModule(byProps("useStateFromStores"));
+export const useStateFromStores = getModule(byStrings("useStateFromStores"));
+export const transitionTo = getModule(byStrings("transitionTo -"), { searchExports: true });
 export const VoiceStateStore = getModule(byProps("getVoiceStateForUser"));
+export const GuildStore = getModule(byProps("getGuildCount"));
+
+export const withProps = (filter: (m: any) => boolean) => {
+	return (m) => Object.values(m).some(filter);
+};
 
 export function checkPermissions(channel: any): boolean {
 	return Permissions.can({
@@ -35,11 +42,9 @@ export function checkPermissions(channel: any): boolean {
 }
 
 export function forceUpdateAll(selector: string) {
-	document
-		.querySelectorAll(selector)
-		.forEach((node) =>
-			ReactTools.getReactInstance(node as HTMLElement).return.return.return.return.stateNode?.forceUpdate()
-		);
+	document.querySelectorAll(selector).forEach((node) => {
+		ReactTools.getStateNodes(node as HTMLElement).forEach((e) => e.forceUpdate());
+	});
 }
 
 export function getIconFontSize(name: string) {

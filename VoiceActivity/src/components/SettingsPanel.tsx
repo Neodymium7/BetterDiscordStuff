@@ -2,10 +2,7 @@ import { Webpack } from "betterdiscord";
 import { useState } from "react";
 import { Settings, Strings } from "../utils";
 
-const {
-	Filters: { byDisplayName },
-	getModule
-} = Webpack;
+const { getModule } = Webpack;
 
 type setting = typeof Settings.keys[number];
 
@@ -15,7 +12,7 @@ interface SwitchItemProps {
 	note: string;
 }
 
-const SwitchItem = getModule(byDisplayName("SwitchItem"));
+const SwitchItem = getModule((m) => m.toString().includes("helpdeskArticleId"));
 
 const SettingsSwitchItem = (props: SwitchItemProps) => {
 	const [value, setValue] = useState(Settings.get(props.setting));

@@ -34,17 +34,7 @@
 				font-weight: 500;
 			}
 		}
-
-		& > :last-child {
-			padding: 12px 0;
-			margin-left: auto;
-		}
 	}
-
-	.hasOverflow > :last-child > div > :last-child {
-		background-color: var(--background-tertiary);
-	}
-
 	.buttonWrapper {
 		display: flex;
 		flex: 0 1 auto;
@@ -110,6 +100,21 @@
 }
 
 .v2PopoutSection {
+	padding-bottom: 0;
+
+	.header {
+		color: var(--header-primary);
+	}
+
+	.body {
+		.text {
+			& > h3 {
+				font-family: var(--font-normal);
+				font-weight: 600;
+			}
+		}
+	}
+
 	.buttonWrapper {
 		.button {
 			background-color: var(--profile-gradient-button-color) !important;

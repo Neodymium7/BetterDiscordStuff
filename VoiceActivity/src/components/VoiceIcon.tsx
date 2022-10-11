@@ -1,10 +1,19 @@
 import { DiscordModules } from "zlibrary";
-import { Settings, Strings, VoiceStateStore, useStateFromStores, groupDMName, checkPermissions } from "../utils";
+import {
+	Settings,
+	Strings,
+	VoiceStateStore,
+	useStateFromStores,
+	groupDMName,
+	checkPermissions,
+	transitionTo,
+	GuildStore
+} from "../utils";
 import styles from "../styles/voiceicon.scss?module";
-import TooltipContainer from "./TooltipContainer";
+import Tooltip from "./Tooltip";
 import { CallJoin, People, Speaker, Stage } from "./icons";
 
-const { NavigationUtils, ChannelStore, GuildStore, UserStore } = DiscordModules;
+const { ChannelStore, UserStore } = DiscordModules;
 
 interface VoiceIconProps {
 	userId: string;
@@ -79,10 +88,10 @@ export default function VoiceIcon(props: VoiceIconProps) {
 			onClick={(e) => {
 				e.stopPropagation();
 				e.preventDefault();
-				if (channelPath) NavigationUtils.transitionTo(channelPath);
+				if (channelPath) transitionTo(channelPath);
 			}}
 		>
-			<TooltipContainer
+			<Tooltip
 				text={
 					<div className={styles.tooltip}>
 						<div className={styles.header} style={{ fontWeight: "600" }}>
@@ -95,8 +104,12 @@ export default function VoiceIcon(props: VoiceIconProps) {
 					</div>
 				}
 			>
-				{!voiceState.selfStream ? <Speaker width="14" height="14" /> : Strings.get("LIVE")}
-			</TooltipContainer>
+				{(props: any) => (
+					<div {...props}>
+						{!voiceState.selfStream ? <Speaker width="14" height="14" /> : Strings.get("LIVE")}
+					</div>
+				)}
+			</Tooltip>
 		</div>
 	);
 }

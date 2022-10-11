@@ -1,15 +1,15 @@
 import { Webpack } from "betterdiscord";
 import { DiscordModules } from "zlibrary";
-import { getIconFontSize, getImageLink } from "../utils";
+import { getIconFontSize, getImageLink, transitionTo } from "../utils";
 import styles from "../styles/guildimage.scss?module";
 
 const {
-	Filters: { byProps },
+	Filters: { byStrings },
 	getModule
 } = Webpack;
 
-const { NavigationUtils, GuildActions } = DiscordModules;
-const { getAcronym } = getModule(byProps("getAcronym"));
+const { GuildActions } = DiscordModules;
+const { getAcronym } = getModule(byStrings('.replace(/\'s /g," ").replace(/\\w+/g,'), { searchExports: true });
 
 interface GuildImageProps {
 	guild: any;
@@ -30,7 +30,7 @@ export default function GuildImage(props: GuildImageProps) {
 				style={{ borderRadius: "16px", cursor: "pointer" }}
 				onClick={() => {
 					if (props.guild) GuildActions.transitionToGuildSync(props.guild.id);
-					else if (props.channelPath) NavigationUtils.transitionTo(props.channelPath);
+					else if (props.channelPath) transitionTo(props.channelPath);
 				}}
 			/>
 		);
@@ -40,7 +40,7 @@ export default function GuildImage(props: GuildImageProps) {
 				className={styles.defaultIcon}
 				onClick={() => {
 					if (props.guild) GuildActions.transitionToGuildSync(props.guild.id);
-					else if (props.channelPath) NavigationUtils.transitionTo(props.channelPath);
+					else if (props.channelPath) transitionTo(props.channelPath);
 				}}
 				style={{ fontSize: `${getIconFontSize(props.guild ? props.guild.name : props.channel.name)}px` }}
 			>
