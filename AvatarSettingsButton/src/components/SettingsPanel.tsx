@@ -9,7 +9,7 @@ const {
 const Margins = getModule(byProps("marginXSmall"));
 const RadioGroup = getModule((m) => m.Sizes && m.toString().includes("radioItemClassName"));
 const SwitchItem = getModule((m) => m.toString().includes("helpdeskArticleId"));
-const SettingsItem = getModule((m) => m.Tags && m.toString().includes("required"));
+const SettingsItem = getModule((m) => m.Tags && m.toString().includes("required"), { searchExports: true });
 const SettingsNote = getModule((m) => m.Types && m.toString().includes("selectable"));
 const SettingsDivider = getModule((m) => m.toString().includes("().divider"));
 

@@ -1,5 +1,5 @@
-import BasePlugin from "zlibrary/plugin";
 import { clearCSS, injectCSS, Webpack } from "betterdiscord";
+import BasePlugin from "zlibrary/plugin";
 import { Settings } from "./utils";
 import SettingsPanel from "./components/SettingsPanel";
 
@@ -9,7 +9,7 @@ const {
 } = Webpack;
 
 const UserSettingsWindow = getModule(byProps("saveAccountChanges"));
-const Sections = getModule(byProps("ACCOUNT"));
+const Sections = getModule(byProps("ACCOUNT"), { searchExports: true });
 
 const accountClasses = getModule(byProps("buildOverrideButton"));
 const tooltipClasses = getModule(byProps("tooltipContent"));
@@ -93,7 +93,10 @@ export default class AvatarSettingsButton extends BasePlugin {
 	clearListeners: () => void;
 
 	onStart() {
-		injectCSS("AvatarSettingsButton", `${settingsSelector} { display: none; }`);
+		injectCSS(
+			"AvatarSettingsButton",
+			`${settingsSelector} { display: none; } .${accountClasses.container} > :first-child { width: 100%; }`
+		);
 		Settings.addListener(() => {
 			this.addListeners();
 			this.addTooltip();
