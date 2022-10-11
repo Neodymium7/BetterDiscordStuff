@@ -2,7 +2,7 @@
  * @name AvatarSettingsButton
  * @author Neodymium
  * @description Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions.
- * @version 2.0.0
+ * @version 2.0.1
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
@@ -37,7 +37,7 @@ const config = {
 		authors: [{
 			name: "Neodymium",
 		}],
-		version: "2.0.0",
+		version: "2.0.1",
 		description: "Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
@@ -45,7 +45,7 @@ const config = {
 	changelog: [{
 		title: "Fixed",
 		type: "fixed",
-		items: ["Rewrote the plugin to use DOM Manipulation instead of patching for compatibility with Discord's latest update."]
+		items: ["Fixed to work with BD v1.8.0."]
 	}]
 };
 
@@ -120,9 +120,9 @@ function buildPlugin([BasePlugin, Library]) {
 			__webpack_require__.d(__webpack_exports__, {
 				default: () => AvatarSettingsButton
 			});
+			const external_BdApi_namespaceObject = BdApi;
 			const external_BasePlugin_namespaceObject = BasePlugin;
 			var external_BasePlugin_default = __webpack_require__.n(external_BasePlugin_namespaceObject);
-			const external_BdApi_namespaceObject = BdApi;
 			var external_BdApi_React_ = __webpack_require__(113);
 			const external_AvatarSettingsButton_namespaceObject = "AvatarSettingsButton";
 			var external_AvatarSettingsButton_default = __webpack_require__.n(external_AvatarSettingsButton_namespaceObject);
@@ -191,7 +191,9 @@ function buildPlugin([BasePlugin, Library]) {
 			const Margins = getModule(byProps("marginXSmall"));
 			const RadioGroup = getModule((m => m.Sizes && m.toString().includes("radioItemClassName")));
 			const SwitchItem = getModule((m => m.toString().includes("helpdeskArticleId")));
-			const SettingsItem = getModule((m => m.Tags && m.toString().includes("required")));
+			const SettingsItem = getModule((m => m.Tags && m.toString().includes("required")), {
+				searchExports: true
+			});
 			const SettingsNote = getModule((m => m.Types && m.toString().includes("selectable")));
 			const SettingsDivider = getModule((m => m.toString().includes("().divider")));
 
@@ -290,7 +292,9 @@ function buildPlugin([BasePlugin, Library]) {
 				getModule: src_getModule
 			} = external_BdApi_namespaceObject.Webpack;
 			const UserSettingsWindow = src_getModule(src_byProps("saveAccountChanges"));
-			const Sections = src_getModule(src_byProps("ACCOUNT"));
+			const Sections = src_getModule(src_byProps("ACCOUNT"), {
+				searchExports: true
+			});
 			const accountClasses = src_getModule(src_byProps("buildOverrideButton"));
 			const tooltipClasses = src_getModule(src_byProps("tooltipContent"));
 			const layerContainerClass = src_getModule(src_byProps("layerContainer")).layerContainer;
@@ -354,7 +358,7 @@ function buildPlugin([BasePlugin, Library]) {
 					this.tooltip = null
 				}
 				onStart() {
-					(0, external_BdApi_namespaceObject.injectCSS)("AvatarSettingsButton", `${settingsSelector} { display: none; }`);
+					(0, external_BdApi_namespaceObject.injectCSS)("AvatarSettingsButton", `${settingsSelector} { display: none; } .${accountClasses.container} > :first-child { width: 100%; }`);
 					Settings.addListener((() => {
 						this.addListeners();
 						this.addTooltip()
