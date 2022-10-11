@@ -2,7 +2,7 @@
  * @name VoiceActivity
  * @author Neodymium
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
- * @version 1.4.1
+ * @version 1.5.0
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -37,7 +37,7 @@ const config = {
 		authors: [{
 			name: "Neodymium",
 		}],
-		version: "1.4.1",
+		version: "1.5.0",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -45,7 +45,11 @@ const config = {
 	changelog: [{
 		title: "Fixed",
 		type: "fixed",
-		items: ["Fixed some minor styling issues"]
+		items: ["Fixed plugin not working after Discord's latest update."]
+	}, {
+		title: "However...",
+		type: "progress",
+		items: ["The Modal section and possibly some other items are still broken and have been disabled. I'll try to fix them as soon as I can."]
 	}]
 };
 
@@ -83,37 +87,6 @@ function buildPlugin([BasePlugin, Library]) {
 					defaultIcon: "VoiceActivity-guildimage-defaultIcon"
 				};
 				(0, styles__WEBPACK_IMPORTED_MODULE_2__.z)("guildimage.scss", ___CSS_LOADER_EXPORT___.toString());
-				const __WEBPACK_DEFAULT_EXPORT__ = {
-					...___CSS_LOADER_EXPORT___.locals,
-					_content: ___CSS_LOADER_EXPORT___.toString()
-				}
-			},
-			242: (module, __webpack_exports__, __webpack_require__) => {
-				"use strict";
-				__webpack_require__.d(__webpack_exports__, {
-					Z: () => __WEBPACK_DEFAULT_EXPORT__
-				});
-				var styles__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(703);
-				var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(882);
-				var _node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
-				var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(268);
-				var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = __webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
-				var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()(_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default());
-				___CSS_LOADER_EXPORT___.push([module.id, ".VoiceActivity-modalactivityitem-modalActivity{padding:16px}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-header{width:100%;min-width:0;margin-bottom:8px;display:flex;justify-content:space-between;color:var(--header-secondary);font-weight:700;text-transform:uppercase;font-family:var(--font-display);font-size:12px;line-height:16px}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-body{display:flex;align-items:center}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-body .VoiceActivity-modalactivityitem-text{margin-left:10px;color:var(--text-normal);font-size:14px;line-height:18px;overflow:hidden;flex:1 1 auto}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-body .VoiceActivity-modalactivityitem-text>div,.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-body .VoiceActivity-modalactivityitem-text>h3{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-body .VoiceActivity-modalactivityitem-text>h3{font-weight:500;font-family:var(--font-display)}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-body .VoiceActivity-modalactivityitem-buttonContainer{margin-left:20px;display:flex}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-body .VoiceActivity-modalactivityitem-buttonContainer .VoiceActivity-modalactivityitem-button{height:32px;min-height:32px;width:100%;display:flex;justify-content:center;align-items:center;padding:2px 16px;border-radius:3px;background-color:var(--button-secondary-background);transition:background-color .17s ease,color .17s ease;color:#fff;font-size:14px;line-height:16px;font-weight:500;user-select:none}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-body .VoiceActivity-modalactivityitem-buttonContainer .VoiceActivity-modalactivityitem-button:hover{background-color:var(--button-secondary-background-hover)}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-body .VoiceActivity-modalactivityitem-buttonContainer .VoiceActivity-modalactivityitem-button:active{background-color:var(--button-secondary-background-active)}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-body .VoiceActivity-modalactivityitem-buttonContainer .VoiceActivity-modalactivityitem-button:disabled{background-color:var(--button-secondary-background-disabled);opacity:.5;cursor:not-allowed}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-body .VoiceActivity-modalactivityitem-buttonContainer>div[aria-label]{width:32px;margin-left:8px}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-body .VoiceActivity-modalactivityitem-buttonContainer .VoiceActivity-modalactivityitem-joinWrapper .VoiceActivity-modalactivityitem-joinButton{min-width:32px;max-width:32px;padding:0}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-body .VoiceActivity-modalactivityitem-buttonContainer .VoiceActivity-modalactivityitem-joinWrapper .VoiceActivity-modalactivityitem-joinButton:disabled{pointer-events:none}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-body .VoiceActivity-modalactivityitem-buttonContainer .VoiceActivity-modalactivityitem-joinWrapperDisabled{cursor:not-allowed}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-members{display:block;position:absolute;top:20px;right:16px}.VoiceActivity-modalactivityitem-modalActivity .VoiceActivity-modalactivityitem-hasOverflow :nth-child(3){background-color:var(--background-tertiary)}", ""]);
-				___CSS_LOADER_EXPORT___.locals = {
-					modalActivity: "VoiceActivity-modalactivityitem-modalActivity",
-					header: "VoiceActivity-modalactivityitem-header",
-					body: "VoiceActivity-modalactivityitem-body",
-					text: "VoiceActivity-modalactivityitem-text",
-					buttonContainer: "VoiceActivity-modalactivityitem-buttonContainer",
-					button: "VoiceActivity-modalactivityitem-button",
-					joinWrapper: "VoiceActivity-modalactivityitem-joinWrapper",
-					joinButton: "VoiceActivity-modalactivityitem-joinButton",
-					joinWrapperDisabled: "VoiceActivity-modalactivityitem-joinWrapperDisabled",
-					members: "VoiceActivity-modalactivityitem-members",
-					hasOverflow: "VoiceActivity-modalactivityitem-hasOverflow"
-				};
-				(0, styles__WEBPACK_IMPORTED_MODULE_2__.z)("modalactivityitem.scss", ___CSS_LOADER_EXPORT___.toString());
 				const __WEBPACK_DEFAULT_EXPORT__ = {
 					...___CSS_LOADER_EXPORT___.locals,
 					_content: ___CSS_LOADER_EXPORT___.toString()
@@ -158,13 +131,12 @@ function buildPlugin([BasePlugin, Library]) {
 				var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(268);
 				var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = __webpack_require__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
 				var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default()(_node_modules_css_loader_dist_runtime_noSourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default());
-				___CSS_LOADER_EXPORT___.push([module.id, ".VoiceActivity-voicepopoutsection-popoutSection{padding-bottom:16px}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-header{margin-bottom:8px;color:var(--header-secondary);font-size:12px;line-height:16px;font-family:var(--font-display);font-weight:700;text-transform:uppercase}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body{display:flex;flex-direction:row}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-text{margin:auto 10px;color:var(--text-normal);font-size:14px;line-height:18px;overflow:hidden}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-text>div,.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-text>h3{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-text>h3{font-family:var(--font-display);font-weight:500}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body>:last-child{padding:12px 0;margin-left:auto}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-hasOverflow>:last-child>div>:last-child{background-color:var(--background-tertiary)}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper{display:flex;flex:0 1 auto;flex-direction:row;flex-wrap:nowrap;justify-content:flex-start;align-items:stretch;margin-top:12px}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button{height:32px;min-height:32px;width:100%;display:flex;justify-content:center;align-items:center;padding:2px 16px;border-radius:3px;background-color:var(--button-secondary-background);transition:background-color .17s ease,color .17s ease;color:#fff;font-size:14px;line-height:16px;font-weight:500;user-select:none}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:hover{background-color:var(--button-secondary-background-hover)}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:active{background-color:var(--button-secondary-background-active)}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:disabled{background-color:var(--button-secondary-background-disabled);opacity:.5 !important;cursor:not-allowed}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper>div[aria-label]{width:32px;margin-left:8px}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-joinWrapper .VoiceActivity-voicepopoutsection-joinButton{min-width:32px;max-width:32px;padding:0}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-joinWrapper .VoiceActivity-voicepopoutsection-joinButton:disabled{pointer-events:none}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-joinWrapperDisabled{cursor:not-allowed}.VoiceActivity-voicepopoutsection-v2PopoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button{background-color:var(--profile-gradient-button-color) !important;transition:opacity .2s ease-in-out}.VoiceActivity-voicepopoutsection-v2PopoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:hover{opacity:.8}.VoiceActivity-voicepopoutsection-v2PopoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:active{opacity:.9}", ""]);
+				___CSS_LOADER_EXPORT___.push([module.id, ".VoiceActivity-voicepopoutsection-popoutSection{padding-bottom:16px}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-header{margin-bottom:8px;color:var(--header-secondary);font-size:12px;line-height:16px;font-family:var(--font-display);font-weight:700;text-transform:uppercase}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body{display:flex;flex-direction:row}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-text{margin:auto 10px;color:var(--text-normal);font-size:14px;line-height:18px;overflow:hidden}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-text>div,.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-text>h3{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-text>h3{font-family:var(--font-display);font-weight:500}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper{display:flex;flex:0 1 auto;flex-direction:row;flex-wrap:nowrap;justify-content:flex-start;align-items:stretch;margin-top:12px}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button{height:32px;min-height:32px;width:100%;display:flex;justify-content:center;align-items:center;padding:2px 16px;border-radius:3px;background-color:var(--button-secondary-background);transition:background-color .17s ease,color .17s ease;color:#fff;font-size:14px;line-height:16px;font-weight:500;user-select:none}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:hover{background-color:var(--button-secondary-background-hover)}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:active{background-color:var(--button-secondary-background-active)}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:disabled{background-color:var(--button-secondary-background-disabled);opacity:.5 !important;cursor:not-allowed}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper>div[aria-label]{width:32px;margin-left:8px}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-joinWrapper .VoiceActivity-voicepopoutsection-joinButton{min-width:32px;max-width:32px;padding:0}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-joinWrapper .VoiceActivity-voicepopoutsection-joinButton:disabled{pointer-events:none}.VoiceActivity-voicepopoutsection-popoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-joinWrapperDisabled{cursor:not-allowed}.VoiceActivity-voicepopoutsection-v2PopoutSection{padding-bottom:0}.VoiceActivity-voicepopoutsection-v2PopoutSection .VoiceActivity-voicepopoutsection-header{color:var(--header-primary)}.VoiceActivity-voicepopoutsection-v2PopoutSection .VoiceActivity-voicepopoutsection-body .VoiceActivity-voicepopoutsection-text>h3{font-family:var(--font-normal);font-weight:600}.VoiceActivity-voicepopoutsection-v2PopoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button{background-color:var(--profile-gradient-button-color) !important;transition:opacity .2s ease-in-out}.VoiceActivity-voicepopoutsection-v2PopoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:hover{opacity:.8}.VoiceActivity-voicepopoutsection-v2PopoutSection .VoiceActivity-voicepopoutsection-buttonWrapper .VoiceActivity-voicepopoutsection-button:active{opacity:.9}", ""]);
 				___CSS_LOADER_EXPORT___.locals = {
 					popoutSection: "VoiceActivity-voicepopoutsection-popoutSection",
 					header: "VoiceActivity-voicepopoutsection-header",
 					body: "VoiceActivity-voicepopoutsection-body",
 					text: "VoiceActivity-voicepopoutsection-text",
-					hasOverflow: "VoiceActivity-voicepopoutsection-hasOverflow",
 					buttonWrapper: "VoiceActivity-voicepopoutsection-buttonWrapper",
 					button: "VoiceActivity-voicepopoutsection-button",
 					joinWrapper: "VoiceActivity-voicepopoutsection-joinWrapper",
@@ -312,7 +284,6 @@ function buildPlugin([BasePlugin, Library]) {
 			var external_BasePlugin_default = __webpack_require__.n(external_BasePlugin_namespaceObject);
 			var styles = __webpack_require__(703);
 			var external_BdApi_React_ = __webpack_require__(113);
-			var external_BdApi_React_default = __webpack_require__.n(external_BdApi_React_);
 			const external_VoiceActivity_namespaceObject = "VoiceActivity";
 			var external_VoiceActivity_default = __webpack_require__.n(external_VoiceActivity_namespaceObject);
 			class SettingsManager {
@@ -364,8 +335,8 @@ function buildPlugin([BasePlugin, Library]) {
 					return settings
 				}
 			}
-			const Dispatcher = Library ? Library.DiscordModules.Dispatcher : external_BdApi_namespaceObject.Webpack.getModule(external_BdApi_namespaceObject.Webpack.Filters.byProps("dirtyDispatch"));
-			const LocaleManager = Library ? Library.DiscordModules.LocaleManager : external_BdApi_namespaceObject.Webpack.getModule((m => m.Messages.CLOSE));
+			const Dispatcher = Library ? Library.DiscordModules.Dispatcher : external_BdApi_namespaceObject.Webpack.getModule(external_BdApi_namespaceObject.Webpack.Filters.byProps("dispatch", "subscribe"));
+			const LocaleManager = Library ? Library.DiscordModules.LocaleManager : external_BdApi_namespaceObject.Webpack.getModule((m => m.Messages?.CLOSE));
 			class StringsManager {
 				constructor(locales, defaultLocale) {
 					this.locales = locales;
@@ -390,15 +361,18 @@ function buildPlugin([BasePlugin, Library]) {
 			const default_group_icon_namespaceObject = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAABgmlDQ1BJQ0MgUHJvZmlsZQAAKM+VkTtIw1AYhb9WxQcVBzuIOGSoThZERRyliiIolFrB12CS2io0sSQtLo6Cq+DgY7Hq4OKsq4OrIAg+QBydnBRdROJ/U6FFqOCFcD/OzTnce34IFrOm5db2gGXnncRYTJuZndPqn6mlBmikTzfd3OTUaJKq6+OWgNpvoiqL/63m1JJrQkATHjJzTl54UXhgLZ9TvCscNpf1lPCpcLcjFxS+V7pR4hfFGZ+DKjPsJBPDwmFhLVPBRgWby44l3C8cSVm25AdnSpxSvK7YyhbMn3uqF4aW7OkppcvXwRjjTBJHw6DAClnyRGW3RXFJyHmsir/d98fFZYhrBVMcI6xioft+1Ax+d+um+3pLSaEY1D153lsn1G/D15bnfR563tcR1DzChV32rxZh8F30rbIWOYCWDTi7LGvGDpxvQttDTnd0X1LzD6bT8HoiY5qF1mtomi/19nPO8R0kpauJK9jbh66MZC9UeXdDZW9//uP3R+wbNjlyjzeozyoAAABgUExURVhl8oGK9LW7+erq/f///97i+7/F+mx38qGo92Ft8mFv8ujs/IuW9PP2/Wx384GM9Kux+MDF+urs/d/i+7S9+Jae9uDj/Jad9srO+tXY+4yU9aqy+MDE+qGn9/T1/neC9Liz/RcAAAAJcEhZcwAACxMAAAsTAQCanBgAAATqaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNC40LjAtRXhpdjIiPg0KICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPg0KICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOkdJTVA9Imh0dHA6Ly93d3cuZ2ltcC5vcmcveG1wLyIgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1wTU06RG9jdW1lbnRJRD0iZ2ltcDpkb2NpZDpnaW1wOmIzMjk5M2JmLTliZTUtNGJmMy04ZWEwLWY3ZDkzNTMyMTY2YiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowNjhkOWE3MS1lYWU3LTRmZjAtYmMxZS04MGUwYmMxMTFkZDUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDplZjU1ZGE0YS0wZTBhLTRjNTctODdmOC1lMmFmMGUyZGEzOGUiIGRjOkZvcm1hdD0iaW1hZ2UvcG5nIiBHSU1QOkFQST0iMi4wIiBHSU1QOlBsYXRmb3JtPSJXaW5kb3dzIiBHSU1QOlRpbWVTdGFtcD0iMTY0ODk0NDg1NjM4ODc5MSIgR0lNUDpWZXJzaW9uPSIyLjEwLjI0IiB0aWZmOk9yaWVudGF0aW9uPSIxIiB4bXA6Q3JlYXRvclRvb2w9IkdJTVAgMi4xMCI+DQogICAgICA8eG1wTU06SGlzdG9yeT4NCiAgICAgICAgPHJkZjpTZXE+DQogICAgICAgICAgPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDpjaGFuZ2VkPSIvIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ3NmFhOGE3LTVhNGEtNDcyNS05YTBjLWU1NzVmMzE1MzFmOCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iR2ltcCAyLjEwIChXaW5kb3dzKSIgc3RFdnQ6d2hlbj0iMjAyMi0wNC0wMlQxNzoxNDoxNiIgLz4NCiAgICAgICAgPC9yZGY6U2VxPg0KICAgICAgPC94bXBNTTpIaXN0b3J5Pg0KICAgIDwvcmRmOkRlc2NyaXB0aW9uPg0KICA8L3JkZjpSREY+DQo8L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9InIiPz6JoorbAAABV0lEQVRoQ+3W23KDIBAGYIOYBk20prWNPb7/W3Z3WQ9lGmeKe/l/N/+IzAYDggUAAAAAAMB/HVzpfXV8kIuTpp3gvHJ8WTcx7VRanlSBrs+aVubxMxn7RdNGq6VVR02Pmjb6WHjCQ+80baxmgDXUxA/FaSPWXUxtctOCVF2Z2uSmhauUnT1RU61p49cq9b6npoOmDV4yK7xN8G8abhfPsXIkq7MxfdGKOt0qBuOtoqjnZ3BcN9BmZ1qftP2L91cXt4ezJszCq7uVtENfytEN1ocZLZlRJ1iNQ2zvNHd6oyWfamLpd809wofWTBxllY6a+UJyFCzkPWsve9+35N9fG/k+nZySufjkveuTOvCuzZmp/WN+F1/859AjSuahLW0LD/2kmWdjBtiNunxr5kmOyhR/VfAk5H9dxDr3TX2kcw6psmHqI51zSJUNUx/pDAAAAAAAsKkofgB06RBbh+d86AAAAABJRU5ErkJggg==";
 			const {
 				Filters: {
-					byProps
+					byProps,
+					byStrings
 				},
 				getModule
 			} = external_BdApi_namespaceObject.Webpack;
 			const {
 				Permissions,
-				DiscordPermissions,
 				UserStore
 			} = external_Library_namespaceObject.DiscordModules;
+			const DiscordPermissions = getModule(byProps("VIEW_CREATOR_MONETIZATION_ANALYTICS"), {
+				searchExports: true
+			});
 			const Settings = new SettingsManager({
 				showMemberListIcons: true,
 				showDMListIcons: true,
@@ -409,10 +383,13 @@ function buildPlugin([BasePlugin, Library]) {
 				ignoredGuilds: []
 			});
 			const Strings = new StringsManager(locales_namespaceObject);
-			const {
-				useStateFromStores
-			} = getModule(byProps("useStateFromStores"));
+			const useStateFromStores = getModule(byStrings("useStateFromStores"));
+			const transitionTo = getModule(byStrings("transitionTo -"), {
+				searchExports: true
+			});
 			const VoiceStateStore = getModule(byProps("getVoiceStateForUser"));
+			const GuildStore = getModule(byProps("getGuildCount"));
+			const withProps = filter => m => Object.values(m).some(filter);
 
 			function checkPermissions(channel) {
 				return Permissions.can({
@@ -423,7 +400,9 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 
 			function forceUpdateAll(selector) {
-				document.querySelectorAll(selector).forEach((node => external_Library_namespaceObject.ReactTools.getReactInstance(node).return.return.return.return.stateNode?.forceUpdate()))
+				document.querySelectorAll(selector).forEach((node => {
+					external_Library_namespaceObject.ReactTools.getStateNodes(node).forEach((e => e.forceUpdate()))
+				}))
 			}
 
 			function getIconFontSize(name) {
@@ -456,29 +435,25 @@ function buildPlugin([BasePlugin, Library]) {
 			var voiceiconmodule = __webpack_require__(567);
 			const {
 				Filters: {
-					byProps: TooltipContainer_byProps
+					byPrototypeFields
 				},
-				getModule: TooltipContainer_getModule
+				getModule: Tooltip_getModule
 			} = external_BdApi_namespaceObject.Webpack;
-			const {
-				TooltipContainer
-			} = TooltipContainer_getModule(TooltipContainer_byProps("TooltipContainer"));
-			const components_TooltipContainer = TooltipContainer;
+			const Tooltip = Tooltip_getModule(byPrototypeFields("renderTooltip"));
+			const components_Tooltip = Tooltip;
 			const {
 				Filters: {
-					byDisplayName
+					byStrings: icons_byStrings
 				},
 				getModule: icons_getModule
 			} = external_BdApi_namespaceObject.Webpack;
-			const CallJoin = icons_getModule(byDisplayName("CallJoin"));
-			const People = icons_getModule(byDisplayName("People"));
-			const Speaker = icons_getModule(byDisplayName("Speaker"));
-			const Stage = icons_getModule(byDisplayName("Stage"));
+			const CallJoin = icons_getModule(icons_byStrings("M11 5V3C16.515 3 21 7.486"));
+			const People = icons_getModule(icons_byStrings("M14 8.00598C14 10.211 12.206 12.006"));
+			const Speaker = icons_getModule(icons_byStrings("M11.383 3.07904C11.009 2.92504 10.579 3.01004"));
+			const Stage = icons_getModule(icons_byStrings("M14 13C14 14.1 13.1 15 12 15C10.9 15 10 14.1 10 13C10 11.9 10.9 11 12 11C13.1 11 14 11.9 14 13ZM8.5 20V19.5C8.5"));
 			var React = __webpack_require__(113);
 			const {
-				NavigationUtils,
 				ChannelStore,
-				GuildStore,
 				UserStore: VoiceIcon_UserStore
 			} = external_Library_namespaceObject.DiscordModules;
 
@@ -539,9 +514,9 @@ function buildPlugin([BasePlugin, Library]) {
 					onClick: e => {
 						e.stopPropagation();
 						e.preventDefault();
-						if (channelPath) NavigationUtils.transitionTo(channelPath)
+						if (channelPath) transitionTo(channelPath)
 					}
-				}, React.createElement(components_TooltipContainer, {
+				}, React.createElement(components_Tooltip, {
 					text: React.createElement("div", {
 						className: voiceiconmodule.Z.tooltip
 					}, React.createElement("div", {
@@ -560,27 +535,30 @@ function buildPlugin([BasePlugin, Library]) {
 							fontWeight: "400"
 						}
 					}, subtext)))
+				}, (props2 => React.createElement("div", {
+					...props2
 				}, !voiceState.selfStream ? React.createElement(Speaker, {
 					width: "14",
 					height: "14"
-				}) : Strings.get("LIVE")))
+				}) : Strings.get("LIVE")))))
 			}
 			var voicepopoutsectionmodule = __webpack_require__(998);
 			var guildimagemodule = __webpack_require__(128);
 			var GuildImage_React = __webpack_require__(113);
 			const {
 				Filters: {
-					byProps: GuildImage_byProps
+					byStrings: GuildImage_byStrings
 				},
 				getModule: GuildImage_getModule
 			} = external_BdApi_namespaceObject.Webpack;
 			const {
-				NavigationUtils: GuildImage_NavigationUtils,
 				GuildActions
 			} = external_Library_namespaceObject.DiscordModules;
 			const {
 				getAcronym
-			} = GuildImage_getModule(GuildImage_byProps("getAcronym"));
+			} = GuildImage_getModule(GuildImage_byStrings(`.replace(/'s /g," ").replace(/\\w+/g,`), {
+				searchExports: true
+			});
 
 			function GuildImage(props) {
 				const image = getImageLink(props.guild, props.channel);
@@ -595,55 +573,24 @@ function buildPlugin([BasePlugin, Library]) {
 					},
 					onClick: () => {
 						if (props.guild) GuildActions.transitionToGuildSync(props.guild.id);
-						else if (props.channelPath) GuildImage_NavigationUtils.transitionTo(props.channelPath)
+						else if (props.channelPath) transitionTo(props.channelPath)
 					}
 				});
 				else return GuildImage_React.createElement("div", {
 					className: guildimagemodule.Z.defaultIcon,
 					onClick: () => {
 						if (props.guild) GuildActions.transitionToGuildSync(props.guild.id);
-						else if (props.channelPath) GuildImage_NavigationUtils.transitionTo(props.channelPath)
+						else if (props.channelPath) transitionTo(props.channelPath)
 					},
 					style: {
 						fontSize: `${getIconFontSize(props.guild?props.guild.name:props.channel.name)}px`
 					}
 				}, getAcronym(props.guild ? props.guild.name : props.guild.id))
 			}
-			var WrappedPartyAvatars_React = __webpack_require__(113);
-			const {
-				Filters: {
-					byDisplayName: WrappedPartyAvatars_byDisplayName
-				},
-				getModule: WrappedPartyAvatars_getModule
-			} = external_BdApi_namespaceObject.Webpack;
-			const PartyAvatars = WrappedPartyAvatars_getModule(WrappedPartyAvatars_byDisplayName("PartyAvatars"));
-
-			function WrappedPartyAvatars(props) {
-				if (props.guild) return WrappedPartyAvatars_React.createElement(PartyAvatars, {
-					guildId: props.guild.id,
-					members: props.members,
-					partySize: {
-						knownSize: props.members.length,
-						totalSize: props.members.length,
-						unknownSize: 0
-					}
-				});
-				else if (3 === props.channel.type) return WrappedPartyAvatars_React.createElement(PartyAvatars, {
-					members: props.members,
-					partySize: {
-						knownSize: props.members.length,
-						totalSize: props.members.length,
-						unknownSize: 0
-					}
-				});
-				else return null
-			}
 			var VoicePopoutSection_React = __webpack_require__(113);
 			const {
-				NavigationUtils: VoicePopoutSection_NavigationUtils,
 				ChannelActions,
 				ChannelStore: VoicePopoutSection_ChannelStore,
-				GuildStore: VoicePopoutSection_GuildStore,
 				SelectedChannelStore,
 				UserStore: VoicePopoutSection_UserStore
 			} = external_Library_namespaceObject.DiscordModules;
@@ -659,7 +606,7 @@ function buildPlugin([BasePlugin, Library]) {
 				if (!voiceState) return null;
 				const channel = VoicePopoutSection_ChannelStore.getChannel(voiceState.channelId);
 				if (!channel) return null;
-				const guild = VoicePopoutSection_GuildStore.getGuild(channel.guild_id);
+				const guild = GuildStore.getGuild(channel.guild_id);
 				if (guild && !checkPermissions(channel)) return null;
 				if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
 				let headerText;
@@ -668,8 +615,6 @@ function buildPlugin([BasePlugin, Library]) {
 				let joinButton;
 				let Icon;
 				let channelPath;
-				const members = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id)).map((id => VoicePopoutSection_UserStore.getUser(id)));
-				const hasOverflow = members.length > 3;
 				const inCurrentChannel = channel.id === currentUserVoiceState?.channelId;
 				const channelSelected = channel.id === SelectedChannelStore.getChannelId();
 				const isCurrentUser = props.userId === VoicePopoutSection_UserStore.getCurrentUser().id;
@@ -705,28 +650,26 @@ function buildPlugin([BasePlugin, Library]) {
 				}, VoicePopoutSection_React.createElement("h3", {
 					className: voicepopoutsectionmodule.Z.header
 				}, headerText), !(1 === channel.type) && VoicePopoutSection_React.createElement("div", {
-					className: hasOverflow ? `${voicepopoutsectionmodule.Z.body} ${voicepopoutsectionmodule.Z.hasOverflow}` : voicepopoutsectionmodule.Z.body
+					className: voicepopoutsectionmodule.Z.body
 				}, VoicePopoutSection_React.createElement(GuildImage, {
 					guild,
 					channel,
 					channelPath
 				}), VoicePopoutSection_React.createElement("div", {
 					className: voicepopoutsectionmodule.Z.text
-				}, text), VoicePopoutSection_React.createElement(WrappedPartyAvatars, {
-					guild,
-					channel,
-					members
-				})), VoicePopoutSection_React.createElement("div", {
+				}, text)), VoicePopoutSection_React.createElement("div", {
 					className: voicepopoutsectionmodule.Z.buttonWrapper
 				}, VoicePopoutSection_React.createElement("button", {
 					className: voicepopoutsectionmodule.Z.button,
 					disabled: channelSelected,
 					onClick: () => {
-						if (channelPath) VoicePopoutSection_NavigationUtils.transitionTo(channelPath)
+						if (channelPath) transitionTo(channelPath)
 					}
-				}, viewButton), !isCurrentUser && VoicePopoutSection_React.createElement(components_TooltipContainer, {
+				}, viewButton), !isCurrentUser && VoicePopoutSection_React.createElement(components_Tooltip, {
 					text: joinButton,
-					position: "top",
+					position: "top"
+				}, (props2 => VoicePopoutSection_React.createElement("div", {
+					...props2,
 					className: inCurrentChannel ? `${voicepopoutsectionmodule.Z.joinWrapper} ${voicepopoutsectionmodule.Z.joinWrapperDisabled}` : voicepopoutsectionmodule.Z.joinWrapper
 				}, VoicePopoutSection_React.createElement("button", {
 					className: `${voicepopoutsectionmodule.Z.button} ${voicepopoutsectionmodule.Z.joinButton}`,
@@ -747,136 +690,13 @@ function buildPlugin([BasePlugin, Library]) {
 				}, VoicePopoutSection_React.createElement(Icon, {
 					width: "18",
 					height: "18"
-				})))))
-			}
-			var modalactivityitemmodule = __webpack_require__(242);
-			const {
-				Filters: {
-					byProps: ModalActivityItem_byProps
-				},
-				getModule: ModalActivityItem_getModule
-			} = external_BdApi_namespaceObject.Webpack;
-			const {
-				NavigationUtils: ModalActivityItem_NavigationUtils,
-				ChannelActions: ModalActivityItem_ChannelActions,
-				ChannelStore: ModalActivityItem_ChannelStore,
-				GuildStore: ModalActivityItem_GuildStore,
-				UserStore: ModalActivityItem_UserStore
-			} = external_Library_namespaceObject.DiscordModules;
-			const ComponentDispatcher = ModalActivityItem_getModule(ModalActivityItem_byProps("ComponentDispatch"))?.ComponentDispatch;
-
-			function ModalActivityItem(props) {
-				const {
-					ignoreEnabled,
-					ignoredChannels,
-					ignoredGuilds
-				} = Settings.useSettingsState();
-				const voiceState = useStateFromStores([VoiceStateStore], (() => VoiceStateStore.getVoiceStateForUser(props.userId)));
-				const currentUserVoiceState = useStateFromStores([VoiceStateStore], (() => VoiceStateStore.getVoiceStateForUser(ModalActivityItem_UserStore.getCurrentUser()?.id)));
-				if (!voiceState) return null;
-				const channel = ModalActivityItem_ChannelStore.getChannel(voiceState.channelId);
-				if (!channel) return null;
-				const guild = ModalActivityItem_GuildStore.getGuild(channel.guild_id);
-				if (guild && !checkPermissions(channel)) return null;
-				if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
-				let headerText;
-				let text;
-				let viewButton;
-				let joinButton;
-				let Icon;
-				let channelPath;
-				const members = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id)).map((id => ModalActivityItem_UserStore.getUser(id)));
-				const hasOverflow = members.length > 3;
-				const inCurrentChannel = channel.id === currentUserVoiceState?.channelId;
-				const isCurrentUser = props.userId === ModalActivityItem_UserStore.getCurrentUser().id;
-				if (guild) {
-					headerText = Strings.get("HEADER");
-					text = [external_BdApi_React_default().createElement("h3", null, guild.name), external_BdApi_React_default().createElement("div", null, channel.name)];
-					viewButton = Strings.get("VIEW");
-					joinButton = inCurrentChannel ? Strings.get("JOIN_DISABLED") : Strings.get("JOIN");
-					Icon = Speaker;
-					channelPath = `/channels/${guild.id}/${channel.id}`
-				} else {
-					headerText = Strings.get("HEADER_VOICE");
-					text = external_BdApi_React_default().createElement("h3", null, channel.name);
-					viewButton = Strings.get("VIEW_CALL");
-					joinButton = inCurrentChannel ? Strings.get("JOIN_DISABLED_CALL") : Strings.get("JOIN_CALL");
-					Icon = CallJoin;
-					channelPath = `/channels/@me/${channel.id}`
-				}
-				switch (channel.type) {
-					case 1:
-						headerText = Strings.get("HEADER_PRIVATE");
-						break;
-					case 3:
-						headerText = Strings.get("HEADER_GROUP");
-						text = external_BdApi_React_default().createElement("h3", null, channel.name ?? groupDMName(channel.recipients));
-						break;
-					case 13:
-						headerText = Strings.get("HEADER_STAGE");
-						Icon = Stage
-				}
-				return external_BdApi_React_default().createElement("div", {
-					className: modalactivityitemmodule.Z.modalActivity
-				}, external_BdApi_React_default().createElement("h3", {
-					className: modalactivityitemmodule.Z.header
-				}, headerText), external_BdApi_React_default().createElement("div", {
-					className: modalactivityitemmodule.Z.body
-				}, !(1 === channel.type) && external_BdApi_React_default().createElement(external_BdApi_React_default().Fragment, null, external_BdApi_React_default().createElement(GuildImage, {
-					guild,
-					channel,
-					channelPath
-				}), external_BdApi_React_default().createElement("div", {
-					className: modalactivityitemmodule.Z.text
-				}, text)), external_BdApi_React_default().createElement("div", {
-					className: modalactivityitemmodule.Z.buttonContainer
-				}, external_BdApi_React_default().createElement("button", {
-					className: modalactivityitemmodule.Z.button,
-					onClick: () => {
-						if (channelPath) {
-							ModalActivityItem_NavigationUtils.transitionTo(channelPath);
-							ComponentDispatcher.dispatch("MODAL_CLOSE")
-						}
-					}
-				}, viewButton), !isCurrentUser && external_BdApi_React_default().createElement(components_TooltipContainer, {
-					text: joinButton,
-					position: "top",
-					className: inCurrentChannel ? `${modalactivityitemmodule.Z.joinWrapper} ${modalactivityitemmodule.Z.joinWrapperDisabled}` : modalactivityitemmodule.Z.joinWrapper
-				}, external_BdApi_React_default().createElement("button", {
-					className: `${modalactivityitemmodule.Z.button} ${modalactivityitemmodule.Z.joinButton}`,
-					disabled: inCurrentChannel,
-					onClick: () => {
-						if (channel.id) ModalActivityItem_ChannelActions.selectVoiceChannel(channel.id)
-					},
-					onContextMenu: e => {
-						if (13 === channel.type) return;
-						external_Library_namespaceObject.ContextMenu.openContextMenu(e, external_Library_namespaceObject.ContextMenu.buildMenu([{
-							label: Strings.get("JOIN_VIDEO"),
-							id: "voice-activity-join-with-video",
-							action: () => {
-								if (channel.id) ModalActivityItem_ChannelActions.selectVoiceChannel(channel.id, true)
-							}
-						}]))
-					}
-				}, external_BdApi_React_default().createElement(Icon, {
-					width: "18",
-					height: "18"
-				}))))), !(1 === channel.type) && external_BdApi_React_default().createElement("div", {
-					className: hasOverflow ? `${modalactivityitemmodule.Z.members} ${modalactivityitemmodule.Z.hasOverflow}` : modalactivityitemmodule.Z.members
-				}, external_BdApi_React_default().createElement(WrappedPartyAvatars, {
-					guild,
-					channel,
-					members
-				})))
+				})))))))
 			}
 			var SettingsPanel_React = __webpack_require__(113);
 			const {
-				Filters: {
-					byDisplayName: SettingsPanel_byDisplayName
-				},
 				getModule: SettingsPanel_getModule
 			} = external_BdApi_namespaceObject.Webpack;
-			const SwitchItem = SettingsPanel_getModule(SettingsPanel_byDisplayName("SwitchItem"));
+			const SwitchItem = SettingsPanel_getModule((m => m.toString().includes("helpdeskArticleId")));
 			const SettingsSwitchItem = props => {
 				const [value, setValue] = (0, external_BdApi_React_.useState)(Settings.get(props.setting));
 				return SettingsPanel_React.createElement(SwitchItem, {
@@ -929,24 +749,20 @@ function buildPlugin([BasePlugin, Library]) {
 			const {
 				Filters: {
 					byProps: src_byProps,
-					byDisplayName: src_byDisplayName
+					byStrings: src_byStrings
 				},
-				getModule: src_getModule,
-				waitForModule
+				getModule: src_getModule
 			} = external_BdApi_namespaceObject.Webpack;
-			const {
-				UserStore: src_UserStore
-			} = external_Library_namespaceObject.DiscordModules;
 			const memberItemSelector = `.${src_getModule(src_byProps("member","activity")).member}`;
 			const privateChannelSelector = `.${src_getModule(src_byProps("channel","activity")).channel}`;
 			const peopleItemSelector = `.${src_getModule(src_byProps("peopleListItem")).peopleListItem}`;
 			const children = src_getModule(src_byProps("avatar", "children")).children;
 			class VoiceActivity extends(external_BasePlugin_default()) {
 				onStart() {
+					this.contextMenuUnpatches = new Set;
 					(0, external_BdApi_namespaceObject.injectCSS)("VoiceActivity", (0, styles.Z)() + `.${children}:empty { margin-left: 0; } .${children} { display: flex; gap: 8px; }`);
 					Strings.subscribe();
 					this.patchUserPopout();
-					this.patchUserProfileModal();
 					this.patchMemberListItem();
 					this.patchPrivateChannel();
 					this.patchPeopleListItem();
@@ -954,16 +770,16 @@ function buildPlugin([BasePlugin, Library]) {
 					this.patchGuildContextMenu()
 				}
 				patchUserPopout() {
-					const UserPopoutBody = src_getModule((m => "UserPopoutBody" === m.default?.displayName));
-					external_Library_namespaceObject.Patcher.after(UserPopoutBody, "default", ((_, [props], ret) => {
+					const UserPopoutBody = src_getModule(withProps(src_byStrings(".displayProfile", "autoFocus")));
+					external_BdApi_namespaceObject.Patcher.after("VoiceActivity", UserPopoutBody, "Z", ((_, [props], ret) => {
 						ret?.props.children.splice(1, 0, src_React.createElement(VoicePopoutSection, {
 							userId: props.user.id
 						}))
 					}));
-					const UserPopoutBodyV2 = src_getModule((m => m.default?.toString().includes("hidePersonalInformation:")));
-					const UserPopoutSection = src_getModule(src_byDisplayName("UserPopoutSection"));
-					external_Library_namespaceObject.Patcher.after(UserPopoutBodyV2, "default", ((_, [props], ret) => {
-						const popoutSections = ret.props.children[3].props.children;
+					const UserPopoutBodyV2 = src_getModule(withProps(src_byStrings(".hidePersonalInformation", ".customStatusActivity")));
+					const UserPopoutSection = src_getModule(src_byStrings(".lastSection"));
+					external_BdApi_namespaceObject.Patcher.after("VoiceActivity", UserPopoutBodyV2, "Z", ((_, [props], ret) => {
+						const popoutSections = ret.props.children[1].props.children[2].props.children;
 						const activitySectionIndex = popoutSections.findIndex((section => section.props.hasOwnProperty("activity")));
 						popoutSections.splice(activitySectionIndex, 0, src_React.createElement(UserPopoutSection, null, src_React.createElement(VoicePopoutSection, {
 							userId: props.user.id,
@@ -971,50 +787,9 @@ function buildPlugin([BasePlugin, Library]) {
 						})))
 					}))
 				}
-				async patchUserProfileModal() {
-					const UserProfileModal = await waitForModule((m => "UserProfileModal" === m.default?.displayName));
-					const UserProfileBody = src_getModule((m => m.default?.toString() && /case .\.UserProfileSections/.test(m.default.toString())));
-					const UserProfileActivity = src_getModule((m => "UserProfileActivity" === m.default?.displayName));
-					const tabBarItem = src_getModule(src_byProps("tabBarContainer")).tabBarItem;
-					external_Library_namespaceObject.Patcher.after(UserProfileModal, "default", ((_, [modalProps], modalRet) => {
-						if (modalProps.user.id !== src_UserStore.getCurrentUser().id) {
-							const tabBar = external_Library_namespaceObject.Utilities.findInTree(modalRet, (e => e.props?.section && e.props?.user), {
-								walkable: ["props", "children"]
-							});
-							const type = tabBar.type;
-							tabBar.type = props => {
-								const voiceState = useStateFromStores([VoiceStateStore], (() => VoiceStateStore.getVoiceStateForUser(props.user.id)));
-								const ret = type(props);
-								if (!props.hasActivity && voiceState) {
-									const items = external_Library_namespaceObject.Utilities.findInTree(ret, (e => Array.isArray(e)), {
-										walkable: ["props", "children"]
-									});
-									const Item = items[0].type;
-									items[1] = src_React.createElement(Item, {
-										className: tabBarItem,
-										id: "VOICE_ACTIVITY"
-									}, "Activity")
-								}
-								if (props.hasActivity && "VOICE_ACTIVITY" === props.section) props.setSection("ACTIVITY");
-								return ret
-							}
-						}
-					}));
-					external_Library_namespaceObject.Patcher.instead(UserProfileBody, "default", ((_, [props], original) => {
-						if ("VOICE_ACTIVITY" === props.selectedSection) return src_React.createElement(UserProfileActivity.default, {
-							user: props.user
-						});
-						return original(props)
-					}));
-					external_Library_namespaceObject.Patcher.after(UserProfileActivity, "default", ((_, [props], ret) => {
-						ret.props.children[1].unshift(src_React.createElement(ModalActivityItem, {
-							userId: props.user.id
-						}))
-					}))
-				}
 				async patchMemberListItem() {
-					const MemberListItem = await external_Library_namespaceObject.ReactComponents.getComponentByName("MemberListItem", memberItemSelector);
-					external_Library_namespaceObject.Patcher.after(MemberListItem.component.prototype, "render", ((thisObject, _, ret) => {
+					const MemberListItem = await external_Library_namespaceObject.ReactComponents.getComponent("MemberListItem", memberItemSelector, (c => c.prototype?.renderPremium));
+					external_BdApi_namespaceObject.Patcher.after("VoiceActivity", MemberListItem.component.prototype, "render", ((thisObject, _, ret) => {
 						if (thisObject.props.user) Array.isArray(ret.props.children) ? ret.props.children.unshift(src_React.createElement(VoiceIcon, {
 							userId: thisObject.props.user.id,
 							context: "memberlist"
@@ -1026,8 +801,8 @@ function buildPlugin([BasePlugin, Library]) {
 					forceUpdateAll(memberItemSelector)
 				}
 				async patchPrivateChannel() {
-					const PrivateChannel = await external_Library_namespaceObject.ReactComponents.getComponentByName("PrivateChannel", privateChannelSelector);
-					external_Library_namespaceObject.Patcher.after(PrivateChannel.component.prototype, "render", ((thisObject, _, ret) => {
+					const PrivateChannel = await external_Library_namespaceObject.ReactComponents.getComponent("PrivateChannel", privateChannelSelector, (c => c.prototype?.renderSubtitle));
+					external_BdApi_namespaceObject.Patcher.after("VoiceActivity", PrivateChannel.component.prototype, "render", ((thisObject, _, ret) => {
 						if (!thisObject.props.user) return;
 						const props = external_Library_namespaceObject.Utilities.findInTree(ret, (e => e?.children && e?.id), {
 							walkable: ["children", "props"]
@@ -1050,8 +825,8 @@ function buildPlugin([BasePlugin, Library]) {
 					forceUpdateAll(privateChannelSelector)
 				}
 				async patchPeopleListItem() {
-					const PeopleListItem = await external_Library_namespaceObject.ReactComponents.getComponentByName("PeopleListItem", peopleItemSelector);
-					external_Library_namespaceObject.Patcher.after(PeopleListItem.component.prototype, "render", ((thisObject, _, ret) => {
+					const PeopleListItem = await external_Library_namespaceObject.ReactComponents.getComponent("PeopleListItem", peopleItemSelector, (c => c.prototype?.componentWillEnter));
+					external_BdApi_namespaceObject.Patcher.after("VoiceActivity", PeopleListItem.component.prototype, "render", ((thisObject, _, ret) => {
 						if (!thisObject.props.user) return;
 						const children2 = ret.props.children;
 						ret.props.children = childrenProps => {
@@ -1068,66 +843,63 @@ function buildPlugin([BasePlugin, Library]) {
 					forceUpdateAll(peopleItemSelector)
 				}
 				async patchChannelContextMenu() {
-					const HideNamesItem = await external_Library_namespaceObject.ContextMenu.getDiscordMenu("useChannelHideNamesItem");
-					external_Library_namespaceObject.Patcher.after(HideNamesItem, "default", ((_, [channel], ret) => {
+					const unpatch = external_BdApi_namespaceObject.ContextMenu.patch("channel-context", ((ret, props) => {
 						if (!Settings.get("ignoreEnabled")) return ret;
 						const {
 							ignoredChannels
 						} = Settings.useSettingsState();
-						const ignored = ignoredChannels.includes(channel.id);
-						const menuItem = external_Library_namespaceObject.ContextMenu.buildMenuItem({
+						const ignored = ignoredChannels.includes(props.channel.id);
+						const menuItem = external_BdApi_namespaceObject.ContextMenu.buildItem({
 							type: "toggle",
 							label: Strings.get("CONTEXT_IGNORE"),
 							id: "voiceactivity-ignore",
 							checked: ignored,
 							action: () => {
 								if (ignored) {
-									const newIgnoredChannels = ignoredChannels.filter((id => id !== channel.id));
+									const newIgnoredChannels = ignoredChannels.filter((id => id !== props.channel.id));
 									Settings.set("ignoredChannels", newIgnoredChannels)
 								} else {
-									const newIgnoredChannels = [...ignoredChannels, channel.id];
+									const newIgnoredChannels = [...ignoredChannels, props.channel.id];
 									Settings.set("ignoredChannels", newIgnoredChannels)
 								}
 							}
 						});
-						return [ret, menuItem]
-					}))
+						ret.props.children[3].props.children.splice(2, 0, menuItem)
+					}));
+					this.contextMenuUnpatches.add(unpatch)
 				}
 				async patchGuildContextMenu() {
-					const GuildContextMenu = await external_Library_namespaceObject.ContextMenu.getDiscordMenu("GuildContextMenuWrapper");
-					external_Library_namespaceObject.Patcher.after(GuildContextMenu, "default", ((_, [props], ret) => {
+					const unpatch = external_BdApi_namespaceObject.ContextMenu.patch("guild-context", ((ret, props) => {
 						if (!Settings.get("ignoreEnabled")) return ret;
-						const renderContextMenu = ret.props.children.type;
-						ret.props.children.type = menuProps => {
-							const menuRet = renderContextMenu(menuProps);
-							const {
-								ignoredGuilds
-							} = Settings.useSettingsState();
-							const ignored = ignoredGuilds.includes(menuProps.guild.id);
-							const menuItem = external_Library_namespaceObject.ContextMenu.buildMenuItem({
-								type: "toggle",
-								label: Strings.get("CONTEXT_IGNORE"),
-								id: "voiceactivity-ignore",
-								checked: ignored,
-								action: () => {
-									if (ignored) {
-										const newIgnoredGuilds = ignoredGuilds.filter((id => id !== menuProps.guild.id));
-										Settings.set("ignoredGuilds", newIgnoredGuilds)
-									} else {
-										const newIgnoredGuilds = [...ignoredGuilds, menuProps.guild.id];
-										Settings.set("ignoredGuilds", newIgnoredGuilds)
-									}
+						const {
+							ignoredGuilds
+						} = Settings.useSettingsState();
+						const ignored = ignoredGuilds.includes(props.guild.id);
+						const menuItem = external_BdApi_namespaceObject.ContextMenu.buildItem({
+							type: "toggle",
+							label: Strings.get("CONTEXT_IGNORE"),
+							id: "voiceactivity-ignore",
+							checked: ignored,
+							action: () => {
+								if (ignored) {
+									const newIgnoredGuilds = ignoredGuilds.filter((id => id !== props.guild.id));
+									Settings.set("ignoredGuilds", newIgnoredGuilds)
+								} else {
+									const newIgnoredGuilds = [...ignoredGuilds, props.guild.id];
+									Settings.set("ignoredGuilds", newIgnoredGuilds)
 								}
-							});
-							menuRet.props.children[2].props.children.push(menuItem);
-							return menuRet
-						}
-					}))
+							}
+						});
+						ret.props.children[2].props.children.push(menuItem)
+					}));
+					this.contextMenuUnpatches.add(unpatch)
 				}
 				onStop() {
 					(0, external_BdApi_namespaceObject.clearCSS)("VoiceActivity");
-					external_Library_namespaceObject.Patcher.unpatchAll();
+					external_BdApi_namespaceObject.Patcher.unpatchAll("VoiceActivity");
 					Strings.unsubscribe();
+					this.contextMenuUnpatches.forEach((unpatch => unpatch()));
+					this.contextMenuUnpatches.clear();
 					forceUpdateAll(memberItemSelector);
 					forceUpdateAll(privateChannelSelector);
 					forceUpdateAll(peopleItemSelector)
