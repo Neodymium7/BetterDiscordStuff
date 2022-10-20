@@ -1,8 +1,8 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @description Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions.
- * @version 2.0.1
+ * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
+ * @version 2.0.2
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
@@ -37,15 +37,15 @@ const config = {
 		authors: [{
 			name: "Neodymium",
 		}],
-		version: "2.0.1",
-		description: "Moves the User Settings button to the user avatar, with the status picker and context menu still available on configurable actions.",
+		version: "2.0.2",
+		description: "Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
 	},
 	changelog: [{
 		title: "Fixed",
 		type: "fixed",
-		items: ["Fixed to work with BD v1.8.0."]
+		items: ["Fixed an issue with reapplying listeners to the avatar."]
 	}]
 };
 
@@ -370,12 +370,15 @@ function buildPlugin([BasePlugin, Library]) {
 				observer({
 					addedNodes
 				}) {
-					for (const node of addedNodes)
-						if (node.className?.includes?.(accountClasses.avatarWrapper)) {
-							this.target = node;
+					for (const node of addedNodes) {
+						if (node.nodeType === Node.TEXT_NODE) continue;
+						const avatarWrapper = node.querySelector(`.${accountClasses.avatarWrapper}`);
+						if (avatarWrapper) {
+							this.target = avatarWrapper;
 							this.addListeners();
 							this.addTooltip()
 						}
+					}
 				}
 				openPopout() {
 					this.target.dispatchEvent(new MouseEvent("click", {

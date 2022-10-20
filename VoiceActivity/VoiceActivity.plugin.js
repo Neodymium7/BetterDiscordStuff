@@ -2,7 +2,7 @@
  * @name VoiceActivity
  * @author Neodymium
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
- * @version 1.5.0
+ * @version 1.5.1
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -37,19 +37,19 @@ const config = {
 		authors: [{
 			name: "Neodymium",
 		}],
-		version: "1.5.0",
+		version: "1.5.1",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
 	},
 	changelog: [{
+		title: "Added",
+		type: "improved",
+		items: ["Added a new option to display Mute/Deafen/Video status on member list icons (enabled by default)."]
+	}, {
 		title: "Fixed",
 		type: "fixed",
-		items: ["Fixed plugin not working after Discord's latest update."]
-	}, {
-		title: "However...",
-		type: "progress",
-		items: ["The Modal section and possibly some other items are still broken and have been disabled. I'll try to fix them as soon as I can."]
+		items: ["Fixed VoiceActivity section not displaying on user popouts."]
 	}]
 };
 
@@ -357,7 +357,7 @@ function buildPlugin([BasePlugin, Library]) {
 					Dispatcher.unsubscribe("I18N_LOAD_SUCCESS", this.setLocale)
 				}
 			}
-			const locales_namespaceObject = JSON.parse('{"en-US":{"SETTINGS_ICONS":"Member List Icons","SETTINGS_ICONS_NOTE":"Shows icons on the member list when someone is in a voice channel.","SETTINGS_DM_ICONS":"DM Icons","SETTINGS_DM_ICONS_NOTE":"Shows icons on the DM list when someone is in a voice channel.","SETTINGS_PEOPLE_ICONS":"Friends List Icons","SETTINGS_PEOPLE_ICONS_NOTE":"Shows icons on the DM list when someone is in a voice channel.","SETTINGS_COLOR":"Current Channel Icon Color","SETTINGS_COLOR_NOTE":"Makes the Member List icons green when the user is in your current voice channel.","SETTINGS_IGNORE":"Ignore","SETTINGS_IGNORE_NOTE":"Adds an option on Voice Channel and Guild context menus to ignore that channel/guild in Member List Icons and User Popouts.","CONTEXT_IGNORE":"Ignore in Voice Activity","VOICE_CALL":"Voice Call","PRIVATE_CALL":"Private Call","GROUP_CALL":"Group Call","LIVE":"Live","HEADER":"In a Voice Channel","HEADER_VOICE":"In a Voice Call","HEADER_PRIVATE":"In a Private Call","HEADER_GROUP":"In a Group Call","HEADER_STAGE":"In a Stage Channel","VIEW":"View Channel","VIEW_CALL":"View Call","JOIN":"Join Channel","JOIN_CALL":"Join Call","JOIN_DISABLED":"Already in Channel","JOIN_DISABLED_CALL":"Already in Call","JOIN_VIDEO":"Join With Video"}}');
+			const locales_namespaceObject = JSON.parse('{"en-US":{"SETTINGS_ICONS":"Member List Icons","SETTINGS_ICONS_NOTE":"Shows icons on the member list when someone is in a voice channel.","SETTINGS_DM_ICONS":"DM Icons","SETTINGS_DM_ICONS_NOTE":"Shows icons on the DM list when someone is in a voice channel.","SETTINGS_PEOPLE_ICONS":"Friends List Icons","SETTINGS_PEOPLE_ICONS_NOTE":"Shows icons on the DM list when someone is in a voice channel.","SETTINGS_COLOR":"Current Channel Icon Color","SETTINGS_COLOR_NOTE":"Makes the Member List icons green when the user is in your current voice channel.","SETTINGS_STATUS":"Show Status Icons","SETTINGS_STATUS_NOTE":"Changes the Member List icons when a user is Muted, Deafened, or has Video enabled.","SETTINGS_IGNORE":"Ignore","SETTINGS_IGNORE_NOTE":"Adds an option on Voice Channel and Guild context menus to ignore that channel/guild in Member List Icons and User Popouts.","CONTEXT_IGNORE":"Ignore in Voice Activity","VOICE_CALL":"Voice Call","PRIVATE_CALL":"Private Call","GROUP_CALL":"Group Call","LIVE":"Live","HEADER":"In a Voice Channel","HEADER_VOICE":"In a Voice Call","HEADER_PRIVATE":"In a Private Call","HEADER_GROUP":"In a Group Call","HEADER_STAGE":"In a Stage Channel","VIEW":"View Channel","VIEW_CALL":"View Call","JOIN":"Join Channel","JOIN_CALL":"Join Call","JOIN_DISABLED":"Already in Channel","JOIN_DISABLED_CALL":"Already in Call","JOIN_VIDEO":"Join With Video"}}');
 			const default_group_icon_namespaceObject = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAABgmlDQ1BJQ0MgUHJvZmlsZQAAKM+VkTtIw1AYhb9WxQcVBzuIOGSoThZERRyliiIolFrB12CS2io0sSQtLo6Cq+DgY7Hq4OKsq4OrIAg+QBydnBRdROJ/U6FFqOCFcD/OzTnce34IFrOm5db2gGXnncRYTJuZndPqn6mlBmikTzfd3OTUaJKq6+OWgNpvoiqL/63m1JJrQkATHjJzTl54UXhgLZ9TvCscNpf1lPCpcLcjFxS+V7pR4hfFGZ+DKjPsJBPDwmFhLVPBRgWby44l3C8cSVm25AdnSpxSvK7YyhbMn3uqF4aW7OkppcvXwRjjTBJHw6DAClnyRGW3RXFJyHmsir/d98fFZYhrBVMcI6xioft+1Ax+d+um+3pLSaEY1D153lsn1G/D15bnfR563tcR1DzChV32rxZh8F30rbIWOYCWDTi7LGvGDpxvQttDTnd0X1LzD6bT8HoiY5qF1mtomi/19nPO8R0kpauJK9jbh66MZC9UeXdDZW9//uP3R+wbNjlyjzeozyoAAABgUExURVhl8oGK9LW7+erq/f///97i+7/F+mx38qGo92Ft8mFv8ujs/IuW9PP2/Wx384GM9Kux+MDF+urs/d/i+7S9+Jae9uDj/Jad9srO+tXY+4yU9aqy+MDE+qGn9/T1/neC9Liz/RcAAAAJcEhZcwAACxMAAAsTAQCanBgAAATqaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNC40LjAtRXhpdjIiPg0KICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPg0KICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOkdJTVA9Imh0dHA6Ly93d3cuZ2ltcC5vcmcveG1wLyIgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1wTU06RG9jdW1lbnRJRD0iZ2ltcDpkb2NpZDpnaW1wOmIzMjk5M2JmLTliZTUtNGJmMy04ZWEwLWY3ZDkzNTMyMTY2YiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowNjhkOWE3MS1lYWU3LTRmZjAtYmMxZS04MGUwYmMxMTFkZDUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDplZjU1ZGE0YS0wZTBhLTRjNTctODdmOC1lMmFmMGUyZGEzOGUiIGRjOkZvcm1hdD0iaW1hZ2UvcG5nIiBHSU1QOkFQST0iMi4wIiBHSU1QOlBsYXRmb3JtPSJXaW5kb3dzIiBHSU1QOlRpbWVTdGFtcD0iMTY0ODk0NDg1NjM4ODc5MSIgR0lNUDpWZXJzaW9uPSIyLjEwLjI0IiB0aWZmOk9yaWVudGF0aW9uPSIxIiB4bXA6Q3JlYXRvclRvb2w9IkdJTVAgMi4xMCI+DQogICAgICA8eG1wTU06SGlzdG9yeT4NCiAgICAgICAgPHJkZjpTZXE+DQogICAgICAgICAgPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDpjaGFuZ2VkPSIvIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ3NmFhOGE3LTVhNGEtNDcyNS05YTBjLWU1NzVmMzE1MzFmOCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iR2ltcCAyLjEwIChXaW5kb3dzKSIgc3RFdnQ6d2hlbj0iMjAyMi0wNC0wMlQxNzoxNDoxNiIgLz4NCiAgICAgICAgPC9yZGY6U2VxPg0KICAgICAgPC94bXBNTTpIaXN0b3J5Pg0KICAgIDwvcmRmOkRlc2NyaXB0aW9uPg0KICA8L3JkZjpSREY+DQo8L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9InIiPz6JoorbAAABV0lEQVRoQ+3W23KDIBAGYIOYBk20prWNPb7/W3Z3WQ9lGmeKe/l/N/+IzAYDggUAAAAAAMB/HVzpfXV8kIuTpp3gvHJ8WTcx7VRanlSBrs+aVubxMxn7RdNGq6VVR02Pmjb6WHjCQ+80baxmgDXUxA/FaSPWXUxtctOCVF2Z2uSmhauUnT1RU61p49cq9b6npoOmDV4yK7xN8G8abhfPsXIkq7MxfdGKOt0qBuOtoqjnZ3BcN9BmZ1qftP2L91cXt4ezJszCq7uVtENfytEN1ocZLZlRJ1iNQ2zvNHd6oyWfamLpd809wofWTBxllY6a+UJyFCzkPWsve9+35N9fG/k+nZySufjkveuTOvCuzZmp/WN+F1/859AjSuahLW0LD/2kmWdjBtiNunxr5kmOyhR/VfAk5H9dxDr3TX2kcw6psmHqI51zSJUNUx/pDAAAAAAAsKkofgB06RBbh+d86AAAAABJRU5ErkJggg==";
 			const {
 				Filters: {
@@ -378,6 +378,7 @@ function buildPlugin([BasePlugin, Library]) {
 				showDMListIcons: true,
 				showPeopleListIcons: true,
 				currentChannelColor: true,
+				showStatusIcons: true,
 				ignoreEnabled: false,
 				ignoredChannels: [],
 				ignoredGuilds: []
@@ -450,6 +451,9 @@ function buildPlugin([BasePlugin, Library]) {
 			const CallJoin = icons_getModule(icons_byStrings("M11 5V3C16.515 3 21 7.486"));
 			const People = icons_getModule(icons_byStrings("M14 8.00598C14 10.211 12.206 12.006"));
 			const Speaker = icons_getModule(icons_byStrings("M11.383 3.07904C11.009 2.92504 10.579 3.01004"));
+			const Muted = icons_getModule(icons_byStrings("M6.7 11H5C5 12.19 5.34 13.3"));
+			const Deafened = icons_getModule(icons_byStrings("M6.16204 15.0065C6.10859 15.0022 6.05455 15"));
+			const Video = icons_getModule(icons_byStrings("M21.526 8.149C21.231 7.966 20.862 7.951"));
 			const Stage = icons_getModule(icons_byStrings("M14 13C14 14.1 13.1 15 12 15C10.9 15 10 14.1 10 13C10 11.9 10.9 11 12 11C13.1 11 14 11.9 14 13ZM8.5 20V19.5C8.5"));
 			var React = __webpack_require__(113);
 			const {
@@ -465,7 +469,8 @@ function buildPlugin([BasePlugin, Library]) {
 					ignoreEnabled,
 					ignoredChannels,
 					ignoredGuilds,
-					currentChannelColor
+					currentChannelColor,
+					showStatusIcons
 				} = Settings.useSettingsState();
 				const voiceState = useStateFromStores([VoiceStateStore], (() => VoiceStateStore.getVoiceStateForUser(props.userId)));
 				const currentUserVoiceState = useStateFromStores([VoiceStateStore], (() => VoiceStateStore.getVoiceStateForUser(VoiceIcon_UserStore.getCurrentUser()?.id)));
@@ -480,7 +485,7 @@ function buildPlugin([BasePlugin, Library]) {
 				if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
 				let text;
 				let subtext;
-				let Icon;
+				let TooltipIcon;
 				let channelPath;
 				let className = voiceiconmodule.Z.icon;
 				if (channel.id === currentUserVoiceState?.channelId && currentChannelColor) className = `${voiceiconmodule.Z.icon} ${voiceiconmodule.Z.iconCurrentCall}`;
@@ -488,12 +493,12 @@ function buildPlugin([BasePlugin, Library]) {
 				if (guild) {
 					text = guild.name;
 					subtext = channel.name;
-					Icon = Speaker;
+					TooltipIcon = Speaker;
 					channelPath = `/channels/${guild.id}/${channel.id}`
 				} else {
 					text = channel.name;
 					subtext = Strings.get("VOICE_CALL");
-					Icon = CallJoin;
+					TooltipIcon = CallJoin;
 					channelPath = `/channels/@me/${channel.id}`
 				}
 				switch (channel.type) {
@@ -504,11 +509,15 @@ function buildPlugin([BasePlugin, Library]) {
 					case 3:
 						text = channel.name ?? groupDMName(channel.recipients);
 						subtext = Strings.get("GROUP_CALL");
-						Icon = People;
+						TooltipIcon = People;
 						break;
 					case 13:
-						Icon = Stage
+						TooltipIcon = Stage
 				}
+				let Icon = Speaker;
+				if (showStatusIcons && voiceState.selfDeaf) Icon = Deafened;
+				else if (showStatusIcons && voiceState.selfMute) Icon = Muted;
+				else if (showStatusIcons && voiceState.selfVideo) Icon = Video;
 				return React.createElement("div", {
 					className,
 					onClick: e => {
@@ -526,7 +535,7 @@ function buildPlugin([BasePlugin, Library]) {
 						}
 					}, text), React.createElement("div", {
 						className: voiceiconmodule.Z.subtext
-					}, React.createElement(Icon, {
+					}, React.createElement(TooltipIcon, {
 						className: voiceiconmodule.Z.tooltipIcon,
 						width: "16",
 						height: "16"
@@ -537,7 +546,7 @@ function buildPlugin([BasePlugin, Library]) {
 					}, subtext)))
 				}, (props2 => React.createElement("div", {
 					...props2
-				}, !voiceState.selfStream ? React.createElement(Speaker, {
+				}, !voiceState.selfStream ? React.createElement(Icon, {
 					width: "14",
 					height: "14"
 				}) : Strings.get("LIVE")))))
@@ -728,6 +737,10 @@ function buildPlugin([BasePlugin, Library]) {
 						name: Strings.get("SETTINGS_COLOR"),
 						note: Strings.get("SETTINGS_COLOR_NOTE")
 					},
+					showStatusIcons: {
+						name: Strings.get("SETTINGS_STATUS"),
+						note: Strings.get("SETTINGS_STATUS_NOTE")
+					},
 					ignoreEnabled: {
 						name: Strings.get("SETTINGS_IGNORE"),
 						note: Strings.get("SETTINGS_IGNORE_NOTE")
@@ -776,7 +789,7 @@ function buildPlugin([BasePlugin, Library]) {
 							userId: props.user.id
 						}))
 					}));
-					const UserPopoutBodyV2 = src_getModule(withProps(src_byStrings(".hidePersonalInformation", ".customStatusActivity")));
+					const UserPopoutBodyV2 = src_getModule(withProps(src_byStrings(".showCopiableUsername")));
 					const UserPopoutSection = src_getModule(src_byStrings(".lastSection"));
 					external_BdApi_namespaceObject.Patcher.after("VoiceActivity", UserPopoutBodyV2, "Z", ((_, [props], ret) => {
 						const popoutSections = ret.props.children[1].props.children[2].props.children;
