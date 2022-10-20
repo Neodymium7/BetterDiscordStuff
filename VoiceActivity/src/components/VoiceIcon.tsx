@@ -11,7 +11,7 @@ import {
 } from "../utils";
 import styles from "../styles/voiceicon.scss?module";
 import Tooltip from "./Tooltip";
-import { CallJoin, People, Speaker, Stage } from "./icons";
+import { CallJoin, People, Speaker, Stage, Deafened, Muted, Video } from "./icons";
 
 const { ChannelStore, UserStore } = DiscordModules;
 
@@ -28,7 +28,8 @@ export default function VoiceIcon(props: VoiceIconProps) {
 		ignoreEnabled,
 		ignoredChannels,
 		ignoredGuilds,
-		currentChannelColor
+		currentChannelColor,
+		showStatusIcons
 	} = Settings.useSettingsState();
 
 	const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
@@ -49,7 +50,7 @@ export default function VoiceIcon(props: VoiceIconProps) {
 
 	let text: string;
 	let subtext: string;
-	let Icon: React.FunctionComponent<{ width: string; height: string; className: string }>;
+	let TooltipIcon: React.FunctionComponent<{ width: string; height: string; className: string }>;
 	let channelPath: string;
 	let className = styles.icon;
 
@@ -60,12 +61,12 @@ export default function VoiceIcon(props: VoiceIconProps) {
 	if (guild) {
 		text = guild.name;
 		subtext = channel.name;
-		Icon = Speaker;
+		TooltipIcon = Speaker;
 		channelPath = `/channels/${guild.id}/${channel.id}`;
 	} else {
 		text = channel.name;
 		subtext = Strings.get("VOICE_CALL");
-		Icon = CallJoin;
+		TooltipIcon = CallJoin;
 		channelPath = `/channels/@me/${channel.id}`;
 	}
 	switch (channel.type) {
@@ -76,11 +77,16 @@ export default function VoiceIcon(props: VoiceIconProps) {
 		case 3:
 			text = channel.name ?? groupDMName(channel.recipients);
 			subtext = Strings.get("GROUP_CALL");
-			Icon = People;
+			TooltipIcon = People;
 			break;
 		case 13:
-			Icon = Stage;
+			TooltipIcon = Stage;
 	}
+
+	let Icon = Speaker;
+	if (showStatusIcons && voiceState.selfDeaf) Icon = Deafened;
+	else if (showStatusIcons && voiceState.selfMute) Icon = Muted;
+	else if (showStatusIcons && voiceState.selfVideo) Icon = Video;
 
 	return (
 		<div
@@ -98,7 +104,7 @@ export default function VoiceIcon(props: VoiceIconProps) {
 							{text}
 						</div>
 						<div className={styles.subtext}>
-							<Icon className={styles.tooltipIcon} width="16" height="16" />
+							<TooltipIcon className={styles.tooltipIcon} width="16" height="16" />
 							<div style={{ fontWeight: "400" }}>{subtext}</div>
 						</div>
 					</div>
@@ -106,7 +112,7 @@ export default function VoiceIcon(props: VoiceIconProps) {
 			>
 				{(props: any) => (
 					<div {...props}>
-						{!voiceState.selfStream ? <Speaker width="14" height="14" /> : Strings.get("LIVE")}
+						{!voiceState.selfStream ? <Icon width="14" height="14" /> : Strings.get("LIVE")}
 					</div>
 				)}
 			</Tooltip>

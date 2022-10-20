@@ -109,8 +109,11 @@ export default class AvatarSettingsButton extends BasePlugin {
 
 	observer({ addedNodes }) {
 		for (const node of addedNodes) {
-			if (node.className?.includes?.(accountClasses.avatarWrapper)) {
-				this.target = node;
+			if (node.nodeType === Node.TEXT_NODE) continue;
+
+			const avatarWrapper = node.querySelector(`.${accountClasses.avatarWrapper}`);
+			if (avatarWrapper) {
+				this.target = avatarWrapper;
 				this.addListeners();
 				this.addTooltip();
 			}

@@ -8,6 +8,8 @@
 		"SETTINGS_PEOPLE_ICONS_NOTE": "Shows icons on the DM list when someone is in a voice channel.",
 		"SETTINGS_COLOR": "Current Channel Icon Color",
 		"SETTINGS_COLOR_NOTE": "Makes the Member List icons green when the user is in your current voice channel.",
+		"SETTINGS_STATUS": "Show Status Icons",
+		"SETTINGS_STATUS_NOTE": "Changes the Member List icons when a user is Muted, Deafened, or has Video enabled.",
 		"SETTINGS_IGNORE": "Ignore",
 		"SETTINGS_IGNORE_NOTE": "Adds an option on Voice Channel and Guild context menus to ignore that channel/guild in Member List Icons and User Popouts.",
 		"CONTEXT_IGNORE": "Ignore in Voice Activity",

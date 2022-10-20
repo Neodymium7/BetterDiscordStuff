@@ -48,6 +48,10 @@ export default function SettingsPanel() {
 			name: Strings.get("SETTINGS_COLOR"),
 			note: Strings.get("SETTINGS_COLOR_NOTE")
 		},
+		showStatusIcons: {
+			name: Strings.get("SETTINGS_STATUS"),
+			note: Strings.get("SETTINGS_STATUS_NOTE")
+		},
 		ignoreEnabled: {
 			name: Strings.get("SETTINGS_IGNORE"),
 			note: Strings.get("SETTINGS_IGNORE_NOTE")

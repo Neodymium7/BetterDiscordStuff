@@ -17,6 +17,7 @@ export const Settings = new SettingsManager({
 	showDMListIcons: true,
 	showPeopleListIcons: true,
 	currentChannelColor: true,
+	showStatusIcons: true,
 	ignoreEnabled: false,
 	ignoredChannels: [],
 	ignoredGuilds: []
