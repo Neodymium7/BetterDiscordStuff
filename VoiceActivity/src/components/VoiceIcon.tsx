@@ -84,8 +84,8 @@ export default function VoiceIcon(props: VoiceIconProps) {
 	}
 
 	let Icon = Speaker;
-	if (showStatusIcons && voiceState.selfDeaf) Icon = Deafened;
-	else if (showStatusIcons && voiceState.selfMute) Icon = Muted;
+	if (showStatusIcons && (voiceState.selfDeaf || voiceState.deaf)) Icon = Deafened;
+	else if (showStatusIcons && (voiceState.selfMute || voiceState.mute)) Icon = Muted;
 	else if (showStatusIcons && voiceState.selfVideo) Icon = Video;
 
 	return (
