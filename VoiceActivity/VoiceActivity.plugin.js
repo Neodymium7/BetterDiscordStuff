@@ -2,7 +2,7 @@
  * @name VoiceActivity
  * @author Neodymium
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
- * @version 1.5.1
+ * @version 1.5.2
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -37,19 +37,15 @@ const config = {
 		authors: [{
 			name: "Neodymium",
 		}],
-		version: "1.5.1",
+		version: "1.5.2",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
 	},
 	changelog: [{
-		title: "Added",
-		type: "improved",
-		items: ["Added a new option to display Mute/Deafen/Video status on member list icons (enabled by default)."]
-	}, {
 		title: "Fixed",
 		type: "fixed",
-		items: ["Fixed VoiceActivity section not displaying on user popouts."]
+		items: ["Fixed status icons not working with Server Deafen and Server Mute."]
 	}]
 };
 
@@ -515,8 +511,8 @@ function buildPlugin([BasePlugin, Library]) {
 						TooltipIcon = Stage
 				}
 				let Icon = Speaker;
-				if (showStatusIcons && voiceState.selfDeaf) Icon = Deafened;
-				else if (showStatusIcons && voiceState.selfMute) Icon = Muted;
+				if (showStatusIcons && (voiceState.selfDeaf || voiceState.deaf)) Icon = Deafened;
+				else if (showStatusIcons && (voiceState.selfMute || voiceState.mute)) Icon = Muted;
 				else if (showStatusIcons && voiceState.selfVideo) Icon = Video;
 				return React.createElement("div", {
 					className,
