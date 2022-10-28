@@ -1,132 +1,96 @@
-.popoutSection {
-	padding-bottom: 16px;
+.header {
+	margin-bottom: 8px;
+	color: var(--header-primary);
+	font-size: 12px;
+	line-height: 16px;
+	font-family: var(--font-display);
+	font-weight: 700;
+	text-transform: uppercase;
+}
 
-	.header {
-		margin-bottom: 8px;
-		color: var(--header-secondary);
-		font-size: 12px;
-		line-height: 16px;
-		font-family: var(--font-display);
-		font-weight: 700;
-		text-transform: uppercase;
+.body {
+	display: flex;
+	flex-direction: row;
+}
+
+.text {
+	margin: auto 10px;
+	color: var(--text-normal);
+	font-size: 14px;
+	line-height: 18px;
+	overflow: hidden;
+
+	& > div,
+	& > h3 {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
 	}
 
-	.body {
-		display: flex;
-		flex-direction: row;
-
-		.text {
-			margin: auto 10px;
-			color: var(--text-normal);
-			font-size: 14px;
-			line-height: 18px;
-			overflow: hidden;
-
-			& > div,
-			& > h3 {
-				overflow: hidden;
-				white-space: nowrap;
-				text-overflow: ellipsis;
-			}
-
-			& > h3 {
-				font-family: var(--font-display);
-				font-weight: 500;
-			}
-		}
+	& > h3 {
+		font-family: var(--font-normal);
+		font-weight: 600;
 	}
-	.buttonWrapper {
-		display: flex;
-		flex: 0 1 auto;
-		flex-direction: row;
-		flex-wrap: nowrap;
-		justify-content: flex-start;
-		align-items: stretch;
-		margin-top: 12px;
+}
 
-		.button {
-			height: 32px;
-			min-height: 32px;
-			width: 100%;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			padding: 2px 16px;
-			border-radius: 3px;
-			background-color: var(--button-secondary-background);
-			transition: background-color 0.17s ease, color 0.17s ease;
-			color: #fff;
-			font-size: 14px;
-			line-height: 16px;
-			font-weight: 500;
-			user-select: none;
+.buttonWrapper {
+	display: flex;
+	flex: 0 1 auto;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	align-items: stretch;
+	margin-top: 12px;
 
-			&:hover {
-				background-color: var(--button-secondary-background-hover);
-			}
+	& > div[aria-label] {
+		width: 32px;
+		margin-left: 8px;
+	}
+}
 
-			&:active {
-				background-color: var(--button-secondary-background-active);
-			}
+.button {
+	height: 32px;
+	min-height: 32px;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 2px 16px;
+	border-radius: 3px;
+	color: #fff;
+	font-size: 14px;
+	line-height: 16px;
+	font-weight: 500;
+	user-select: none;
+	background-color: var(--profile-gradient-button-color);
+	transition: opacity 0.2s ease-in-out;
 
-			&:disabled {
-				background-color: var(--button-secondary-background-disabled);
-				opacity: 0.5 !important;
-				cursor: not-allowed;
-			}
-		}
+	&:hover {
+		opacity: 0.8;
+	}
 
-		& > div[aria-label] {
-			width: 32px;
-			margin-left: 8px;
-		}
+	&:active {
+		opacity: 0.9;
+	}
 
-		.joinWrapper {
-			.joinButton {
-				min-width: 32px;
-				max-width: 32px;
-				padding: 0;
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+}
 
-				&:disabled {
-					pointer-events: none;
-				}
-			}
-		}
+.joinWrapper {
+	.joinButton {
+		min-width: 32px;
+		max-width: 32px;
+		padding: 0;
 
-		.joinWrapperDisabled {
-			cursor: not-allowed;
+		&:disabled {
+			pointer-events: none;
 		}
 	}
 }
 
-.v2PopoutSection {
-	padding-bottom: 0;
-
-	.header {
-		color: var(--header-primary);
-	}
-
-	.body {
-		.text {
-			& > h3 {
-				font-family: var(--font-normal);
-				font-weight: 600;
-			}
-		}
-	}
-
-	.buttonWrapper {
-		.button {
-			background-color: var(--profile-gradient-button-color) !important;
-			transition: opacity 0.2s ease-in-out;
-
-			&:hover {
-				opacity: 0.8;
-			}
-
-			&:active {
-				opacity: 0.9;
-			}
-		}
-	}
+.joinWrapperDisabled {
+	cursor: not-allowed;
 }

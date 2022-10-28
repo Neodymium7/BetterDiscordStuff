@@ -9,7 +9,7 @@ const {
 } = Webpack;
 
 const { GuildActions } = DiscordModules;
-const { getAcronym } = getModule(byStrings('.replace(/\'s /g," ").replace(/\\w+/g,'), { searchExports: true });
+const getAcronym = getModule(byStrings('.replace(/\'s /g," ").replace(/\\w+/g,'), { searchExports: true });
 
 interface GuildImageProps {
 	guild: any;

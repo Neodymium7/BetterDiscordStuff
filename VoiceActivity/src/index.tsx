@@ -38,25 +38,11 @@ export default class VoiceActivity extends BasePlugin {
 	}
 
 	patchUserPopout() {
-		const UserPopoutBody = getModule(withProps(byStrings(".displayProfile", "autoFocus")));
+		const UserPopoutBody = getModule(withProps(byStrings(".showCopiableUsername")));
 		Patcher.after("VoiceActivity", UserPopoutBody, "Z", (_, [props], ret) => {
-			ret?.props.children.splice(1, 0, <VoicePopoutSection userId={props.user.id} />);
-		});
-
-		const UserPopoutBodyV2 = getModule(withProps(byStrings(".showCopiableUsername")));
-		const UserPopoutSection = getModule(byStrings(".lastSection"));
-		Patcher.after("VoiceActivity", UserPopoutBodyV2, "Z", (_, [props], ret) => {
 			const popoutSections = ret.props.children[1].props.children[2].props.children;
-			const activitySectionIndex = popoutSections.findIndex((section: any) =>
-				section.props.hasOwnProperty("activity")
-			);
-			popoutSections.splice(
-				activitySectionIndex,
-				0,
-				<UserPopoutSection>
-					<VoicePopoutSection userId={props.user.id} v2 />
-				</UserPopoutSection>
-			);
+			const activitySectionIndex = popoutSections.findIndex((section: any) => !!section.props.activity);
+			popoutSections.splice(activitySectionIndex, 0, <VoicePopoutSection userId={props.user.id} />);
 		});
 	}
 

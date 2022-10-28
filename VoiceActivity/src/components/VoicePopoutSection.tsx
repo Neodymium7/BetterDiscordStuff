@@ -1,3 +1,4 @@
+import { Webpack } from "betterdiscord";
 import { DiscordModules, ContextMenu } from "zlibrary";
 import {
 	Settings,
@@ -14,11 +15,17 @@ import Tooltip from "./Tooltip";
 import { CallJoin, Speaker, Stage } from "./icons";
 import GuildImage from "./GuildImage";
 
+const {
+	getModule,
+	Filters: { byStrings }
+} = Webpack;
+
 const { ChannelActions, ChannelStore, SelectedChannelStore, UserStore } = DiscordModules;
+
+const UserPopoutSection = getModule(byStrings(".lastSection", ".children"));
 
 interface VoicePopoutSectionProps {
 	userId: string;
-	v2?: boolean;
 }
 
 export default function VoicePopoutSection(props: VoicePopoutSectionProps) {
@@ -77,7 +84,7 @@ export default function VoicePopoutSection(props: VoicePopoutSectionProps) {
 	}
 
 	return (
-		<div className={props.v2 ? `${styles.popoutSection} ${styles.v2PopoutSection}` : styles.popoutSection}>
+		<UserPopoutSection>
 			<h3 className={styles.header}>{headerText}</h3>
 			{!(channel.type === 1) && (
 				<div className={styles.body}>
@@ -136,6 +143,6 @@ export default function VoicePopoutSection(props: VoicePopoutSectionProps) {
 					</Tooltip>
 				)}
 			</div>
-		</div>
+		</UserPopoutSection>
 	);
 }
