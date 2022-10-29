@@ -2,7 +2,7 @@
  * @name VoiceActivity
  * @author Neodymium
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
- * @version 1.5.3
+ * @version 1.5.4
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -37,7 +37,7 @@ const config = {
 		authors: [{
 			name: "Neodymium",
 		}],
-		version: "1.5.3",
+		version: "1.5.4",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -45,7 +45,7 @@ const config = {
 	changelog: [{
 		title: "Fixed",
 		type: "fixed",
-		items: ["Fixed popout section not being displayed.", "Fixed issues with crashing."]
+		items: ["Fixed popout section sometimes not being displayed."]
 	}]
 };
 
@@ -783,7 +783,7 @@ function buildPlugin([BasePlugin, Library]) {
 					const UserPopoutBody = src_getModule(withProps(src_byStrings(".showCopiableUsername")));
 					external_BdApi_namespaceObject.Patcher.after("VoiceActivity", UserPopoutBody, "Z", ((_, [props], ret) => {
 						const popoutSections = ret.props.children[1].props.children[2].props.children;
-						const activitySectionIndex = popoutSections.findIndex((section => !!section.props.activity));
+						const activitySectionIndex = popoutSections.findIndex((section => section.props.hasOwnProperty("activity")));
 						popoutSections.splice(activitySectionIndex, 0, src_React.createElement(VoicePopoutSection, {
 							userId: props.user.id
 						}))
