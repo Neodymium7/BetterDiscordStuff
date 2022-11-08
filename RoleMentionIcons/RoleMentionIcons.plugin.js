@@ -1,7 +1,7 @@
 /**
  * @name RoleMentionIcons
  * @author Neodymium
- * @version 1.1.3
+ * @version 1.1.4
  * @description Displays icons next to role mentions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js
@@ -43,7 +43,7 @@ const config = {
 	changelog: [{
 		title: "Fixed",
 		type: "fixed",
-		items: ["Rewrote the plugin to use DOM Manipulation instead of patching for compatibility with Discord's latest update."]
+		items: ["Fixed potential error message spam in console."]
 	}]
 };
 
@@ -80,7 +80,7 @@ function buildPlugin([Plugin, Library]) {
 	
 	const getProps = (el, filter) => {
 		const reactInstance = BdApi.getInternalInstance(el);
-		let current = reactInstance.return;
+		let current = reactInstance?.return;
 		while (current) {
 			if (current.pendingProps && filter(current.pendingProps)) return current.pendingProps;
 			current = current.return;
