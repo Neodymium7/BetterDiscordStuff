@@ -35,7 +35,7 @@ const config = {
 	info: {
 		name: "RoleMentionIcons",
 		authors: [{ name: "Neodymium" }],
-		version: "1.1.3",
+		version: "1.1.4",
 		description: "Displays icons next to role mentions.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js"
