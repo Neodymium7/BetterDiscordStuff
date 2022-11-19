@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.2.0
+ * @version 1.2.1
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
@@ -35,7 +35,7 @@ const config = {
 	info: {
 		name: "TypingUsersPopouts",
 		authors: [{ name: "Neodymium" }],
-		version: "1.2.0",
+		version: "1.2.1",
 		description: "Opens the user's popout when clicking on a name in the typing area.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js"
@@ -43,7 +43,7 @@ const config = {
 	changelog: [{
 		title: "Fixed",
 		type: "fixed",
-		items: ["Rewritten to fix compatibility with Discord's latest update."]
+		items: ["Fixed crashing when clicking on a typing user's name."]
 	}]
 };
 
@@ -66,7 +66,7 @@ function buildPlugin([Plugin, Library]) {
 	const { React, Webpack, injectCSS, clearCSS } = BdApi
 	const { Filters: { byStrings }, getModule } = Webpack;
 
-	const UserPopout = getModule(byStrings(".canViewThemes?"));
+	const UserPopout = getModule((e) => e.type?.toString().includes('["userId"]'));
 	const Popout = getModule(byStrings(".animationPosition"));
 
 	const nameSelector = `${DiscordSelectors.Typing.typing} strong`;
