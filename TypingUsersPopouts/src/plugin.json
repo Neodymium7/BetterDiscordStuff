@@ -1,0 +1,20 @@
+{
+	"name": "TypingUsersPopouts",
+	"version": "1.2.2",
+	"author": "Neodymium",
+	"description": "Opens the user's popout when clicking on a name in the typing area.",
+	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js",
+	"invite": "fRbsqH87Av",
+	"zlibrary": {
+		"info": {
+			"github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js"
+		},
+		"changelog": [
+			{
+				"title": "Fixed",
+				"type": "fixed",
+				"items": ["Fixed profiles not being fetched."]
+			}
+		]
+	}
+}
