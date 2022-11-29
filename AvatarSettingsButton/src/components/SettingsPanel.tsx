@@ -9,7 +9,7 @@ const {
 const Margins = getModule(byProps("marginXSmall"));
 const RadioGroup = getModule((m) => m.Sizes && m.toString().includes("radioItemClassName"));
 const SwitchItem = getModule((m) => m.toString().includes("helpdeskArticleId"));
-const SettingsItem = getModule((m) => m.Tags && m.toString().includes("required"), { searchExports: true });
+const SettingsItem = getModule((m) => m.render?.toString().includes("required"));
 const SettingsNote = getModule((m) => m.Types && m.toString().includes("selectable"));
 const SettingsDivider = getModule((m) => m.toString().includes("().divider"));
 
@@ -30,7 +30,7 @@ export default function SettingsPanel() {
 						{ name: "Status Picker", value: 3 },
 						{ name: "Nothing", value: 0 }
 					]}
-					onChange={({ value }) => Settings.set("click", value)}
+					onChange={({ value }) => (Settings.click = value)}
 					value={settings.click}
 				/>
 				<SettingsDivider className={Margins.marginTop20} />
@@ -46,7 +46,7 @@ export default function SettingsPanel() {
 						{ name: "Status Picker (Default)", value: 3 },
 						{ name: "Nothing", value: 0 }
 					]}
-					onChange={({ value }) => Settings.set("contextmenu", value)}
+					onChange={({ value }) => (Settings.contextmenu = value)}
 					value={settings.contextmenu}
 				/>
 				<SettingsDivider className={Margins.marginTop20} />
@@ -62,7 +62,7 @@ export default function SettingsPanel() {
 						{ name: "Status Picker", value: 3 },
 						{ name: "Nothing", value: 0 }
 					]}
-					onChange={({ value }) => Settings.set("middleclick", value)}
+					onChange={({ value }) => (Settings.middleclick = value)}
 					value={settings.middleclick}
 				/>
 				<SettingsDivider className={Margins.marginTop20} />
@@ -71,7 +71,7 @@ export default function SettingsPanel() {
 				className={Margins.marginTop20}
 				children="Tooltip"
 				note="Show tooltip when hovering over user avatar."
-				onChange={(v: boolean) => Settings.set("showTooltip", v)}
+				onChange={(v: boolean) => (Settings.showTooltip = v)}
 				value={settings.showTooltip}
 			/>
 		</>

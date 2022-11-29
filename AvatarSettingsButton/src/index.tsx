@@ -1,4 +1,4 @@
-import { clearCSS, injectCSS, Webpack } from "betterdiscord";
+import { DOM, Webpack } from "betterdiscord";
 import BasePlugin from "zlibrary/plugin";
 import { Settings } from "./utils";
 import SettingsPanel from "./components/SettingsPanel";
@@ -93,8 +93,7 @@ export default class AvatarSettingsButton extends BasePlugin {
 	clearListeners: () => void;
 
 	onStart() {
-		injectCSS(
-			"AvatarSettingsButton",
+		DOM.addStyle(
 			`${settingsSelector} { display: none; } .${accountClasses.container} > :first-child { width: 100%; }`
 		);
 		Settings.addListener(() => {
@@ -156,7 +155,7 @@ export default class AvatarSettingsButton extends BasePlugin {
 			this.openPopout.bind(this)
 		];
 
-		const clickAction = actions[Settings.get("click")];
+		const clickAction = actions[Settings.click];
 		const click = (e: MouseEvent) => {
 			if (e.isTrusted) {
 				e.preventDefault();
@@ -166,13 +165,13 @@ export default class AvatarSettingsButton extends BasePlugin {
 			}
 		};
 
-		const contextmenuAction = actions[Settings.get("contextmenu")];
+		const contextmenuAction = actions[Settings.contextmenu];
 		const contextmenu = (e: MouseEvent) => {
 			contextmenuAction(e);
 			this.tooltip?.forceHide();
 		};
 
-		const middleclickAction = actions[Settings.get("middleclick")];
+		const middleclickAction = actions[Settings.middleclick];
 		const middleclick = (e: MouseEvent) => {
 			if (e.button === 1) {
 				middleclickAction(e);
@@ -195,16 +194,16 @@ export default class AvatarSettingsButton extends BasePlugin {
 		if (!this.target) return;
 		this.tooltip?.remove();
 		this.tooltip = null;
-		if (!Settings.get("showTooltip")) return;
+		if (!Settings.showTooltip) return;
 
-		const click = Settings.get("click");
+		const click = Settings.click;
 		if (click === 0) return;
 		const tooltips = ["", "User Settings", "Settings Shortcuts", "Set Status"];
 		this.tooltip = new Tooltip(this.target as HTMLElement, tooltips[click]);
 	}
 
 	onStop() {
-		clearCSS("AvatarSettingsButton");
+		DOM.removeStyle();
 		Settings.clearListeners();
 		this.clearListeners?.();
 		this.tooltip?.remove();

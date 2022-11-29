@@ -1,7 +1,8 @@
-import { Patcher, Webpack, injectCSS, clearCSS } from "betterdiscord";
+import { Patcher, Webpack, DOM } from "betterdiscord";
 import { DiscordSelectors } from "zlibrary";
 import BasePlugin from "zlibrary/plugin";
-import { forceUpdateAll, withProps } from "./utils";
+import { WebpackUtils } from "bundlebd";
+import { forceUpdateAll } from "./utils";
 import styles from "./styles.css";
 import ActivityIcon from "./components/ActivityIcon";
 import ListeningIcon from "./components/ListeningIcon";
@@ -12,19 +13,21 @@ const {
 	getModule
 } = Webpack;
 
+const { byValues } = WebpackUtils;
+
 const peopleListItem = `.${getModule(byProps("peopleListItem")).peopleListItem}`;
 const memberListItem = `${DiscordSelectors.MemberList.members} > div > div:not(:first-child)`;
 const privateChannel = `.${getModule(byProps("privateChannelsHeaderContainer")).scroller} > ul > li`;
 
 export default class ActivityIcons extends BasePlugin {
 	onStart() {
-		injectCSS("ActivityIcons", styles);
+		DOM.addStyle(styles);
 		this.patchActivityStatus();
 	}
 
 	patchActivityStatus() {
-		const ActivityStatus = getModule(withProps(byStrings("applicationStream")));
-		Patcher.after("ActivityIcons", ActivityStatus, "Z", (_, [props], ret) => {
+		const ActivityStatus = getModule(byValues(byStrings("applicationStream")));
+		Patcher.after(ActivityStatus, "Z", (_, [props]: [any], ret) => {
 			if (ret) {
 				ret.props.children[2] = null;
 				ret.props.children.push(<ActivityIcon activities={props.activities} />);
@@ -37,8 +40,8 @@ export default class ActivityIcons extends BasePlugin {
 	}
 
 	onStop() {
-		Patcher.unpatchAll("ActivityIcons");
-		clearCSS("ActivityIcons");
+		Patcher.unpatchAll();
+		DOM.removeStyle();
 		forceUpdateAll(memberListItem);
 		forceUpdateAll(peopleListItem);
 		forceUpdateAll(privateChannel);

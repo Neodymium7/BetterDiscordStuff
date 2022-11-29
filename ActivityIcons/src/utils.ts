@@ -1,11 +1,7 @@
 import { ReactTools } from "zlibrary";
-import { SettingsManager } from "bundlebd";
+import { createSettings } from "bundlebd";
 
-export const Settings = new SettingsManager({ normalIconBehavior: 0 });
-
-export const withProps = (filter: (m: any) => boolean) => {
-	return (m) => Object.values(m).some(filter);
-};
+export const Settings = createSettings({ normalIconBehavior: 0 });
 
 export function forceUpdateAll(selector: string) {
 	document.querySelectorAll(selector).forEach((node) => {

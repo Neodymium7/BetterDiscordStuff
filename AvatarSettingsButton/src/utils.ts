@@ -1,7 +1,7 @@
-import { SettingsManager } from "bundlebd";
+import { createSettings } from "bundlebd";
 
-export const Settings = new SettingsManager({
-	showTooltip: true,
+export const Settings = createSettings({
+	showTooltip: true as boolean,
 	click: 1,
 	contextmenu: 3,
 	middleclick: 2

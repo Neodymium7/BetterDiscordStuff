@@ -1,7 +1,7 @@
 import { Webpack } from "betterdiscord";
 import { Settings } from "../utils";
-import Playstation from "../assets/playstation.svg";
-import Xbox from "../assets/xbox.svg";
+import { Component as Playstation } from "../assets/playstation.svg";
+import { Component as Xbox } from "../assets/xbox.svg";
 
 const {
 	Filters: { byPrototypeFields, byStrings },
