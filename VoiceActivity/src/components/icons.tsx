@@ -2,7 +2,7 @@ import { Webpack } from "betterdiscord";
 
 const {
 	Filters: { byStrings },
-	getModule
+	getModule,
 } = Webpack;
 
 export const CallJoin = getModule(byStrings("M11 5V3C16.515 3 21 7.486"));

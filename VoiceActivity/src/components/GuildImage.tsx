@@ -1,11 +1,11 @@
 import { Webpack } from "betterdiscord";
 import { DiscordModules } from "zlibrary";
 import { getIconFontSize, getImageLink, transitionTo } from "../utils";
-import styles from "../styles/guildimage.scss?module";
+import styles from "../styles/guildimage.module.scss";
 
 const {
 	Filters: { byStrings },
-	getModule
+	getModule,
 } = Webpack;
 
 const { GuildActions } = DiscordModules;

@@ -2,7 +2,7 @@ import { Webpack } from "betterdiscord";
 
 const {
 	Filters: { byPrototypeFields },
-	getModule
+	getModule,
 } = Webpack;
 
 const Tooltip = getModule(byPrototypeFields("renderTooltip"));

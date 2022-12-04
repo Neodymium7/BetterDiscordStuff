@@ -1,13 +1,13 @@
 import { Webpack } from "betterdiscord";
-import { useState } from "react";
+import { SettingsKey } from "bundlebd";
 import { Settings, Strings } from "../utils";
 
 const { getModule } = Webpack;
 
-type setting = typeof Settings.keys[number];
+type SwitchSetting = SettingsKey<typeof Settings, boolean>;
 
 interface SwitchItemProps {
-	setting: setting;
+	setting: SwitchSetting;
 	name: string;
 	note: string;
 }
@@ -15,7 +15,7 @@ interface SwitchItemProps {
 const SwitchItem = getModule((m) => m.toString().includes("helpdeskArticleId"));
 
 const SettingsSwitchItem = (props: SwitchItemProps) => {
-	const [value, setValue] = useState(Settings.get(props.setting));
+	const value = Settings.useSettingsState()[props.setting];
 
 	return (
 		<SwitchItem
@@ -23,8 +23,7 @@ const SettingsSwitchItem = (props: SwitchItemProps) => {
 			note={props.note}
 			value={value}
 			onChange={(v: typeof value) => {
-				setValue(v);
-				Settings.set(props.setting, v);
+				Settings[props.setting] = v;
 			}}
 		/>
 	);
@@ -33,34 +32,34 @@ const SettingsSwitchItem = (props: SwitchItemProps) => {
 export default function SettingsPanel() {
 	const settings = {
 		showMemberListIcons: {
-			name: Strings.get("SETTINGS_ICONS"),
-			note: Strings.get("SETTINGS_ICONS_NOTE")
+			name: Strings.SETTINGS_ICONS,
+			note: Strings.SETTINGS_ICONS_NOTE,
 		},
 		showDMListIcons: {
-			name: Strings.get("SETTINGS_DM_ICONS"),
-			note: Strings.get("SETTINGS_DM_ICONS_NOTE")
+			name: Strings.SETTINGS_DM_ICONS,
+			note: Strings.SETTINGS_DM_ICONS_NOTE,
 		},
 		showPeopleListIcons: {
-			name: Strings.get("SETTINGS_PEOPLE_ICONS"),
-			note: Strings.get("SETTINGS_PEOPLE_ICONS_NOTE")
+			name: Strings.SETTINGS_PEOPLE_ICONS,
+			note: Strings.SETTINGS_PEOPLE_ICONS_NOTE,
 		},
 		currentChannelColor: {
-			name: Strings.get("SETTINGS_COLOR"),
-			note: Strings.get("SETTINGS_COLOR_NOTE")
+			name: Strings.SETTINGS_COLOR,
+			note: Strings.SETTINGS_COLOR_NOTE,
 		},
 		showStatusIcons: {
-			name: Strings.get("SETTINGS_STATUS"),
-			note: Strings.get("SETTINGS_STATUS_NOTE")
+			name: Strings.SETTINGS_STATUS,
+			note: Strings.SETTINGS_STATUS_NOTE,
 		},
 		ignoreEnabled: {
-			name: Strings.get("SETTINGS_IGNORE"),
-			note: Strings.get("SETTINGS_IGNORE_NOTE")
-		}
+			name: Strings.SETTINGS_IGNORE,
+			note: Strings.SETTINGS_IGNORE_NOTE,
+		},
 	};
 
 	return (
 		<>
-			{Object.keys(settings).map((key: setting) => {
+			{Object.keys(settings).map((key: SwitchSetting) => {
 				const { name, note } = settings[key];
 				return <SettingsSwitchItem setting={key} name={name} note={note} />;
 			})}

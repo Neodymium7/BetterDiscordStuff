@@ -1,44 +1,40 @@
 import { Webpack } from "betterdiscord";
 import { DiscordModules, ReactTools } from "zlibrary";
-import { SettingsManager, StringsManager } from "bundlebd";
+import { createSettings, createStrings } from "bundlebd";
 import locales from "./locales.json";
 import defaultGroupIcon from "./assets/default_group_icon.png";
 
 const {
 	Filters: { byProps, byStrings },
-	getModule
+	getModule,
 } = Webpack;
 
 const { Permissions, UserStore } = DiscordModules;
 const DiscordPermissions = getModule(byProps("VIEW_CREATOR_MONETIZATION_ANALYTICS"), { searchExports: true });
 
-export const Settings = new SettingsManager({
-	showMemberListIcons: true,
-	showDMListIcons: true,
-	showPeopleListIcons: true,
-	currentChannelColor: true,
-	showStatusIcons: true,
-	ignoreEnabled: false,
+export const Settings = createSettings({
+	showMemberListIcons: true as boolean,
+	showDMListIcons: true as boolean,
+	showPeopleListIcons: true as boolean,
+	currentChannelColor: true as boolean,
+	showStatusIcons: true as boolean,
+	ignoreEnabled: false as boolean,
 	ignoredChannels: [],
-	ignoredGuilds: []
+	ignoredGuilds: [],
 });
 
-export const Strings = new StringsManager(locales);
+export const Strings = createStrings(locales, "en-US");
 
 export const useStateFromStores = getModule(byStrings("useStateFromStores"));
 export const transitionTo = getModule(byStrings("transitionTo -"), { searchExports: true });
 export const VoiceStateStore = getModule(byProps("getVoiceStateForUser"));
 export const GuildStore = getModule(byProps("getGuildCount"));
 
-export const withProps = (filter: (m: any) => boolean) => {
-	return (m) => Object.values(m).some(filter);
-};
-
 export function checkPermissions(channel: any): boolean {
 	return Permissions.can({
 		permission: DiscordPermissions.VIEW_CHANNEL,
 		user: UserStore.getCurrentUser(),
-		context: channel
+		context: channel,
 	});
 }
 

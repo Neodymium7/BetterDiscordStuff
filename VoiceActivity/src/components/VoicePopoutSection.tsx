@@ -8,16 +8,16 @@ import {
 	checkPermissions,
 	groupDMName,
 	transitionTo,
-	GuildStore
+	GuildStore,
 } from "../utils";
-import styles from "../styles/voicepopoutsection.scss?module";
+import styles from "../styles/voicepopoutsection.module.scss";
 import Tooltip from "./Tooltip";
 import { CallJoin, Speaker, Stage } from "./icons";
 import GuildImage from "./GuildImage";
 
 const {
 	getModule,
-	Filters: { byStrings }
+	Filters: { byStrings },
 } = Webpack;
 
 const { ChannelActions, ChannelStore, SelectedChannelStore, UserStore } = DiscordModules;
@@ -56,30 +56,30 @@ export default function VoicePopoutSection(props: VoicePopoutSectionProps) {
 	const isCurrentUser = props.userId === UserStore.getCurrentUser().id;
 
 	if (guild) {
-		headerText = Strings.get("HEADER");
+		headerText = Strings.HEADER;
 		text = [<h3>{guild.name}</h3>, <div>{channel.name}</div>];
-		viewButton = Strings.get("VIEW");
-		joinButton = inCurrentChannel ? Strings.get("JOIN_DISABLED") : Strings.get("JOIN");
+		viewButton = Strings.VIEW;
+		joinButton = inCurrentChannel ? Strings.JOIN_DISABLED : Strings.JOIN;
 		Icon = Speaker;
 		channelPath = `/channels/${guild.id}/${channel.id}`;
 	} else {
-		headerText = Strings.get("HEADER_VOICE");
+		headerText = Strings.HEADER_VOICE;
 		text = <h3>{channel.name}</h3>;
-		viewButton = Strings.get("VIEW_CALL");
-		joinButton = inCurrentChannel ? Strings.get("JOIN_DISABLED_CALL") : Strings.get("JOIN_CALL");
+		viewButton = Strings.VIEW_CALL;
+		joinButton = inCurrentChannel ? Strings.JOIN_DISABLED_CALL : Strings.JOIN_CALL;
 		Icon = CallJoin;
 		channelPath = `/channels/@me/${channel.id}`;
 	}
 	switch (channel.type) {
 		case 1:
-			headerText = Strings.get("HEADER_PRIVATE");
+			headerText = Strings.HEADER_PRIVATE;
 			break;
 		case 3:
-			headerText = Strings.get("HEADER_GROUP");
+			headerText = Strings.HEADER_GROUP;
 			text = <h3>{channel.name ?? groupDMName(channel.recipients)}</h3>;
 			break;
 		case 13:
-			headerText = Strings.get("HEADER_STAGE");
+			headerText = Strings.HEADER_STAGE;
 			Icon = Stage;
 	}
 
@@ -125,13 +125,13 @@ export default function VoicePopoutSection(props: VoicePopoutSectionProps) {
 											e,
 											ContextMenu.buildMenu([
 												{
-													label: Strings.get("JOIN_VIDEO"),
+													label: Strings.JOIN_VIDEO,
 													id: "voice-activity-join-with-video",
 													action: () => {
 														if (channel.id)
 															ChannelActions.selectVoiceChannel(channel.id, true);
-													}
-												}
+													},
+												},
 											])
 										);
 									}}

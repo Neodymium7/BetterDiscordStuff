@@ -7,9 +7,9 @@ import {
 	groupDMName,
 	checkPermissions,
 	transitionTo,
-	GuildStore
+	GuildStore,
 } from "../utils";
-import styles from "../styles/voiceicon.scss?module";
+import styles from "../styles/voiceicon.module.scss";
 import Tooltip from "./Tooltip";
 import { CallJoin, People, Speaker, Stage, Deafened, Muted, Video } from "./icons";
 
@@ -29,7 +29,7 @@ export default function VoiceIcon(props: VoiceIconProps) {
 		ignoredChannels,
 		ignoredGuilds,
 		currentChannelColor,
-		showStatusIcons
+		showStatusIcons,
 	} = Settings.useSettingsState();
 
 	const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
@@ -65,18 +65,18 @@ export default function VoiceIcon(props: VoiceIconProps) {
 		channelPath = `/channels/${guild.id}/${channel.id}`;
 	} else {
 		text = channel.name;
-		subtext = Strings.get("VOICE_CALL");
+		subtext = Strings.VOICE_CALL;
 		TooltipIcon = CallJoin;
 		channelPath = `/channels/@me/${channel.id}`;
 	}
 	switch (channel.type) {
 		case 1:
 			text = UserStore.getUser(channel.recipients[0]).username;
-			subtext = Strings.get("PRIVATE_CALL");
+			subtext = Strings.PRIVATE_CALL;
 			break;
 		case 3:
 			text = channel.name ?? groupDMName(channel.recipients);
-			subtext = Strings.get("GROUP_CALL");
+			subtext = Strings.GROUP_CALL;
 			TooltipIcon = People;
 			break;
 		case 13:
@@ -111,9 +111,7 @@ export default function VoiceIcon(props: VoiceIconProps) {
 				}
 			>
 				{(props: any) => (
-					<div {...props}>
-						{!voiceState.selfStream ? <Icon width="14" height="14" /> : Strings.get("LIVE")}
-					</div>
+					<div {...props}>{!voiceState.selfStream ? <Icon width="14" height="14" /> : Strings.LIVE}</div>
 				)}
 			</Tooltip>
 		</div>

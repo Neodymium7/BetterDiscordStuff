@@ -1,0 +1,20 @@
+{
+	"name": "VoiceActivity",
+	"version": "1.5.5",
+	"description": "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
+	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
+	"author": "Neodymium",
+	"invite": "fRbsqH87Av",
+	"zlibrary": {
+		"info": {
+			"github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
+		},
+		"changelog": [
+			{
+				"title": "Fixed",
+				"type": "fixed",
+				"items": ["Just some behind-the-scenes changes in this one (update bundler version)."]
+			}
+		]
+	}
+}
