@@ -1,6 +1,6 @@
 {
 	"name": "VoiceActivity",
-	"version": "1.5.5",
+	"version": "1.5.6",
 	"description": "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 	"author": "Neodymium",
@@ -13,7 +13,7 @@
 			{
 				"title": "Fixed",
 				"type": "fixed",
-				"items": ["Just some behind-the-scenes changes in this one (update bundler version)."]
+				"items": ["Fixed crashing when attempting fallback to default locale."]
 			}
 		]
 	}
