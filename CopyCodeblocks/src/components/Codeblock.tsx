@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Webpack } from "betterdiscord";
-import Copy from "../assets/copy.svg";
+import { Component as Copy } from "../assets/copy.svg";
 
 const {
 	Filters: { byProps, byPrototypeFields },
-	getModule
+	getModule,
 } = Webpack;
 
 const Tooltip = getModule(byPrototypeFields("renderTooltip"));
