@@ -2,7 +2,7 @@
  * @name VoiceActivity
  * @author Neodymium
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
- * @version 1.5.5
+ * @version 1.5.6
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
  */
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.5.5",
+		version: "1.5.6",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Just some behind-the-scenes changes in this one (update bundler version)."
+				"Fixed crashing when attempting fallback to default locale."
 			]
 		}
 	]
@@ -132,7 +132,7 @@ function buildPlugin([BasePlugin, Library]) {
 		function createStrings(locales, defaultLocale) {
 			let strings = locales[defaultLocale];
 			const setLocale = () => {
-				strings = locales[LocaleManager.getLocale() || defaultLocale];
+				strings = locales[LocaleManager.getLocale()] || locales[defaultLocale];
 			};
 			const stringsManager = {
 				subscribe() {
