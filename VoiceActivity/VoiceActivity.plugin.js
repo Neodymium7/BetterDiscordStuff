@@ -2,7 +2,7 @@
  * @name VoiceActivity
  * @author Neodymium
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
- * @version 1.5.6
+ * @version 1.6.0
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
  */
@@ -39,17 +39,19 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.5.6",
+		version: "1.6.0",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
 	},
 	changelog: [
 		{
-			title: "Fixed",
-			type: "fixed",
+			title: "Added",
+			type: "improved",
 			items: [
-				"Fixed crashing when attempting fallback to default locale."
+				"Added section to DM profile sidebars.",
+				"Added icons to guilds even when you're not currently in the voice channel.",
+				"Added corresponding settings for new features, and new setting for toggling profile section."
 			]
 		}
 	]
@@ -210,15 +212,19 @@ function buildPlugin([BasePlugin, Library]) {
 		// locales.json
 		var locales = {
 			"en-US": {
+			SETTINGS_PROFILE: "Profile Section",
+			SETTINGS_PROFILE_NOTE: "Shows profile section for current voice activity in user popouts and DM profile sidebars.",
 			SETTINGS_ICONS: "Member List Icons",
 			SETTINGS_ICONS_NOTE: "Shows icons on the member list when someone is in a voice channel.",
 			SETTINGS_DM_ICONS: "DM Icons",
 			SETTINGS_DM_ICONS_NOTE: "Shows icons on the DM list when someone is in a voice channel.",
 			SETTINGS_PEOPLE_ICONS: "Friends List Icons",
 			SETTINGS_PEOPLE_ICONS_NOTE: "Shows icons on the DM list when someone is in a voice channel.",
-			SETTINGS_COLOR: "Current Channel Icon Color",
+			SETTINGS_GUILD_ICONS: "Guild Icons",
+			SETTINGS_GUILD_ICONS_NOTE: "Shows voice icons on guilds even when you're not participating.",
+			SETTINGS_COLOR: "Member List - Current Channel Icon Color",
 			SETTINGS_COLOR_NOTE: "Makes the Member List icons green when the user is in your current voice channel.",
-			SETTINGS_STATUS: "Show Status Icons",
+			SETTINGS_STATUS: "Member List - Show Status Icons",
 			SETTINGS_STATUS_NOTE: "Changes the Member List icons when a user is Muted, Deafened, or has Video enabled.",
 			SETTINGS_IGNORE: "Ignore",
 			SETTINGS_IGNORE_NOTE: "Adds an option on Voice Channel and Guild context menus to ignore that channel/guild in Member List Icons and User Popouts.",
@@ -242,9 +248,6 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 		};
 	
-		// assets/default_group_icon.png
-		var img = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAABgmlDQ1BJQ0MgUHJvZmlsZQAAKM+VkTtIw1AYhb9WxQcVBzuIOGSoThZERRyliiIolFrB12CS2io0sSQtLo6Cq+DgY7Hq4OKsq4OrIAg+QBydnBRdROJ/U6FFqOCFcD/OzTnce34IFrOm5db2gGXnncRYTJuZndPqn6mlBmikTzfd3OTUaJKq6+OWgNpvoiqL/63m1JJrQkATHjJzTl54UXhgLZ9TvCscNpf1lPCpcLcjFxS+V7pR4hfFGZ+DKjPsJBPDwmFhLVPBRgWby44l3C8cSVm25AdnSpxSvK7YyhbMn3uqF4aW7OkppcvXwRjjTBJHw6DAClnyRGW3RXFJyHmsir/d98fFZYhrBVMcI6xioft+1Ax+d+um+3pLSaEY1D153lsn1G/D15bnfR563tcR1DzChV32rxZh8F30rbIWOYCWDTi7LGvGDpxvQttDTnd0X1LzD6bT8HoiY5qF1mtomi/19nPO8R0kpauJK9jbh66MZC9UeXdDZW9//uP3R+wbNjlyjzeozyoAAABgUExURVhl8oGK9LW7+erq/f///97i+7/F+mx38qGo92Ft8mFv8ujs/IuW9PP2/Wx384GM9Kux+MDF+urs/d/i+7S9+Jae9uDj/Jad9srO+tXY+4yU9aqy+MDE+qGn9/T1/neC9Liz/RcAAAAJcEhZcwAACxMAAAsTAQCanBgAAATqaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNC40LjAtRXhpdjIiPg0KICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPg0KICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOkdJTVA9Imh0dHA6Ly93d3cuZ2ltcC5vcmcveG1wLyIgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1wTU06RG9jdW1lbnRJRD0iZ2ltcDpkb2NpZDpnaW1wOmIzMjk5M2JmLTliZTUtNGJmMy04ZWEwLWY3ZDkzNTMyMTY2YiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowNjhkOWE3MS1lYWU3LTRmZjAtYmMxZS04MGUwYmMxMTFkZDUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDplZjU1ZGE0YS0wZTBhLTRjNTctODdmOC1lMmFmMGUyZGEzOGUiIGRjOkZvcm1hdD0iaW1hZ2UvcG5nIiBHSU1QOkFQST0iMi4wIiBHSU1QOlBsYXRmb3JtPSJXaW5kb3dzIiBHSU1QOlRpbWVTdGFtcD0iMTY0ODk0NDg1NjM4ODc5MSIgR0lNUDpWZXJzaW9uPSIyLjEwLjI0IiB0aWZmOk9yaWVudGF0aW9uPSIxIiB4bXA6Q3JlYXRvclRvb2w9IkdJTVAgMi4xMCI+DQogICAgICA8eG1wTU06SGlzdG9yeT4NCiAgICAgICAgPHJkZjpTZXE+DQogICAgICAgICAgPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDpjaGFuZ2VkPSIvIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ3NmFhOGE3LTVhNGEtNDcyNS05YTBjLWU1NzVmMzE1MzFmOCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iR2ltcCAyLjEwIChXaW5kb3dzKSIgc3RFdnQ6d2hlbj0iMjAyMi0wNC0wMlQxNzoxNDoxNiIgLz4NCiAgICAgICAgPC9yZGY6U2VxPg0KICAgICAgPC94bXBNTTpIaXN0b3J5Pg0KICAgIDwvcmRmOkRlc2NyaXB0aW9uPg0KICA8L3JkZjpSREY+DQo8L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9InIiPz6JoorbAAABV0lEQVRoQ+3W23KDIBAGYIOYBk20prWNPb7/W3Z3WQ9lGmeKe/l/N/+IzAYDggUAAAAAAMB/HVzpfXV8kIuTpp3gvHJ8WTcx7VRanlSBrs+aVubxMxn7RdNGq6VVR02Pmjb6WHjCQ+80baxmgDXUxA/FaSPWXUxtctOCVF2Z2uSmhauUnT1RU61p49cq9b6npoOmDV4yK7xN8G8abhfPsXIkq7MxfdGKOt0qBuOtoqjnZ3BcN9BmZ1qftP2L91cXt4ezJszCq7uVtENfytEN1ocZLZlRJ1iNQ2zvNHd6oyWfamLpd809wofWTBxllY6a+UJyFCzkPWsve9+35N9fG/k+nZySufjkveuTOvCuzZmp/WN+F1/859AjSuahLW0LD/2kmWdjBtiNunxr5kmOyhR/VfAk5H9dxDr3TX2kcw6psmHqI51zSJUNUx/pDAAAAAAAsKkofgB06RBbh+d86AAAAABJRU5ErkJggg==";
-	
 		// utils.ts
 		const {
 			Filters: { byProps: byProps$1, byStrings: byStrings$4 },
@@ -253,9 +256,11 @@ function buildPlugin([BasePlugin, Library]) {
 		const { Permissions, UserStore: UserStore$2 } = zlibrary.DiscordModules;
 		const DiscordPermissions = getModule$6(byProps$1("VIEW_CREATOR_MONETIZATION_ANALYTICS"), { searchExports: true });
 		const Settings = createSettings({
+			showProfileSection: true,
 			showMemberListIcons: true,
 			showDMListIcons: true,
 			showPeopleListIcons: true,
+			showGuildIcons: true,
 			currentChannelColor: true,
 			showStatusIcons: true,
 			ignoreEnabled: false,
@@ -275,31 +280,12 @@ function buildPlugin([BasePlugin, Library]) {
 			});
 		}
 		function forceUpdateAll(selector) {
-			document.querySelectorAll(selector).forEach((node) => {
-				zlibrary.ReactTools.getStateNodes(node).forEach((e) => e.forceUpdate());
-			});
-		}
-		function getIconFontSize(name) {
-			const words = name.split(" ");
-			if (words.length > 7)
-				return 10;
-			else if (words.length === 6)
-				return 12;
-			else if (words.length === 5)
-				return 14;
-			else
-				return 16;
-		}
-		function getImageLink(guild, channel) {
-			let image;
-			if (guild && guild.icon) {
-				image = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=96`;
-			} else if (channel.icon) {
-				image = `https://cdn.discordapp.com/channel-icons/${channel.id}/${channel.icon}.webp?size=32`;
-			} else if (channel.type === 3) {
-				image = img;
+			const elements = document.querySelectorAll(selector);
+			for (const element of elements) {
+				const stateNodes = zlibrary.ReactTools.getStateNodes(element);
+				for (const stateNode of stateNodes)
+					stateNode.forceUpdate();
 			}
-			return image;
 		}
 		function groupDMName(members) {
 			if (members.length === 1) {
@@ -315,6 +301,14 @@ function buildPlugin([BasePlugin, Library]) {
 				return name;
 			}
 			return "Unnamed";
+		}
+		function forceRerender(element) {
+			const ownerInstance = betterdiscord.ReactUtils.getOwnerInstance(element);
+			const cancel = betterdiscord.Patcher.instead(ownerInstance, "render", () => {
+				cancel();
+				return null;
+			});
+			ownerInstance.forceUpdate(() => ownerInstance.forceUpdate());
 		}
 	
 		// styles/voiceicon.module.scss
@@ -451,15 +445,18 @@ function buildPlugin([BasePlugin, Library]) {
 			}) : Strings.LIVE)));
 		}
 	
-		// styles/voicepopoutsection.module.scss
-		var css$1 = ".VoiceActivity-voicepopoutsection-header {\n  margin-bottom: 8px;\n  color: var(--header-primary);\n  font-size: 12px;\n  line-height: 16px;\n  font-family: var(--font-display);\n  font-weight: 700;\n  text-transform: uppercase;\n}\n\n.VoiceActivity-voicepopoutsection-body {\n  display: flex;\n  flex-direction: row;\n}\n\n.VoiceActivity-voicepopoutsection-text {\n  margin: auto 10px;\n  color: var(--text-normal);\n  font-size: 14px;\n  line-height: 18px;\n  overflow: hidden;\n}\n.VoiceActivity-voicepopoutsection-text > div, .VoiceActivity-voicepopoutsection-text > h3 {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voicepopoutsection-text > h3 {\n  font-family: var(--font-normal);\n  font-weight: 600;\n}\n\n.VoiceActivity-voicepopoutsection-buttonWrapper {\n  display: flex;\n  flex: 0 1 auto;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-items: stretch;\n  margin-top: 12px;\n}\n.VoiceActivity-voicepopoutsection-buttonWrapper > div[aria-label] {\n  width: 32px;\n  margin-left: 8px;\n}\n\n.VoiceActivity-voicepopoutsection-button {\n  height: 32px;\n  min-height: 32px;\n  width: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  padding: 2px 16px;\n  border-radius: 3px;\n  color: #fff;\n  font-size: 14px;\n  line-height: 16px;\n  font-weight: 500;\n  user-select: none;\n  background-color: var(--profile-gradient-button-color);\n  transition: opacity 0.2s ease-in-out;\n}\n.VoiceActivity-voicepopoutsection-button:hover {\n  opacity: 0.8;\n}\n.VoiceActivity-voicepopoutsection-button:active {\n  opacity: 0.9;\n}\n.VoiceActivity-voicepopoutsection-button:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n\n.VoiceActivity-voicepopoutsection-joinWrapper .VoiceActivity-voicepopoutsection-joinButton {\n  min-width: 32px;\n  max-width: 32px;\n  padding: 0;\n}\n.VoiceActivity-voicepopoutsection-joinWrapper .VoiceActivity-voicepopoutsection-joinButton:disabled {\n  pointer-events: none;\n}\n\n.VoiceActivity-voicepopoutsection-joinWrapperDisabled {\n  cursor: not-allowed;\n}";
-		_loadStyle("voicepopoutsection.module.scss", css$1);
-		var modules_2a1f8032 = {"header":"VoiceActivity-voicepopoutsection-header","body":"VoiceActivity-voicepopoutsection-body","text":"VoiceActivity-voicepopoutsection-text","buttonWrapper":"VoiceActivity-voicepopoutsection-buttonWrapper","button":"VoiceActivity-voicepopoutsection-button","joinWrapper":"VoiceActivity-voicepopoutsection-joinWrapper","joinButton":"VoiceActivity-voicepopoutsection-joinButton","joinWrapperDisabled":"VoiceActivity-voicepopoutsection-joinWrapperDisabled"};
+		// styles/voiceprofilesection.module.scss
+		var css$1 = ".VoiceActivity-voiceprofilesection-header {\n  margin-bottom: 8px;\n  color: var(--header-primary);\n  font-size: 12px;\n  line-height: 16px;\n  font-family: var(--font-display);\n  font-weight: 700;\n  text-transform: uppercase;\n}\n\n.VoiceActivity-voiceprofilesection-body {\n  display: flex;\n  flex-direction: row;\n}\n\n.VoiceActivity-voiceprofilesection-text {\n  margin: auto 10px;\n  color: var(--text-normal);\n  font-size: 14px;\n  line-height: 18px;\n  overflow: hidden;\n}\n.VoiceActivity-voiceprofilesection-text > div, .VoiceActivity-voiceprofilesection-text > h3 {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceprofilesection-text > h3 {\n  font-family: var(--font-normal);\n  font-weight: 600;\n}\n\n.VoiceActivity-voiceprofilesection-buttonWrapper {\n  display: flex;\n  flex: 0 1 auto;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-items: stretch;\n  margin-top: 12px;\n}\n.VoiceActivity-voiceprofilesection-buttonWrapper > div[aria-label] {\n  width: 32px;\n  margin-left: 8px;\n}\n\n.VoiceActivity-voiceprofilesection-button {\n  height: 32px;\n  min-height: 32px;\n  width: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  padding: 2px 16px;\n  border-radius: 3px;\n  color: #fff;\n  font-size: 14px;\n  line-height: 16px;\n  font-weight: 500;\n  user-select: none;\n  background-color: var(--profile-gradient-button-color);\n  transition: opacity 0.2s ease-in-out;\n}\n.VoiceActivity-voiceprofilesection-button:hover {\n  opacity: 0.8;\n}\n.VoiceActivity-voiceprofilesection-button:active {\n  opacity: 0.9;\n}\n.VoiceActivity-voiceprofilesection-button:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n\n.VoiceActivity-voiceprofilesection-joinWrapper .VoiceActivity-voiceprofilesection-joinButton {\n  min-width: 32px;\n  max-width: 32px;\n  padding: 0;\n}\n.VoiceActivity-voiceprofilesection-joinWrapper .VoiceActivity-voiceprofilesection-joinButton:disabled {\n  pointer-events: none;\n}\n\n.VoiceActivity-voiceprofilesection-joinWrapperDisabled {\n  cursor: not-allowed;\n}";
+		_loadStyle("voiceprofilesection.module.scss", css$1);
+		var modules_9dbd3268 = {"header":"VoiceActivity-voiceprofilesection-header","body":"VoiceActivity-voiceprofilesection-body","text":"VoiceActivity-voiceprofilesection-text","buttonWrapper":"VoiceActivity-voiceprofilesection-buttonWrapper","button":"VoiceActivity-voiceprofilesection-button","joinWrapper":"VoiceActivity-voiceprofilesection-joinWrapper","joinButton":"VoiceActivity-voiceprofilesection-joinButton","joinWrapperDisabled":"VoiceActivity-voiceprofilesection-joinWrapperDisabled"};
 	
 		// styles/guildimage.module.scss
 		var css = ".VoiceActivity-guildimage-defaultIcon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-weight: 500;\n  line-height: 1.2em;\n  white-space: nowrap;\n  background-color: var(--background-primary);\n  color: var(--text-normal);\n  min-width: 48px;\n  width: 48px;\n  height: 48px;\n  border-radius: 16px;\n  cursor: pointer;\n  white-space: nowrap;\n  overflow: hidden;\n}";
 		_loadStyle("guildimage.module.scss", css);
 		var modules_1a1e8d51 = {"defaultIcon":"VoiceActivity-guildimage-defaultIcon"};
+	
+		// assets/default_group_icon.png
+		var img = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAABgmlDQ1BJQ0MgUHJvZmlsZQAAKM+VkTtIw1AYhb9WxQcVBzuIOGSoThZERRyliiIolFrB12CS2io0sSQtLo6Cq+DgY7Hq4OKsq4OrIAg+QBydnBRdROJ/U6FFqOCFcD/OzTnce34IFrOm5db2gGXnncRYTJuZndPqn6mlBmikTzfd3OTUaJKq6+OWgNpvoiqL/63m1JJrQkATHjJzTl54UXhgLZ9TvCscNpf1lPCpcLcjFxS+V7pR4hfFGZ+DKjPsJBPDwmFhLVPBRgWby44l3C8cSVm25AdnSpxSvK7YyhbMn3uqF4aW7OkppcvXwRjjTBJHw6DAClnyRGW3RXFJyHmsir/d98fFZYhrBVMcI6xioft+1Ax+d+um+3pLSaEY1D153lsn1G/D15bnfR563tcR1DzChV32rxZh8F30rbIWOYCWDTi7LGvGDpxvQttDTnd0X1LzD6bT8HoiY5qF1mtomi/19nPO8R0kpauJK9jbh66MZC9UeXdDZW9//uP3R+wbNjlyjzeozyoAAABgUExURVhl8oGK9LW7+erq/f///97i+7/F+mx38qGo92Ft8mFv8ujs/IuW9PP2/Wx384GM9Kux+MDF+urs/d/i+7S9+Jae9uDj/Jad9srO+tXY+4yU9aqy+MDE+qGn9/T1/neC9Liz/RcAAAAJcEhZcwAACxMAAAsTAQCanBgAAATqaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNC40LjAtRXhpdjIiPg0KICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPg0KICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOkdJTVA9Imh0dHA6Ly93d3cuZ2ltcC5vcmcveG1wLyIgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1wTU06RG9jdW1lbnRJRD0iZ2ltcDpkb2NpZDpnaW1wOmIzMjk5M2JmLTliZTUtNGJmMy04ZWEwLWY3ZDkzNTMyMTY2YiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowNjhkOWE3MS1lYWU3LTRmZjAtYmMxZS04MGUwYmMxMTFkZDUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDplZjU1ZGE0YS0wZTBhLTRjNTctODdmOC1lMmFmMGUyZGEzOGUiIGRjOkZvcm1hdD0iaW1hZ2UvcG5nIiBHSU1QOkFQST0iMi4wIiBHSU1QOlBsYXRmb3JtPSJXaW5kb3dzIiBHSU1QOlRpbWVTdGFtcD0iMTY0ODk0NDg1NjM4ODc5MSIgR0lNUDpWZXJzaW9uPSIyLjEwLjI0IiB0aWZmOk9yaWVudGF0aW9uPSIxIiB4bXA6Q3JlYXRvclRvb2w9IkdJTVAgMi4xMCI+DQogICAgICA8eG1wTU06SGlzdG9yeT4NCiAgICAgICAgPHJkZjpTZXE+DQogICAgICAgICAgPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDpjaGFuZ2VkPSIvIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ3NmFhOGE3LTVhNGEtNDcyNS05YTBjLWU1NzVmMzE1MzFmOCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iR2ltcCAyLjEwIChXaW5kb3dzKSIgc3RFdnQ6d2hlbj0iMjAyMi0wNC0wMlQxNzoxNDoxNiIgLz4NCiAgICAgICAgPC9yZGY6U2VxPg0KICAgICAgPC94bXBNTTpIaXN0b3J5Pg0KICAgIDwvcmRmOkRlc2NyaXB0aW9uPg0KICA8L3JkZjpSREY+DQo8L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9InIiPz6JoorbAAABV0lEQVRoQ+3W23KDIBAGYIOYBk20prWNPb7/W3Z3WQ9lGmeKe/l/N/+IzAYDggUAAAAAAMB/HVzpfXV8kIuTpp3gvHJ8WTcx7VRanlSBrs+aVubxMxn7RdNGq6VVR02Pmjb6WHjCQ+80baxmgDXUxA/FaSPWXUxtctOCVF2Z2uSmhauUnT1RU61p49cq9b6npoOmDV4yK7xN8G8abhfPsXIkq7MxfdGKOt0qBuOtoqjnZ3BcN9BmZ1qftP2L91cXt4ezJszCq7uVtENfytEN1ocZLZlRJ1iNQ2zvNHd6oyWfamLpd809wofWTBxllY6a+UJyFCzkPWsve9+35N9fG/k+nZySufjkveuTOvCuzZmp/WN+F1/859AjSuahLW0LD/2kmWdjBtiNunxr5kmOyhR/VfAk5H9dxDr3TX2kcw6psmHqI51zSJUNUx/pDAAAAAAAsKkofgB06RBbh+d86AAAAABJRU5ErkJggg==";
 	
 		// components/GuildImage.tsx
 		const {
@@ -468,6 +465,28 @@ function buildPlugin([BasePlugin, Library]) {
 		} = betterdiscord.Webpack;
 		const { GuildActions } = zlibrary.DiscordModules;
 		const getAcronym = getModule$3(byStrings$2(`.replace(/'s /g," ").replace(/\\w+/g,`), { searchExports: true });
+		const getIconFontSize = (name) => {
+			const words = name.split(" ");
+			if (words.length > 7)
+				return 10;
+			else if (words.length === 6)
+				return 12;
+			else if (words.length === 5)
+				return 14;
+			else
+				return 16;
+		};
+		const getImageLink = (guild, channel) => {
+			let image;
+			if (guild && guild.icon) {
+				image = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=96`;
+			} else if (channel.icon) {
+				image = `https://cdn.discordapp.com/channel-icons/${channel.id}/${channel.icon}.webp?size=32`;
+			} else if (channel.type === 3) {
+				image = img;
+			}
+			return image;
+		};
 		function GuildImage(props) {
 			const image = getImageLink(props.guild, props.channel);
 			if (image) {
@@ -498,20 +517,22 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 		}
 	
-		// components/VoicePopoutSection.tsx
+		// components/VoiceProfileSection.tsx
 		const {
 			getModule: getModule$2,
 			Filters: { byStrings: byStrings$1 }
 		} = betterdiscord.Webpack;
 		const { ChannelActions, ChannelStore, SelectedChannelStore, UserStore } = zlibrary.DiscordModules;
 		const UserPopoutSection = getModule$2(byStrings$1(".lastSection", ".children"));
-		function VoicePopoutSection(props) {
-			const { ignoreEnabled, ignoredChannels, ignoredGuilds } = Settings.useSettingsState();
+		function VoiceProfileSection(props) {
+			const { showProfileSection, ignoreEnabled, ignoredChannels, ignoredGuilds } = Settings.useSettingsState();
 			const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
 			const currentUserVoiceState = useStateFromStores(
 				[VoiceStateStore],
 				() => VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
 			);
+			if (!showProfileSection)
+				return null;
 			if (!voiceState)
 				return null;
 			const channel = ChannelStore.getChannel(voiceState.channelId);
@@ -558,20 +579,20 @@ function buildPlugin([BasePlugin, Library]) {
 					headerText = Strings.HEADER_STAGE;
 					Icon = Stage;
 			}
-			return BdApi.React.createElement(UserPopoutSection, null, BdApi.React.createElement("h3", {
-				className: modules_2a1f8032.header
+			const section = BdApi.React.createElement(UserPopoutSection, null, BdApi.React.createElement("h3", {
+				className: modules_9dbd3268.header
 			}, headerText), !(channel.type === 1) && BdApi.React.createElement("div", {
-				className: modules_2a1f8032.body
+				className: modules_9dbd3268.body
 			}, BdApi.React.createElement(GuildImage, {
 				guild,
 				channel,
 				channelPath
 			}), BdApi.React.createElement("div", {
-				className: modules_2a1f8032.text
+				className: modules_9dbd3268.text
 			}, text)), BdApi.React.createElement("div", {
-				className: modules_2a1f8032.buttonWrapper
+				className: modules_9dbd3268.buttonWrapper
 			}, BdApi.React.createElement("button", {
-				className: modules_2a1f8032.button,
+				className: modules_9dbd3268.button,
 				disabled: channelSelected,
 				onClick: () => {
 					if (channelPath)
@@ -582,9 +603,9 @@ function buildPlugin([BasePlugin, Library]) {
 				position: "top"
 			}, (props2) => BdApi.React.createElement("div", {
 				...props2,
-				className: inCurrentChannel ? `${modules_2a1f8032.joinWrapper} ${modules_2a1f8032.joinWrapperDisabled}` : modules_2a1f8032.joinWrapper
+				className: inCurrentChannel ? `${modules_9dbd3268.joinWrapper} ${modules_9dbd3268.joinWrapperDisabled}` : modules_9dbd3268.joinWrapper
 			}, BdApi.React.createElement("button", {
-				className: `${modules_2a1f8032.button} ${modules_2a1f8032.joinButton}`,
+				className: `${modules_9dbd3268.button} ${modules_9dbd3268.joinButton}`,
 				disabled: inCurrentChannel,
 				onClick: () => {
 					if (channel.id)
@@ -611,6 +632,7 @@ function buildPlugin([BasePlugin, Library]) {
 				width: "18",
 				height: "18"
 			}))))));
+			return props.wrapper ? BdApi.React.createElement(props.wrapper, null, section) : section;
 		}
 	
 		// components/SettingsPanel.tsx
@@ -629,6 +651,10 @@ function buildPlugin([BasePlugin, Library]) {
 		};
 		function SettingsPanel() {
 			const settings = {
+				showProfileSection: {
+					name: Strings.SETTINGS_PROFILE,
+					note: Strings.SETTINGS_PROFILE_NOTE
+				},
 				showMemberListIcons: {
 					name: Strings.SETTINGS_ICONS,
 					note: Strings.SETTINGS_ICONS_NOTE
@@ -640,6 +666,10 @@ function buildPlugin([BasePlugin, Library]) {
 				showPeopleListIcons: {
 					name: Strings.SETTINGS_PEOPLE_ICONS,
 					note: Strings.SETTINGS_PEOPLE_ICONS_NOTE
+				},
+				showGuildIcons: {
+					name: Strings.SETTINGS_GUILD_ICONS,
+					note: Strings.SETTINGS_GUILD_ICONS_NOTE
 				},
 				currentChannelColor: {
 					name: Strings.SETTINGS_COLOR,
@@ -669,7 +699,7 @@ function buildPlugin([BasePlugin, Library]) {
 			Filters: { byProps, byStrings },
 			getModule
 		} = betterdiscord.Webpack;
-		const { byValues } = WebpackUtils;
+		const { getModuleWithKey, store } = WebpackUtils;
 		const memberItemSelector = `.${getModule(byProps("member", "activity")).member}`;
 		const privateChannelSelector = `.${getModule(byProps("channel", "activity")).channel}`;
 		const peopleItemSelector = `.${getModule(byProps("peopleListItem")).peopleListItem}`;
@@ -681,6 +711,8 @@ function buildPlugin([BasePlugin, Library]) {
 				betterdiscord.DOM.addStyle(styles() + `.${children}:empty { margin-left: 0; } .${children} { display: flex; gap: 8px; }`);
 				Strings.subscribe();
 				this.patchUserPopout();
+				this.patchPrivateChannelProfile();
+				this.patchGuildIcon();
 				this.patchMemberListItem();
 				this.patchPrivateChannel();
 				this.patchPeopleListItem();
@@ -688,16 +720,75 @@ function buildPlugin([BasePlugin, Library]) {
 				this.patchGuildContextMenu();
 			}
 			patchUserPopout() {
-				const UserPopoutBody = getModule(byValues(byStrings(".showCopiableUsername")));
-				betterdiscord.Patcher.after(UserPopoutBody, "Z", (_, [props], ret) => {
-					const popoutSections = ret.props.children[1].props.children[2].props.children;
+				const [UserPopoutBody, key] = getModuleWithKey(byStrings(".showCopiableUsername"));
+				betterdiscord.Patcher.after(UserPopoutBody, key, (_, [props], ret) => {
+					const popoutSections = betterdiscord.Utils.findInTree(ret, (i) => i.onScroll, {
+						walkable: ["props", "children"]
+					})?.children;
 					const activitySectionIndex = popoutSections.findIndex(
 						(section) => section.props.hasOwnProperty("activity")
 					);
-					popoutSections.splice(activitySectionIndex, 0, BdApi.React.createElement(VoicePopoutSection, {
+					popoutSections.splice(activitySectionIndex, 0, BdApi.React.createElement(VoiceProfileSection, {
 						userId: props.user.id
 					}));
 				});
+			}
+			patchPrivateChannelProfile() {
+				const [PrivateChannelProfile, key] = getModuleWithKey((m) => m.Inner);
+				const { Inner } = PrivateChannelProfile[key];
+				betterdiscord.Patcher.after(PrivateChannelProfile, key, (_, [props], ret) => {
+					if (props.profileType !== 3)
+						return ret;
+					const children2 = betterdiscord.Utils.findInTree(ret, (i) => Array.isArray(i), { walkable: ["props", "children"] });
+					children2.splice(2, 0, BdApi.React.createElement(VoiceProfileSection, {
+						userId: props.user.id,
+						wrapper: Inner
+					}));
+				});
+			}
+			async patchGuildIcon() {
+				const getGuildMediaState = (guildId, ignoredChannels) => {
+					const vocalChannelIds = GuildChannelStore.getVocalChannelIds(guildId);
+					let audio = false;
+					let video = false;
+					let screenshare = false;
+					for (const id of vocalChannelIds) {
+						if (ignoredChannels.includes(id))
+							continue;
+						const voiceStates = Object.values(VoiceStateStore.getVoiceStatesForChannel(id));
+						if (!voiceStates.length)
+							continue;
+						else
+							audio = true;
+						if (!video && VoiceStateStore.hasVideo(id))
+							video = true;
+						if (!screenshare && voiceStates.some((voiceState) => voiceState.selfStream))
+							screenshare = true;
+						if (audio && video && screenshare)
+							break;
+					}
+					return { audio, video, screenshare };
+				};
+				const GuildChannelStore = getModule(store("GuildChannelStore"));
+				const element = document.querySelector(".wrapper-3XVBev");
+				const targetInstance = betterdiscord.Utils.findInTree(
+					betterdiscord.ReactUtils.getInternalInstance(element),
+					(n) => n?.elementType?.type && n.pendingProps?.mediaState,
+					{ walkable: ["return"] }
+				);
+				betterdiscord.Patcher.before(targetInstance.elementType, "type", (_, [props]) => {
+					const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState();
+					const mediaState = useStateFromStores(
+						[VoiceStateStore],
+						() => getGuildMediaState(props.guild.id, ignoredChannels)
+					);
+					if (showGuildIcons && !ignoredGuilds.includes(props.guild.id)) {
+						props.mediaState = { ...props.mediaState, ...mediaState };
+					} else if (!props.mediaState.participating) {
+						props.mediaState = { ...props.mediaState, ...{ audio: false, video: false, screenshare: false } };
+					}
+				});
+				forceRerender(element);
 			}
 			async patchMemberListItem() {
 				const MemberListItem = await zlibrary.ReactComponents.getComponent(
@@ -727,11 +818,11 @@ function buildPlugin([BasePlugin, Library]) {
 				betterdiscord.Patcher.after(PrivateChannel.component.prototype, "render", (thisObject, _, ret) => {
 					if (!thisObject.props.user)
 						return;
-					const props = zlibrary.Utilities.findInTree(ret, (e) => e?.children && e?.id, { walkable: ["children", "props"] });
+					const props = betterdiscord.Utils.findInTree(ret, (e) => e?.children && e?.id, { walkable: ["children", "props"] });
 					const children2 = props.children;
 					props.children = (childrenProps) => {
 						const childrenRet = children2(childrenProps);
-						const privateChannel = zlibrary.Utilities.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
+						const privateChannel = betterdiscord.Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
 							walkable: ["children", "props"]
 						});
 						privateChannel.children = [
@@ -760,7 +851,7 @@ function buildPlugin([BasePlugin, Library]) {
 					const children2 = ret.props.children;
 					ret.props.children = (childrenProps) => {
 						const childrenRet = children2(childrenProps);
-						childrenRet.props.children.props.children.props.children.splice(
+						betterdiscord.Utils.findInTree(childrenRet, (i) => Array.isArray(i), { walkable: ["props", "children"] }).splice(
 							1,
 							0,
 							BdApi.React.createElement("div", {
