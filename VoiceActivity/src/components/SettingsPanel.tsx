@@ -12,6 +12,13 @@ interface SwitchItemProps {
 	note: string;
 }
 
+type SettingsInfo = {
+	[K in SwitchSetting]: {
+		name: string;
+		note: string;
+	};
+};
+
 const SwitchItem = getModule((m) => m.toString().includes("helpdeskArticleId"));
 
 const SettingsSwitchItem = (props: SwitchItemProps) => {
@@ -30,7 +37,11 @@ const SettingsSwitchItem = (props: SwitchItemProps) => {
 };
 
 export default function SettingsPanel() {
-	const settings = {
+	const settings: SettingsInfo = {
+		showProfileSection: {
+			name: Strings.SETTINGS_PROFILE,
+			note: Strings.SETTINGS_PROFILE_NOTE,
+		},
 		showMemberListIcons: {
 			name: Strings.SETTINGS_ICONS,
 			note: Strings.SETTINGS_ICONS_NOTE,
@@ -42,6 +53,10 @@ export default function SettingsPanel() {
 		showPeopleListIcons: {
 			name: Strings.SETTINGS_PEOPLE_ICONS,
 			note: Strings.SETTINGS_PEOPLE_ICONS_NOTE,
+		},
+		showGuildIcons: {
+			name: Strings.SETTINGS_GUILD_ICONS,
+			note: Strings.SETTINGS_GUILD_ICONS_NOTE,
 		},
 		currentChannelColor: {
 			name: Strings.SETTINGS_COLOR,

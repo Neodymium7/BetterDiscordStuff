@@ -1,12 +1,12 @@
-import { Patcher, DOM, Webpack, ContextMenu } from "betterdiscord";
+import { Patcher, DOM, Webpack, ContextMenu, ReactUtils, Utils } from "betterdiscord";
 import { WebpackUtils } from "bundlebd";
-import { ReactComponents, Utilities } from "zlibrary";
+import { ReactComponents } from "zlibrary";
 import BasePlugin from "zlibrary/plugin";
 import styles from "styles";
-import { Settings, Strings, forceUpdateAll } from "./utils";
+import { Settings, Strings, forceUpdateAll, useStateFromStores, forceRerender, VoiceStateStore } from "./utils";
 import iconStyles from "./styles/voiceicon.module.scss";
 import VoiceIcon from "./components/VoiceIcon";
-import VoicePopoutSection from "./components/VoicePopoutSection";
+import VoiceProfileSection from "./components/VoiceProfileSection";
 import SettingsPanel from "./components/SettingsPanel";
 
 const {
@@ -14,7 +14,7 @@ const {
 	getModule,
 } = Webpack;
 
-const { byValues } = WebpackUtils;
+const { getModuleWithKey, store } = WebpackUtils;
 
 const memberItemSelector = `.${getModule(byProps("member", "activity")).member}`;
 const privateChannelSelector = `.${getModule(byProps("channel", "activity")).channel}`;
@@ -30,6 +30,8 @@ export default class VoiceActivity extends BasePlugin {
 		DOM.addStyle(styles() + `.${children}:empty { margin-left: 0; } .${children} { display: flex; gap: 8px; }`);
 		Strings.subscribe();
 		this.patchUserPopout();
+		this.patchPrivateChannelProfile();
+		this.patchGuildIcon();
 		this.patchMemberListItem();
 		this.patchPrivateChannel();
 		this.patchPeopleListItem();
@@ -38,14 +40,69 @@ export default class VoiceActivity extends BasePlugin {
 	}
 
 	patchUserPopout() {
-		const UserPopoutBody = getModule(byValues(byStrings(".showCopiableUsername")));
-		Patcher.after(UserPopoutBody, "Z", (_, [props]: [any], ret) => {
-			const popoutSections = ret.props.children[1].props.children[2].props.children;
+		const [UserPopoutBody, key] = getModuleWithKey(byStrings(".showCopiableUsername"));
+		Patcher.after(UserPopoutBody, key, (_, [props]: [any], ret) => {
+			const popoutSections = Utils.findInTree(ret, (i) => i.onScroll, {
+				walkable: ["props", "children"],
+			})?.children;
 			const activitySectionIndex = popoutSections.findIndex((section: any) =>
 				section.props.hasOwnProperty("activity")
 			);
-			popoutSections.splice(activitySectionIndex, 0, <VoicePopoutSection userId={props.user.id} />);
+			popoutSections.splice(activitySectionIndex, 0, <VoiceProfileSection userId={props.user.id} />);
 		});
+	}
+
+	patchPrivateChannelProfile() {
+		const [PrivateChannelProfile, key] = getModuleWithKey((m) => m.Inner);
+		const { Inner } = PrivateChannelProfile[key];
+		Patcher.after(PrivateChannelProfile, key, (_, [props]: [any], ret) => {
+			if (props.profileType !== 3) return ret;
+			const children = Utils.findInTree(ret, (i) => Array.isArray(i), { walkable: ["props", "children"] });
+			children.splice(2, 0, <VoiceProfileSection userId={props.user.id} wrapper={Inner} />);
+		});
+	}
+
+	async patchGuildIcon() {
+		const getGuildMediaState = (guildId: string, ignoredChannels: string[]) => {
+			const vocalChannelIds = GuildChannelStore.getVocalChannelIds(guildId);
+			let audio = false;
+			let video = false;
+			let screenshare = false;
+
+			for (const id of vocalChannelIds) {
+				if (ignoredChannels.includes(id)) continue;
+
+				const voiceStates: any[] = Object.values(VoiceStateStore.getVoiceStatesForChannel(id));
+				if (!voiceStates.length) continue;
+				else audio = true;
+
+				if (!video && VoiceStateStore.hasVideo(id)) video = true;
+				if (!screenshare && voiceStates.some((voiceState) => voiceState.selfStream)) screenshare = true;
+				if (audio && video && screenshare) break;
+			}
+			return { audio, video, screenshare };
+		};
+
+		const GuildChannelStore = getModule(store("GuildChannelStore"));
+		const element: HTMLElement = document.querySelector(".wrapper-3XVBev");
+		const targetInstance = Utils.findInTree(
+			ReactUtils.getInternalInstance(element),
+			(n) => n?.elementType?.type && n.pendingProps?.mediaState,
+			{ walkable: ["return"] }
+		);
+		Patcher.before(targetInstance.elementType, "type", (_, [props]: [any]) => {
+			const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState();
+			const mediaState = useStateFromStores([VoiceStateStore], () =>
+				getGuildMediaState(props.guild.id, ignoredChannels)
+			);
+
+			if (showGuildIcons && !ignoredGuilds.includes(props.guild.id)) {
+				props.mediaState = { ...props.mediaState, ...mediaState };
+			} else if (!props.mediaState.participating) {
+				props.mediaState = { ...props.mediaState, ...{ audio: false, video: false, screenshare: false } };
+			}
+		});
+		forceRerender(element);
 	}
 
 	async patchMemberListItem() {
@@ -72,11 +129,11 @@ export default class VoiceActivity extends BasePlugin {
 		);
 		Patcher.after(PrivateChannel.component.prototype, "render", (thisObject: any, _, ret) => {
 			if (!thisObject.props.user) return;
-			const props = Utilities.findInTree(ret, (e) => e?.children && e?.id, { walkable: ["children", "props"] });
+			const props = Utils.findInTree(ret, (e) => e?.children && e?.id, { walkable: ["children", "props"] });
 			const children = props.children;
 			props.children = (childrenProps: any) => {
 				const childrenRet = children(childrenProps);
-				const privateChannel = Utilities.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
+				const privateChannel = Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
 					walkable: ["children", "props"],
 				});
 				privateChannel.children = [
@@ -102,7 +159,7 @@ export default class VoiceActivity extends BasePlugin {
 			const children = ret.props.children;
 			ret.props.children = (childrenProps: any) => {
 				const childrenRet = children(childrenProps);
-				childrenRet.props.children.props.children.props.children.splice(
+				Utils.findInTree(childrenRet, (i) => Array.isArray(i), { walkable: ["props", "children"] }).splice(
 					1,
 					0,
 					<div className={iconStyles.iconContainer}>

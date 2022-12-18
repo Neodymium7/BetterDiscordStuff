@@ -10,7 +10,7 @@ import {
 	transitionTo,
 	GuildStore,
 } from "../utils";
-import styles from "../styles/voicepopoutsection.module.scss";
+import styles from "../styles/voiceprofilesection.module.scss";
 import Tooltip from "./Tooltip";
 import { CallJoin, Speaker, Stage } from "./icons";
 import GuildImage from "./GuildImage";
@@ -24,17 +24,20 @@ const { ChannelActions, ChannelStore, SelectedChannelStore, UserStore } = Discor
 
 const UserPopoutSection = getModule(byStrings(".lastSection", ".children"));
 
-interface VoicePopoutSectionProps {
+interface VoiceProfileSectionProps {
 	userId: string;
+	wrapper?: React.FunctionComponent;
 }
 
-export default function VoicePopoutSection(props: VoicePopoutSectionProps) {
-	const { ignoreEnabled, ignoredChannels, ignoredGuilds } = Settings.useSettingsState();
+export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
+	const { showProfileSection, ignoreEnabled, ignoredChannels, ignoredGuilds } = Settings.useSettingsState();
 
 	const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
 	const currentUserVoiceState = useStateFromStores([VoiceStateStore], () =>
 		VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
 	);
+
+	if (!showProfileSection) return null;
 
 	if (!voiceState) return null;
 	const channel = ChannelStore.getChannel(voiceState.channelId);
@@ -83,7 +86,7 @@ export default function VoicePopoutSection(props: VoicePopoutSectionProps) {
 			Icon = Stage;
 	}
 
-	return (
+	const section = (
 		<UserPopoutSection>
 			<h3 className={styles.header}>{headerText}</h3>
 			{!(channel.type === 1) && (
@@ -145,4 +148,6 @@ export default function VoicePopoutSection(props: VoicePopoutSectionProps) {
 			</div>
 		</UserPopoutSection>
 	);
+
+	return props.wrapper ? <props.wrapper>{section}</props.wrapper> : section;
 }

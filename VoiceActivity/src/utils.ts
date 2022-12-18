@@ -1,8 +1,7 @@
-import { Webpack } from "betterdiscord";
+import { Patcher, ReactUtils, Webpack } from "betterdiscord";
 import { DiscordModules, ReactTools } from "zlibrary";
 import { createSettings, createStrings } from "bundlebd";
 import locales from "./locales.json";
-import defaultGroupIcon from "./assets/default_group_icon.png";
 
 const {
 	Filters: { byProps, byStrings },
@@ -13,9 +12,11 @@ const { Permissions, UserStore } = DiscordModules;
 const DiscordPermissions = getModule(byProps("VIEW_CREATOR_MONETIZATION_ANALYTICS"), { searchExports: true });
 
 export const Settings = createSettings({
+	showProfileSection: true as boolean,
 	showMemberListIcons: true as boolean,
 	showDMListIcons: true as boolean,
 	showPeopleListIcons: true as boolean,
+	showGuildIcons: true as boolean,
 	currentChannelColor: true as boolean,
 	showStatusIcons: true as boolean,
 	ignoreEnabled: false as boolean,
@@ -39,29 +40,11 @@ export function checkPermissions(channel: any): boolean {
 }
 
 export function forceUpdateAll(selector: string) {
-	document.querySelectorAll(selector).forEach((node) => {
-		ReactTools.getStateNodes(node as HTMLElement).forEach((e) => e.forceUpdate());
-	});
-}
-
-export function getIconFontSize(name: string) {
-	const words = name.split(" ");
-	if (words.length > 7) return 10;
-	else if (words.length === 6) return 12;
-	else if (words.length === 5) return 14;
-	else return 16;
-}
-
-export function getImageLink(guild: any, channel: any) {
-	let image: string;
-	if (guild && guild.icon) {
-		image = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=96`;
-	} else if (channel.icon) {
-		image = `https://cdn.discordapp.com/channel-icons/${channel.id}/${channel.icon}.webp?size=32`;
-	} else if (channel.type === 3) {
-		image = defaultGroupIcon;
+	const elements: NodeListOf<HTMLElement> = document.querySelectorAll(selector);
+	for (const element of elements) {
+		const stateNodes = ReactTools.getStateNodes(element);
+		for (const stateNode of stateNodes) stateNode.forceUpdate();
 	}
-	return image;
 }
 
 export function groupDMName(members: any[]): string {
@@ -76,4 +59,13 @@ export function groupDMName(members: any[]): string {
 		return name;
 	}
 	return "Unnamed";
+}
+
+export function forceRerender(element: HTMLElement) {
+	const ownerInstance = ReactUtils.getOwnerInstance(element);
+	const cancel = Patcher.instead(ownerInstance, "render", () => {
+		cancel();
+		return null;
+	});
+	ownerInstance.forceUpdate(() => ownerInstance.forceUpdate());
 }
