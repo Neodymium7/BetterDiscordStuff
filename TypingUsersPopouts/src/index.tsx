@@ -4,10 +4,10 @@ import Plugin from "zlibrary/plugin";
 
 const {
 	Filters: { byStrings },
-	getModule
+	getModule,
 } = Webpack;
 
-const UserPopout = getModule((e) => e.type?.toString().includes('["userId"]'));
+const UserPopout = getModule((e) => e.type?.toString().includes('"userId"'));
 const Popout = getModule(byStrings(".animationPosition"));
 const loadProfile = getModule(byStrings("T.apply(this,arguments)"));
 
