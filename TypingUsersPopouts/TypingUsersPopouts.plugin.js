@@ -2,7 +2,7 @@
  * @name TypingUsersPopouts
  * @author Neodymium
  * @description Opens the user's popout when clicking on a name in the typing area.
- * @version 1.2.2
+ * @version 1.2.3
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @invite fRbsqH87Av
  */
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.2.2",
+		version: "1.2.3",
 		description: "Opens the user's popout when clicking on a name in the typing area.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed profiles not being fetched."
+				"Fixed crashing."
 			]
 		}
 	]
@@ -77,7 +77,7 @@ function buildPlugin([BasePlugin, Library]) {
 			Filters: { byStrings },
 			getModule
 		} = betterdiscord.Webpack;
-		const UserPopout = getModule((e) => e.type?.toString().includes('["userId"]'));
+		const UserPopout = getModule((e) => e.type?.toString().includes('"userId"'));
 		const Popout = getModule(byStrings(".animationPosition"));
 		const loadProfile = getModule(byStrings("T.apply(this,arguments)"));
 		const nameSelector = `${zlibrary.DiscordSelectors.Typing.typing} strong`;
