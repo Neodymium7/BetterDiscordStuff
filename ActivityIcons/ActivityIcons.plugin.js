@@ -294,7 +294,14 @@ function buildPlugin([BasePlugin, Library]) {
 			}, BdApi.React.createElement(Headset, {
 				className: "activity-icon-small",
 				width: "14",
-				height: "14"
+				height: "14",
+				onClick: (e) => {
+					e.stopPropagation();
+					const song = activity.details;
+					const artist = activity.state.replace(/;/g, " ");
+					const url = `https://www.youtube.com/results?search_query=${artist}+-+${song}`;
+					window.open(url, "_blank", "noopener,noreferrer");
+				}
 			})));
 		}
 	
