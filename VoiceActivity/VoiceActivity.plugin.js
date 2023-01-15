@@ -2,7 +2,7 @@
  * @name VoiceActivity
  * @author Neodymium
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
- * @version 1.6.1
+ * @version 1.6.2
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
  */
@@ -39,24 +39,17 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.6.1",
+		version: "1.6.2",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
 	},
 	changelog: [
 		{
-			title: "Fixed",
-			type: "fixed",
-			items: [
-				"Fixed DM Profile section not displaying."
-			]
-		},
-		{
 			title: "Added",
 			type: "improved",
 			items: [
-				"Added Russian translations."
+				"Added German translations."
 			]
 		}
 	]
