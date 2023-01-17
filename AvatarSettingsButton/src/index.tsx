@@ -5,7 +5,7 @@ import SettingsPanel from "./components/SettingsPanel";
 
 const {
 	Filters: { byProps },
-	getModule
+	getModule,
 } = Webpack;
 
 const UserSettingsWindow = getModule(byProps("saveAccountChanges"));
@@ -93,9 +93,7 @@ export default class AvatarSettingsButton extends BasePlugin {
 	clearListeners: () => void;
 
 	onStart() {
-		DOM.addStyle(
-			`${settingsSelector} { display: none; } .${accountClasses.container} > :first-child { width: 100%; }`
-		);
+		DOM.addStyle(`${settingsSelector} { display: none; } .${accountClasses.withTagAsButton} { width: 100%; }`);
 		Settings.addListener(() => {
 			this.addListeners();
 			this.addTooltip();
@@ -122,7 +120,7 @@ export default class AvatarSettingsButton extends BasePlugin {
 	openPopout() {
 		this.target.dispatchEvent(
 			new MouseEvent("click", {
-				bubbles: true
+				bubbles: true,
 			})
 		);
 	}
@@ -138,7 +136,7 @@ export default class AvatarSettingsButton extends BasePlugin {
 			new MouseEvent("contextmenu", {
 				bubbles: true,
 				clientX: e.clientX,
-				clientY: screen.height - 12
+				clientY: screen.height - 12,
 			})
 		);
 		if (document.querySelector("#status-picker") || document.querySelector("#account")) this.openPopout();
@@ -152,7 +150,7 @@ export default class AvatarSettingsButton extends BasePlugin {
 			null,
 			this.openSettings.bind(this),
 			this.openContextMenu.bind(this),
-			this.openPopout.bind(this)
+			this.openPopout.bind(this),
 		];
 
 		const clickAction = actions[Settings.click];
