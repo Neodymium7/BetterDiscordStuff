@@ -2,7 +2,7 @@
  * @name AvatarSettingsButton
  * @author Neodymium
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
- * @version 2.0.3
+ * @version 2.0.4
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
  */
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "2.0.3",
+		version: "2.0.4",
 		description: "Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed settings panel not opening."
+				"Fixed extra gap with old user panel style."
 			]
 		}
 	]
@@ -281,9 +281,7 @@ function buildPlugin([BasePlugin, Library]) {
 			tooltip = null;
 			clearListeners;
 			onStart() {
-				betterdiscord.DOM.addStyle(
-					`${settingsSelector} { display: none; } .${accountClasses.container} > :first-child { width: 100%; }`
-				);
+				betterdiscord.DOM.addStyle(`${settingsSelector} { display: none; } .${accountClasses.withTagAsButton} { width: 100%; }`);
 				Settings.addListener(() => {
 					this.addListeners();
 					this.addTooltip();
