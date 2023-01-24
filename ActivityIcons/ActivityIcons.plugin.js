@@ -2,7 +2,7 @@
  * @name ActivityIcons
  * @author Neodymium
  * @description Improves the default icons next to statuses
- * @version 1.2.9
+ * @version 1.2.10
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @invite fRbsqH87Av
  */
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.2.9",
+		version: "1.2.10",
 		description: "Improves the default icons next to statuses",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed settings panel not opening."
+				"Fixed settings on latest Discord update."
 			]
 		}
 	]
@@ -304,9 +304,9 @@ function buildPlugin([BasePlugin, Library]) {
 			Filters: { byProps: byProps$1 }
 		} = betterdiscord.Webpack;
 		const Margins = getModule$1(byProps$1("marginXSmall"));
-		const RadioGroup = getModule$1((m) => m.Sizes && m.toString().includes("radioItemClassName"));
-		const SettingsItem = getModule$1((m) => m.render?.toString().includes("required"));
-		const SettingsNote = getModule$1((m) => m.Types && m.toString().includes("selectable"));
+		const RadioGroup = getModule$1((m) => m.Sizes && m.toString().includes("radioItemClassName"), { searchExports: true });
+		const SettingsItem = getModule$1((m) => m.render?.toString().includes("required"), { searchExports: true });
+		const SettingsNote = getModule$1((m) => m.Types && m.toString().includes("selectable"), { searchExports: true });
 		function SettingsPanel() {
 			const settings = Settings.useSettingsState();
 			return BdApi.React.createElement(SettingsItem, {

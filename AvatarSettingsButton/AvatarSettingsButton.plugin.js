@@ -2,7 +2,7 @@
  * @name AvatarSettingsButton
  * @author Neodymium
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
- * @version 2.0.4
+ * @version 2.0.5
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
  */
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "2.0.4",
+		version: "2.0.5",
 		description: "Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed extra gap with old user panel style."
+				"Fixed settings on latest Discord update."
 			]
 		}
 	]
@@ -142,11 +142,13 @@ function buildPlugin([BasePlugin, Library]) {
 			Filters: { byProps: byProps$1 }
 		} = betterdiscord.Webpack;
 		const Margins = getModule$1(byProps$1("marginXSmall"));
-		const RadioGroup = getModule$1((m) => m.Sizes && m.toString().includes("radioItemClassName"));
-		const SwitchItem = getModule$1((m) => m.toString().includes("helpdeskArticleId"));
-		const SettingsItem = getModule$1((m) => m.render?.toString().includes("required"));
-		const SettingsNote = getModule$1((m) => m.Types && m.toString().includes("selectable"));
-		const SettingsDivider = getModule$1((m) => m.toString().includes("().divider"));
+		const RadioGroup = getModule$1((m) => m.Sizes && m.toString().includes("radioItemClassName"), { searchExports: true });
+		const SwitchItem = getModule$1((m) => m.toString?.().includes("().dividerDefault"), { searchExports: true });
+		const SettingsItem = getModule$1((m) => m.render?.toString().includes("required"), { searchExports: true });
+		const SettingsNote = getModule$1((m) => m.Types && m.toString().includes("selectable"), { searchExports: true });
+		const SettingsDivider = getModule$1((m) => m.toString?.().includes("().divider") && m.toString().includes("style"), {
+			searchExports: true
+		});
 		function SettingsPanel() {
 			const settings = Settings.useSettingsState();
 			return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(SettingsItem, {
@@ -204,7 +206,8 @@ function buildPlugin([BasePlugin, Library]) {
 				children: "Tooltip",
 				note: "Show tooltip when hovering over user avatar.",
 				onChange: (v) => Settings.showTooltip = v,
-				value: settings.showTooltip
+				value: settings.showTooltip,
+				hideBorder: true
 			}));
 		}
 	
