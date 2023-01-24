@@ -79,7 +79,7 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 			break;
 		case 3:
 			headerText = Strings.HEADER_GROUP;
-			text = <h3>{channel.name ?? groupDMName(channel.recipients)}</h3>;
+			text = <h3>{channel.name || groupDMName(channel.recipients)}</h3>;
 			break;
 		case 13:
 			headerText = Strings.HEADER_STAGE;

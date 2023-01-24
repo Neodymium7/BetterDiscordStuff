@@ -182,6 +182,7 @@ export default class VoiceActivity extends BasePlugin {
 	async patchChannelContextMenu() {
 		const unpatch = ContextMenu.patch("channel-context", (ret, props) => {
 			if (!Settings.ignoreEnabled) return ret;
+			if (props.channel.type !== 2 && props.channel.type !== 13) return ret;
 
 			const { ignoredChannels } = Settings.useSettingsState();
 			const ignored = ignoredChannels.includes(props.channel.id);

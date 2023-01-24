@@ -75,7 +75,7 @@ export default function VoiceIcon(props: VoiceIconProps) {
 			subtext = Strings.PRIVATE_CALL;
 			break;
 		case 3:
-			text = channel.name ?? groupDMName(channel.recipients);
+			text = channel.name || groupDMName(channel.recipients);
 			subtext = Strings.GROUP_CALL;
 			TooltipIcon = People;
 			break;
