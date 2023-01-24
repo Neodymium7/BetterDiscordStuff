@@ -1,0 +1,20 @@
+{
+	"name": "RoleMentionIcons",
+	"version": "1.2.0",
+	"description": "Displays icons next to role mentions.",
+	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js",
+	"author": "Neodymium",
+	"invite": "fRbsqH87Av",
+	"zlibrary": {
+		"info": {
+			"github_raw": "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js"
+		},
+		"changelog": [
+			{
+				"title": "Fixed",
+				"type": "fixed",
+				"items": ["Fixed settings on latest Discord update."]
+			}
+		]
+	}
+}

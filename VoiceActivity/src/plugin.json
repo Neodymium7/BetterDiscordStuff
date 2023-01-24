@@ -1,6 +1,6 @@
 {
 	"name": "VoiceActivity",
-	"version": "1.6.2",
+	"version": "1.6.3",
 	"description": "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 	"author": "Neodymium",
@@ -11,9 +11,9 @@
 		},
 		"changelog": [
 			{
-				"title": "Added",
-				"type": "improved",
-				"items": ["Added German translations."]
+				"title": "Fixed",
+				"type": "fixed",
+				"items": ["Fixed settings on latest Discord update."]
 			}
 		]
 	}

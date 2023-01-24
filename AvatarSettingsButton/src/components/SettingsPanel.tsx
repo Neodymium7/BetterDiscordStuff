@@ -3,15 +3,17 @@ import { Settings } from "../utils";
 
 const {
 	getModule,
-	Filters: { byProps }
+	Filters: { byProps },
 } = Webpack;
 
 const Margins = getModule(byProps("marginXSmall"));
-const RadioGroup = getModule((m) => m.Sizes && m.toString().includes("radioItemClassName"));
-const SwitchItem = getModule((m) => m.toString().includes("helpdeskArticleId"));
-const SettingsItem = getModule((m) => m.render?.toString().includes("required"));
-const SettingsNote = getModule((m) => m.Types && m.toString().includes("selectable"));
-const SettingsDivider = getModule((m) => m.toString().includes("().divider"));
+const RadioGroup = getModule((m) => m.Sizes && m.toString().includes("radioItemClassName"), { searchExports: true });
+const SwitchItem = getModule((m) => m.toString?.().includes("().dividerDefault"), { searchExports: true });
+const SettingsItem = getModule((m) => m.render?.toString().includes("required"), { searchExports: true });
+const SettingsNote = getModule((m) => m.Types && m.toString().includes("selectable"), { searchExports: true });
+const SettingsDivider = getModule((m) => m.toString?.().includes("().divider") && m.toString().includes("style"), {
+	searchExports: true,
+});
 
 export default function SettingsPanel() {
 	const settings = Settings.useSettingsState();
@@ -28,7 +30,7 @@ export default function SettingsPanel() {
 						{ name: "Settings (Default)", value: 1 },
 						{ name: "Settings Context Menu", value: 2 },
 						{ name: "Status Picker", value: 3 },
-						{ name: "Nothing", value: 0 }
+						{ name: "Nothing", value: 0 },
 					]}
 					onChange={({ value }) => (Settings.click = value)}
 					value={settings.click}
@@ -44,7 +46,7 @@ export default function SettingsPanel() {
 						{ name: "Settings", value: 1 },
 						{ name: "Settings Context Menu", value: 2 },
 						{ name: "Status Picker (Default)", value: 3 },
-						{ name: "Nothing", value: 0 }
+						{ name: "Nothing", value: 0 },
 					]}
 					onChange={({ value }) => (Settings.contextmenu = value)}
 					value={settings.contextmenu}
@@ -60,7 +62,7 @@ export default function SettingsPanel() {
 						{ name: "Settings", value: 1 },
 						{ name: "Settings Context Menu (Default)", value: 2 },
 						{ name: "Status Picker", value: 3 },
-						{ name: "Nothing", value: 0 }
+						{ name: "Nothing", value: 0 },
 					]}
 					onChange={({ value }) => (Settings.middleclick = value)}
 					value={settings.middleclick}
@@ -73,6 +75,7 @@ export default function SettingsPanel() {
 				note="Show tooltip when hovering over user avatar."
 				onChange={(v: boolean) => (Settings.showTooltip = v)}
 				value={settings.showTooltip}
+				hideBorder={true}
 			/>
 		</>
 	);

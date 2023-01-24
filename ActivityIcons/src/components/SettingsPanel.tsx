@@ -3,13 +3,13 @@ import { Settings } from "../utils";
 
 const {
 	getModule,
-	Filters: { byProps }
+	Filters: { byProps },
 } = Webpack;
 
 const Margins = getModule(byProps("marginXSmall"));
-const RadioGroup = getModule((m) => m.Sizes && m.toString().includes("radioItemClassName"));
-const SettingsItem = getModule((m) => m.render?.toString().includes("required"));
-const SettingsNote = getModule((m) => m.Types && m.toString().includes("selectable"));
+const RadioGroup = getModule((m) => m.Sizes && m.toString().includes("radioItemClassName"), { searchExports: true });
+const SettingsItem = getModule((m) => m.render?.toString().includes("required"), { searchExports: true });
+const SettingsNote = getModule((m) => m.Types && m.toString().includes("selectable"), { searchExports: true });
 
 export default function SettingsPanel() {
 	const settings = Settings.useSettingsState();
@@ -23,7 +23,7 @@ export default function SettingsPanel() {
 				options={[
 					{ name: "Normal Activity (Default)", value: 0 },
 					{ name: "Custom Status and Normal Activity", value: 1 },
-					{ name: "Never", value: 2 }
+					{ name: "Never", value: 2 },
 				]}
 				onChange={({ value }) => (Settings.normalIconBehavior = value)}
 				value={settings.normalIconBehavior}

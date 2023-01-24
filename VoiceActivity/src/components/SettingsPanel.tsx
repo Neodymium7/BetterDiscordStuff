@@ -19,7 +19,7 @@ type SettingsInfo = {
 	};
 };
 
-const SwitchItem = getModule((m) => m.toString().includes("helpdeskArticleId"));
+const SwitchItem = getModule((m) => m.toString?.().includes("().dividerDefault"), { searchExports: true });
 
 const SettingsSwitchItem = (props: SwitchItemProps) => {
 	const value = Settings.useSettingsState()[props.setting];
