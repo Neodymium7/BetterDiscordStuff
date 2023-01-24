@@ -2,7 +2,7 @@
  * @name ActivityToggle
  * @author Neodymium
  * @description Adds a button to quickly toggle Activity Status.
- * @version 1.2.3
+ * @version 1.2.4
  * @invite fRbsqH87Av
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  */
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.2.3",
+		version: "1.2.4",
 		description: "Adds a button to quickly toggle Activity Status.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityToggle/ActivityToggle.plugin.js"
@@ -91,6 +91,7 @@ function buildPlugin([BasePlugin, Library]) {
 		const Sections = getModule(byProps("ACCOUNT"), { searchExports: true });
 		const PanelButton = getModule(byStrings("PANEL_BUTTON"));
 		const Activity = getModule(byStrings("M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264"));
+		const Settings = getModule(byStrings("M14 7V9C14 9 12.5867 9"));
 		const playSound = getModule(byStrings(".getSoundpack()"), { searchExports: true });
 		const { useSetting, updateSetting } = getModule((m) => Object.values(m).some((e) => e?.getSetting)).G6;
 		function ActivityToggleButton() {
@@ -109,6 +110,7 @@ function buildPlugin([BasePlugin, Library]) {
 						betterdiscord.ContextMenu.buildMenu([
 							{
 								label: "Activity Settings",
+								icon: Settings,
 								action: () => {
 									UserSettingsWindow.setSection(Sections.ACTIVITY_PRIVACY);
 									UserSettingsWindow.open();
