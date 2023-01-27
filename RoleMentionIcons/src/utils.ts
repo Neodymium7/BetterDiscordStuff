@@ -2,9 +2,9 @@ import { ReactUtils } from "betterdiscord";
 import { createSettings } from "bundlebd";
 
 export const Settings = createSettings({
-	everyone: true as boolean,
-	here: true as boolean,
-	showRoleIcons: true as boolean,
+	everyone: true,
+	here: true,
+	showRoleIcons: true,
 });
 
 export const peopleSVG = (() => {

@@ -12,14 +12,14 @@ const { Permissions, UserStore } = DiscordModules;
 const DiscordPermissions = getModule(byProps("VIEW_CREATOR_MONETIZATION_ANALYTICS"), { searchExports: true });
 
 export const Settings = createSettings({
-	showProfileSection: true as boolean,
-	showMemberListIcons: true as boolean,
-	showDMListIcons: true as boolean,
-	showPeopleListIcons: true as boolean,
-	showGuildIcons: true as boolean,
-	currentChannelColor: true as boolean,
-	showStatusIcons: true as boolean,
-	ignoreEnabled: false as boolean,
+	showProfileSection: true,
+	showMemberListIcons: true,
+	showDMListIcons: true,
+	showPeopleListIcons: true,
+	showGuildIcons: true,
+	currentChannelColor: true,
+	showStatusIcons: true,
+	ignoreEnabled: false,
 	ignoredChannels: [],
 	ignoredGuilds: [],
 });
