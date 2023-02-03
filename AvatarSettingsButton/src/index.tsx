@@ -14,7 +14,7 @@ const Sections = getModule(byProps("ACCOUNT"), { searchExports: true });
 const accountClasses = getModule(byProps("buildOverrideButton"));
 const tooltipClasses = getModule(byProps("tooltipContent"));
 const layerContainerClass = getModule(byProps("layerContainer")).layerContainer;
-const appClass = getModule(byProps("appDevToolsWrapper")).app;
+const appClass = getModule(byProps("appAsidePanelWrapper")).app;
 const settingsSelector = `.${accountClasses.container} button:nth-last-child(1)`;
 
 class Tooltip {
