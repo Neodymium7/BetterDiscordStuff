@@ -2,7 +2,7 @@
  * @name ActivityToggle
  * @author Neodymium
  * @description Adds a button to quickly toggle Activity Status.
- * @version 1.2.4
+ * @version 1.2.5
  * @invite fRbsqH87Av
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  */
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.2.4",
+		version: "1.2.5",
 		description: "Adds a button to quickly toggle Activity Status.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityToggle/ActivityToggle.plugin.js"
@@ -84,16 +84,16 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		// components/ActivityToggleButton.tsx
 		const {
-			Filters: { byProps, byStrings },
-			getModule
+			Filters: { byProps: byProps$1, byStrings },
+			getModule: getModule$1
 		} = betterdiscord.Webpack;
 		const { UserSettingsWindow } = zlibrary.DiscordModules;
-		const Sections = getModule(byProps("ACCOUNT"), { searchExports: true });
-		const PanelButton = getModule(byStrings("PANEL_BUTTON"));
-		const Activity = getModule(byStrings("M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264"));
-		const Settings = getModule(byStrings("M14 7V9C14 9 12.5867 9"));
-		const playSound = getModule(byStrings(".getSoundpack()"), { searchExports: true });
-		const { useSetting, updateSetting } = getModule((m) => Object.values(m).some((e) => e?.getSetting)).G6;
+		const Sections = getModule$1(byProps$1("ACCOUNT"), { searchExports: true });
+		const PanelButton = getModule$1(byStrings("PANEL_BUTTON"));
+		const Activity = getModule$1(byStrings("M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264"));
+		const Settings = getModule$1(byStrings("M14 7V9C14 9 12.5867 9"));
+		const playSound = getModule$1(byStrings(".getSoundpack()"), { searchExports: true });
+		const { useSetting, updateSetting } = getModule$1((m) => Object.values(m).some((e) => e?.getSetting)).G6;
 		function ActivityToggleButton() {
 			const enabled = useSetting();
 			return BdApi.React.createElement(PanelButton, {
@@ -123,8 +123,14 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// index.tsx
+		const {
+			getModule,
+			Filters: { byProps }
+		} = betterdiscord.Webpack;
+		const { withTagAsButton } = getModule(byProps("withTagAsButton"));
 		class ActivityToggle extends Plugin {
 			async onStart() {
+				betterdiscord.DOM.addStyle(`.${withTagAsButton} { min-width: 70px; }`);
 				const Account = await zlibrary.ReactComponents.getComponent(
 					"Account",
 					zlibrary.DiscordSelectors.AccountDetails.container,
@@ -136,6 +142,7 @@ function buildPlugin([BasePlugin, Library]) {
 				betterdiscord.ReactUtils.getInternalInstance(document.querySelector(Account.selector)).return.stateNode.forceUpdate();
 			}
 			onStop() {
+				betterdiscord.DOM.removeStyle();
 				betterdiscord.Patcher.unpatchAll();
 			}
 		}
