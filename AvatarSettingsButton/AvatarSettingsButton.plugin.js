@@ -2,7 +2,7 @@
  * @name AvatarSettingsButton
  * @author Neodymium
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
- * @version 2.0.5
+ * @version 2.0.6
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
  */
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "2.0.5",
+		version: "2.0.6",
 		description: "Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed settings on latest Discord update."
+				"Fixed plugin not loading properly."
 			]
 		}
 	]
@@ -221,7 +221,7 @@ function buildPlugin([BasePlugin, Library]) {
 		const accountClasses = getModule(byProps("buildOverrideButton"));
 		const tooltipClasses = getModule(byProps("tooltipContent"));
 		const layerContainerClass = getModule(byProps("layerContainer")).layerContainer;
-		const appClass = getModule(byProps("appDevToolsWrapper")).app;
+		const appClass = getModule(byProps("appAsidePanelWrapper")).app;
 		const settingsSelector = `.${accountClasses.container} button:nth-last-child(1)`;
 		class Tooltip {
 			target;
