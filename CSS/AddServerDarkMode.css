@@ -25,19 +25,20 @@
 .theme-light .subtitle-bIoUVX,
 .theme-light .subtitle-1cc8Nz,
 .theme-light .optionHeader-27AHfD,
-.theme-light .text-PdAsFQ,
-.theme-light .text-sm-normal-3Zj3Iv,
-.theme-light .skip-2hTIXL,
-.theme-light .guidelines-FvqqF2,
-.theme-light .colorStandard-1Xxp1s,
-.theme-light .text-xs-normal-3SiVjE.rowText-3MQqQi {
+.theme-light .text-sm-normal-AEQz4v,
+.theme-light .formTitle-2YQyhj,
+.theme-light .label-7akf7- {
 	color: var(--dark-header-secondary) !important;
 }
-.theme-light .inputDefault-3FGxgL,
-.theme-light .sampleLink-5BWNy9 {
+.theme-light .guidelines-FvqqF2 {
+	color: #a3a6aa !important;
+}
+.theme-light .defaultColor-1EVLSt,
+.theme-light .inputDefault-Ciwd-S {
 	color: var(--dark-text);
 }
-.theme-light .defaultColor-24IHKz {
+.theme-light .defaultColor-1GKx81,
+.theme-light .sampleLink-5BWNy9 {
 	color: var(--dark-header);
 }
 .theme-light .anchor-1MIwyf {
@@ -58,7 +59,8 @@
 .theme-light .rowContainer-3t7486:active {
 	background-color: var(--dark-modifier-selected);
 }
-.theme-light .arrow-2yY1Tm {
+.theme-light .arrow-2yY1Tm,
+.theme-light .rowArrow-TIwwIc {
 	filter: brightness(0) saturate(100%) invert(84%) sepia(4%) saturate(191%) hue-rotate(177deg) brightness(89%)
 		contrast(91%);
 }
@@ -83,19 +85,13 @@
 .theme-light .uploadIcon-2wV7s_ {
 	color: var(--dark-header-secondary);
 }
-.theme-light .inputDefault-3FGxgL {
+.theme-light .inputDefault-Ciwd-S {
 	background-color: var(--dark-background-tertiary);
 	font-weight: 400;
 }
-.theme-light .inputDefault-3FGxgL::placeholder {
+.theme-light .inputDefault-Ciwd-S::placeholder {
 	font-weight: 400;
 	color: #87898c;
-}
-.theme-light .input-m1-Y7Q {
-	background-color: var(--dark-background-tertiary);
-}
-.theme-light .close-1mLglB.button-f2h6uQ {
-	opacity: 0.5;
 }
 .theme-light .close-1mLglB.button-f2h6uQ:hover {
 	opacity: 1;
