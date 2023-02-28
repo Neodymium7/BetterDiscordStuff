@@ -7,7 +7,7 @@ const {
 	getModule,
 } = Webpack;
 
-const Tooltip = getModule(byPrototypeFields("renderTooltip"));
+const Tooltip = getModule(byPrototypeFields("renderTooltip"), { searchExports: true });
 const { copy } = getModule(byProps("requireModule"));
 
 interface CodeblockProps {

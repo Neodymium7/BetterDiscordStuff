@@ -1,6 +1,6 @@
 {
 	"name": "VoiceActivity",
-	"version": "1.6.4",
+	"version": "1.6.5",
 	"description": "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 	"author": "Neodymium",
@@ -13,10 +13,7 @@
 			{
 				"title": "Fixed",
 				"type": "fixed",
-				"items": [
-					"Fixed ignore context menu option appearing on all channels (not just voice channels).",
-					"Fixed titles of unnamed group DMs."
-				]
+				"items": ["Fixed crashing"]
 			}
 		]
 	}

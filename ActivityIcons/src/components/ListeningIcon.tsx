@@ -2,11 +2,11 @@ import { Webpack } from "betterdiscord";
 
 const {
 	Filters: { byPrototypeFields, byStrings },
-	getModule
+	getModule,
 } = Webpack;
 
 const Headset = getModule(byStrings("M12 2.00305C6.486 2.00305 2 6.48805 2 12.0031V20.0031C2"));
-const Tooltip = getModule(byPrototypeFields("renderTooltip"));
+const Tooltip = getModule(byPrototypeFields("renderTooltip"), { searchExports: true });
 
 interface ListeningIconProps {
 	activities: any[];

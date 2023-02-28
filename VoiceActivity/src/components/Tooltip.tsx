@@ -5,6 +5,6 @@ const {
 	getModule,
 } = Webpack;
 
-const Tooltip = getModule(byPrototypeFields("renderTooltip"));
+const Tooltip = getModule(byPrototypeFields("renderTooltip"), { searchExports: true });
 
 export default Tooltip;
