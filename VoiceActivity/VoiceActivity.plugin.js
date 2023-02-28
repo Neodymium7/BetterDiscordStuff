@@ -2,7 +2,7 @@
  * @name VoiceActivity
  * @author Neodymium
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
- * @version 1.6.4
+ * @version 1.6.5
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
  */
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.6.4",
+		version: "1.6.5",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -49,8 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed ignore context menu option appearing on all channels (not just voice channels).",
-				"Fixed titles of unnamed group DMs."
+				"Fixed crashing"
 			]
 		}
 	]
@@ -392,7 +391,7 @@ function buildPlugin([BasePlugin, Library]) {
 			Filters: { byPrototypeFields },
 			getModule: getModule$5
 		} = betterdiscord.Webpack;
-		const Tooltip = getModule$5(byPrototypeFields("renderTooltip"));
+		const Tooltip = getModule$5(byPrototypeFields("renderTooltip"), { searchExports: true });
 	
 		// components/icons.tsx
 		const {

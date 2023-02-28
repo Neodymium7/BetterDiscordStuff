@@ -2,7 +2,7 @@
  * @name CopyCodeblocks
  * @author Neodymium
  * @description Adds a simple copy button to codeblocks.
- * @version 1.1.1
+ * @version 1.1.2
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/CopyCodeblocks/CopyCodeblocks.plugin.js
  * @invite fRbsqH87Av
  */
@@ -54,7 +54,7 @@ const {
 	Filters: { byProps: byProps$1, byPrototypeFields },
 	getModule: getModule$1
 } = betterdiscord.Webpack;
-const Tooltip = getModule$1(byPrototypeFields("renderTooltip"));
+const Tooltip = getModule$1(byPrototypeFields("renderTooltip"), { searchExports: true });
 const { copy } = getModule$1(byProps$1("requireModule"));
 function Codeblock(props) {
 	const [copied, setCopied] = react.useState(false);

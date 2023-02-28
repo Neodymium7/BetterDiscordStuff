@@ -2,7 +2,7 @@
  * @name ActivityIcons
  * @author Neodymium
  * @description Improves the default icons next to statuses
- * @version 1.2.10
+ * @version 1.2.11
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @invite fRbsqH87Av
  */
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.2.10",
+		version: "1.2.11",
 		description: "Improves the default icons next to statuses",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed settings on latest Discord update."
+				"Fixed crashing"
 			]
 		}
 	]
@@ -209,7 +209,7 @@ function buildPlugin([BasePlugin, Library]) {
 		} = betterdiscord.Webpack;
 		const Activity = getModule$3(byStrings$2("M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264"));
 		const RichActivity = getModule$3(byStrings$2("M6,7 L2,7 L2,6 L6,6 L6,7 Z M8,5 L2,5 L2,4 L8,4"));
-		const Tooltip$1 = getModule$3(byPrototypeFields$1("renderTooltip"));
+		const Tooltip$1 = getModule$3(byPrototypeFields$1("renderTooltip"), { searchExports: true });
 		const bot = ["created_at", "id", "name", "type", "url"];
 		function ActivityIcon(props) {
 			const { activities } = props;
@@ -276,7 +276,7 @@ function buildPlugin([BasePlugin, Library]) {
 			getModule: getModule$2
 		} = betterdiscord.Webpack;
 		const Headset = getModule$2(byStrings$1("M12 2.00305C6.486 2.00305 2 6.48805 2 12.0031V20.0031C2"));
-		const Tooltip = getModule$2(byPrototypeFields("renderTooltip"));
+		const Tooltip = getModule$2(byPrototypeFields("renderTooltip"), { searchExports: true });
 		function ListeningIcon(props) {
 			const activity = props.activities.filter((activity2) => activity2.type === 2)[0];
 			if (!activity)
