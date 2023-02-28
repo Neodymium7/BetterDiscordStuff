@@ -8,7 +8,7 @@ const {
 } = Webpack;
 
 const UserPopout = getModule((e) => e.type?.toString().includes('"userId"'));
-const Popout = getModule(byStrings(".animationPosition"));
+const Popout = getModule(byStrings(".animationPosition"), { searchExports: true });
 const loadProfile = getModule(byStrings("T.apply(this,arguments)"));
 
 const nameSelector = `${DiscordSelectors.Typing.typing} strong`;
