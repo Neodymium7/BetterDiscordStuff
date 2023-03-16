@@ -19,6 +19,7 @@ const { getModuleWithKey, store } = WebpackUtils;
 const memberItemSelector = `.${getModule(byProps("member", "activity")).member}`;
 const privateChannelSelector = `.${getModule(byProps("channel", "activity")).channel}`;
 const peopleItemSelector = `.${getModule(byProps("peopleListItem")).peopleListItem}`;
+const guildIconSelector = `.${getModule(byProps("folderEndWrapper")).wrapper}`;
 const children = getModule(byProps("avatar", "children")).children;
 
 export default class VoiceActivity extends BasePlugin {
@@ -91,7 +92,7 @@ export default class VoiceActivity extends BasePlugin {
 		};
 
 		const GuildChannelStore = getModule(store("GuildChannelStore"));
-		const element: HTMLElement = document.querySelector(".wrapper-3XVBev");
+		const element: HTMLElement = document.querySelector(guildIconSelector);
 		const targetInstance = Utils.findInTree(
 			ReactUtils.getInternalInstance(element),
 			(n) => n?.elementType?.type && n.pendingProps?.mediaState,
@@ -245,6 +246,7 @@ export default class VoiceActivity extends BasePlugin {
 		forceUpdateAll(memberItemSelector);
 		forceUpdateAll(privateChannelSelector);
 		forceUpdateAll(peopleItemSelector);
+		forceRerender(document.querySelector(guildIconSelector));
 	}
 
 	getSettingsPanel() {
