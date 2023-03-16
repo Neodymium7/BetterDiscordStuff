@@ -2,7 +2,7 @@
  * @name VoiceActivity
  * @author Neodymium
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
- * @version 1.6.5
+ * @version 1.6.6
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
  */
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.6.5",
+		version: "1.6.6",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed crashing"
+				"Fixed crashing when disabling the plugin."
 			]
 		}
 	]
@@ -69,7 +69,7 @@ if (!global.ZeresPluginLibrary) {
 }
 
 function buildPlugin([BasePlugin, Library]) {
-    var Plugin = (function (betterdiscord, react, zlibrary, BasePlugin) {
+    var Plugin = (function (betterdiscord, react, meta, zlibrary, BasePlugin) {
 		'use strict';
 	
 		// bundlebd
@@ -154,9 +154,23 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 			return stringsManager;
 		}
+		var Logger = class {
+			static _log(type, message) {
+				console[type](`%c[${meta.name}]`, "color: #3a71c1; font-weight: 700;", message);
+			}
+			static log(message) {
+				this._log("log", message);
+			}
+			static warn(message) {
+				this._log("warn", message);
+			}
+			static error(message) {
+				this._log("error", message);
+			}
+		};
 		var WebpackUtils = {
 			store(name) {
-				return (m) => m.getName?.() === name;
+				return (m) => m._dispatchToken && m.getName() === name;
 			},
 			byId(id) {
 				return (_e, _m, i) => i === id;
@@ -195,6 +209,19 @@ function buildPlugin([BasePlugin, Library]) {
 					}
 				}
 				return [target.exports, key];
+			},
+			expectModule(filter, options) {
+				const found = betterdiscord.Webpack.getModule(filter, options);
+				if (found) return found;
+				const name = options.name ? `'${options.name}'` : `query with filter '${filter.toString()}'`;
+				const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
+				const errorMessage = `Module ${name} not found.${fallbackMessage}
+	
+	Contact the plugin developer to inform them of this error.`;
+				Logger.error(errorMessage);
+				options.onError?.();
+				if (options.fatal) throw new Error(errorMessage);
+				return options.fallback;
 			}
 		};
 	
@@ -773,6 +800,7 @@ function buildPlugin([BasePlugin, Library]) {
 		const memberItemSelector = `.${getModule(byProps("member", "activity")).member}`;
 		const privateChannelSelector = `.${getModule(byProps("channel", "activity")).channel}`;
 		const peopleItemSelector = `.${getModule(byProps("peopleListItem")).peopleListItem}`;
+		const guildIconSelector = `.${getModule(byProps("folderEndWrapper")).wrapper}`;
 		const children = getModule(byProps("avatar", "children")).children;
 		class VoiceActivity extends BasePlugin {
 			contextMenuUnpatches;
@@ -847,7 +875,7 @@ function buildPlugin([BasePlugin, Library]) {
 					return { audio, video, screenshare };
 				};
 				const GuildChannelStore = getModule(store("GuildChannelStore"));
-				const element = document.querySelector(".wrapper-3XVBev");
+				const element = document.querySelector(guildIconSelector);
 				const targetInstance = betterdiscord.Utils.findInTree(
 					betterdiscord.ReactUtils.getInternalInstance(element),
 					(n) => n?.elementType?.type && n.pendingProps?.mediaState,
@@ -1004,6 +1032,7 @@ function buildPlugin([BasePlugin, Library]) {
 				forceUpdateAll(memberItemSelector);
 				forceUpdateAll(privateChannelSelector);
 				forceUpdateAll(peopleItemSelector);
+				forceRerender(document.querySelector(guildIconSelector));
 			}
 			getSettingsPanel() {
 				return BdApi.React.createElement(SettingsPanel, null);
@@ -1012,7 +1041,14 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		return VoiceActivity;
 	
-	})(new BdApi("VoiceActivity"), BdApi.React, Library, BasePlugin);
+	})(new BdApi("VoiceActivity"), BdApi.React, {
+		name: "VoiceActivity",
+		author: "Neodymium",
+		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
+		version: "1.6.6",
+		source: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
+		invite: "fRbsqH87Av"
+	}, Library, BasePlugin);
 
 	return Plugin;
 }
