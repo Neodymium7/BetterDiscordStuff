@@ -1,32 +1,31 @@
-import { DOM, ReactUtils, Patcher, Webpack } from "betterdiscord";
-import { DiscordSelectors, ReactComponents } from "zlibrary";
+import { DOM, Patcher, ReactUtils } from "betterdiscord";
+import { DiscordSelectors } from "zlibrary";
 import Plugin from "zlibrary/plugin";
+import { withTagAsButton } from "./modules";
 import ActivityToggleButton from "./components/ActivityToggleButton";
 
-const {
-	getModule,
-	Filters: { byProps },
-} = Webpack;
-
-const { withTagAsButton } = getModule(byProps("withTagAsButton"));
-
 export default class ActivityToggle extends Plugin {
+	forceUpdate?: () => void;
+
 	async onStart() {
 		DOM.addStyle(`.${withTagAsButton} { min-width: 70px; }`);
 
-		const Account = await ReactComponents.getComponent(
-			"Account",
-			DiscordSelectors.AccountDetails.container,
-			(c) => c.prototype.renderNameZone
+		const owner: any = ReactUtils.getOwnerInstance(
+			document.querySelector(DiscordSelectors.AccountDetails.container)
 		);
-		Patcher.after(Account.component.prototype, "render", (_thisObject, [_props], ret) => {
+		const Account = owner._reactInternals.type;
+		this.forceUpdate = owner.forceUpdate.bind(owner);
+
+		Patcher.after(Account.prototype, "render", (_that, [_props], ret) => {
 			ret.props.children[1].props.children.unshift(<ActivityToggleButton />);
 		});
-		ReactUtils.getInternalInstance(document.querySelector(Account.selector)).return.stateNode.forceUpdate();
+
+		this.forceUpdate();
 	}
 
 	onStop() {
 		DOM.removeStyle();
 		Patcher.unpatchAll();
+		this.forceUpdate?.();
 	}
 }
