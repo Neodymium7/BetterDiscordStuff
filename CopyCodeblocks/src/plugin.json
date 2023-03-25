@@ -1,8 +1,9 @@
 {
 	"name": "CopyCodeblocks",
-	"version": "1.1.2",
+	"version": "1.2.0",
 	"description": "Adds a simple copy button to codeblocks.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/CopyCodeblocks/CopyCodeblocks.plugin.js",
 	"author": "Neodymium",
+	"donate": "https://ko-fi.com/neodymium7",
 	"invite": "fRbsqH87Av"
 }

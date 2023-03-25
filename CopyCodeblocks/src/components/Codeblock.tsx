@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { Webpack } from "betterdiscord";
+import { Components } from "betterdiscord";
 import { Component as Copy } from "../assets/copy.svg";
 
-const {
-	Filters: { byProps, byPrototypeFields },
-	getModule,
-} = Webpack;
+declare const DiscordNative: {
+	clipboard: {
+		copy: (item: string) => void;
+	};
+};
 
-const Tooltip = getModule(byPrototypeFields("renderTooltip"), { searchExports: true });
-const { copy } = getModule(byProps("requireModule"));
+const { Tooltip } = Components;
+const { copy } = DiscordNative.clipboard;
 
 interface CodeblockProps {
 	content: string;

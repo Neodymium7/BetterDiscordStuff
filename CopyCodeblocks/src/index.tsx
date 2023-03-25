@@ -1,16 +1,20 @@
 import { DOM, Patcher, Webpack } from "betterdiscord";
+import { WebpackUtils } from "bundlebd";
 import Codeblock from "./components/Codeblock";
 import styles from "./styles.css";
 
 const {
 	Filters: { byProps },
-	getModule,
 } = Webpack;
+
+const { expectModule } = WebpackUtils;
+
+const Parser: any = expectModule(byProps("parseTopic"), { name: "Parser" });
 
 export default class CopyCodeblocks {
 	start() {
 		DOM.addStyle(styles);
-		const Parser = getModule(byProps("parseTopic"));
+
 		Patcher.after(Parser.defaultRules.codeBlock, "react", (_, [{ content }]: [any], ret) => {
 			const render = ret.props.children.props.render;
 			ret.props.children.props.render = (renderProps) => {
