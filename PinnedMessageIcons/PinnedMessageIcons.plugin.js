@@ -1,7 +1,7 @@
 /**
  * @name PinnedMessageIcons
  * @author Neodymium
- * @version 1.0.4
+ * @version 1.0.5
  * @description Displays an icon on and adds a class to pinned messages. (Heavily inspired by PinIcon by Qwerasd, go check out their plugin!)
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/PinnedMessageIcons/PinnedMessageIcons.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/PinnedMessageIcons/PinnedMessageIcons.plugin.js
@@ -23,8 +23,8 @@ module.exports = class PinnedMessageIcons {
             color: var(--interactive-normal);
         }`);
 
-        const Message = getModule((m) => Object.values(m).some(p => p?.toString?.().includes("childrenRepliedMessage")));
-        Patcher.after(Message, "Z", (_, [props], ret) => {
+        const Message = getModule((m) => Object.values(m).some(p => p?.toString?.().includes('"childrenRepliedMessage"')));
+		Patcher.after(Message, "Z", (_, [props], ret) => {
             if (!props.childrenMessageContent.props.message) return ret;
 
             const isPinned = props.childrenMessageContent.props.message.pinned;
