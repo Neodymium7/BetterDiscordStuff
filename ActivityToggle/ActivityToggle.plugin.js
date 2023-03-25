@@ -3,6 +3,7 @@
  * @author Neodymium
  * @description Adds a button to quickly toggle Activity Status.
  * @version 1.2.6
+ * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  */
@@ -263,6 +264,7 @@ function buildPlugin([BasePlugin, Library]) {
 		author: "Neodymium",
 		description: "Adds a button to quickly toggle Activity Status.",
 		version: "1.2.6",
+		donate: "https://ko-fi.com/neodymium7",
 		invite: "fRbsqH87Av",
 		source: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js"
 	});

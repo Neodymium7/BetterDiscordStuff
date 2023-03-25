@@ -2,8 +2,9 @@
  * @name CopyCodeblocks
  * @author Neodymium
  * @description Adds a simple copy button to codeblocks.
- * @version 1.1.2
+ * @version 1.2.0
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/CopyCodeblocks/CopyCodeblocks.plugin.js
+ * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
  */
 
@@ -35,6 +36,87 @@
 
 var betterdiscord = new BdApi("CopyCodeblocks");
 var react = BdApi.React;
+var meta = {
+	name: "CopyCodeblocks",
+	author: "Neodymium",
+	description: "Adds a simple copy button to codeblocks.",
+	version: "1.2.0",
+	source: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/CopyCodeblocks/CopyCodeblocks.plugin.js",
+	donate: "https://ko-fi.com/neodymium7",
+	invite: "fRbsqH87Av"
+};
+
+// bundlebd
+var Logger = class {
+	static _log(type, message) {
+		console[type](`%c[${meta.name}]`, "color: #3a71c1; font-weight: 700;", message);
+	}
+	static log(message) {
+		this._log("log", message);
+	}
+	static warn(message) {
+		this._log("warn", message);
+	}
+	static error(message) {
+		this._log("error", message);
+	}
+};
+var WebpackUtils = {
+	store(name) {
+		return (m) => m._dispatchToken && m.getName() === name;
+	},
+	byId(id) {
+		return (_e, _m, i) => i === id;
+	},
+	byValues(...filters) {
+		return (e, m, i) => {
+			let match = true;
+			for (const filter of filters) {
+				if (!Object.values(e).some((v) => filter(v, m, i))) {
+					match = false;
+					break;
+				}
+			}
+			return match;
+		};
+	},
+	getModuleWithKey(filter) {
+		let target;
+		let id;
+		let key;
+		betterdiscord.Webpack.getModule(
+			(e, m, i) => {
+				if (filter(e, m, i)) {
+					target = m;
+					id = i;
+					return true;
+				}
+				return false;
+			},
+			{ searchExports: true }
+		);
+		for (const k in target.exports) {
+			if (filter(target.exports[k], target, id)) {
+				key = k;
+				break;
+			}
+		}
+		return [target.exports, key];
+	},
+	expectModule(filter, options) {
+		const found = betterdiscord.Webpack.getModule(filter, options);
+		if (found) return found;
+		const name = options.name ? `'${options.name}'` : `query with filter '${filter.toString()}'`;
+		const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
+		const errorMessage = `Module ${name} not found.${fallbackMessage}
+
+Contact the plugin developer to inform them of this error.`;
+		Logger.error(errorMessage);
+		options.onError?.();
+		if (options.fatal) throw new Error(errorMessage);
+		return options.fallback;
+	}
+};
 
 // assets/copy.svg
 const SvgCopy = (props) => BdApi.React.createElement("svg", {
@@ -50,12 +132,8 @@ const SvgCopy = (props) => BdApi.React.createElement("svg", {
 }));
 
 // components/Codeblock.tsx
-const {
-	Filters: { byProps: byProps$1, byPrototypeFields },
-	getModule: getModule$1
-} = betterdiscord.Webpack;
-const Tooltip = getModule$1(byPrototypeFields("renderTooltip"), { searchExports: true });
-const { copy } = getModule$1(byProps$1("requireModule"));
+const { Tooltip } = betterdiscord.Components;
+const { copy } = DiscordNative.clipboard;
 function Codeblock(props) {
 	const [copied, setCopied] = react.useState(false);
 	const [forceOpen, setForceOpen] = react.useState(false);
@@ -95,13 +173,13 @@ var css = ".codeblockWrapper {\n\tposition: relative;\n\tmargin: -7px;\n}\n.code
 
 // index.tsx
 const {
-	Filters: { byProps },
-	getModule
+	Filters: { byProps }
 } = betterdiscord.Webpack;
+const { expectModule } = WebpackUtils;
+const Parser = expectModule(byProps("parseTopic"), { name: "Parser" });
 class CopyCodeblocks {
 	start() {
 		betterdiscord.DOM.addStyle(css);
-		const Parser = getModule(byProps("parseTopic"));
 		betterdiscord.Patcher.after(Parser.defaultRules.codeBlock, "react", (_, [{ content }], ret) => {
 			const render = ret.props.children.props.render;
 			ret.props.children.props.render = (renderProps) => {
