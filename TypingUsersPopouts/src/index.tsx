@@ -1,19 +1,26 @@
-import { Webpack, DOM, Patcher } from "betterdiscord";
-import { DiscordModules, DiscordSelectors, ReactComponents, Utilities } from "zlibrary";
+import { Webpack, DOM, Patcher, Utils } from "betterdiscord";
+import { DiscordSelectors } from "zlibrary";
+import { WebpackUtils } from "bundlebd";
 import Plugin from "zlibrary/plugin";
+import { loadProfile, Popout, RelationshipStore, UserPopout, UserStore } from "./modules";
 
 const {
 	Filters: { byStrings },
-	getModule,
 } = Webpack;
 
-const UserPopout = getModule((e) => e.type?.toString().includes('"userId"'));
-const Popout = getModule(byStrings(".animationPosition"), { searchExports: true });
-const loadProfile = getModule(byStrings("T.apply(this,arguments)"));
+const { getModuleWithKey } = WebpackUtils;
+
+const findChildComponent = async (module: any, functionName: string, filter: (i: any) => boolean) => {
+	return new Promise<any>((resolve, reject) => {
+		const unpatch = Patcher.after(module, functionName, (_, __, ret) => {
+			const found = Utils.findInTree(ret, (i) => filter(i));
+			found ? resolve(found) : reject("No item found matching filter");
+			unpatch();
+		});
+	});
+};
 
 const nameSelector = `${DiscordSelectors.Typing.typing} strong`;
-
-const { UserStore, RelationshipStore } = DiscordModules;
 
 export default class TypingUsersPopouts extends Plugin {
 	onStart() {
@@ -22,25 +29,26 @@ export default class TypingUsersPopouts extends Plugin {
 	}
 
 	async patch() {
-		const TypingUsers = await ReactComponents.getComponent(
-			"TypingUsers",
-			DiscordSelectors.Typing.typing,
-			(c) => c.prototype?.getCooldownTextStyle
-		);
-		Patcher.after(TypingUsers.component.prototype, "render", (thisObject: any, _, ret) => {
-			const typingUsersIds = Object.keys(thisObject.props.typingUsers).filter(
+		const [TypingUsersContainer, key] = getModuleWithKey(byStrings("typingUsers:"));
+		const TypingUsers = await findChildComponent(TypingUsersContainer, key, (i) => i.prototype?.render);
+
+		Patcher.after(TypingUsers.prototype, "render", (that: any, _, ret) => {
+			const text = Utils.findInTree(ret, (e) => e.children?.length && e.children[0]?.type === "strong", {
+				walkable: ["props", "children"],
+			});
+			if (!text) return ret;
+
+			const typingUsersIds = Object.keys(that.props.typingUsers).filter(
 				(id) => id !== UserStore.getCurrentUser().id && !RelationshipStore.isBlocked(id)
 			);
-			const text = Utilities.findInReactTree(ret, (e) => e.children?.length && e.children[0]?.type === "strong");
-			if (!text) return ret;
+			const channel = that.props.channel;
+			const guildId = channel.guild_id;
 
 			let i = 0;
 			text.children = text.children.map((e) => {
 				if (e.type !== "strong") return e;
 
 				const user = UserStore.getUser(typingUsersIds[i++]);
-				const channel = thisObject.props.channel;
-				const guildId = channel.guild_id;
 
 				return (
 					<Popout
