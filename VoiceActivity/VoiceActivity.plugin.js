@@ -2,8 +2,9 @@
  * @name VoiceActivity
  * @author Neodymium
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
- * @version 1.6.6
+ * @version 1.6.7
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
+ * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
  */
 
@@ -39,7 +40,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.6.6",
+		version: "1.6.7",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -49,7 +50,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed crashing when disabling the plugin."
+				"Fixed DM profile disappearing."
 			]
 		}
 	]
@@ -376,14 +377,6 @@ function buildPlugin([BasePlugin, Library]) {
 				context: channel
 			});
 		}
-		function forceUpdateAll(selector) {
-			const elements = document.querySelectorAll(selector);
-			for (const element of elements) {
-				const stateNodes = zlibrary.ReactTools.getStateNodes(element);
-				for (const stateNode of stateNodes)
-					stateNode.forceUpdate();
-			}
-		}
 		function groupDMName(members) {
 			if (members.length === 1) {
 				return UserStore$2.getUser(members[0]).username;
@@ -399,7 +392,16 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 			return "Unnamed";
 		}
-		function forceRerender(element) {
+		function forceUpdateAll(selector) {
+			const elements = document.querySelectorAll(selector);
+			for (const element of elements) {
+				const stateNodes = zlibrary.ReactTools.getStateNodes(element);
+				for (const stateNode of stateNodes)
+					stateNode.forceUpdate();
+			}
+		}
+		function forceRerender(selector) {
+			const element = document.querySelector(selector);
 			const ownerInstance = betterdiscord.ReactUtils.getOwnerInstance(element);
 			const cancel = betterdiscord.Patcher.instead(ownerInstance, "render", () => {
 				cancel();
@@ -837,21 +839,16 @@ function buildPlugin([BasePlugin, Library]) {
 				betterdiscord.Patcher.after(PrivateChannelProfile, key, (_, [props], ret) => {
 					if (props.profileType !== 3)
 						return ret;
-					const children2 = ret.props.children;
-					ret.props.children = (childrenProps) => {
-						const childrenRet = children2(childrenProps);
-						const sections = betterdiscord.Utils.findInTree(childrenRet, (i) => Array.isArray(i), {
-							walkable: ["props", "children"]
-						});
-						sections.splice(2, 0, BdApi.React.createElement(VoiceProfileSection, {
-							userId: props.user.id,
-							wrapper: Inner
-						}));
-						return childrenRet;
-					};
+					const sections = betterdiscord.Utils.findInTree(ret, (i) => Array.isArray(i), {
+						walkable: ["props", "children"]
+					});
+					sections.splice(2, 0, BdApi.React.createElement(VoiceProfileSection, {
+						userId: props.user.id,
+						wrapper: Inner
+					}));
 				});
 			}
-			async patchGuildIcon() {
+			patchGuildIcon() {
 				const getGuildMediaState = (guildId, ignoredChannels) => {
 					const vocalChannelIds = GuildChannelStore.getVocalChannelIds(guildId);
 					let audio = false;
@@ -893,7 +890,7 @@ function buildPlugin([BasePlugin, Library]) {
 						props.mediaState = { ...props.mediaState, ...{ audio: false, video: false, screenshare: false } };
 					}
 				});
-				forceRerender(element);
+				forceRerender(guildIconSelector);
 			}
 			async patchMemberListItem() {
 				const MemberListItem = await zlibrary.ReactComponents.getComponent(
@@ -971,7 +968,7 @@ function buildPlugin([BasePlugin, Library]) {
 				});
 				forceUpdateAll(peopleItemSelector);
 			}
-			async patchChannelContextMenu() {
+			patchChannelContextMenu() {
 				const unpatch = betterdiscord.ContextMenu.patch("channel-context", (ret, props) => {
 					if (!Settings.ignoreEnabled)
 						return ret;
@@ -998,7 +995,7 @@ function buildPlugin([BasePlugin, Library]) {
 				});
 				this.contextMenuUnpatches.add(unpatch);
 			}
-			async patchGuildContextMenu() {
+			patchGuildContextMenu() {
 				const unpatch = betterdiscord.ContextMenu.patch("guild-context", (ret, props) => {
 					if (!Settings.ignoreEnabled)
 						return ret;
@@ -1032,7 +1029,7 @@ function buildPlugin([BasePlugin, Library]) {
 				forceUpdateAll(memberItemSelector);
 				forceUpdateAll(privateChannelSelector);
 				forceUpdateAll(peopleItemSelector);
-				forceRerender(document.querySelector(guildIconSelector));
+				forceRerender(guildIconSelector);
 			}
 			getSettingsPanel() {
 				return BdApi.React.createElement(SettingsPanel, null);
@@ -1045,8 +1042,9 @@ function buildPlugin([BasePlugin, Library]) {
 		name: "VoiceActivity",
 		author: "Neodymium",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
-		version: "1.6.6",
+		version: "1.6.7",
 		source: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
+		donate: "https://ko-fi.com/neodymium7",
 		invite: "fRbsqH87Av"
 	}, Library, BasePlugin);
 
