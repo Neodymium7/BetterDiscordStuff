@@ -58,19 +58,14 @@ export default class VoiceActivity extends BasePlugin {
 		const { Inner } = PrivateChannelProfile[key];
 		Patcher.after(PrivateChannelProfile, key, (_, [props]: [any], ret) => {
 			if (props.profileType !== 3) return ret;
-			const children = ret.props.children;
-			ret.props.children = (childrenProps) => {
-				const childrenRet = children(childrenProps);
-				const sections = Utils.findInTree(childrenRet, (i) => Array.isArray(i), {
-					walkable: ["props", "children"],
-				});
-				sections.splice(2, 0, <VoiceProfileSection userId={props.user.id} wrapper={Inner} />);
-				return childrenRet;
-			};
+			const sections = Utils.findInTree(ret, (i) => Array.isArray(i), {
+				walkable: ["props", "children"],
+			});
+			sections.splice(2, 0, <VoiceProfileSection userId={props.user.id} wrapper={Inner} />);
 		});
 	}
 
-	async patchGuildIcon() {
+	patchGuildIcon() {
 		const getGuildMediaState = (guildId: string, ignoredChannels: string[]) => {
 			const vocalChannelIds = GuildChannelStore.getVocalChannelIds(guildId);
 			let audio = false;
@@ -110,7 +105,7 @@ export default class VoiceActivity extends BasePlugin {
 				props.mediaState = { ...props.mediaState, ...{ audio: false, video: false, screenshare: false } };
 			}
 		});
-		forceRerender(element);
+		forceRerender(guildIconSelector);
 	}
 
 	async patchMemberListItem() {
@@ -180,7 +175,7 @@ export default class VoiceActivity extends BasePlugin {
 		forceUpdateAll(peopleItemSelector);
 	}
 
-	async patchChannelContextMenu() {
+	patchChannelContextMenu() {
 		const unpatch = ContextMenu.patch("channel-context", (ret, props) => {
 			if (!Settings.ignoreEnabled) return ret;
 			if (props.channel.type !== 2 && props.channel.type !== 13) return ret;
@@ -209,7 +204,7 @@ export default class VoiceActivity extends BasePlugin {
 		this.contextMenuUnpatches.add(unpatch);
 	}
 
-	async patchGuildContextMenu() {
+	patchGuildContextMenu() {
 		const unpatch = ContextMenu.patch("guild-context", (ret, props) => {
 			if (!Settings.ignoreEnabled) return ret;
 
@@ -246,7 +241,7 @@ export default class VoiceActivity extends BasePlugin {
 		forceUpdateAll(memberItemSelector);
 		forceUpdateAll(privateChannelSelector);
 		forceUpdateAll(peopleItemSelector);
-		forceRerender(document.querySelector(guildIconSelector));
+		forceRerender(guildIconSelector);
 	}
 
 	getSettingsPanel() {

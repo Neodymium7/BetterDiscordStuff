@@ -39,14 +39,6 @@ export function checkPermissions(channel: any): boolean {
 	});
 }
 
-export function forceUpdateAll(selector: string) {
-	const elements: NodeListOf<HTMLElement> = document.querySelectorAll(selector);
-	for (const element of elements) {
-		const stateNodes = ReactTools.getStateNodes(element);
-		for (const stateNode of stateNodes) stateNode.forceUpdate();
-	}
-}
-
 export function groupDMName(members: any[]): string {
 	if (members.length === 1) {
 		return UserStore.getUser(members[0]).username;
@@ -61,7 +53,16 @@ export function groupDMName(members: any[]): string {
 	return "Unnamed";
 }
 
-export function forceRerender(element: HTMLElement) {
+export function forceUpdateAll(selector: string) {
+	const elements: NodeListOf<HTMLElement> = document.querySelectorAll(selector);
+	for (const element of elements) {
+		const stateNodes = ReactTools.getStateNodes(element);
+		for (const stateNode of stateNodes) stateNode.forceUpdate();
+	}
+}
+
+export function forceRerender(selector: string) {
+	const element: HTMLElement = document.querySelector(selector);
 	const ownerInstance = ReactUtils.getOwnerInstance(element);
 	const cancel = Patcher.instead(ownerInstance, "render", () => {
 		cancel();

@@ -1,9 +1,10 @@
 {
 	"name": "VoiceActivity",
-	"version": "1.6.6",
+	"version": "1.6.7",
 	"description": "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 	"author": "Neodymium",
+	"donate": "https://ko-fi.com/neodymium7",
 	"invite": "fRbsqH87Av",
 	"zlibrary": {
 		"info": {
@@ -13,7 +14,7 @@
 			{
 				"title": "Fixed",
 				"type": "fixed",
-				"items": ["Fixed crashing when disabling the plugin."]
+				"items": ["Fixed DM profile disappearing."]
 			}
 		]
 	}
