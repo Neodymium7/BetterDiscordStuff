@@ -1,0 +1,9 @@
+{
+	"en-US": {
+		"SETTINGS_ICON_BEHAVIOR": "Normal Activity Icon Behavior",
+		"SETTINGS_ICON_BEHAVIOR_NOTE": "Conditions under which normal activity icon (game controller) will be displayed",
+		"SETTINGS_ICON_BEHAVIOR_ACTIVITY": "Normal Activity (Default)",
+		"SETTINGS_ICON_BEHAVIOR_STATUS_AND_ACTIVITY": "Custom Status and Normal Activity",
+		"SETTINGS_ICON_BEHAVIOR_NEVER": "Never"
+	}
+}

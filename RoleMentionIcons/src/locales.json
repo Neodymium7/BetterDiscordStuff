@@ -1,0 +1,10 @@
+{
+	"en-US": {
+		"SETTINGS_EVERYONE": "@everyone",
+		"SETTINGS_EVERYONE_NOTE": "Shows icons on \"@everyone\" mentions.",
+		"SETTINGS_HERE": "@here",
+		"SETTINGS_HERE_NOTE": "Shows icons on \"@here\" mentions.",
+		"SETTINGS_ROLE_ICONS": "Role Icons",
+		"SETTINGS_ROLE_ICONS_NOTE": "Shows Role Icons instead of default icon when applicable."
+	}
+}

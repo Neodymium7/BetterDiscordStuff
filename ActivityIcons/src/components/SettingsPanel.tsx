@@ -1,5 +1,5 @@
 import { Webpack } from "betterdiscord";
-import { Settings } from "../utils";
+import { Settings, Strings } from "../utils";
 
 const {
 	getModule,
@@ -15,15 +15,15 @@ export default function SettingsPanel() {
 	const settings = Settings.useSettingsState();
 
 	return (
-		<SettingsItem title="Normal Activity Icon Behavior">
+		<SettingsItem title={Strings.SETTINGS_ICON_BEHAVIOR}>
 			<SettingsNote className={Margins.marginBottom8} type="description">
-				Conditions under which normal activity icon (game controller) will be displayed
+				{Strings.SETTINGS_ICON_BEHAVIOR_NOTE}
 			</SettingsNote>
 			<RadioGroup
 				options={[
-					{ name: "Normal Activity (Default)", value: 0 },
-					{ name: "Custom Status and Normal Activity", value: 1 },
-					{ name: "Never", value: 2 },
+					{ name: Strings.SETTINGS_ICON_BEHAVIOR_ACTIVITY, value: 0 },
+					{ name: Strings.SETTINGS_ICON_BEHAVIOR_STATUS_AND_ACTIVITY, value: 1 },
+					{ name: Strings.SETTINGS_ICON_BEHAVIOR_NEVER, value: 2 },
 				]}
 				onChange={({ value }) => (Settings.normalIconBehavior = value)}
 				value={settings.normalIconBehavior}

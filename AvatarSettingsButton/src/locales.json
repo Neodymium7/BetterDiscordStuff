@@ -1,0 +1,20 @@
+{
+	"en-US": {
+		"TOOLTIP_USER_SETTINGS": "User Settings",
+		"TOOLTIP_SETTINGS_SHORTCUT": "Settings Shortcuts",
+		"TOOLTIP_SET_STATUS": "Set Status",
+		"DEFAULT": "Default",
+		"SETTINGS_CLICK": "Click",
+		"SETTINGS_CLICK_NOTE": "What opens when clicking on the user avatar. REMEMBER If nothing is bound to open settings, you can use the Ctrl + , shortcut.",
+		"SETTINGS_RIGHT_CLICK": "Right Click",
+		"SETTINGS_RIGHT_CLICK_NOTE": "What opens when right clicking on the user avatar.",
+		"SETTINGS_MIDDLE_CLICK": "Middle Click",
+		"SETTINGS_MIDDLE_CLICK_NOTE": "What opens when middle clicking on the user avatar.",
+		"SETTINGS_OPTIONS_OPEN_SETTINGS": "Settings",
+		"SETTINGS_OPTIONS_CONTEXT_MENU": "Settings Context Menu",
+		"SETTINGS_OPTIONS_STATUS_PICKER": "Status Picker",
+		"SETTINGS_OPTIONS_NOTHING": "Nothing",
+		"SETTINGS_TOOLTIP": "Tooltip",
+		"SETTINGS_TOOLTIP_NOTE": "Show tooltip when hovering over user avatar."
+	}
+}

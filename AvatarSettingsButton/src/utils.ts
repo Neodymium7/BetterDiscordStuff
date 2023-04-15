@@ -1,4 +1,5 @@
-import { createSettings } from "bundlebd";
+import { createSettings, createStrings } from "bundlebd";
+import locales from "./locales.json";
 
 export const Settings = createSettings({
 	showTooltip: true,
@@ -6,3 +7,5 @@ export const Settings = createSettings({
 	contextmenu: 3,
 	middleclick: 2,
 });
+
+export const Strings = createStrings(locales, "en-US");

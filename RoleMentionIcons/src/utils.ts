@@ -1,11 +1,14 @@
 import { ReactUtils } from "betterdiscord";
-import { createSettings } from "bundlebd";
+import { createSettings, createStrings } from "bundlebd";
+import locales from "./locales.json";
 
 export const Settings = createSettings({
 	everyone: true,
 	here: true,
 	showRoleIcons: true,
 });
+
+export const Strings = createStrings(locales, "en-US");
 
 export const peopleSVG = (() => {
 	const element = document.createElement("div");

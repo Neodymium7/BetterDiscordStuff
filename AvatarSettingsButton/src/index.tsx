@@ -1,6 +1,6 @@
 import { DOM, Webpack } from "betterdiscord";
 import BasePlugin from "zlibrary/plugin";
-import { Settings } from "./utils";
+import { Settings, Strings } from "./utils";
 import SettingsPanel from "./components/SettingsPanel";
 
 const {
@@ -196,7 +196,12 @@ export default class AvatarSettingsButton extends BasePlugin {
 
 		const click = Settings.click;
 		if (click === 0) return;
-		const tooltips = ["", "User Settings", "Settings Shortcuts", "Set Status"];
+		const tooltips = [
+			"",
+			Strings.TOOLTIP_USER_SETTINGS,
+			Strings.TOOLTIP_SETTINGS_SHORTCUT,
+			Strings.TOOLTIP_SET_STATUS,
+		];
 		this.tooltip = new Tooltip(this.target as HTMLElement, tooltips[click]);
 	}
 

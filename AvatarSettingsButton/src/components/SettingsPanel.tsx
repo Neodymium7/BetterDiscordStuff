@@ -1,5 +1,5 @@
 import { Webpack } from "betterdiscord";
-import { Settings } from "../utils";
+import { Settings, Strings } from "../utils";
 
 const {
 	getModule,
@@ -20,49 +20,48 @@ export default function SettingsPanel() {
 
 	return (
 		<>
-			<SettingsItem title="Click">
+			<SettingsItem title={Strings.SETTINGS_CLICK}>
 				<SettingsNote className={Margins.marginBottom8} type="description">
-					What opens when clicking on the user avatar. REMEMBER If nothing is bound to open settings, you can
-					use the Ctrl + , shortcut.
+					{Strings.SETTINGS_CLICK_NOTE}
 				</SettingsNote>
 				<RadioGroup
 					options={[
-						{ name: "Settings (Default)", value: 1 },
-						{ name: "Settings Context Menu", value: 2 },
-						{ name: "Status Picker", value: 3 },
-						{ name: "Nothing", value: 0 },
+						{ name: `${Strings.SETTINGS_OPTIONS_OPEN_SETTINGS} (${Strings.DEFAULT})`, value: 1 },
+						{ name: Strings.SETTINGS_OPTIONS_CONTEXT_MENU, value: 2 },
+						{ name: Strings.SETTINGS_OPTIONS_STATUS_PICKER, value: 3 },
+						{ name: Strings.SETTINGS_OPTIONS_NOTHING, value: 0 },
 					]}
 					onChange={({ value }) => (Settings.click = value)}
 					value={settings.click}
 				/>
 				<SettingsDivider className={Margins.marginTop20} />
 			</SettingsItem>
-			<SettingsItem title="Right Click" className={Margins.marginTop20}>
+			<SettingsItem title={Strings.SETTINGS_RIGHT_CLICK} className={Margins.marginTop20}>
 				<SettingsNote className={Margins.marginBottom8} type="description">
-					What opens when right clicking on the user avatar.
+					{Strings.SETTINGS_RIGHT_CLICK_NOTE}
 				</SettingsNote>
 				<RadioGroup
 					options={[
-						{ name: "Settings", value: 1 },
-						{ name: "Settings Context Menu", value: 2 },
-						{ name: "Status Picker (Default)", value: 3 },
-						{ name: "Nothing", value: 0 },
+						{ name: Strings.SETTINGS_OPTIONS_OPEN_SETTINGS, value: 1 },
+						{ name: Strings.SETTINGS_OPTIONS_CONTEXT_MENU, value: 2 },
+						{ name: `${Strings.SETTINGS_OPTIONS_STATUS_PICKER} (${Strings.DEFAULT})`, value: 3 },
+						{ name: Strings.SETTINGS_OPTIONS_NOTHING, value: 0 },
 					]}
 					onChange={({ value }) => (Settings.contextmenu = value)}
 					value={settings.contextmenu}
 				/>
 				<SettingsDivider className={Margins.marginTop20} />
 			</SettingsItem>
-			<SettingsItem title="Middle Click" className={Margins.marginTop20}>
+			<SettingsItem title={Strings.SETTINGS_MIDDLE_CLICK} className={Margins.marginTop20}>
 				<SettingsNote className={Margins.marginBottom8} type="description">
-					What opens when middle clicking on the username.
+					{Strings.SETTINGS_MIDDLE_CLICK_NOTE}
 				</SettingsNote>
 				<RadioGroup
 					options={[
-						{ name: "Settings", value: 1 },
-						{ name: "Settings Context Menu (Default)", value: 2 },
-						{ name: "Status Picker", value: 3 },
-						{ name: "Nothing", value: 0 },
+						{ name: Strings.SETTINGS_OPTIONS_OPEN_SETTINGS, value: 1 },
+						{ name: `${Strings.SETTINGS_OPTIONS_CONTEXT_MENU} (${Strings.DEFAULT})`, value: 2 },
+						{ name: Strings.SETTINGS_OPTIONS_STATUS_PICKER, value: 3 },
+						{ name: Strings.SETTINGS_OPTIONS_NOTHING, value: 0 },
 					]}
 					onChange={({ value }) => (Settings.middleclick = value)}
 					value={settings.middleclick}
@@ -71,8 +70,8 @@ export default function SettingsPanel() {
 			</SettingsItem>
 			<SwitchItem
 				className={Margins.marginTop20}
-				children="Tooltip"
-				note="Show tooltip when hovering over user avatar."
+				children={Strings.SETTINGS_TOOLTIP}
+				note={Strings.SETTINGS_TOOLTIP_NOTE}
 				onChange={(v: boolean) => (Settings.showTooltip = v)}
 				value={settings.showTooltip}
 				hideBorder={true}
