@@ -1,24 +1,8 @@
-import { Webpack, DOM } from "betterdiscord";
+import { DOM } from "betterdiscord";
 import BasePlugin from "zlibrary/plugin";
 import SettingsPanel from "./components/SettingsPanel";
-import { Settings, Strings, filter, getProps, peopleSVG } from "./utils";
-
-const {
-	Filters: { byProps },
-	getModule,
-} = Webpack;
-
-const GuildStore = getModule(byProps("getGuildCount"));
-const roleMention = getModule(byProps("roleMention")).roleMention.split(" ")[0];
-
-const getIconElement = (roleId: string, roleIcon: string) => {
-	const icon = document.createElement("img");
-	icon.className = "role-mention-icon";
-	icon.setAttribute("style", "border-radius: 3px; object-fit: contain;");
-	icon.width = icon.height = 16;
-	icon.src = `https://cdn.discordapp.com/role-icons/${roleId}/${roleIcon}.webp?size=24&quality=lossless`;
-	return icon;
-};
+import { GuildStore, roleMention } from "./modules/discordmodules";
+import { Settings, Strings, filter, getProps, peopleSVG, getIconElement } from "./modules/utils";
 
 export default class RoleMentionIcons extends BasePlugin {
 	clearCallbacks: Set<() => void>;

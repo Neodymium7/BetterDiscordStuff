@@ -1,9 +1,5 @@
-import { Webpack } from "betterdiscord";
-import { Settings, Strings } from "../utils";
-
-const { getModule } = Webpack;
-
-const SwitchItem = getModule((m) => m.toString?.().includes("().dividerDefault"), { searchExports: true });
+import { SwitchItem } from "../modules/discordmodules";
+import { Settings, Strings } from "../modules/utils";
 
 export default function SettingsPanel() {
 	return (
