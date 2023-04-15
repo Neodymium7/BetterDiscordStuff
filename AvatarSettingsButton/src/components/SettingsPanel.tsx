@@ -1,19 +1,12 @@
-import { Webpack } from "betterdiscord";
-import { Settings, Strings } from "../utils";
-
-const {
-	getModule,
-	Filters: { byProps },
-} = Webpack;
-
-const Margins = getModule(byProps("marginXSmall"));
-const RadioGroup = getModule((m) => m.Sizes && m.toString().includes("radioItemClassName"), { searchExports: true });
-const SwitchItem = getModule((m) => m.toString?.().includes("().dividerDefault"), { searchExports: true });
-const SettingsItem = getModule((m) => m.render?.toString().includes("required"), { searchExports: true });
-const SettingsNote = getModule((m) => m.Types && m.toString().includes("selectable"), { searchExports: true });
-const SettingsDivider = getModule((m) => m.toString?.().includes("().divider") && m.toString().includes("style"), {
-	searchExports: true,
-});
+import { Settings, Strings } from "../modules/utils";
+import {
+	Margins,
+	RadioGroup,
+	SettingsDivider,
+	SettingsItem,
+	SettingsNote,
+	SwitchItem,
+} from "../modules/discordmodules";
 
 export default function SettingsPanel() {
 	const settings = Settings.useSettingsState();

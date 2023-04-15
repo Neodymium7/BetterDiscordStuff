@@ -1,5 +1,5 @@
 import { createSettings, createStrings } from "bundlebd";
-import locales from "./locales.json";
+import locales from "../locales.json";
 
 export const Settings = createSettings({
 	showTooltip: true,
