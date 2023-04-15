@@ -4,23 +4,38 @@ const path = require("path");
 const fs = require("fs");
 const { execSync } = require("child_process");
 
+const findVersion = (pluginContents) => {
+	const lines = pluginContents.split("\n");
+	const versionLine = lines.find((line) => line.includes("@version"));
+	return versionLine.split(/\s+/).pop();
+};
+
 const ignore = [];
 
 let updatedPlugins = process.argv.slice(2);
 
 if (updatedPlugins.length === 0) {
-	let updatedFiles = execSync("git diff HEAD^ HEAD --name-only").toString().split("\n");
-
+	const updatedFiles = execSync("git diff HEAD^ HEAD --name-only").toString().split("\n");
 	const updatedDirs = [...new Set(updatedFiles.map((filePath) => filePath.split(path.sep)[0]))];
 
 	updatedPlugins = updatedDirs.filter((dirName) => {
 		const srcPath = path.join(dirName, "src");
-		return (
-			!ignore.includes(dirName) &&
+
+		const ignored = ignore.includes(dirName);
+		const isValidPlugin =
 			fs.existsSync(srcPath) &&
 			fs.lstatSync(srcPath).isDirectory() &&
-			fs.existsSync(path.resolve(srcPath, "plugin.json"))
-		);
+			fs.existsSync(path.resolve(srcPath, "plugin.json"));
+		if (ignored || !isValidPlugin) return false;
+
+		const prevPluginPath = path.join(dirName, dirName + ".plugin.js");
+
+		const updatedVersion = JSON.parse(fs.readFileSync(path.resolve(srcPath, "plugin.json"), "utf8"))?.version;
+		const prevVersion = fs.existsSync(prevPluginPath)
+			? findVersion(fs.readFileSync(prevPluginPath, "utf-8"))
+			: "none";
+
+		return updatedVersion !== prevVersion;
 	});
 }
 
