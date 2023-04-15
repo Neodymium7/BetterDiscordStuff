@@ -94,6 +94,7 @@ export default class AvatarSettingsButton extends BasePlugin {
 
 	onStart() {
 		DOM.addStyle(`${settingsSelector} { display: none; } .${accountClasses.withTagAsButton} { width: 100%; }`);
+		Strings.subscribe();
 		Settings.addListener(() => {
 			this.addListeners();
 			this.addTooltip();
@@ -207,6 +208,7 @@ export default class AvatarSettingsButton extends BasePlugin {
 
 	onStop() {
 		DOM.removeStyle();
+		Strings.unsubscribe();
 		Settings.clearListeners();
 		this.clearListeners?.();
 		this.tooltip?.remove();

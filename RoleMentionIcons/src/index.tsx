@@ -1,7 +1,7 @@
 import { Webpack, DOM } from "betterdiscord";
 import BasePlugin from "zlibrary/plugin";
 import SettingsPanel from "./components/SettingsPanel";
-import { Settings, filter, getProps, peopleSVG } from "./utils";
+import { Settings, Strings, filter, getProps, peopleSVG } from "./utils";
 
 const {
 	Filters: { byProps },
@@ -30,6 +30,7 @@ export default class RoleMentionIcons extends BasePlugin {
 
 	onStart() {
 		DOM.addStyle(".role-mention-icon { position: relative; top: 2px; margin-left: 4px; }");
+		Strings.subscribe();
 
 		const elements = Array.from(document.getElementsByClassName(roleMention));
 		this.processElements(elements);
@@ -78,6 +79,7 @@ export default class RoleMentionIcons extends BasePlugin {
 
 	onStop() {
 		DOM.removeStyle();
+		Strings.unsubscribe();
 		this.clearIcons();
 	}
 

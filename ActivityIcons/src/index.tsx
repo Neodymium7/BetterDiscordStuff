@@ -2,7 +2,7 @@ import { Patcher, Webpack, DOM } from "betterdiscord";
 import { DiscordSelectors } from "zlibrary";
 import BasePlugin from "zlibrary/plugin";
 import { WebpackUtils } from "bundlebd";
-import { forceUpdateAll } from "./utils";
+import { Strings, forceUpdateAll } from "./utils";
 import styles from "./styles.css";
 import ActivityIcon from "./components/ActivityIcon";
 import ListeningIcon from "./components/ListeningIcon";
@@ -10,7 +10,7 @@ import SettingsPanel from "./components/SettingsPanel";
 
 const {
 	Filters: { byProps, byStrings },
-	getModule
+	getModule,
 } = Webpack;
 
 const { byValues } = WebpackUtils;
@@ -22,6 +22,7 @@ const privateChannel = `.${getModule(byProps("privateChannelsHeaderContainer")).
 export default class ActivityIcons extends BasePlugin {
 	onStart() {
 		DOM.addStyle(styles);
+		Strings.subscribe();
 		this.patchActivityStatus();
 	}
 
@@ -42,6 +43,7 @@ export default class ActivityIcons extends BasePlugin {
 	onStop() {
 		Patcher.unpatchAll();
 		DOM.removeStyle();
+		Strings.unsubscribe();
 		forceUpdateAll(memberListItem);
 		forceUpdateAll(peopleListItem);
 		forceUpdateAll(privateChannel);
