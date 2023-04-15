@@ -1,16 +1,8 @@
-import { Webpack } from "betterdiscord";
-import { Settings } from "../utils";
+import { Components } from "betterdiscord";
+import Settings from "../modules/settings";
+import { Icons } from "../modules/discordmodules";
 import { Component as Playstation } from "../assets/playstation.svg";
 import { Component as Xbox } from "../assets/xbox.svg";
-
-const {
-	Filters: { byPrototypeFields, byStrings },
-	getModule,
-} = Webpack;
-
-const Activity = getModule(byStrings("M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264"));
-const RichActivity = getModule(byStrings("M6,7 L2,7 L2,6 L6,6 L6,7 Z M8,5 L2,5 L2,4 L8,4"));
-const Tooltip = getModule(byPrototypeFields("renderTooltip"), { searchExports: true });
 
 const bot = ["created_at", "id", "name", "type", "url"];
 
@@ -67,19 +59,19 @@ export default function ActivityIcon(props: ActivityIconProps) {
 		);
 	}
 
-	let icon = <Activity width="16" height="16" />;
+	let icon = <Icons.Activity width="16" height="16" />;
 	if (onPS) icon = <Playstation width="14" height="14" className="activity-icon-small" />;
 	if (onXbox) icon = <Xbox width="14" height="14" className="activity-icon-small" />;
-	if (hasRP) icon = <RichActivity width="16" height="16" />;
+	if (hasRP) icon = <Icons.RichActivity width="16" height="16" />;
 
 	return tooltip ? (
-		<Tooltip text={tooltip} position="top">
+		<Components.Tooltip text={tooltip} position="top">
 			{(props: any) => (
 				<div {...props} className={hasRP ? "activity-icon rich-activity-icon" : "activity-icon"}>
 					{icon}
 				</div>
 			)}
-		</Tooltip>
+		</Components.Tooltip>
 	) : (
 		<div className={hasRP ? "activity-icon rich-activity-icon" : "activity-icon"}>{icon}</div>
 	);

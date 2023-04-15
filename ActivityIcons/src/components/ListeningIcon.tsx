@@ -1,12 +1,5 @@
-import { Webpack } from "betterdiscord";
-
-const {
-	Filters: { byPrototypeFields, byStrings },
-	getModule,
-} = Webpack;
-
-const Headset = getModule(byStrings("M12 2.00305C6.486 2.00305 2 6.48805 2 12.0031V20.0031C2"));
-const Tooltip = getModule(byPrototypeFields("renderTooltip"), { searchExports: true });
+import { Components } from "betterdiscord";
+import { Icons } from "../modules/discordmodules";
 
 interface ListeningIconProps {
 	activities: any[];
@@ -17,7 +10,7 @@ export default function ListeningIcon(props: ListeningIconProps) {
 	if (!activity) return null;
 
 	return (
-		<Tooltip
+		<Components.Tooltip
 			text={
 				<>
 					<div style={{ fontWeight: "600" }}>{activity.details}</div>
@@ -30,9 +23,9 @@ export default function ListeningIcon(props: ListeningIconProps) {
 		>
 			{(props) => (
 				<div {...props} className="activity-icon">
-					<Headset className="activity-icon-small" width="14" height="14"></Headset>
+					<Icons.Headset className="activity-icon-small" width="14" height="14" />
 				</div>
 			)}
-		</Tooltip>
+		</Components.Tooltip>
 	);
 }

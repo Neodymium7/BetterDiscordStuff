@@ -1,23 +1,15 @@
-import { Patcher, Webpack, DOM } from "betterdiscord";
+import { Patcher, DOM } from "betterdiscord";
 import { DiscordSelectors } from "zlibrary";
 import BasePlugin from "zlibrary/plugin";
-import { WebpackUtils } from "bundlebd";
-import { Strings, forceUpdateAll } from "./utils";
+import Strings from "./modules/strings";
+import { forceUpdateAll } from "./modules/reactutils";
+import { ActivityStatus, peopleListItem, privateChannel } from "./modules/discordmodules";
 import styles from "./styles.css";
 import ActivityIcon from "./components/ActivityIcon";
 import ListeningIcon from "./components/ListeningIcon";
 import SettingsPanel from "./components/SettingsPanel";
 
-const {
-	Filters: { byProps, byStrings },
-	getModule,
-} = Webpack;
-
-const { byValues } = WebpackUtils;
-
-const peopleListItem = `.${getModule(byProps("peopleListItem")).peopleListItem}`;
 const memberListItem = `${DiscordSelectors.MemberList.members} > div > div:not(:first-child)`;
-const privateChannel = `.${getModule(byProps("privateChannelsHeaderContainer")).scroller} > ul > li`;
 
 export default class ActivityIcons extends BasePlugin {
 	onStart() {
@@ -27,7 +19,6 @@ export default class ActivityIcons extends BasePlugin {
 	}
 
 	patchActivityStatus() {
-		const ActivityStatus = getModule(byValues(byStrings("applicationStream")));
 		Patcher.after(ActivityStatus, "Z", (_, [props]: [any], ret) => {
 			if (ret) {
 				ret.props.children[2] = null;
