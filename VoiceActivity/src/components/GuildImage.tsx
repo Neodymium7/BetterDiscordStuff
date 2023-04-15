@@ -1,8 +1,8 @@
 import { Webpack } from "betterdiscord";
 import { DiscordModules } from "zlibrary";
-import { transitionTo } from "../utils";
 import styles from "../styles/guildimage.module.scss";
 import defaultGroupIcon from "../assets/default_group_icon.png";
+import { transitionTo } from "../modules/discordmodules";
 
 const {
 	Filters: { byStrings },

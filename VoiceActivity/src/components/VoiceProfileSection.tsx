@@ -1,19 +1,9 @@
-import { Webpack } from "betterdiscord";
+import { Components, Webpack } from "betterdiscord";
 import { DiscordModules, ContextMenu } from "zlibrary";
-import {
-	Settings,
-	Strings,
-	VoiceStateStore,
-	useStateFromStores,
-	checkPermissions,
-	groupDMName,
-	transitionTo,
-	GuildStore,
-} from "../utils";
+import { Settings, Strings, checkPermissions, groupDMName } from "../modules/utils";
 import styles from "../styles/voiceprofilesection.module.scss";
-import Tooltip from "./Tooltip";
-import { CallJoin, Speaker, Stage } from "./icons";
 import GuildImage from "./GuildImage";
+import { GuildStore, Icons, VoiceStateStore, transitionTo, useStateFromStores } from "../modules/discordmodules";
 
 const {
 	getModule,
@@ -63,14 +53,14 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 		text = [<h3>{guild.name}</h3>, <div>{channel.name}</div>];
 		viewButton = Strings.VIEW;
 		joinButton = inCurrentChannel ? Strings.JOIN_DISABLED : Strings.JOIN;
-		Icon = Speaker;
+		Icon = Icons.Speaker;
 		channelPath = `/channels/${guild.id}/${channel.id}`;
 	} else {
 		headerText = Strings.HEADER_VOICE;
 		text = <h3>{channel.name}</h3>;
 		viewButton = Strings.VIEW_CALL;
 		joinButton = inCurrentChannel ? Strings.JOIN_DISABLED_CALL : Strings.JOIN_CALL;
-		Icon = CallJoin;
+		Icon = Icons.CallJoin;
 		channelPath = `/channels/@me/${channel.id}`;
 	}
 	switch (channel.type) {
@@ -83,7 +73,7 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 			break;
 		case 13:
 			headerText = Strings.HEADER_STAGE;
-			Icon = Stage;
+			Icon = Icons.Stage;
 	}
 
 	const section = (
@@ -106,7 +96,7 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 					{viewButton}
 				</button>
 				{!isCurrentUser && (
-					<Tooltip text={joinButton} position="top">
+					<Components.Tooltip text={joinButton} position="top">
 						{(props: any) => (
 							<div
 								{...props}
@@ -143,7 +133,7 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 								</button>
 							</div>
 						)}
-					</Tooltip>
+					</Components.Tooltip>
 				)}
 			</div>
 		</UserPopoutSection>

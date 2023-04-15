@@ -1,15 +1,8 @@
-import { Patcher, ReactUtils, Webpack } from "betterdiscord";
-import { DiscordModules, ReactTools } from "zlibrary";
+import { Patcher, ReactUtils } from "betterdiscord";
+import { ReactTools } from "zlibrary";
 import { createSettings, createStrings } from "bundlebd";
-import locales from "./locales.json";
-
-const {
-	Filters: { byProps, byStrings },
-	getModule,
-} = Webpack;
-
-const { Permissions, UserStore } = DiscordModules;
-const DiscordPermissions = getModule(byProps("VIEW_CREATOR_MONETIZATION_ANALYTICS"), { searchExports: true });
+import locales from "../locales.json";
+import { DiscordPermissions, GuildChannelStore, Permissions, UserStore, VoiceStateStore } from "./discordmodules";
 
 export const Settings = createSettings({
 	showProfileSection: true,
@@ -26,11 +19,6 @@ export const Settings = createSettings({
 
 export const Strings = createStrings(locales, "en-US");
 
-export const useStateFromStores = getModule(byStrings("useStateFromStores"));
-export const transitionTo = getModule(byStrings("transitionTo -"), { searchExports: true });
-export const VoiceStateStore = getModule(byProps("getVoiceStateForUser"));
-export const GuildStore = getModule(byProps("getGuildCount"));
-
 export function checkPermissions(channel: any): boolean {
 	return Permissions.can({
 		permission: DiscordPermissions.VIEW_CHANNEL,
@@ -38,6 +26,26 @@ export function checkPermissions(channel: any): boolean {
 		context: channel,
 	});
 }
+
+export const getGuildMediaState = (guildId: string, ignoredChannels: string[]) => {
+	const vocalChannelIds = GuildChannelStore.getVocalChannelIds(guildId);
+	let audio = false;
+	let video = false;
+	let screenshare = false;
+
+	for (const id of vocalChannelIds) {
+		if (ignoredChannels.includes(id)) continue;
+
+		const voiceStates: any[] = Object.values(VoiceStateStore.getVoiceStatesForChannel(id));
+		if (!voiceStates.length) continue;
+		else audio = true;
+
+		if (!video && VoiceStateStore.hasVideo(id)) video = true;
+		if (!screenshare && voiceStates.some((voiceState) => voiceState.selfStream)) screenshare = true;
+		if (audio && video && screenshare) break;
+	}
+	return { audio, video, screenshare };
+};
 
 export function groupDMName(members: any[]): string {
 	if (members.length === 1) {
@@ -63,6 +71,7 @@ export function forceUpdateAll(selector: string) {
 
 export function forceRerender(selector: string) {
 	const element: HTMLElement = document.querySelector(selector);
+	if (!element) return;
 	const ownerInstance = ReactUtils.getOwnerInstance(element);
 	const cancel = Patcher.instead(ownerInstance, "render", () => {
 		cancel();

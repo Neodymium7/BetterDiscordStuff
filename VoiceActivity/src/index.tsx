@@ -3,24 +3,31 @@ import { WebpackUtils } from "bundlebd";
 import { ReactComponents } from "zlibrary";
 import BasePlugin from "zlibrary/plugin";
 import styles from "styles";
-import { Settings, Strings, forceUpdateAll, useStateFromStores, forceRerender, VoiceStateStore } from "./utils";
+import { Settings, Strings, forceUpdateAll, forceRerender, getGuildMediaState } from "./modules/utils";
 import iconStyles from "./styles/voiceicon.module.scss";
 import VoiceIcon from "./components/VoiceIcon";
 import VoiceProfileSection from "./components/VoiceProfileSection";
 import SettingsPanel from "./components/SettingsPanel";
+import {
+	VoiceStateStore,
+	children,
+	guildIconClass,
+	memberItemClass,
+	peopleItemClass,
+	privateChannelClass,
+	useStateFromStores,
+} from "./modules/discordmodules";
 
 const {
-	Filters: { byProps, byStrings },
-	getModule,
+	Filters: { byStrings },
 } = Webpack;
 
-const { getModuleWithKey, store } = WebpackUtils;
+const { getModuleWithKey } = WebpackUtils;
 
-const memberItemSelector = `.${getModule(byProps("member", "activity")).member}`;
-const privateChannelSelector = `.${getModule(byProps("channel", "activity")).channel}`;
-const peopleItemSelector = `.${getModule(byProps("peopleListItem")).peopleListItem}`;
-const guildIconSelector = `.${getModule(byProps("folderEndWrapper")).wrapper}`;
-const children = getModule(byProps("avatar", "children")).children;
+const memberItemSelector = `.${memberItemClass}`;
+const privateChannelSelector = `.${privateChannelClass}`;
+const peopleItemSelector = `.${peopleItemClass}`;
+const guildIconSelector = `.${guildIconClass}`;
 
 export default class VoiceActivity extends BasePlugin {
 	contextMenuUnpatches: Set<() => void>;
@@ -30,12 +37,12 @@ export default class VoiceActivity extends BasePlugin {
 
 		DOM.addStyle(styles() + `.${children}:empty { margin-left: 0; } .${children} { display: flex; gap: 8px; }`);
 		Strings.subscribe();
-		this.patchUserPopout();
-		this.patchPrivateChannelProfile();
-		this.patchGuildIcon();
 		this.patchMemberListItem();
 		this.patchPrivateChannel();
 		this.patchPeopleListItem();
+		this.patchUserPopout();
+		this.patchPrivateChannelProfile();
+		this.patchGuildIcon();
 		this.patchChannelContextMenu();
 		this.patchGuildContextMenu();
 	}
@@ -66,28 +73,8 @@ export default class VoiceActivity extends BasePlugin {
 	}
 
 	patchGuildIcon() {
-		const getGuildMediaState = (guildId: string, ignoredChannels: string[]) => {
-			const vocalChannelIds = GuildChannelStore.getVocalChannelIds(guildId);
-			let audio = false;
-			let video = false;
-			let screenshare = false;
-
-			for (const id of vocalChannelIds) {
-				if (ignoredChannels.includes(id)) continue;
-
-				const voiceStates: any[] = Object.values(VoiceStateStore.getVoiceStatesForChannel(id));
-				if (!voiceStates.length) continue;
-				else audio = true;
-
-				if (!video && VoiceStateStore.hasVideo(id)) video = true;
-				if (!screenshare && voiceStates.some((voiceState) => voiceState.selfStream)) screenshare = true;
-				if (audio && video && screenshare) break;
-			}
-			return { audio, video, screenshare };
-		};
-
-		const GuildChannelStore = getModule(store("GuildChannelStore"));
 		const element: HTMLElement = document.querySelector(guildIconSelector);
+		if (!element) return;
 		const targetInstance = Utils.findInTree(
 			ReactUtils.getInternalInstance(element),
 			(n) => n?.elementType?.type && n.pendingProps?.mediaState,

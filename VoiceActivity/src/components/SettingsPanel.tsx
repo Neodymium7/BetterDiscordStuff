@@ -1,6 +1,6 @@
 import { Webpack } from "betterdiscord";
 import { SettingsKey } from "bundlebd";
-import { Settings, Strings } from "../utils";
+import { Settings, Strings } from "../modules/utils";
 
 const { getModule } = Webpack;
 

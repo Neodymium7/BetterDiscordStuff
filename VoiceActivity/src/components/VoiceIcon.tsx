@@ -1,19 +1,15 @@
-import { DiscordModules } from "zlibrary";
-import {
-	Settings,
-	Strings,
-	VoiceStateStore,
-	useStateFromStores,
-	groupDMName,
-	checkPermissions,
-	transitionTo,
-	GuildStore,
-} from "../utils";
+import { Settings, Strings, groupDMName, checkPermissions } from "../modules/utils";
 import styles from "../styles/voiceicon.module.scss";
-import Tooltip from "./Tooltip";
-import { CallJoin, People, Speaker, Stage, Deafened, Muted, Video } from "./icons";
-
-const { ChannelStore, UserStore } = DiscordModules;
+import {
+	ChannelStore,
+	GuildStore,
+	Icons,
+	UserStore,
+	VoiceStateStore,
+	transitionTo,
+	useStateFromStores,
+} from "../modules/discordmodules";
+import { Components } from "betterdiscord";
 
 interface VoiceIconProps {
 	userId: string;
@@ -61,12 +57,12 @@ export default function VoiceIcon(props: VoiceIconProps) {
 	if (guild) {
 		text = guild.name;
 		subtext = channel.name;
-		TooltipIcon = Speaker;
+		TooltipIcon = Icons.Speaker;
 		channelPath = `/channels/${guild.id}/${channel.id}`;
 	} else {
 		text = channel.name;
 		subtext = Strings.VOICE_CALL;
-		TooltipIcon = CallJoin;
+		TooltipIcon = Icons.CallJoin;
 		channelPath = `/channels/@me/${channel.id}`;
 	}
 	switch (channel.type) {
@@ -77,16 +73,16 @@ export default function VoiceIcon(props: VoiceIconProps) {
 		case 3:
 			text = channel.name || groupDMName(channel.recipients);
 			subtext = Strings.GROUP_CALL;
-			TooltipIcon = People;
+			TooltipIcon = Icons.People;
 			break;
 		case 13:
-			TooltipIcon = Stage;
+			TooltipIcon = Icons.Stage;
 	}
 
-	let Icon = Speaker;
-	if (showStatusIcons && (voiceState.selfDeaf || voiceState.deaf)) Icon = Deafened;
-	else if (showStatusIcons && (voiceState.selfMute || voiceState.mute)) Icon = Muted;
-	else if (showStatusIcons && voiceState.selfVideo) Icon = Video;
+	let Icon = Icons.Speaker;
+	if (showStatusIcons && (voiceState.selfDeaf || voiceState.deaf)) Icon = Icons.Deafened;
+	else if (showStatusIcons && (voiceState.selfMute || voiceState.mute)) Icon = Icons.Muted;
+	else if (showStatusIcons && voiceState.selfVideo) Icon = Icons.Video;
 
 	return (
 		<div
@@ -97,7 +93,7 @@ export default function VoiceIcon(props: VoiceIconProps) {
 				if (channelPath) transitionTo(channelPath);
 			}}
 		>
-			<Tooltip
+			<Components.Tooltip
 				text={
 					<div className={styles.tooltip}>
 						<div className={styles.header} style={{ fontWeight: "600" }}>
@@ -113,7 +109,7 @@ export default function VoiceIcon(props: VoiceIconProps) {
 				{(props: any) => (
 					<div {...props}>{!voiceState.selfStream ? <Icon width="14" height="14" /> : Strings.LIVE}</div>
 				)}
-			</Tooltip>
+			</Components.Tooltip>
 		</div>
 	);
 }
