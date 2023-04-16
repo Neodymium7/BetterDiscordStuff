@@ -1,9 +1,9 @@
 import { Patcher, DOM, Webpack, ContextMenu, ReactUtils, Utils } from "betterdiscord";
 import { WebpackUtils } from "bundlebd";
-import { ReactComponents } from "zlibrary";
 import BasePlugin from "zlibrary/plugin";
 import styles from "styles";
 import {
+	MemberListItemContainer,
 	VoiceStateStore,
 	children,
 	guildIconClass,
@@ -12,7 +12,7 @@ import {
 	privateChannelClass,
 	useStateFromStores,
 } from "./modules/discordmodules";
-import { Settings, Strings, forceUpdateAll, forceRerender, getGuildMediaState } from "./modules/utils";
+import { Settings, Strings, forceUpdateAll, forceRerender, getGuildMediaState, waitForElement } from "./modules/utils";
 import iconStyles from "./styles/voiceicon.module.scss";
 import VoiceIcon from "./components/VoiceIcon";
 import VoiceProfileSection from "./components/VoiceProfileSection";
@@ -37,11 +37,11 @@ export default class VoiceActivity extends BasePlugin {
 
 		DOM.addStyle(styles() + `.${children}:empty { margin-left: 0; } .${children} { display: flex; gap: 8px; }`);
 		Strings.subscribe();
-		this.patchMemberListItem();
-		this.patchPrivateChannel();
 		this.patchPeopleListItem();
 		this.patchUserPopout();
 		this.patchPrivateChannelProfile();
+		this.patchMemberListItem();
+		this.patchPrivateChannel();
 		this.patchGuildIcon();
 		this.patchChannelContextMenu();
 		this.patchGuildContextMenu();
@@ -72,6 +72,74 @@ export default class VoiceActivity extends BasePlugin {
 		});
 	}
 
+	patchMemberListItem() {
+		const unpatch = Patcher.after(MemberListItemContainer, "type", (_, _args, containerRet) => {
+			const MemberListItem = containerRet.type;
+
+			Patcher.after(MemberListItem.prototype, "render", (that: any, _, ret) => {
+				if (!that.props.user) return ret;
+				Array.isArray(ret.props.children)
+					? ret.props.children.unshift(<VoiceIcon userId={that.props.user.id} context="memberlist" />)
+					: (ret.props.children = [<VoiceIcon userId={that.props.user.id} context="memberlist" />]);
+			});
+
+			unpatch();
+		});
+	}
+
+	patchPrivateChannel() {
+		const [PrivateChannelContainer, key] = getModuleWithKey(byStrings("getRecipientId", "isFavorite"));
+		const unpatch = Patcher.after(PrivateChannelContainer, key, (_, _args, containerRet) => {
+			const PrivateChannel = containerRet.type;
+
+			Patcher.after(PrivateChannel.prototype, "render", (that: any, _, ret) => {
+				if (!that.props.user) return ret;
+				const props = Utils.findInTree(ret, (e) => e?.children && e?.id, { walkable: ["children", "props"] });
+				const children = props.children;
+				props.children = (childrenProps: any) => {
+					const childrenRet = children(childrenProps);
+					const privateChannel = Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
+						walkable: ["children", "props"],
+					});
+					privateChannel.children = [
+						privateChannel.children,
+						<div className={iconStyles.iconContainer}>
+							<VoiceIcon userId={that.props.user.id} context="dmlist" />
+						</div>,
+					];
+					return childrenRet;
+				};
+			});
+
+			unpatch();
+		});
+	}
+
+	async patchPeopleListItem() {
+		const element = await waitForElement(peopleItemSelector);
+		const targetInstance = Utils.findInTree(
+			ReactUtils.getInternalInstance(element),
+			(n) => n?.elementType?.prototype?.componentWillEnter,
+			{ walkable: ["return"] }
+		);
+		const PeopleListItem = targetInstance.elementType;
+		Patcher.after(PeopleListItem.prototype, "render", (that: any, _, ret) => {
+			if (!that.props.user) return;
+			const children = ret.props.children;
+			ret.props.children = (childrenProps: any) => {
+				const childrenRet = children(childrenProps);
+				Utils.findInTree(childrenRet, (i) => Array.isArray(i), { walkable: ["props", "children"] }).splice(
+					1,
+					0,
+					<div className={iconStyles.iconContainer}>
+						<VoiceIcon userId={that.props.user.id} context="peoplelist" />
+					</div>
+				);
+				return childrenRet;
+			};
+		});
+	}
+
 	patchGuildIcon() {
 		const element: HTMLElement = document.querySelector(guildIconSelector);
 		if (!element) return;
@@ -93,73 +161,6 @@ export default class VoiceActivity extends BasePlugin {
 			}
 		});
 		forceRerender(guildIconSelector);
-	}
-
-	async patchMemberListItem() {
-		const MemberListItem = await ReactComponents.getComponent(
-			"MemberListItem",
-			memberItemSelector,
-			(c) => c.prototype?.renderPremium
-		);
-		Patcher.after(MemberListItem.component.prototype, "render", (thisObject: any, _, ret) => {
-			if (thisObject.props.user) {
-				Array.isArray(ret.props.children)
-					? ret.props.children.unshift(<VoiceIcon userId={thisObject.props.user.id} context="memberlist" />)
-					: (ret.props.children = [<VoiceIcon userId={thisObject.props.user.id} context="memberlist" />]);
-			}
-		});
-		forceUpdateAll(memberItemSelector);
-	}
-
-	async patchPrivateChannel() {
-		const PrivateChannel = await ReactComponents.getComponent(
-			"PrivateChannel",
-			privateChannelSelector,
-			(c) => c.prototype?.renderSubtitle
-		);
-		Patcher.after(PrivateChannel.component.prototype, "render", (thisObject: any, _, ret) => {
-			if (!thisObject.props.user) return;
-			const props = Utils.findInTree(ret, (e) => e?.children && e?.id, { walkable: ["children", "props"] });
-			const children = props.children;
-			props.children = (childrenProps: any) => {
-				const childrenRet = children(childrenProps);
-				const privateChannel = Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
-					walkable: ["children", "props"],
-				});
-				privateChannel.children = [
-					privateChannel.children,
-					<div className={iconStyles.iconContainer}>
-						<VoiceIcon userId={thisObject.props.user.id} context="dmlist" />
-					</div>,
-				];
-				return childrenRet;
-			};
-		});
-		forceUpdateAll(privateChannelSelector);
-	}
-
-	async patchPeopleListItem() {
-		const PeopleListItem = await ReactComponents.getComponent(
-			"PeopleListItem",
-			peopleItemSelector,
-			(c) => c.prototype?.componentWillEnter
-		);
-		Patcher.after(PeopleListItem.component.prototype, "render", (thisObject: any, _, ret) => {
-			if (!thisObject.props.user) return;
-			const children = ret.props.children;
-			ret.props.children = (childrenProps: any) => {
-				const childrenRet = children(childrenProps);
-				Utils.findInTree(childrenRet, (i) => Array.isArray(i), { walkable: ["props", "children"] }).splice(
-					1,
-					0,
-					<div className={iconStyles.iconContainer}>
-						<VoiceIcon userId={thisObject.props.user.id} context="peoplelist" />
-					</div>
-				);
-				return childrenRet;
-			};
-		});
-		forceUpdateAll(peopleItemSelector);
 	}
 
 	patchChannelContextMenu() {

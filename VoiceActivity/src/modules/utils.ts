@@ -79,3 +79,21 @@ export function forceRerender(selector: string) {
 	});
 	ownerInstance.forceUpdate(() => ownerInstance.forceUpdate());
 }
+
+export function waitForElement(selector: string) {
+	return new Promise<HTMLElement>((resolve) => {
+		const element = document.querySelector(selector);
+		if (element) {
+			return resolve(element as HTMLElement);
+		}
+
+		const observer = new MutationObserver(() => {
+			const addedElement = document.querySelector(selector);
+			if (addedElement) {
+				resolve(addedElement as HTMLElement);
+				observer.disconnect();
+			}
+		});
+		observer.observe(document, { childList: true, subtree: true });
+	});
+}

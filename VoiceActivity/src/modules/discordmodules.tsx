@@ -20,6 +20,13 @@ const Error = (_props) => (
 	</div>
 );
 
+export const MemberListItemContainer: any = expectModule(
+	(m) => m.type?.toString().includes("canUseAvatarDecorations"),
+	{
+		name: "MemberListItemContainer",
+	}
+);
+
 export const Permissions: any = expectModule(byProps("computePermissions"), {
 	name: "Permissions",
 	fatal: true,
