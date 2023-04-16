@@ -81,16 +81,14 @@ export function forceRerender(selector: string) {
 }
 
 export function waitForElement(selector: string) {
-	return new Promise<HTMLElement>((resolve) => {
-		const element = document.querySelector(selector);
-		if (element) {
-			return resolve(element as HTMLElement);
+	return new Promise<void>((resolve) => {
+		if (document.querySelector(selector)) {
+			return resolve();
 		}
 
 		const observer = new MutationObserver(() => {
-			const addedElement = document.querySelector(selector);
-			if (addedElement) {
-				resolve(addedElement as HTMLElement);
+			if (document.querySelector(selector)) {
+				resolve();
 				observer.disconnect();
 			}
 		});

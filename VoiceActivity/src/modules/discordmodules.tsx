@@ -104,14 +104,6 @@ export const Icons = {
 	),
 };
 
-export const memberItemClass = expectModule<{ member: string }>(byProps("member", "activity"), {
-	name: "Member Item Class",
-})?.member;
-
-export const privateChannelClass = expectModule<{ channel: string }>(byProps("channel", "activity"), {
-	name: "Private Channel Class",
-})?.channel;
-
 export const peopleItemClass = expectModule<{ peopleListItem: string }>(byProps("peopleListItem"), {
 	name: "People Item Class",
 })?.peopleListItem;

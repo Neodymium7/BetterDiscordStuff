@@ -7,9 +7,7 @@ import {
 	VoiceStateStore,
 	children,
 	guildIconClass,
-	memberItemClass,
 	peopleItemClass,
-	privateChannelClass,
 	useStateFromStores,
 } from "./modules/discordmodules";
 import { Settings, Strings, forceUpdateAll, forceRerender, getGuildMediaState, waitForElement } from "./modules/utils";
@@ -24,8 +22,6 @@ const {
 
 const { getModuleWithKey } = WebpackUtils;
 
-const memberItemSelector = `.${memberItemClass}`;
-const privateChannelSelector = `.${privateChannelClass}`;
 const peopleItemSelector = `.${peopleItemClass}`;
 const guildIconSelector = `.${guildIconClass}`;
 
@@ -116,7 +112,8 @@ export default class VoiceActivity extends BasePlugin {
 	}
 
 	async patchPeopleListItem() {
-		const element = await waitForElement(peopleItemSelector);
+		await waitForElement(peopleItemSelector);
+		const element: HTMLElement = document.querySelector(peopleItemSelector);
 		const targetInstance = Utils.findInTree(
 			ReactUtils.getInternalInstance(element),
 			(n) => n?.elementType?.prototype?.componentWillEnter,
@@ -138,6 +135,7 @@ export default class VoiceActivity extends BasePlugin {
 				return childrenRet;
 			};
 		});
+		forceUpdateAll(peopleItemSelector);
 	}
 
 	patchGuildIcon() {
@@ -226,8 +224,6 @@ export default class VoiceActivity extends BasePlugin {
 		Strings.unsubscribe();
 		this.contextMenuUnpatches.forEach((unpatch) => unpatch());
 		this.contextMenuUnpatches.clear();
-		forceUpdateAll(memberItemSelector);
-		forceUpdateAll(privateChannelSelector);
 		forceUpdateAll(peopleItemSelector);
 		forceRerender(guildIconSelector);
 	}
