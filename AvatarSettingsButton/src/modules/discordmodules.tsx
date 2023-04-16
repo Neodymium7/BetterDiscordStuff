@@ -38,16 +38,6 @@ export const Sections = expectModule(byProps("ACCOUNT"), {
 	fallback: { ACCOUNT: "Account" },
 });
 
-export const accountClasses = expectModule<AccountClasses>(byProps("buildOverrideButton"), {
-	name: "Account Classes",
-	fatal: true,
-});
-export const tooltipClasses = expectModule<TooltipClasses>(byProps("tooltipContent"), { name: "Tooltip Classes" });
-export const layerContainerClass = expectModule<{ layerContainer: string }>(byProps("layerContainer"), {
-	name: "layerContainer Class",
-})?.layerContainer;
-export const appClass = expectModule<{ app: string }>(byProps("appAsidePanelWrapper"), { name: "app Class" })?.app;
-
 export const Margins = expectModule(byProps("marginXSmall"), {
 	name: "Margins",
 	fallback: {
@@ -88,3 +78,16 @@ export const SettingsDivider = expectModule(
 		fallback: Error,
 	}
 );
+
+export const accountClasses = expectModule<AccountClasses>(byProps("buildOverrideButton"), {
+	name: "Account Classes",
+	fatal: true,
+});
+
+export const tooltipClasses = expectModule<TooltipClasses>(byProps("tooltipContent"), { name: "Tooltip Classes" });
+
+export const layerContainerClass = expectModule<{ layerContainer: string }>(byProps("layerContainer"), {
+	name: "Layer Container Class",
+})?.layerContainer;
+
+export const appClass = expectModule<{ app: string }>(byProps("appAsidePanelWrapper"), { name: "App Class" })?.app;

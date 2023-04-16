@@ -1,6 +1,5 @@
-import Settings from "../modules/settings";
-import Strings from "../modules/strings";
 import { SettingsItem, SettingsNote, RadioGroup, Margins } from "../modules/discordmodules";
+import { Settings, Strings } from "../modules/utils";
 
 export default function SettingsPanel() {
 	const settings = Settings.useSettingsState();

@@ -13,19 +13,19 @@ import {
 import ActivityDisabledIcon from "./ActivityDisabledIcon";
 
 export default function ActivityToggleButton() {
-	const enabled = useSetting();
+	const activityEnabled = useSetting();
 
 	return (
 		<PanelButton
-			icon={enabled ? Activity : ActivityDisabledIcon}
-			iconForeground={enabled ? null : DiscordClasses.AccountDetails.strikethrough}
-			tooltipText={enabled ? "Disable Activity" : "Enable Activity"}
+			icon={activityEnabled ? Activity : ActivityDisabledIcon}
+			iconForeground={activityEnabled ? null : DiscordClasses.AccountDetails.strikethrough}
+			tooltipText={activityEnabled ? "Disable Activity" : "Enable Activity"}
 			onClick={() => {
 				if (!updateSetting) {
 					return UI.alert("Error", "Could not update setting. See the console for more information.");
 				}
-				updateSetting(!enabled);
-				playSound(enabled ? "stream_user_left" : "stream_user_joined", 0.4);
+				updateSetting(!activityEnabled);
+				playSound(activityEnabled ? "stream_user_left" : "stream_user_joined", 0.4);
 			}}
 			onContextMenu={(e: React.MouseEvent) => {
 				ContextMenu.open(

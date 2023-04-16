@@ -1,8 +1,8 @@
 import { Patcher, ReactUtils } from "betterdiscord";
 import { ReactTools } from "zlibrary";
 import { createSettings, createStrings } from "bundlebd";
-import locales from "../locales.json";
 import { DiscordPermissions, GuildChannelStore, Permissions, UserStore, VoiceStateStore } from "./discordmodules";
+import locales from "../locales.json";
 
 export const Settings = createSettings({
 	showProfileSection: true,

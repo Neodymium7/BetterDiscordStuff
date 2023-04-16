@@ -1,26 +1,24 @@
 import { Components } from "betterdiscord";
-import Settings from "../modules/settings";
 import { Icons } from "../modules/discordmodules";
+import { Settings } from "../modules/utils";
 import { Component as Playstation } from "../assets/playstation.svg";
 import { Component as Xbox } from "../assets/xbox.svg";
 
-const bot = ["created_at", "id", "name", "type", "url"];
+const botActivityKeys = ["created_at", "id", "name", "type", "url"];
 
 interface ActivityIconProps {
 	activities: any[];
 }
 
 export default function ActivityIcon(props: ActivityIconProps) {
-	const { activities } = props;
-
 	const { normalIconBehavior } = Settings.useSettingsState();
 
 	const isBot =
-		activities.length === 1 &&
-		activities[0].type === 0 &&
-		Object.keys(activities[0]).every((value, i) => value === bot[i]);
+		props.activities.length === 1 &&
+		props.activities[0].type === 0 &&
+		Object.keys(props.activities[0]).every((value, i) => value === botActivityKeys[i]);
 
-	if (isBot || activities.length === 0) return null;
+	if (isBot || props.activities.length === 0) return null;
 
 	const normalActivities = props.activities.filter((activity) => activity.type === 0);
 
@@ -32,7 +30,7 @@ export default function ActivityIcon(props: ActivityIconProps) {
 
 	if (normalActivities.length === 0) return null;
 	if (normalIconBehavior === 2 && !(hasRP || onPS || onXbox)) return null;
-	if (normalIconBehavior === 1 && !hasCustomStatus && !(hasRP || onPS || onXbox)) return null;
+	else if (normalIconBehavior === 1 && !hasCustomStatus && !(hasRP || onPS || onXbox)) return null;
 
 	let tooltip: React.ReactElement;
 	if (normalActivities.length === 1 && hasCustomStatus) {

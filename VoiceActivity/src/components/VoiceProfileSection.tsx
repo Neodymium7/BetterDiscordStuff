@@ -1,18 +1,20 @@
-import { Components, Webpack } from "betterdiscord";
-import { DiscordModules, ContextMenu } from "zlibrary";
+import { Components } from "betterdiscord";
+import { ContextMenu } from "zlibrary";
+import {
+	ChannelActions,
+	ChannelStore,
+	GuildStore,
+	Icons,
+	SelectedChannelStore,
+	UserPopoutSection,
+	UserStore,
+	VoiceStateStore,
+	transitionTo,
+	useStateFromStores,
+} from "../modules/discordmodules";
 import { Settings, Strings, checkPermissions, groupDMName } from "../modules/utils";
 import styles from "../styles/voiceprofilesection.module.scss";
 import GuildImage from "./GuildImage";
-import { GuildStore, Icons, VoiceStateStore, transitionTo, useStateFromStores } from "../modules/discordmodules";
-
-const {
-	getModule,
-	Filters: { byStrings },
-} = Webpack;
-
-const { ChannelActions, ChannelStore, SelectedChannelStore, UserStore } = DiscordModules;
-
-const UserPopoutSection = getModule(byStrings(".lastSection", ".children"));
 
 interface VoiceProfileSectionProps {
 	userId: string;
@@ -110,7 +112,7 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 									className={`${styles.button} ${styles.joinButton}`}
 									disabled={inCurrentChannel}
 									onClick={() => {
-										if (channel.id) ChannelActions.selectVoiceChannel(channel.id);
+										if (channel.id) ChannelActions?.selectVoiceChannel(channel.id);
 									}}
 									onContextMenu={(e) => {
 										if (channel.type === 13) return;
@@ -122,7 +124,7 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 													id: "voice-activity-join-with-video",
 													action: () => {
 														if (channel.id)
-															ChannelActions.selectVoiceChannel(channel.id, true);
+															ChannelActions?.selectVoiceChannel(channel.id, true);
 													},
 												},
 											])

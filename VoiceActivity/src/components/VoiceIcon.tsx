@@ -1,5 +1,5 @@
+import { Components } from "betterdiscord";
 import { Settings, Strings, groupDMName, checkPermissions } from "../modules/utils";
-import styles from "../styles/voiceicon.module.scss";
 import {
 	ChannelStore,
 	GuildStore,
@@ -9,7 +9,7 @@ import {
 	transitionTo,
 	useStateFromStores,
 } from "../modules/discordmodules";
-import { Components } from "betterdiscord";
+import styles from "../styles/voiceicon.module.scss";
 
 interface VoiceIconProps {
 	userId: string;

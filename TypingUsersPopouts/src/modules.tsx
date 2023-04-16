@@ -8,7 +8,7 @@ const {
 
 const { expectModule, store } = WebpackUtils;
 
-const Error = (props: { message: string }) => (
+const ErrorPopout = (props: { message: string }) => (
 	<div style={{ backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" }}>
 		{props.message}
 	</div>
@@ -16,7 +16,7 @@ const Error = (props: { message: string }) => (
 
 export const UserPopout = expectModule((e) => e.type?.toString().includes('"userId"'), {
 	name: "UserPopout",
-	fallback: (_props: any) => <Error message="Error: User Popout module not found" />,
+	fallback: (_props: any) => <ErrorPopout message="Error: User Popout module not found" />,
 });
 
 export const Popout = expectModule(byStrings(".animationPosition"), {

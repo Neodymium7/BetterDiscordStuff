@@ -1,8 +1,6 @@
-import { Webpack } from "betterdiscord";
 import { SettingsKey } from "bundlebd";
+import { SwitchItem } from "../modules/discordmodules";
 import { Settings, Strings } from "../modules/utils";
-
-const { getModule } = Webpack;
 
 type SwitchSetting = SettingsKey<typeof Settings, boolean>;
 
@@ -18,8 +16,6 @@ type SettingsInfo = {
 		note: string;
 	};
 };
-
-const SwitchItem = getModule((m) => m.toString?.().includes("().dividerDefault"), { searchExports: true });
 
 const SettingsSwitchItem = (props: SwitchItemProps) => {
 	const value = Settings.useSettingsState()[props.setting];

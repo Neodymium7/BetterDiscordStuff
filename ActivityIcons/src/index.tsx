@@ -1,15 +1,16 @@
 import { Patcher, DOM } from "betterdiscord";
 import { DiscordSelectors } from "zlibrary";
 import BasePlugin from "zlibrary/plugin";
-import Strings from "./modules/strings";
-import { forceUpdateAll } from "./modules/reactutils";
-import { ActivityStatus, peopleListItem, privateChannel } from "./modules/discordmodules";
+import { ActivityStatus, peopleListItemClass, privateChannelClass } from "./modules/discordmodules";
+import { forceUpdateAll, Strings } from "./modules/utils";
 import styles from "./styles.css";
 import ActivityIcon from "./components/ActivityIcon";
 import ListeningIcon from "./components/ListeningIcon";
 import SettingsPanel from "./components/SettingsPanel";
 
 const memberListItem = `${DiscordSelectors.MemberList.members} > div > div:not(:first-child)`;
+const peopleListItem = `.${peopleListItemClass}`;
+const privateChannel = `.${privateChannelClass} > ul > li`;
 
 export default class ActivityIcons extends BasePlugin {
 	onStart() {

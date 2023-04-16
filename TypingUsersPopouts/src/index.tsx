@@ -1,7 +1,7 @@
 import { Webpack, DOM, Patcher, Utils } from "betterdiscord";
 import { DiscordSelectors } from "zlibrary";
-import { WebpackUtils } from "bundlebd";
 import Plugin from "zlibrary/plugin";
+import { WebpackUtils } from "bundlebd";
 import { loadProfile, Popout, RelationshipStore, UserPopout, UserStore } from "./modules";
 
 const {

@@ -3,11 +3,6 @@ import { WebpackUtils } from "bundlebd";
 import { ReactComponents } from "zlibrary";
 import BasePlugin from "zlibrary/plugin";
 import styles from "styles";
-import { Settings, Strings, forceUpdateAll, forceRerender, getGuildMediaState } from "./modules/utils";
-import iconStyles from "./styles/voiceicon.module.scss";
-import VoiceIcon from "./components/VoiceIcon";
-import VoiceProfileSection from "./components/VoiceProfileSection";
-import SettingsPanel from "./components/SettingsPanel";
 import {
 	VoiceStateStore,
 	children,
@@ -17,6 +12,11 @@ import {
 	privateChannelClass,
 	useStateFromStores,
 } from "./modules/discordmodules";
+import { Settings, Strings, forceUpdateAll, forceRerender, getGuildMediaState } from "./modules/utils";
+import iconStyles from "./styles/voiceicon.module.scss";
+import VoiceIcon from "./components/VoiceIcon";
+import VoiceProfileSection from "./components/VoiceProfileSection";
+import SettingsPanel from "./components/SettingsPanel";
 
 const {
 	Filters: { byStrings },

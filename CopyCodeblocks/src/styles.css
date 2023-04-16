@@ -2,9 +2,11 @@
 	position: relative;
 	margin: -7px;
 }
+
 .codeblockContent {
 	padding: 7px;
 }
+
 .copyCodeblockButton {
 	position: absolute;
 	right: 3px;
@@ -22,12 +24,15 @@
 	transition: opacity 0.1s, transform 0.1s;
 	transform: none;
 }
+
 .copyCodeblockButton:hover {
 	color: var(--interactive-hover);
 }
+
 .copyCodeblockButton:active {
 	color: var(--interactive-active);
 }
+
 .codeblockWrapper:not(:hover) .copyCodeblockButton {
 	opacity: 0;
 	transform: scale(0.95) translate(2px, -2px);

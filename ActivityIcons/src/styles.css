@@ -5,13 +5,16 @@
 	-webkit-box-flex: 0;
 	flex: 0 0 auto;
 }
+
 .activity-icon-small {
 	margin: 1px;
 }
+
 .rich-activity-icon {
 	margin-left: 2px;
 	margin-right: -2px;
 }
+
 .activity-icon > div {
 	width: inherit;
 	height: inherit;
