@@ -1,4 +1,4 @@
-import { appClass, layerContainerClass, tooltipClasses } from "./discordmodules";
+import { appSelector, layerContainerSelector, tooltipClasses } from "./discordmodules";
 
 export default class Tooltip {
 	private target: HTMLElement;
@@ -9,7 +9,7 @@ export default class Tooltip {
 
 	constructor(target: HTMLElement, text: string) {
 		this.target = target;
-		this.layerContainer = document.querySelector(`.${appClass} ~ .${layerContainerClass}`);
+		this.layerContainer = document.querySelector(`${appSelector} ~ ${layerContainerSelector}`);
 
 		const pointer = document.createElement("div");
 		pointer.className = tooltipClasses.tooltipPointer;

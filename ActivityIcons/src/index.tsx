@@ -1,7 +1,7 @@
 import { Patcher, DOM } from "betterdiscord";
 import { DiscordSelectors } from "zlibrary";
 import BasePlugin from "zlibrary/plugin";
-import { ActivityStatus, peopleListItemClass, privateChannelClass } from "./modules/discordmodules";
+import { ActivityStatus, peopleListItemSelector, privateChannelScrollerSelector } from "./modules/discordmodules";
 import { forceUpdateAll, Strings } from "./modules/utils";
 import styles from "./styles.css";
 import ActivityIcon from "./components/ActivityIcon";
@@ -9,8 +9,7 @@ import ListeningIcon from "./components/ListeningIcon";
 import SettingsPanel from "./components/SettingsPanel";
 
 const memberListItem = `${DiscordSelectors.MemberList.members} > div > div:not(:first-child)`;
-const peopleListItem = `.${peopleListItemClass}`;
-const privateChannel = `.${privateChannelClass} > ul > li`;
+const privateChannelSelector = `${privateChannelScrollerSelector} > ul > li`;
 
 export default class ActivityIcons extends BasePlugin {
 	onStart() {
@@ -28,8 +27,8 @@ export default class ActivityIcons extends BasePlugin {
 			}
 		});
 		forceUpdateAll(memberListItem);
-		forceUpdateAll(peopleListItem);
-		forceUpdateAll(privateChannel);
+		forceUpdateAll(peopleListItemSelector);
+		forceUpdateAll(privateChannelSelector);
 	}
 
 	onStop() {
@@ -37,8 +36,8 @@ export default class ActivityIcons extends BasePlugin {
 		DOM.removeStyle();
 		Strings.unsubscribe();
 		forceUpdateAll(memberListItem);
-		forceUpdateAll(peopleListItem);
-		forceUpdateAll(privateChannel);
+		forceUpdateAll(peopleListItemSelector);
+		forceUpdateAll(privateChannelSelector);
 	}
 
 	getSettingsPanel() {

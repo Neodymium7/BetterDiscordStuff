@@ -8,7 +8,7 @@ export default class ActivityToggle extends Plugin {
 	forceUpdate?: () => void;
 
 	async onStart() {
-		DOM.addStyle(`.${withTagAsButton} { min-width: 70px; }`);
+		DOM.addStyle(`${withTagAsButton} { min-width: 70px; }`);
 
 		const owner: any = ReactUtils.getOwnerInstance(
 			document.querySelector(DiscordSelectors.AccountDetails.container)

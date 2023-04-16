@@ -3,10 +3,9 @@ import { WebpackUtils } from "bundlebd";
 
 const {
 	Filters: { byStrings },
-	getModule,
 } = Webpack;
 
-const { expectModule, store } = WebpackUtils;
+const { expectModule, getStore } = WebpackUtils;
 
 const ErrorPopout = (props: { message: string }) => (
 	<div style={{ backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" }}>
@@ -14,21 +13,23 @@ const ErrorPopout = (props: { message: string }) => (
 	</div>
 );
 
-export const UserPopout = expectModule((e) => e.type?.toString().includes('"userId"'), {
+export const UserPopout = expectModule({
+	filter: (e) => e.type?.toString().includes('"userId"'),
 	name: "UserPopout",
 	fallback: (_props: any) => <ErrorPopout message="Error: User Popout module not found" />,
 });
 
-export const Popout = expectModule(byStrings(".animationPosition"), {
+export const Popout = expectModule({
+	filter: byStrings(".animationPosition"),
 	searchExports: true,
 	name: "Popout",
 	fallback: (props: any) => props.children(),
 });
 
-export const loadProfile: any = expectModule<any>(
-	(m) => m.Z?.toString?.().includes("y.apply(this,arguments)") && Object.values(m).length === 1,
-	{ name: "loadProfile" }
-).Z;
+export const loadProfile: any = expectModule<any>({
+	filter: (m) => m.Z?.toString?.().includes("y.apply(this,arguments)") && Object.values(m).length === 1,
+	name: "loadProfile",
+}).Z;
 
-export const UserStore = getModule(store("UserStore"));
-export const RelationshipStore = getModule(store("RelationshipStore"));
+export const UserStore = getStore("UserStore");
+export const RelationshipStore = getStore("RelationshipStore");

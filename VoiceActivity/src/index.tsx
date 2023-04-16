@@ -6,8 +6,8 @@ import {
 	MemberListItemContainer,
 	VoiceStateStore,
 	children,
-	guildIconClass,
-	peopleItemClass,
+	guildIconSelector,
+	peopleItemSelector,
 	useStateFromStores,
 } from "./modules/discordmodules";
 import { Settings, Strings, forceUpdateAll, forceRerender, getGuildMediaState, waitForElement } from "./modules/utils";
@@ -21,9 +21,6 @@ const {
 } = Webpack;
 
 const { getModuleWithKey } = WebpackUtils;
-
-const peopleItemSelector = `.${peopleItemClass}`;
-const guildIconSelector = `.${guildIconClass}`;
 
 export default class VoiceActivity extends BasePlugin {
 	contextMenuUnpatches: Set<() => void>;

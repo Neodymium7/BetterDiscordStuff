@@ -1,12 +1,7 @@
 import { Webpack } from "betterdiscord";
 import { WebpackUtils } from "bundlebd";
 
-const {
-	Filters: { byProps },
-	getModule,
-} = Webpack;
-
-const { expectModule, store } = WebpackUtils;
+const { expectModule, getStore, getClasses } = WebpackUtils;
 
 const Error = (_props) => (
 	<div>
@@ -14,15 +9,13 @@ const Error = (_props) => (
 	</div>
 );
 
-export const SwitchItem = expectModule((m) => m.toString?.().includes("().dividerDefault"), {
+export const SwitchItem = expectModule({
+	filter: (m) => m.toString?.().includes("().dividerDefault"),
 	searchExports: true,
 	name: "SwitchItem",
 	fallback: Error,
 });
 
-export const roleMention = expectModule<{ roleMention: string }>(byProps("roleMention"), {
-	name: "Role Mention Class",
-	fatal: true,
-}).roleMention.split(" ")[0];
+export const roleMention = getClasses("Role Mention Class", ["roleMention"]).roleMention.split(" ")[0];
 
-export const GuildStore = getModule(store("GuildStore"));
+export const GuildStore = getStore("GuildStore");

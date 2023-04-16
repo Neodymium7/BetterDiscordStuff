@@ -6,14 +6,7 @@ const {
 	Filters: { byProps, byStrings },
 } = Webpack;
 
-const { expectModule } = WebpackUtils;
-
-export const { withTagAsButton } = expectModule(byProps("withTagAsButton"), {
-	name: "Account Classes",
-	fallback: {
-		withTagAsButton: "unknown-class",
-	},
-});
+const { expectModule, getSelectors } = WebpackUtils;
 
 export const Sections = expectModule(byProps("ACCOUNT"), {
 	searchExports: true,
@@ -23,24 +16,32 @@ export const Sections = expectModule(byProps("ACCOUNT"), {
 	},
 });
 
-export const PanelButton: React.FunctionComponent<any> = expectModule(byStrings("PANEL_BUTTON"), {
+export const PanelButton: React.FunctionComponent<any> = expectModule({
+	filter: byStrings("PANEL_BUTTON"),
 	name: "PanelButton",
 	fatal: true,
 });
 
-export const Activity = expectModule(byStrings("M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264"), {
+export const Activity = expectModule({
+	filter: byStrings("M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264"),
 	name: "Activity",
 	fallback: () => null,
 });
 
-export const Settings = expectModule(byStrings("M14 7V9C14 9 12.5867 9"), { name: "Settings", fallback: () => null });
+export const Settings = expectModule({
+	filter: byStrings("M14 7V9C14 9 12.5867 9"),
+	name: "Settings",
+	fallback: () => null,
+});
 
-export const playSound: (id: string, vol: number) => void = expectModule(byStrings(".getSoundpack()"), {
+export const playSound: (id: string, vol: number) => void = expectModule({
+	filter: byStrings(".getSoundpack()"),
 	searchExports: true,
 	name: "playSound",
 });
 
-export const { useSetting, updateSetting } = expectModule((m) => Object.values(m).some((e: any) => e?.useSetting), {
+export const { useSetting, updateSetting } = expectModule({
+	filter: (m) => Object.values(m).some((e: any) => e?.useSetting),
 	name: "ActivitySettingManager",
 	fallback: {
 		G6: {
@@ -50,4 +51,9 @@ export const { useSetting, updateSetting } = expectModule((m) => Object.values(m
 	},
 }).G6;
 
-export const UserSettingsWindow: any = expectModule(byProps("open", "updateAccount"), { name: "UserSettingsWindow" });
+export const UserSettingsWindow: any = expectModule({
+	filter: byProps("open", "updateAccount"),
+	name: "UserSettingsWindow",
+});
+
+export const { withTagAsButton } = getSelectors("Account Classes", ["withTagAsButton"]);

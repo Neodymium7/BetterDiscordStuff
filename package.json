@@ -2,7 +2,7 @@
 	"name": "betterdiscordstuff",
 	"description": "Plugins and CSS Snippets for BetterDiscord.",
 	"devDependencies": {
-		"bundlebd": "^3.3.0"
+		"bundlebd": "^3.4.1"
 	},
 	"scripts": {
 		"build": "npx bundlebd --plugin",
