@@ -16,5 +16,23 @@
 		"SETTINGS_OPTIONS_NOTHING": "Nothing",
 		"SETTINGS_TOOLTIP": "Tooltip",
 		"SETTINGS_TOOLTIP_NOTE": "Show tooltip when hovering over user avatar."
+	},
+	"el-GR": {
+		"TOOLTIP_USER_SETTINGS": "Ρυθμίσεις Χρήστη",
+		"TOOLTIP_SETTINGS_SHORTCUT": "Συντομεύσεις Ρυθμίσεων",
+		"TOOLTIP_SET_STATUS": "Ορισμός Κατάστασης",
+		"DEFAULT": "Προεπιλογή",
+		"SETTINGS_CLICK": "Με αριστερό πάτημα του ποντικιού",
+		"SETTINGS_CLICK_NOTE": "Τι ανοίγει όταν πατήσετε στο εικονίδιο του χρήστη. Να ΘΥΜΑΣΤΕ ότι αν δεν οριστεί κάτι να ανοίγει τις ρυθμίσεις, μπορείτε να χρησιμοποιήσετε την συντόμευση «Ctrl + ,».",
+		"SETTINGS_RIGHT_CLICK": "Με δεξί πάτημα του ποντικιού",
+		"SETTINGS_RIGHT_CLICK_NOTE": "Τι ανοίγει όταν πατάτε με το δεξιό πλήκτρο του ποντικιού στο εικονίδιο του χρήστη.",
+		"SETTINGS_MIDDLE_CLICK": "Με μεσσαίο πάτημα του ποντικιού",
+		"SETTINGS_MIDDLE_CLICK_NOTE": "Τι ανοίγει όταν πατάτε με το μεσσαίο πλήκτρο του ποντικιού στο εικονίδιο του χρήστη.",
+		"SETTINGS_OPTIONS_OPEN_SETTINGS": "Ρυθμίσεις",
+		"SETTINGS_OPTIONS_CONTEXT_MENU": "Μενού Περιεχομένου Ρυθμίσεων",
+		"SETTINGS_OPTIONS_STATUS_PICKER": "Επιλογέας Κατάστασης",
+		"SETTINGS_OPTIONS_NOTHING": "Τίποτα",
+		"SETTINGS_TOOLTIP": "Επεξηγηση",
+		"SETTINGS_TOOLTIP_NOTE": "Εμφάνιση επεξήγησης όταν μεταβαίνει ο δείκτης του ποντικιού πάνω από το εικονίδιο του χρήστη."
 	}
 }
