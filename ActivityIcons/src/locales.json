@@ -5,5 +5,12 @@
 		"SETTINGS_ICON_BEHAVIOR_ACTIVITY": "Normal Activity (Default)",
 		"SETTINGS_ICON_BEHAVIOR_STATUS_AND_ACTIVITY": "Custom Status and Normal Activity",
 		"SETTINGS_ICON_BEHAVIOR_NEVER": "Never"
+	},
+	"el-GR": {
+		"SETTINGS_ICON_BEHAVIOR": "Συμπεριφορά Εικονιδίου Κανονικής Δραστηριότητας",
+		"SETTINGS_ICON_BEHAVIOR_NOTE": "Συνθήκες υπό τις οποίες το εικονίδιο κανονικής δραστηριότητας (ελεγκτής παιχνιδιού) θα εμφανίζεται",
+		"SETTINGS_ICON_BEHAVIOR_ACTIVITY": "Κανονική Δραστηριότητα (Προεπιλογή)",
+		"SETTINGS_ICON_BEHAVIOR_STATUS_AND_ACTIVITY": "Προσαρμοσμένη Κατάσταση και Κανονική Δραστηριότητα",
+		"SETTINGS_ICON_BEHAVIOR_NEVER": "Ποτέ"
 	}
 }
