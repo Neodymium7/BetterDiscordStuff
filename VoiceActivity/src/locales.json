@@ -34,7 +34,7 @@
 		"JOIN_DISABLED_CALL": "Already in Call",
 		"JOIN_VIDEO": "Join With Video"
 	},
-	"el-GR": {
+	"el": {
 		"SETTINGS_PROFILE": "Τομέας Προφίλ",
 		"SETTINGS_PROFILE_NOTE": "Εμφανίζει τον τομέα προφίλ για την τρέχουσα δραστηριότητα φωνής στα αναδυόμενα χρήστη και στην πλευρικές μπάρες προφίλ των Άμεσων Μηνυμάτων.",
 		"SETTINGS_ICONS": "Εικονίδια Λίστας Μελών",
