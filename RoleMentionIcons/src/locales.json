@@ -7,4 +7,12 @@
 		"SETTINGS_ROLE_ICONS": "Role Icons",
 		"SETTINGS_ROLE_ICONS_NOTE": "Shows Role Icons instead of default icon when applicable."
 	}
+	"el-GR": {
+		"SETTINGS_EVERYONE": "@everyone",
+		"SETTINGS_EVERYONE_NOTE": "Εμφάνιση εικονιδίων στις αναφορές «@everyone».",
+		"SETTINGS_HERE": "@here",
+		"SETTINGS_HERE_NOTE": "Εμφάνιση εικονιδίων στις αναφορές «@here».",
+		"SETTINGS_ROLE_ICONS": "Εικονίδια Ρόλων",
+		"SETTINGS_ROLE_ICONS_NOTE": "Εμφάνιση Εικονιδίων Ρόλων αντί για το προεπιλεγμένο εικονίδιο όταν είναι διαθέσιμο."
+	}
 }
