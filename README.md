@@ -18,4 +18,4 @@ Open a pull request with your changes. **Make sure to edit the source files (in 
 
 ### Translations
 
-Add the translations to the `locales.json` file in the plugin's source folder (`PluginName/src/`). Please keep all keys the same and follow the formatting of the file. For the language code, make sure it is exactly the same as one of the language codes available in Discord.
+Add the translations to the `locales.json` file in the plugin's source folder (`PluginName/src/`). Please keep all keys the same and follow the formatting of the file. For the language code, make sure it is exactly the same as one of the language codes available in Discord. If you are translating multiple plugins, please make one pull request for all of your translations.
