@@ -117,7 +117,7 @@ export const Icons = {
 
 export const peopleItemSelector = getSelectors("People Item Class", ["peopleListItem"]).peopleListItem;
 
-export const guildIconSelector = getSelectors("Guild Icon Class", ["wrapper", "folderEndWrapper"]).wrapper;
+export const iconWrapperSelector = getSelectors("Icon Wrapper Class", ["wrapper", "folderEndWrapper"]).wrapper;
 
 export const children = getSelectors("Children Class", ["avatar", "children"]).children;
 

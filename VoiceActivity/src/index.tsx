@@ -1,12 +1,12 @@
 import { Patcher, DOM, Webpack, ContextMenu, ReactUtils, Utils } from "betterdiscord";
-import { WebpackUtils } from "bundlebd";
+import { WebpackUtils, Logger } from "bundlebd";
 import BasePlugin from "zlibrary/plugin";
 import styles from "styles";
 import {
 	MemberListItemContainer,
 	VoiceStateStore,
 	children,
-	guildIconSelector,
+	iconWrapperSelector,
 	peopleItemSelector,
 	useStateFromStores,
 } from "./modules/discordmodules";
@@ -22,22 +22,24 @@ const {
 
 const { getModuleWithKey } = WebpackUtils;
 
+const guildIconSelector = `div:not([data-dnd-name]) + ${iconWrapperSelector}`;
+
 export default class VoiceActivity extends BasePlugin {
 	contextMenuUnpatches: Set<() => void>;
 
 	onStart() {
 		this.contextMenuUnpatches = new Set();
 
-		DOM.addStyle(styles() + `.${children}:empty { margin-left: 0; } .${children} { display: flex; gap: 8px; }`);
+		DOM.addStyle(styles() + `${children}:empty { margin-left: 0; } ${children} { display: flex; gap: 8px; }`);
 		Strings.subscribe();
 		this.patchPeopleListItem();
 		this.patchUserPopout();
 		this.patchPrivateChannelProfile();
 		this.patchMemberListItem();
-		this.patchPrivateChannel();
-		this.patchGuildIcon();
 		this.patchChannelContextMenu();
 		this.patchGuildContextMenu();
+		this.patchPrivateChannel();
+		this.patchGuildIcon();
 	}
 
 	patchUserPopout() {
@@ -116,7 +118,8 @@ export default class VoiceActivity extends BasePlugin {
 			(n) => n?.elementType?.prototype?.componentWillEnter,
 			{ walkable: ["return"] }
 		);
-		const PeopleListItem = targetInstance.elementType;
+		const PeopleListItem = targetInstance?.elementType;
+		if (!PeopleListItem) return Logger.error("PeopleListItem component not found");
 		Patcher.after(PeopleListItem.prototype, "render", (that: any, _, ret) => {
 			if (!that.props.user) return;
 			const children = ret.props.children;
@@ -137,13 +140,15 @@ export default class VoiceActivity extends BasePlugin {
 
 	patchGuildIcon() {
 		const element: HTMLElement = document.querySelector(guildIconSelector);
-		if (!element) return;
+		if (!element) return Logger.error("Guild icon element not found");
 		const targetInstance = Utils.findInTree(
 			ReactUtils.getInternalInstance(element),
 			(n) => n?.elementType?.type && n.pendingProps?.mediaState,
 			{ walkable: ["return"] }
 		);
-		Patcher.before(targetInstance.elementType, "type", (_, [props]: [any]) => {
+		const GuildIconComponent = targetInstance?.elementType;
+		if (!GuildIconComponent) return Logger.error("Guild icon component not found");
+		Patcher.before(GuildIconComponent, "type", (_, [props]: [any]) => {
 			const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState();
 			const mediaState = useStateFromStores([VoiceStateStore], () =>
 				getGuildMediaState(props.guild.id, ignoredChannels)
