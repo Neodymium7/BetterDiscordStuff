@@ -3,11 +3,11 @@ import { DiscordClasses } from "zlibrary";
 import {
 	Activity,
 	PanelButton,
-	playSound,
 	Sections,
 	Settings,
-	updateSetting,
 	UserSettingsWindow,
+	playSound,
+	updateSetting,
 	useSetting,
 } from "../modules";
 import ActivityDisabledIcon from "./ActivityDisabledIcon";

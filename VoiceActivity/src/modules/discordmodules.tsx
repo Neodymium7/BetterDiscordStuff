@@ -121,9 +121,11 @@ export const iconWrapperSelector = getSelectors("Icon Wrapper Class", ["wrapper"
 
 export const children = getSelectors("Children Class", ["avatar", "children"]).children;
 
-export const UserStore = getStore("UserStore");
-export const GuildChannelStore = getStore("GuildChannelStore");
-export const VoiceStateStore = getStore("VoiceStateStore");
-export const GuildStore = getStore("GuildStore");
-export const ChannelStore = getStore("ChannelStore");
-export const SelectedChannelStore = getStore("SelectedChannelStore");
+export const Stores = {
+	UserStore: getStore("UserStore"),
+	GuildChannelStore: getStore("GuildChannelStore"),
+	VoiceStateStore: getStore("VoiceStateStore"),
+	GuildStore: getStore("GuildStore"),
+	ChannelStore: getStore("ChannelStore"),
+	SelectedChannelStore: getStore("SelectedChannelStore"),
+};

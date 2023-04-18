@@ -1,12 +1,7 @@
-import {
-	Margins,
-	RadioGroup,
-	SettingsDivider,
-	SettingsItem,
-	SettingsNote,
-	SwitchItem,
-} from "../modules/discordmodules";
+import { Margins, SettingsComponents } from "../modules/discordmodules";
 import { Settings, Strings } from "../modules/utils";
+
+const { RadioGroup, SettingsItem, SettingsNote, SettingsDivider, SwitchItem } = SettingsComponents;
 
 export default function SettingsPanel() {
 	const settings = Settings.useSettingsState();

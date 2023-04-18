@@ -32,40 +32,38 @@ export const Sections = expectModule({
 	fallback: { ACCOUNT: "Account" },
 });
 
-export const RadioGroup = expectModule({
-	filter: (m) => m.Sizes && m.toString().includes("radioItemClassName"),
-	searchExports: true,
-	name: "RadioGroup",
-	fallback: Error,
-});
-
-export const SwitchItem = expectModule({
-	filter: (m) => m.toString?.().includes("().dividerDefault"),
-	searchExports: true,
-	name: "SwitchItem",
-	fallback: Error,
-});
-
-export const SettingsItem = expectModule({
-	filter: (m) => m.render?.toString().includes("required"),
-	searchExports: true,
-	name: "SettingsItem",
-	fallback: Error,
-});
-
-export const SettingsNote = expectModule({
-	filter: (m) => m.Types && m.toString().includes("selectable"),
-	searchExports: true,
-	name: "SettingsNote",
-	fallback: Error,
-});
-
-export const SettingsDivider = expectModule({
-	filter: (m) => m.toString?.().includes("().divider") && m.toString().includes("style"),
-	searchExports: true,
-	name: "SettingsDivider",
-	fallback: Error,
-});
+export const SettingsComponents = {
+	RadioGroup: expectModule({
+		filter: (m) => m.Sizes && m.toString().includes("radioItemClassName"),
+		searchExports: true,
+		name: "RadioGroup",
+		fallback: Error,
+	}),
+	SwitchItem: expectModule({
+		filter: (m) => m.toString?.().includes("().dividerDefault"),
+		searchExports: true,
+		name: "SwitchItem",
+		fallback: Error,
+	}),
+	SettingsItem: expectModule({
+		filter: (m) => m.render?.toString().includes("required"),
+		searchExports: true,
+		name: "SettingsItem",
+		fallback: Error,
+	}),
+	SettingsNote: expectModule({
+		filter: (m) => m.Types && m.toString().includes("selectable"),
+		searchExports: true,
+		name: "SettingsNote",
+		fallback: Error,
+	}),
+	SettingsDivider: expectModule({
+		filter: (m) => m.toString?.().includes("().divider") && m.toString().includes("style"),
+		searchExports: true,
+		name: "SettingsDivider",
+		fallback: Error,
+	}),
+};
 
 export const accountClasses = expectModule<AccountClasses>(byProps("buildOverrideButton"), {
 	name: "Account Classes",

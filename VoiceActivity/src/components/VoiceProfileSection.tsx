@@ -2,13 +2,9 @@ import { Components } from "betterdiscord";
 import { ContextMenu } from "zlibrary";
 import {
 	ChannelActions,
-	ChannelStore,
-	GuildStore,
 	Icons,
-	SelectedChannelStore,
+	Stores,
 	UserPopoutSection,
-	UserStore,
-	VoiceStateStore,
 	transitionTo,
 	useStateFromStores,
 } from "../modules/discordmodules";
@@ -20,6 +16,8 @@ interface VoiceProfileSectionProps {
 	userId: string;
 	wrapper?: React.FunctionComponent;
 }
+
+const { ChannelStore, GuildStore, UserStore, VoiceStateStore, SelectedChannelStore } = Stores;
 
 export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 	const { showProfileSection, ignoreEnabled, ignoredChannels, ignoredGuilds } = Settings.useSettingsState();

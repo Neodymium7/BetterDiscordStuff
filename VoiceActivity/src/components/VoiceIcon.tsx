@@ -1,20 +1,14 @@
 import { Components } from "betterdiscord";
-import { Settings, Strings, groupDMName, checkPermissions } from "../modules/utils";
-import {
-	ChannelStore,
-	GuildStore,
-	Icons,
-	UserStore,
-	VoiceStateStore,
-	transitionTo,
-	useStateFromStores,
-} from "../modules/discordmodules";
+import { Settings, Strings, checkPermissions, groupDMName } from "../modules/utils";
+import { Icons, Stores, transitionTo, useStateFromStores } from "../modules/discordmodules";
 import styles from "../styles/voiceicon.module.scss";
 
 interface VoiceIconProps {
 	userId: string;
 	context: string;
 }
+
+const { ChannelStore, GuildStore, UserStore, VoiceStateStore } = Stores;
 
 export default function VoiceIcon(props: VoiceIconProps) {
 	const {

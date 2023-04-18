@@ -1,4 +1,3 @@
-import { Webpack } from "betterdiscord";
 import { WebpackUtils } from "bundlebd";
 
 const { expectModule, getStore, getClasses } = WebpackUtils;

@@ -2,7 +2,7 @@ import { DOM } from "betterdiscord";
 import BasePlugin from "zlibrary/plugin";
 import SettingsPanel from "./components/SettingsPanel";
 import { GuildStore, roleMention } from "./modules/discordmodules";
-import { Settings, Strings, filter, getProps, peopleSVG, getIconElement } from "./modules/utils";
+import { Settings, Strings, filter, getIconElement, getProps, peopleSVG } from "./modules/utils";
 
 export default class RoleMentionIcons extends BasePlugin {
 	clearCallbacks: Set<() => void>;

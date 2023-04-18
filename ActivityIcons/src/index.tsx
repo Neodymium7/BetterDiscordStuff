@@ -1,8 +1,8 @@
-import { Patcher, DOM } from "betterdiscord";
+import { DOM, Patcher } from "betterdiscord";
 import { DiscordSelectors } from "zlibrary";
 import BasePlugin from "zlibrary/plugin";
 import { ActivityStatus, peopleListItemSelector, privateChannelScrollerSelector } from "./modules/discordmodules";
-import { forceUpdateAll, Strings } from "./modules/utils";
+import { Strings, forceUpdateAll } from "./modules/utils";
 import styles from "./styles.css";
 import ActivityIcon from "./components/ActivityIcon";
 import ListeningIcon from "./components/ListeningIcon";

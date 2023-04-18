@@ -1,16 +1,16 @@
-import { Patcher, DOM, Webpack, ContextMenu, ReactUtils, Utils } from "betterdiscord";
-import { WebpackUtils, Logger } from "bundlebd";
+import { ContextMenu, DOM, Patcher, ReactUtils, Utils, Webpack } from "betterdiscord";
+import { Logger, WebpackUtils } from "bundlebd";
 import BasePlugin from "zlibrary/plugin";
 import styles from "styles";
 import {
 	MemberListItemContainer,
-	VoiceStateStore,
+	Stores,
 	children,
 	iconWrapperSelector,
 	peopleItemSelector,
 	useStateFromStores,
 } from "./modules/discordmodules";
-import { Settings, Strings, forceUpdateAll, forceRerender, getGuildMediaState, waitForElement } from "./modules/utils";
+import { Settings, Strings, forceRerender, forceUpdateAll, getGuildMediaState, waitForElement } from "./modules/utils";
 import iconStyles from "./styles/voiceicon.module.scss";
 import VoiceIcon from "./components/VoiceIcon";
 import VoiceProfileSection from "./components/VoiceProfileSection";
@@ -150,7 +150,7 @@ export default class VoiceActivity extends BasePlugin {
 		if (!GuildIconComponent) return Logger.error("Guild icon component not found");
 		Patcher.before(GuildIconComponent, "type", (_, [props]: [any]) => {
 			const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState();
-			const mediaState = useStateFromStores([VoiceStateStore], () =>
+			const mediaState = useStateFromStores([Stores.VoiceStateStore], () =>
 				getGuildMediaState(props.guild.id, ignoredChannels)
 			);
 

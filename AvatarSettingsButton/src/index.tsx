@@ -1,6 +1,6 @@
 import { DOM } from "betterdiscord";
 import BasePlugin from "zlibrary/plugin";
-import { accountClasses, Sections, UserSettingsWindow } from "./modules/discordmodules";
+import { Sections, UserSettingsWindow, accountClasses } from "./modules/discordmodules";
 import { Settings, Strings } from "./modules/utils";
 import Tooltip from "./modules/tooltip";
 import SettingsPanel from "./components/SettingsPanel";

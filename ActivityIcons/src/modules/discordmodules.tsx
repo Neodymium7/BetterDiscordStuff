@@ -43,26 +43,26 @@ export const Icons = {
 	}),
 };
 
-export const RadioGroup = expectModule({
-	filter: (m) => m.Sizes && m.toString().includes("radioItemClassName"),
-	searchExports: true,
-	name: "RadioGroup",
-	fallback: Error,
-});
-
-export const SettingsItem = expectModule({
-	filter: (m) => m.render?.toString().includes("required"),
-	searchExports: true,
-	name: "SettingsItem",
-	fallback: Error,
-});
-
-export const SettingsNote = expectModule({
-	filter: (m) => m.Types && m.toString().includes("selectable"),
-	searchExports: true,
-	name: "SettingsNote",
-	fallback: Error,
-});
+export const SettingsComponents = {
+	RadioGroup: expectModule({
+		filter: (m) => m.Sizes && m.toString().includes("radioItemClassName"),
+		searchExports: true,
+		name: "RadioGroup",
+		fallback: Error,
+	}),
+	SettingsItem: expectModule({
+		filter: (m) => m.render?.toString().includes("required"),
+		searchExports: true,
+		name: "SettingsItem",
+		fallback: Error,
+	}),
+	SettingsNote: expectModule({
+		filter: (m) => m.Types && m.toString().includes("selectable"),
+		searchExports: true,
+		name: "SettingsNote",
+		fallback: Error,
+	}),
+};
 
 export const Margins = getClasses("Margins", ["marginBottom8"]);
 
