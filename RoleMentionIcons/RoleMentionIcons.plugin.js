@@ -2,8 +2,9 @@
  * @name RoleMentionIcons
  * @author Neodymium
  * @description Displays icons next to role mentions.
- * @version 1.2.0
+ * @version 1.3.0
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js
+ * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
  */
 
@@ -39,17 +40,19 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.2.0",
+		version: "1.3.0",
 		description: "Displays icons next to role mentions.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js"
 	},
 	changelog: [
 		{
-			title: "Fixed",
-			type: "fixed",
+			title: "Improved",
+			type: "improved",
 			items: [
-				"Fixed settings on latest Discord update."
+				"Lots of small behind the scenes changes and code cleanup.",
+				"The plugin should be more resistant to changes in Discord, reducing the chance of crashing.",
+				"Added Greek translations (thanks to panos78 on GitHub)."
 			]
 		}
 	]
@@ -69,7 +72,7 @@ if (!global.ZeresPluginLibrary) {
 }
 
 function buildPlugin([BasePlugin, Library]) {
-    var Plugin = (function (betterdiscord, BasePlugin, react) {
+    var Plugin = (function (betterdiscord, BasePlugin, react, meta) {
 		'use strict';
 	
 		// bundlebd
@@ -127,18 +130,195 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 			return settingsManager;
 		}
+		var Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byProps("dispatch", "subscribe"));
+		var LocaleManager = betterdiscord.Webpack.getModule((m) => m.Messages?.CLOSE);
+		function createStrings(locales, defaultLocale) {
+			let strings = locales[defaultLocale];
+			const setLocale = () => {
+				strings = locales[LocaleManager.getLocale()] || locales[defaultLocale];
+			};
+			const stringsManager = {
+				subscribe() {
+					setLocale();
+					Dispatcher.subscribe("I18N_LOAD_SUCCESS", setLocale);
+				},
+				unsubscribe() {
+					Dispatcher.unsubscribe("I18N_LOAD_SUCCESS", setLocale);
+				}
+			};
+			for (const key in strings) {
+				Object.defineProperty(stringsManager, key, {
+					get() {
+						return strings[key] || this.locales[this.defaultLocale][key];
+					},
+					enumerable: true,
+					configurable: false
+				});
+			}
+			return stringsManager;
+		}
+		var Logger = class {
+			static _log(type, message) {
+				console[type](`%c[${meta.name}]`, "color: #3a71c1; font-weight: 700;", message);
+			}
+			static log(message) {
+				this._log("log", message);
+			}
+			static warn(message) {
+				this._log("warn", message);
+			}
+			static error(message) {
+				this._log("error", message);
+			}
+		};
+		var WebpackUtils = class {
+			static getStore(name) {
+				return betterdiscord.Webpack.getModule((m) => m._dispatchToken && m.getName() === name);
+			}
+			static getModuleWithKey(filter) {
+				let target;
+				let id;
+				let key;
+				betterdiscord.Webpack.getModule(
+					(e, m, i) => {
+						if (filter(e, m, i)) {
+							target = m;
+							id = i;
+							return true;
+						}
+						return false;
+					},
+					{ searchExports: true }
+				);
+				for (const k in target.exports) {
+					if (filter(target.exports[k], target, id)) {
+						key = k;
+						break;
+					}
+				}
+				return [target.exports, key];
+			}
+			static expectModule(filterOrOptions, options) {
+				let filter;
+				if (typeof filterOrOptions === "function") {
+					filter = filterOrOptions;
+				} else {
+					filter = filterOrOptions.filter;
+					options = filterOrOptions;
+				}
+				const found = betterdiscord.Webpack.getModule(filter, options);
+				if (found) return found;
+				const name = options.name ? `'${options.name}'` : `query with filter '${filter.toString()}'`;
+				const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
+				const errorMessage = `Module ${name} not found.${fallbackMessage}
 	
-		// utils.ts
+	Contact the plugin developer to inform them of this error.`;
+				Logger.error(errorMessage);
+				options.onError?.();
+				if (options.fatal) throw new Error(errorMessage);
+				return options.fallback;
+			}
+			static getClasses(name, classes) {
+				return WebpackUtils.expectModule({
+					filter: betterdiscord.Webpack.Filters.byProps(...classes),
+					name,
+					fallback: classes.reduce((obj, key) => {
+						obj[key] = "unknown-class";
+						return obj;
+					}, {})
+				});
+			}
+			static getSelectors(name, classes) {
+				const module = WebpackUtils.expectModule({
+					filter: betterdiscord.Webpack.Filters.byProps(...classes),
+					name,
+					fallback: {}
+				});
+				if (Object.keys(module).length === 0)
+					return classes.reduce((obj, key) => {
+						obj[key] = null;
+						return obj;
+					}, {});
+				return Object.keys(module).reduce((obj, key) => {
+					obj[key] = `.${module[key].replaceAll(" ", ".")}`;
+					return obj;
+				}, {});
+			}
+			static store(name) {
+				return (m) => m._dispatchToken && m.getName() === name;
+			}
+			static byId(id) {
+				return (_e, _m, i) => i === id;
+			}
+			static byValues(...filters) {
+				return (e, m, i) => {
+					let match = true;
+					for (const filter of filters) {
+						if (!Object.values(e).some((v) => filter(v, m, i))) {
+							match = false;
+							break;
+						}
+					}
+					return match;
+				};
+			}
+		};
+	
+		// modules/discordmodules.tsx
+		const { expectModule, getStore, getClasses } = WebpackUtils;
+		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
+			style: { color: "red" }
+		}, "Error: Component not found"));
+		const SwitchItem = expectModule({
+			filter: (m) => m.toString?.().includes("().dividerDefault"),
+			searchExports: true,
+			name: "SwitchItem",
+			fallback: Error$1
+		});
+		const roleMention = getClasses("Role Mention Class", ["roleMention"]).roleMention.split(" ")[0];
+		const GuildStore = getStore("GuildStore");
+	
+		// locales.json
+		var el = {
+			SETTINGS_EVERYONE: "@everyone",
+			SETTINGS_EVERYONE_NOTE: "Εμφάνιση εικονιδίων στις αναφορές «@everyone».",
+			SETTINGS_HERE: "@here",
+			SETTINGS_HERE_NOTE: "Εμφάνιση εικονιδίων στις αναφορές «@here».",
+			SETTINGS_ROLE_ICONS: "Εικονίδια Ρόλων",
+			SETTINGS_ROLE_ICONS_NOTE: "Εμφάνιση Εικονιδίων Ρόλων αντί για το προεπιλεγμένο εικονίδιο όταν είναι διαθέσιμο."
+		};
+		var locales = {
+			"en-US": {
+			SETTINGS_EVERYONE: "@everyone",
+			SETTINGS_EVERYONE_NOTE: "Shows icons on \"@everyone\" mentions.",
+			SETTINGS_HERE: "@here",
+			SETTINGS_HERE_NOTE: "Shows icons on \"@here\" mentions.",
+			SETTINGS_ROLE_ICONS: "Role Icons",
+			SETTINGS_ROLE_ICONS_NOTE: "Shows Role Icons instead of default icon when applicable."
+		},
+			el: el
+		};
+	
+		// modules/utils.ts
 		const Settings = createSettings({
 			everyone: true,
 			here: true,
 			showRoleIcons: true
 		});
+		const Strings = createStrings(locales, "en-US");
 		const peopleSVG = (() => {
 			const element = document.createElement("div");
 			element.innerHTML = '<svg class="role-mention-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="14" width="14"><path d="M14 8.00598C14 10.211 12.206 12.006 10 12.006C7.795 12.006 6 10.211 6 8.00598C6 5.80098 7.794 4.00598 10 4.00598C12.206 4.00598 14 5.80098 14 8.00598ZM2 19.006C2 15.473 5.29 13.006 10 13.006C14.711 13.006 18 15.473 18 19.006V20.006H2V19.006Z" fill="currentColor" /><path d="M14 8.00598C14 10.211 12.206 12.006 10 12.006C7.795 12.006 6 10.211 6 8.00598C6 5.80098 7.794 4.00598 10 4.00598C12.206 4.00598 14 5.80098 14 8.00598ZM2 19.006C2 15.473 5.29 13.006 10 13.006C14.711 13.006 18 15.473 18 19.006V20.006H2V19.006Z" fill="currentColor" /><path d="M20.0001 20.006H22.0001V19.006C22.0001 16.4433 20.2697 14.4415 17.5213 13.5352C19.0621 14.9127 20.0001 16.8059 20.0001 19.006V20.006Z" fill="currentColor" /><path d="M14.8834 11.9077C16.6657 11.5044 18.0001 9.9077 18.0001 8.00598C18.0001 5.96916 16.4693 4.28218 14.4971 4.0367C15.4322 5.09511 16.0001 6.48524 16.0001 8.00598C16.0001 9.44888 15.4889 10.7742 14.6378 11.8102C14.7203 11.8418 14.8022 11.8743 14.8834 11.9077Z" fill="currentColor" /></svg>';
 			return element.firstChild;
 		})();
+		const getIconElement = (roleId, roleIcon) => {
+			const icon = document.createElement("img");
+			icon.className = "role-mention-icon";
+			icon.setAttribute("style", "border-radius: 3px; object-fit: contain;");
+			icon.width = icon.height = 16;
+			icon.src = `https://cdn.discordapp.com/role-icons/${roleId}/${roleIcon}.webp?size=24&quality=lossless`;
+			return icon;
+		};
 		const from = (arr) => arr && arr.length > 0 && Object.assign(...arr.map(([k, v]) => ({ [k]: v })));
 		const filter = (obj, predicate) => from(
 			Object.entries(obj).filter((o) => {
@@ -157,26 +337,24 @@ function buildPlugin([BasePlugin, Library]) {
 		};
 	
 		// components/SettingsPanel.tsx
-		const { getModule: getModule$1 } = betterdiscord.Webpack;
-		const SwitchItem = getModule$1((m) => m.toString?.().includes("().dividerDefault"), { searchExports: true });
 		function SettingsPanel() {
 			return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(SwitchItem, {
-				children: "@everyone",
-				note: 'Shows icons on "@everyone" mentions.',
+				children: Strings.SETTINGS_EVERYONE,
+				note: Strings.SETTINGS_EVERYONE_NOTE,
 				value: Settings.everyone,
 				onChange: (v) => {
 					Settings.everyone = v;
 				}
 			}), BdApi.React.createElement(SwitchItem, {
-				children: "@here",
-				note: 'Shows icons on "@here" mentions.',
+				children: Strings.SETTINGS_HERE,
+				note: Strings.SETTINGS_HERE_NOTE,
 				value: Settings.here,
 				onChange: (v) => {
 					Settings.here = v;
 				}
 			}), BdApi.React.createElement(SwitchItem, {
-				children: "Role Icons",
-				note: "Shows Role Icons instead of default icon when applicable.",
+				children: Strings.SETTINGS_ROLE_ICONS,
+				note: Strings.SETTINGS_ROLE_ICONS_NOTE,
 				value: Settings.showRoleIcons,
 				onChange: (v) => {
 					Settings.showRoleIcons = v;
@@ -185,20 +363,6 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// index.tsx
-		const {
-			Filters: { byProps },
-			getModule
-		} = betterdiscord.Webpack;
-		const GuildStore = getModule(byProps("getGuildCount"));
-		const roleMention = getModule(byProps("roleMention")).roleMention.split(" ")[0];
-		const getIconElement = (roleId, roleIcon) => {
-			const icon = document.createElement("img");
-			icon.className = "role-mention-icon";
-			icon.setAttribute("style", "border-radius: 3px; object-fit: contain;");
-			icon.width = icon.height = 16;
-			icon.src = `https://cdn.discordapp.com/role-icons/${roleId}/${roleIcon}.webp?size=24&quality=lossless`;
-			return icon;
-		};
 		class RoleMentionIcons extends BasePlugin {
 			clearCallbacks;
 			constructor() {
@@ -207,6 +371,7 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 			onStart() {
 				betterdiscord.DOM.addStyle(".role-mention-icon { position: relative; top: 2px; margin-left: 4px; }");
+				Strings.subscribe();
 				const elements = Array.from(document.getElementsByClassName(roleMention));
 				this.processElements(elements);
 			}
@@ -251,6 +416,7 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 			onStop() {
 				betterdiscord.DOM.removeStyle();
+				Strings.unsubscribe();
 				this.clearIcons();
 			}
 			getSettingsPanel() {
@@ -260,7 +426,15 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		return RoleMentionIcons;
 	
-	})(new BdApi("RoleMentionIcons"), BasePlugin, BdApi.React);
+	})(new BdApi("RoleMentionIcons"), BasePlugin, BdApi.React, {
+		name: "RoleMentionIcons",
+		author: "Neodymium",
+		description: "Displays icons next to role mentions.",
+		version: "1.3.0",
+		source: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js",
+		donate: "https://ko-fi.com/neodymium7",
+		invite: "fRbsqH87Av"
+	});
 
 	return Plugin;
 }

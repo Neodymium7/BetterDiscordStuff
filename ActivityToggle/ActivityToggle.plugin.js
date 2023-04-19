@@ -2,7 +2,7 @@
  * @name ActivityToggle
  * @author Neodymium
  * @description Adds a button to quickly toggle Activity Status.
- * @version 1.2.6
+ * @version 1.2.7
  * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
@@ -40,7 +40,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.2.6",
+		version: "1.2.7",
 		description: "Adds a button to quickly toggle Activity Status.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityToggle/ActivityToggle.plugin.js"
@@ -61,7 +61,7 @@ if (!global.ZeresPluginLibrary) {
 }
 
 function buildPlugin([BasePlugin, Library]) {
-    var Plugin = (function (betterdiscord, zlibrary, Plugin, React, meta) {
+    var Plugin = (function (betterdiscord, Plugin, React, meta) {
 		'use strict';
 	
 		// bundlebd
@@ -79,26 +79,11 @@ function buildPlugin([BasePlugin, Library]) {
 				this._log("error", message);
 			}
 		};
-		var WebpackUtils = {
-			store(name) {
-				return (m) => m._dispatchToken && m.getName() === name;
-			},
-			byId(id) {
-				return (_e, _m, i) => i === id;
-			},
-			byValues(...filters) {
-				return (e, m, i) => {
-					let match = true;
-					for (const filter of filters) {
-						if (!Object.values(e).some((v) => filter(v, m, i))) {
-							match = false;
-							break;
-						}
-					}
-					return match;
-				};
-			},
-			getModuleWithKey(filter) {
+		var WebpackUtils = class {
+			static getStore(name) {
+				return betterdiscord.Webpack.getModule((m) => m._dispatchToken && m.getName() === name);
+			}
+			static getModuleWithKey(filter) {
 				let target;
 				let id;
 				let key;
@@ -120,8 +105,15 @@ function buildPlugin([BasePlugin, Library]) {
 					}
 				}
 				return [target.exports, key];
-			},
-			expectModule(filter, options) {
+			}
+			static expectModule(filterOrOptions, options) {
+				let filter;
+				if (typeof filterOrOptions === "function") {
+					filter = filterOrOptions;
+				} else {
+					filter = filterOrOptions.filter;
+					options = filterOrOptions;
+				}
 				const found = betterdiscord.Webpack.getModule(filter, options);
 				if (found) return found;
 				const name = options.name ? `'${options.name}'` : `query with filter '${filter.toString()}'`;
@@ -134,19 +126,57 @@ function buildPlugin([BasePlugin, Library]) {
 				if (options.fatal) throw new Error(errorMessage);
 				return options.fallback;
 			}
+			static getClasses(name, classes) {
+				return WebpackUtils.expectModule({
+					filter: betterdiscord.Webpack.Filters.byProps(...classes),
+					name,
+					fallback: classes.reduce((obj, key) => {
+						obj[key] = "unknown-class";
+						return obj;
+					}, {})
+				});
+			}
+			static getSelectors(name, classes) {
+				const module = WebpackUtils.expectModule({
+					filter: betterdiscord.Webpack.Filters.byProps(...classes),
+					name,
+					fallback: {}
+				});
+				if (Object.keys(module).length === 0)
+					return classes.reduce((obj, key) => {
+						obj[key] = null;
+						return obj;
+					}, {});
+				return Object.keys(module).reduce((obj, key) => {
+					obj[key] = `.${module[key].replaceAll(" ", ".")}`;
+					return obj;
+				}, {});
+			}
+			static store(name) {
+				return (m) => m._dispatchToken && m.getName() === name;
+			}
+			static byId(id) {
+				return (_e, _m, i) => i === id;
+			}
+			static byValues(...filters) {
+				return (e, m, i) => {
+					let match = true;
+					for (const filter of filters) {
+						if (!Object.values(e).some((v) => filter(v, m, i))) {
+							match = false;
+							break;
+						}
+					}
+					return match;
+				};
+			}
 		};
 	
 		// modules.ts
 		const {
 			Filters: { byProps, byStrings }
 		} = betterdiscord.Webpack;
-		const { expectModule } = WebpackUtils;
-		const { withTagAsButton } = expectModule(byProps("withTagAsButton"), {
-			name: "Account Classes",
-			fallback: {
-				withTagAsButton: "unknown-class"
-			}
-		});
+		const { expectModule, getSelectors, getClasses } = WebpackUtils;
 		const Sections = expectModule(byProps("ACCOUNT"), {
 			searchExports: true,
 			name: "Sections",
@@ -154,20 +184,28 @@ function buildPlugin([BasePlugin, Library]) {
 				ACTIVITY_PRIVACY: "Activity Privacy"
 			}
 		});
-		const PanelButton = expectModule(byStrings("PANEL_BUTTON"), {
+		const PanelButton = expectModule({
+			filter: byStrings("PANEL_BUTTON"),
 			name: "PanelButton",
 			fatal: true
 		});
-		const Activity = expectModule(byStrings("M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264"), {
+		const Activity = expectModule({
+			filter: byStrings("M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264"),
 			name: "Activity",
 			fallback: () => null
 		});
-		const Settings = expectModule(byStrings("M14 7V9C14 9 12.5867 9"), { name: "Settings", fallback: () => null });
-		const playSound = expectModule(byStrings(".getSoundpack()"), {
+		const Settings = expectModule({
+			filter: byStrings("M14 7V9C14 9 12.5867 9"),
+			name: "Settings",
+			fallback: () => null
+		});
+		const playSound = expectModule({
+			filter: byStrings(".getSoundpack()"),
 			searchExports: true,
 			name: "playSound"
 		});
-		const { useSetting, updateSetting } = expectModule((m) => Object.values(m).some((e) => e?.useSetting), {
+		const { useSetting, updateSetting } = expectModule({
+			filter: (m) => Object.values(m).some((e) => e?.useSetting),
 			name: "ActivitySettingManager",
 			fallback: {
 				G6: {
@@ -176,7 +214,12 @@ function buildPlugin([BasePlugin, Library]) {
 				}
 			}
 		}).G6;
-		const UserSettingsWindow = expectModule(byProps("open", "updateAccount"), { name: "UserSettingsWindow" });
+		const UserSettingsWindow = expectModule({
+			filter: byProps("open", "updateAccount"),
+			name: "UserSettingsWindow"
+		});
+		const AccountSelectors = getSelectors("Account Classes", ["withTagAsButton", "container"]);
+		const AccountClasses = getClasses("Account Classes", ["withTagAsButton", "strikethrough"]);
 	
 		// components/ActivityDisabledIcon.tsx
 		function ActivityDisabled(props) {
@@ -199,17 +242,17 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		// components/ActivityToggleButton.tsx
 		function ActivityToggleButton() {
-			const enabled = useSetting();
+			const activityEnabled = useSetting();
 			return BdApi.React.createElement(PanelButton, {
-				icon: enabled ? Activity : ActivityDisabled,
-				iconForeground: enabled ? null : zlibrary.DiscordClasses.AccountDetails.strikethrough,
-				tooltipText: enabled ? "Disable Activity" : "Enable Activity",
+				icon: activityEnabled ? Activity : ActivityDisabled,
+				iconForeground: activityEnabled ? null : AccountClasses.strikethrough,
+				tooltipText: activityEnabled ? "Disable Activity" : "Enable Activity",
 				onClick: () => {
 					if (!updateSetting) {
 						return betterdiscord.UI.alert("Error", "Could not update setting. See the console for more information.");
 					}
-					updateSetting(!enabled);
-					playSound(enabled ? "stream_user_left" : "stream_user_joined", 0.4);
+					updateSetting(!activityEnabled);
+					playSound(activityEnabled ? "stream_user_left" : "stream_user_joined", 0.4);
 				},
 				onContextMenu: (e) => {
 					betterdiscord.ContextMenu.open(
@@ -239,10 +282,8 @@ function buildPlugin([BasePlugin, Library]) {
 		class ActivityToggle extends Plugin {
 			forceUpdate;
 			async onStart() {
-				betterdiscord.DOM.addStyle(`.${withTagAsButton} { min-width: 70px; }`);
-				const owner = betterdiscord.ReactUtils.getOwnerInstance(
-					document.querySelector(zlibrary.DiscordSelectors.AccountDetails.container)
-				);
+				betterdiscord.DOM.addStyle(`${AccountSelectors.withTagAsButton} { min-width: 70px; }`);
+				const owner = betterdiscord.ReactUtils.getOwnerInstance(document.querySelector(AccountSelectors.container));
 				const Account = owner._reactInternals.type;
 				this.forceUpdate = owner.forceUpdate.bind(owner);
 				betterdiscord.Patcher.after(Account.prototype, "render", (_that, [_props], ret) => {
@@ -259,11 +300,11 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		return ActivityToggle;
 	
-	})(new BdApi("ActivityToggle"), Library, BasePlugin, BdApi.React, {
+	})(new BdApi("ActivityToggle"), BasePlugin, BdApi.React, {
 		name: "ActivityToggle",
 		author: "Neodymium",
 		description: "Adds a button to quickly toggle Activity Status.",
-		version: "1.2.6",
+		version: "1.2.7",
 		donate: "https://ko-fi.com/neodymium7",
 		invite: "fRbsqH87Av",
 		source: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js"

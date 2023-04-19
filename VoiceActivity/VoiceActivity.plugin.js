@@ -2,7 +2,7 @@
  * @name VoiceActivity
  * @author Neodymium
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
- * @version 1.6.7
+ * @version 1.7.0
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
@@ -40,17 +40,26 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.6.7",
+		version: "1.7.0",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
 	},
 	changelog: [
 		{
+			title: "Improved",
+			type: "improved",
+			items: [
+				"Lots of small behind the scenes changes and code cleanup.",
+				"The plugin should be more resistant to changes in Discord, reducing the chance of crashing.",
+				"Added Greek translations (thanks to panos78 on GitHub)."
+			]
+		},
+		{
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed DM profile disappearing."
+				"Fixed the plugin breaking when the first item in the server list is a folder."
 			]
 		}
 	]
@@ -70,7 +79,7 @@ if (!global.ZeresPluginLibrary) {
 }
 
 function buildPlugin([BasePlugin, Library]) {
-    var Plugin = (function (betterdiscord, react, meta, zlibrary, BasePlugin) {
+    var Plugin = (function (betterdiscord, react, meta, BasePlugin) {
 		'use strict';
 	
 		// bundlebd
@@ -169,26 +178,11 @@ function buildPlugin([BasePlugin, Library]) {
 				this._log("error", message);
 			}
 		};
-		var WebpackUtils = {
-			store(name) {
-				return (m) => m._dispatchToken && m.getName() === name;
-			},
-			byId(id) {
-				return (_e, _m, i) => i === id;
-			},
-			byValues(...filters) {
-				return (e, m, i) => {
-					let match = true;
-					for (const filter of filters) {
-						if (!Object.values(e).some((v) => filter(v, m, i))) {
-							match = false;
-							break;
-						}
-					}
-					return match;
-				};
-			},
-			getModuleWithKey(filter) {
+		var WebpackUtils = class {
+			static getStore(name) {
+				return betterdiscord.Webpack.getModule((m) => m._dispatchToken && m.getName() === name);
+			}
+			static getModuleWithKey(filter) {
 				let target;
 				let id;
 				let key;
@@ -210,8 +204,15 @@ function buildPlugin([BasePlugin, Library]) {
 					}
 				}
 				return [target.exports, key];
-			},
-			expectModule(filter, options) {
+			}
+			static expectModule(filterOrOptions, options) {
+				let filter;
+				if (typeof filterOrOptions === "function") {
+					filter = filterOrOptions;
+				} else {
+					filter = filterOrOptions.filter;
+					options = filterOrOptions;
+				}
 				const found = betterdiscord.Webpack.getModule(filter, options);
 				if (found) return found;
 				const name = options.name ? `'${options.name}'` : `query with filter '${filter.toString()}'`;
@@ -224,6 +225,50 @@ function buildPlugin([BasePlugin, Library]) {
 				if (options.fatal) throw new Error(errorMessage);
 				return options.fallback;
 			}
+			static getClasses(name, classes) {
+				return WebpackUtils.expectModule({
+					filter: betterdiscord.Webpack.Filters.byProps(...classes),
+					name,
+					fallback: classes.reduce((obj, key) => {
+						obj[key] = "unknown-class";
+						return obj;
+					}, {})
+				});
+			}
+			static getSelectors(name, classes) {
+				const module = WebpackUtils.expectModule({
+					filter: betterdiscord.Webpack.Filters.byProps(...classes),
+					name,
+					fallback: {}
+				});
+				if (Object.keys(module).length === 0)
+					return classes.reduce((obj, key) => {
+						obj[key] = null;
+						return obj;
+					}, {});
+				return Object.keys(module).reduce((obj, key) => {
+					obj[key] = `.${module[key].replaceAll(" ", ".")}`;
+					return obj;
+				}, {});
+			}
+			static store(name) {
+				return (m) => m._dispatchToken && m.getName() === name;
+			}
+			static byId(id) {
+				return (_e, _m, i) => i === id;
+			}
+			static byValues(...filters) {
+				return (e, m, i) => {
+					let match = true;
+					for (const filter of filters) {
+						if (!Object.values(e).some((v) => filter(v, m, i))) {
+							match = false;
+							break;
+						}
+					}
+					return match;
+				};
+			}
 		};
 	
 		// styles
@@ -235,7 +280,149 @@ function buildPlugin([BasePlugin, Library]) {
 			return _styles;
 		}
 	
+		// modules/discordmodules.tsx
+		const {
+			Filters: { byProps, byStrings: byStrings$1 }
+		} = betterdiscord.Webpack;
+		const { expectModule, getStore, getSelectors } = WebpackUtils;
+		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
+			style: { color: "red" }
+		}, "Error: Component not found"));
+		const MemberListItemContainer = expectModule({
+			filter: (m) => m.type?.toString().includes("canUseAvatarDecorations"),
+			name: "MemberListItemContainer"
+		});
+		const Permissions = expectModule({
+			filter: byProps("computePermissions"),
+			name: "Permissions",
+			fatal: true
+		});
+		const DiscordPermissions = expectModule({
+			filter: byProps("VIEW_CREATOR_MONETIZATION_ANALYTICS"),
+			searchExports: true,
+			name: "DiscordPermissions",
+			fallback: {
+				VIEW_CHANNEL: 1024n
+			}
+		});
+		const GuildActions = expectModule({ filter: byProps("requestMembers"), name: "GuildActions" });
+		const ChannelActions = expectModule({ filter: byProps("selectChannel"), name: "ChannelActions" });
+		const UserPopoutSection = expectModule({
+			filter: byStrings$1(".lastSection", ".children"),
+			name: "UserPopoutSection",
+			fallback: (props) => BdApi.React.createElement("div", {
+				...props
+			})
+		});
+		const useStateFromStores = expectModule({
+			filter: byStrings$1("useStateFromStores"),
+			name: "useStateFromStores",
+			fatal: true
+		});
+		const transitionTo = expectModule({
+			filter: byStrings$1("transitionTo -"),
+			searchExports: true,
+			name: "transitionTo"
+		});
+		const getAcronym = expectModule({
+			filter: byStrings$1(`.replace(/'s /g," ").replace(/\\w+/g,`),
+			searchExports: true,
+			name: "getAcronym",
+			fallback: (i) => i
+		});
+		const SwitchItem = expectModule({
+			filter: (m) => m.toString?.().includes("().dividerDefault"),
+			searchExports: true,
+			name: "SwitchItem",
+			fallback: Error$1
+		});
+		const Icons = {
+			CallJoin: expectModule({
+				filter: byStrings$1("M11 5V3C16.515 3 21 7.486"),
+				name: "CallJoin",
+				fallback: (_props) => null
+			}),
+			People: expectModule({
+				filter: byStrings$1("M14 8.00598C14 10.211 12.206 12.006"),
+				name: "People",
+				fallback: (_props) => null
+			}),
+			Speaker: expectModule({
+				filter: byStrings$1("M11.383 3.07904C11.009 2.92504 10.579 3.01004"),
+				name: "Speaker",
+				fallback: (_props) => null
+			}),
+			Muted: expectModule({
+				filter: byStrings$1("M6.7 11H5C5 12.19 5.34 13.3"),
+				name: "Muted",
+				fallback: (_props) => null
+			}),
+			Deafened: expectModule({
+				filter: byStrings$1("M6.16204 15.0065C6.10859 15.0022 6.05455 15"),
+				name: "Deafened",
+				fallback: (_props) => null
+			}),
+			Video: expectModule({
+				filter: byStrings$1("M21.526 8.149C21.231 7.966 20.862 7.951"),
+				name: "Video",
+				fallback: (_props) => null
+			}),
+			Stage: expectModule({
+				filter: byStrings$1(
+					"M14 13C14 14.1 13.1 15 12 15C10.9 15 10 14.1 10 13C10 11.9 10.9 11 12 11C13.1 11 14 11.9 14 13ZM8.5 20V19.5C8.5"
+				),
+				name: "Stage",
+				fallback: (_props) => null
+			})
+		};
+		const peopleItemSelector = getSelectors("People Item Class", ["peopleListItem"]).peopleListItem;
+		const iconWrapperSelector = getSelectors("Icon Wrapper Class", ["wrapper", "folderEndWrapper"]).wrapper;
+		const children = getSelectors("Children Class", ["avatar", "children"]).children;
+		const Stores = {
+			UserStore: getStore("UserStore"),
+			GuildChannelStore: getStore("GuildChannelStore"),
+			VoiceStateStore: getStore("VoiceStateStore"),
+			GuildStore: getStore("GuildStore"),
+			ChannelStore: getStore("ChannelStore"),
+			SelectedChannelStore: getStore("SelectedChannelStore")
+		};
+	
 		// locales.json
+		var el = {
+			SETTINGS_PROFILE: "Τομέας Προφίλ",
+			SETTINGS_PROFILE_NOTE: "Εμφανίζει τον τομέα προφίλ για την τρέχουσα δραστηριότητα φωνής στα αναδυόμενα χρήστη και στην πλευρικές μπάρες προφίλ των Άμεσων Μηνυμάτων.",
+			SETTINGS_ICONS: "Εικονίδια Λίστας Μελών",
+			SETTINGS_ICONS_NOTE: "Εμφανίζει εικονίδια στη λίστα μελών όταν κάποιος είναι σε κανάλι φωνής.",
+			SETTINGS_DM_ICONS: "Εικονίδια Άμεσων Μηνυμάτων",
+			SETTINGS_DM_ICONS_NOTE: "Εμφανίζει εικονίδια στη λίστα Άμεσων Μηνυμάτων όταν κάποιος είναι σε κανάλι φωνής.",
+			SETTINGS_PEOPLE_ICONS: "Εικονίδια Λίστας Φίλων",
+			SETTINGS_PEOPLE_ICONS_NOTE: "Εμφανίζει εικονίδια στη λίστα φίλων όταν κάποιος είναι σε κανάλι φωνής.",
+			SETTINGS_GUILD_ICONS: "Εικονίδια Συντεχνίας",
+			SETTINGS_GUILD_ICONS_NOTE: "Εμφανίζει εικονίδια στις συντεχνίες ακόμα και αν δεν συμμετέχετε.",
+			SETTINGS_COLOR: "Λίστα Μελών - Χρώμα Εικονιδίου Τρέχοντος Καναλιού",
+			SETTINGS_COLOR_NOTE: "Αλλάζει τα εικονίδια της Λίστας Μελών σε πράσινα όταν ο χρήστης είναι στο δικό σας τρέχον κανάλι φωνής.",
+			SETTINGS_STATUS: "Λίστα Μελών - Εμφάνιση Εικονιδίων Κατάστασης",
+			SETTINGS_STATUS_NOTE: "Αλλάζει τα εικονίδια της Λίστας Μελών όταν ο χρήστης είναι σε Σίγαση, Κώφωση ή έχε ενεργοποιημένο Βίντεο.",
+			SETTINGS_IGNORE: "Αγνόηση",
+			SETTINGS_IGNORE_NOTE: "Προσθέτει μια επιλογή στο Κανάλι Φωνής και στα μενού περιεχομένου Συντεχνίας για αγνόηση αυτού του καναλιού/συντεχνίας στα Εικονίδια Λϊστας Μελών και στα Αναδυόμενα Χρήστη.",
+			CONTEXT_IGNORE: "Αγνόηση στη Δραστηριότητα Φωνής",
+			VOICE_CALL: "Φωνητική Κλήση",
+			PRIVATE_CALL: "Ιδιωτική Κλήση",
+			GROUP_CALL: "Ομαδική Κλήση",
+			LIVE: "Ζωντανά",
+			HEADER: "Σε ένα Κανάλι Φωνής",
+			HEADER_VOICE: "Σε μια Κλήση Φωνής",
+			HEADER_PRIVATE: "Σε μια Ιδιωτική Κλήση",
+			HEADER_GROUP: "Σε μια Ομαδική Κλήση",
+			HEADER_STAGE: "Σε ένα Κανάλι Σταδίου",
+			VIEW: "Προβολή Καναλιού",
+			VIEW_CALL: "Προβολή Κλήσης",
+			JOIN: "Συμμετοχή σε Κανάλι",
+			JOIN_CALL: "Συμμετοχή σε Κλήση",
+			JOIN_DISABLED: "Ήδη σε Κανάλι",
+			JOIN_DISABLED_CALL: "Ήδη σε Κλήση",
+			JOIN_VIDEO: "Συμμετοχή με Βίντεο"
+		};
 		var ru = {
 			SETTINGS_PROFILE: "Раздел в Профиле",
 			SETTINGS_PROFILE_NOTE: "Показывает раздел для текущей голосовой активности в профиле, всплывающих окнах и боковых панелях в ЛС.",
@@ -316,14 +503,14 @@ function buildPlugin([BasePlugin, Library]) {
 			SETTINGS_DM_ICONS_NOTE: "Shows icons on the DM list when someone is in a voice channel.",
 			SETTINGS_PEOPLE_ICONS: "Friends List Icons",
 			SETTINGS_PEOPLE_ICONS_NOTE: "Shows icons on the friends list when someone is in a voice channel.",
-			SETTINGS_GUILD_ICONS: "Guild Icons",
-			SETTINGS_GUILD_ICONS_NOTE: "Shows voice icons on guilds even when you're not participating.",
+			SETTINGS_GUILD_ICONS: "Server Icons",
+			SETTINGS_GUILD_ICONS_NOTE: "Shows voice icons on servers even when you're not participating.",
 			SETTINGS_COLOR: "Member List - Current Channel Icon Color",
 			SETTINGS_COLOR_NOTE: "Makes the Member List icons green when the user is in your current voice channel.",
 			SETTINGS_STATUS: "Member List - Show Status Icons",
 			SETTINGS_STATUS_NOTE: "Changes the Member List icons when a user is Muted, Deafened, or has Video enabled.",
 			SETTINGS_IGNORE: "Ignore",
-			SETTINGS_IGNORE_NOTE: "Adds an option on Voice Channel and Guild context menus to ignore that channel/guild in Member List Icons and User Popouts.",
+			SETTINGS_IGNORE_NOTE: "Adds an option on Voice Channel and Server context menus to ignore that channel/server in Member List Icons and User Popouts.",
 			CONTEXT_IGNORE: "Ignore in Voice Activity",
 			VOICE_CALL: "Voice Call",
 			PRIVATE_CALL: "Private Call",
@@ -342,17 +529,13 @@ function buildPlugin([BasePlugin, Library]) {
 			JOIN_DISABLED_CALL: "Already in Call",
 			JOIN_VIDEO: "Join With Video"
 		},
+			el: el,
 			ru: ru,
 			de: de
 		};
 	
-		// utils.ts
-		const {
-			Filters: { byProps: byProps$1, byStrings: byStrings$4 },
-			getModule: getModule$6
-		} = betterdiscord.Webpack;
-		const { Permissions, UserStore: UserStore$2 } = zlibrary.DiscordModules;
-		const DiscordPermissions = getModule$6(byProps$1("VIEW_CREATOR_MONETIZATION_ANALYTICS"), { searchExports: true });
+		// modules/utils.ts
+		const { UserStore: UserStore$2, GuildChannelStore, VoiceStateStore: VoiceStateStore$2 } = Stores;
 		const Settings = createSettings({
 			showProfileSection: true,
 			showMemberListIcons: true,
@@ -366,10 +549,6 @@ function buildPlugin([BasePlugin, Library]) {
 			ignoredGuilds: []
 		});
 		const Strings = createStrings(locales, "en-US");
-		const useStateFromStores = getModule$6(byStrings$4("useStateFromStores"));
-		const transitionTo = getModule$6(byStrings$4("transitionTo -"), { searchExports: true });
-		const VoiceStateStore = getModule$6(byProps$1("getVoiceStateForUser"));
-		const GuildStore = getModule$6(byProps$1("getGuildCount"));
 		function checkPermissions(channel) {
 			return Permissions.can({
 				permission: DiscordPermissions.VIEW_CHANNEL,
@@ -377,6 +556,28 @@ function buildPlugin([BasePlugin, Library]) {
 				context: channel
 			});
 		}
+		const getGuildMediaState = (guildId, ignoredChannels) => {
+			const vocalChannelIds = GuildChannelStore.getVocalChannelIds(guildId);
+			let audio = false;
+			let video = false;
+			let screenshare = false;
+			for (const id of vocalChannelIds) {
+				if (ignoredChannels.includes(id))
+					continue;
+				const voiceStates = Object.values(VoiceStateStore$2.getVoiceStatesForChannel(id));
+				if (!voiceStates.length)
+					continue;
+				else
+					audio = true;
+				if (!video && VoiceStateStore$2.hasVideo(id))
+					video = true;
+				if (!screenshare && voiceStates.some((voiceState) => voiceState.selfStream))
+					screenshare = true;
+				if (audio && video && screenshare)
+					break;
+			}
+			return { audio, video, screenshare };
+		};
 		function groupDMName(members) {
 			if (members.length === 1) {
 				return UserStore$2.getUser(members[0]).username;
@@ -392,16 +593,19 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 			return "Unnamed";
 		}
-		function forceUpdateAll(selector) {
+		function forceUpdateAll(selector, propsFilter = (_) => true) {
 			const elements = document.querySelectorAll(selector);
 			for (const element of elements) {
-				const stateNodes = zlibrary.ReactTools.getStateNodes(element);
-				for (const stateNode of stateNodes)
-					stateNode.forceUpdate();
+				const instance = betterdiscord.ReactUtils.getInternalInstance(element);
+				const stateNode = betterdiscord.Utils.findInTree(
+					instance,
+					(n) => n && n.stateNode && n.stateNode.forceUpdate && propsFilter(n.stateNode.props),
+					{ walkable: ["return"] }
+				).stateNode;
+				stateNode.forceUpdate();
 			}
 		}
-		function forceRerender(selector) {
-			const element = document.querySelector(selector);
+		function forceRerender(element) {
 			const ownerInstance = betterdiscord.ReactUtils.getOwnerInstance(element);
 			const cancel = betterdiscord.Patcher.instead(ownerInstance, "render", () => {
 				cancel();
@@ -409,38 +613,28 @@ function buildPlugin([BasePlugin, Library]) {
 			});
 			ownerInstance.forceUpdate(() => ownerInstance.forceUpdate());
 		}
+		function waitForElement(selector) {
+			return new Promise((resolve) => {
+				if (document.querySelector(selector)) {
+					return resolve();
+				}
+				const observer = new MutationObserver(() => {
+					if (document.querySelector(selector)) {
+						resolve();
+						observer.disconnect();
+					}
+				});
+				observer.observe(document, { childList: true, subtree: true });
+			});
+		}
 	
 		// styles/voiceicon.module.scss
 		var css$2 = ".VoiceActivity-voiceicon-icon {\n  height: 20px;\n  width: 20px;\n  min-width: 20px;\n  border-radius: 50%;\n  background-color: var(--background-floating);\n  cursor: pointer;\n}\n.VoiceActivity-voiceicon-icon:hover {\n  background-color: var(--background-tertiary);\n}\n.VoiceActivity-voiceicon-icon svg {\n  padding: 3px;\n  color: var(--interactive-normal);\n}\n\n.VoiceActivity-voiceicon-iconCurrentCall {\n  background-color: var(--status-positive);\n}\n.VoiceActivity-voiceicon-iconCurrentCall:hover {\n  background-color: var(--button-positive-background);\n}\n.VoiceActivity-voiceicon-iconCurrentCall svg {\n  color: #fff;\n}\n\n.VoiceActivity-voiceicon-iconLive {\n  height: 16px;\n  border-radius: 16px;\n  background-color: var(--status-danger);\n  color: #fff;\n  font-size: 12px;\n  line-height: 16px;\n  font-weight: 600;\n  font-family: var(--font-display);\n  text-transform: uppercase;\n}\n.VoiceActivity-voiceicon-iconLive:hover {\n  background-color: var(--button-danger-background);\n}\n.VoiceActivity-voiceicon-iconLive > div {\n  padding: 0 6px;\n}\n\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-header {\n  display: block;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-subtext {\n  display: flex;\n  flex-direction: row;\n  margin-top: 3px;\n}\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-subtext > div {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-tooltipIcon {\n  min-width: 16px;\n  margin-right: 3px;\n  color: var(--interactive-normal);\n}\n\n.VoiceActivity-voiceicon-iconContainer {\n  margin-left: auto;\n}\n.VoiceActivity-voiceicon-iconContainer .VoiceActivity-voiceicon-icon {\n  margin-right: 8px;\n}\n.VoiceActivity-voiceicon-iconContainer .VoiceActivity-voiceicon-iconLive {\n  margin-right: 8px;\n}";
 		_loadStyle("voiceicon.module.scss", css$2);
 		var modules_df1df857 = {"icon":"VoiceActivity-voiceicon-icon","iconCurrentCall":"VoiceActivity-voiceicon-iconCurrentCall","iconLive":"VoiceActivity-voiceicon-iconLive","tooltip":"VoiceActivity-voiceicon-tooltip","header":"VoiceActivity-voiceicon-header","subtext":"VoiceActivity-voiceicon-subtext","tooltipIcon":"VoiceActivity-voiceicon-tooltipIcon","iconContainer":"VoiceActivity-voiceicon-iconContainer"};
 	
-		// components/Tooltip.tsx
-		const {
-			Filters: { byPrototypeFields },
-			getModule: getModule$5
-		} = betterdiscord.Webpack;
-		const Tooltip = getModule$5(byPrototypeFields("renderTooltip"), { searchExports: true });
-	
-		// components/icons.tsx
-		const {
-			Filters: { byStrings: byStrings$3 },
-			getModule: getModule$4
-		} = betterdiscord.Webpack;
-		const CallJoin = getModule$4(byStrings$3("M11 5V3C16.515 3 21 7.486"));
-		const People = getModule$4(byStrings$3("M14 8.00598C14 10.211 12.206 12.006"));
-		const Speaker = getModule$4(byStrings$3("M11.383 3.07904C11.009 2.92504 10.579 3.01004"));
-		const Muted = getModule$4(byStrings$3("M6.7 11H5C5 12.19 5.34 13.3"));
-		const Deafened = getModule$4(byStrings$3("M6.16204 15.0065C6.10859 15.0022 6.05455 15"));
-		const Video = getModule$4(byStrings$3("M21.526 8.149C21.231 7.966 20.862 7.951"));
-		const Stage = getModule$4(
-			byStrings$3(
-				"M14 13C14 14.1 13.1 15 12 15C10.9 15 10 14.1 10 13C10 11.9 10.9 11 12 11C13.1 11 14 11.9 14 13ZM8.5 20V19.5C8.5"
-			)
-		);
-	
 		// components/VoiceIcon.tsx
-		const { ChannelStore: ChannelStore$1, UserStore: UserStore$1 } = zlibrary.DiscordModules;
+		const { ChannelStore: ChannelStore$1, GuildStore: GuildStore$1, UserStore: UserStore$1, VoiceStateStore: VoiceStateStore$1 } = Stores;
 		function VoiceIcon(props) {
 			const {
 				showMemberListIcons,
@@ -452,10 +646,10 @@ function buildPlugin([BasePlugin, Library]) {
 				currentChannelColor,
 				showStatusIcons
 			} = Settings.useSettingsState();
-			const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
+			const voiceState = useStateFromStores([VoiceStateStore$1], () => VoiceStateStore$1.getVoiceStateForUser(props.userId));
 			const currentUserVoiceState = useStateFromStores(
-				[VoiceStateStore],
-				() => VoiceStateStore.getVoiceStateForUser(UserStore$1.getCurrentUser()?.id)
+				[VoiceStateStore$1],
+				() => VoiceStateStore$1.getVoiceStateForUser(UserStore$1.getCurrentUser()?.id)
 			);
 			if (props.context === "memberlist" && !showMemberListIcons)
 				return null;
@@ -468,7 +662,7 @@ function buildPlugin([BasePlugin, Library]) {
 			const channel = ChannelStore$1.getChannel(voiceState.channelId);
 			if (!channel)
 				return null;
-			const guild = GuildStore.getGuild(channel.guild_id);
+			const guild = GuildStore$1.getGuild(channel.guild_id);
 			if (guild && !checkPermissions(channel))
 				return null;
 			if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id)))
@@ -485,12 +679,12 @@ function buildPlugin([BasePlugin, Library]) {
 			if (guild) {
 				text = guild.name;
 				subtext = channel.name;
-				TooltipIcon = Speaker;
+				TooltipIcon = Icons.Speaker;
 				channelPath = `/channels/${guild.id}/${channel.id}`;
 			} else {
 				text = channel.name;
 				subtext = Strings.VOICE_CALL;
-				TooltipIcon = CallJoin;
+				TooltipIcon = Icons.CallJoin;
 				channelPath = `/channels/@me/${channel.id}`;
 			}
 			switch (channel.type) {
@@ -501,18 +695,18 @@ function buildPlugin([BasePlugin, Library]) {
 				case 3:
 					text = channel.name || groupDMName(channel.recipients);
 					subtext = Strings.GROUP_CALL;
-					TooltipIcon = People;
+					TooltipIcon = Icons.People;
 					break;
 				case 13:
-					TooltipIcon = Stage;
+					TooltipIcon = Icons.Stage;
 			}
-			let Icon = Speaker;
+			let Icon = Icons.Speaker;
 			if (showStatusIcons && (voiceState.selfDeaf || voiceState.deaf))
-				Icon = Deafened;
+				Icon = Icons.Deafened;
 			else if (showStatusIcons && (voiceState.selfMute || voiceState.mute))
-				Icon = Muted;
+				Icon = Icons.Muted;
 			else if (showStatusIcons && voiceState.selfVideo)
-				Icon = Video;
+				Icon = Icons.Video;
 			return BdApi.React.createElement("div", {
 				className,
 				onClick: (e) => {
@@ -521,7 +715,7 @@ function buildPlugin([BasePlugin, Library]) {
 					if (channelPath)
 						transitionTo(channelPath);
 				}
-			}, BdApi.React.createElement(Tooltip, {
+			}, BdApi.React.createElement(betterdiscord.Components.Tooltip, {
 				text: BdApi.React.createElement("div", {
 					className: modules_df1df857.tooltip
 				}, BdApi.React.createElement("div", {
@@ -558,12 +752,6 @@ function buildPlugin([BasePlugin, Library]) {
 		var img = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAABgmlDQ1BJQ0MgUHJvZmlsZQAAKM+VkTtIw1AYhb9WxQcVBzuIOGSoThZERRyliiIolFrB12CS2io0sSQtLo6Cq+DgY7Hq4OKsq4OrIAg+QBydnBRdROJ/U6FFqOCFcD/OzTnce34IFrOm5db2gGXnncRYTJuZndPqn6mlBmikTzfd3OTUaJKq6+OWgNpvoiqL/63m1JJrQkATHjJzTl54UXhgLZ9TvCscNpf1lPCpcLcjFxS+V7pR4hfFGZ+DKjPsJBPDwmFhLVPBRgWby44l3C8cSVm25AdnSpxSvK7YyhbMn3uqF4aW7OkppcvXwRjjTBJHw6DAClnyRGW3RXFJyHmsir/d98fFZYhrBVMcI6xioft+1Ax+d+um+3pLSaEY1D153lsn1G/D15bnfR563tcR1DzChV32rxZh8F30rbIWOYCWDTi7LGvGDpxvQttDTnd0X1LzD6bT8HoiY5qF1mtomi/19nPO8R0kpauJK9jbh66MZC9UeXdDZW9//uP3R+wbNjlyjzeozyoAAABgUExURVhl8oGK9LW7+erq/f///97i+7/F+mx38qGo92Ft8mFv8ujs/IuW9PP2/Wx384GM9Kux+MDF+urs/d/i+7S9+Jae9uDj/Jad9srO+tXY+4yU9aqy+MDE+qGn9/T1/neC9Liz/RcAAAAJcEhZcwAACxMAAAsTAQCanBgAAATqaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNC40LjAtRXhpdjIiPg0KICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPg0KICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOkdJTVA9Imh0dHA6Ly93d3cuZ2ltcC5vcmcveG1wLyIgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1wTU06RG9jdW1lbnRJRD0iZ2ltcDpkb2NpZDpnaW1wOmIzMjk5M2JmLTliZTUtNGJmMy04ZWEwLWY3ZDkzNTMyMTY2YiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowNjhkOWE3MS1lYWU3LTRmZjAtYmMxZS04MGUwYmMxMTFkZDUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDplZjU1ZGE0YS0wZTBhLTRjNTctODdmOC1lMmFmMGUyZGEzOGUiIGRjOkZvcm1hdD0iaW1hZ2UvcG5nIiBHSU1QOkFQST0iMi4wIiBHSU1QOlBsYXRmb3JtPSJXaW5kb3dzIiBHSU1QOlRpbWVTdGFtcD0iMTY0ODk0NDg1NjM4ODc5MSIgR0lNUDpWZXJzaW9uPSIyLjEwLjI0IiB0aWZmOk9yaWVudGF0aW9uPSIxIiB4bXA6Q3JlYXRvclRvb2w9IkdJTVAgMi4xMCI+DQogICAgICA8eG1wTU06SGlzdG9yeT4NCiAgICAgICAgPHJkZjpTZXE+DQogICAgICAgICAgPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDpjaGFuZ2VkPSIvIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ3NmFhOGE3LTVhNGEtNDcyNS05YTBjLWU1NzVmMzE1MzFmOCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iR2ltcCAyLjEwIChXaW5kb3dzKSIgc3RFdnQ6d2hlbj0iMjAyMi0wNC0wMlQxNzoxNDoxNiIgLz4NCiAgICAgICAgPC9yZGY6U2VxPg0KICAgICAgPC94bXBNTTpIaXN0b3J5Pg0KICAgIDwvcmRmOkRlc2NyaXB0aW9uPg0KICA8L3JkZjpSREY+DQo8L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9InIiPz6JoorbAAABV0lEQVRoQ+3W23KDIBAGYIOYBk20prWNPb7/W3Z3WQ9lGmeKe/l/N/+IzAYDggUAAAAAAMB/HVzpfXV8kIuTpp3gvHJ8WTcx7VRanlSBrs+aVubxMxn7RdNGq6VVR02Pmjb6WHjCQ+80baxmgDXUxA/FaSPWXUxtctOCVF2Z2uSmhauUnT1RU61p49cq9b6npoOmDV4yK7xN8G8abhfPsXIkq7MxfdGKOt0qBuOtoqjnZ3BcN9BmZ1qftP2L91cXt4ezJszCq7uVtENfytEN1ocZLZlRJ1iNQ2zvNHd6oyWfamLpd809wofWTBxllY6a+UJyFCzkPWsve9+35N9fG/k+nZySufjkveuTOvCuzZmp/WN+F1/859AjSuahLW0LD/2kmWdjBtiNunxr5kmOyhR/VfAk5H9dxDr3TX2kcw6psmHqI51zSJUNUx/pDAAAAAAAsKkofgB06RBbh+d86AAAAABJRU5ErkJggg==";
 	
 		// components/GuildImage.tsx
-		const {
-			Filters: { byStrings: byStrings$2 },
-			getModule: getModule$3
-		} = betterdiscord.Webpack;
-		const { GuildActions } = zlibrary.DiscordModules;
-		const getAcronym = getModule$3(byStrings$2(`.replace(/'s /g," ").replace(/\\w+/g,`), { searchExports: true });
 		const getIconFontSize = (name) => {
 			const words = name.split(" ");
 			if (words.length > 7)
@@ -597,7 +785,7 @@ function buildPlugin([BasePlugin, Library]) {
 					style: { borderRadius: "16px", cursor: "pointer" },
 					onClick: () => {
 						if (props.guild)
-							GuildActions.transitionToGuildSync(props.guild.id);
+							GuildActions?.transitionToGuildSync(props.guild.id);
 						else if (props.channelPath)
 							transitionTo(props.channelPath);
 					}
@@ -607,7 +795,7 @@ function buildPlugin([BasePlugin, Library]) {
 					className: modules_1a1e8d51.defaultIcon,
 					onClick: () => {
 						if (props.guild)
-							GuildActions.transitionToGuildSync(props.guild.id);
+							GuildActions?.transitionToGuildSync(props.guild.id);
 						else if (props.channelPath)
 							transitionTo(props.channelPath);
 					},
@@ -617,12 +805,7 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// components/VoiceProfileSection.tsx
-		const {
-			getModule: getModule$2,
-			Filters: { byStrings: byStrings$1 }
-		} = betterdiscord.Webpack;
-		const { ChannelActions, ChannelStore, SelectedChannelStore, UserStore } = zlibrary.DiscordModules;
-		const UserPopoutSection = getModule$2(byStrings$1(".lastSection", ".children"));
+		const { ChannelStore, GuildStore, UserStore, VoiceStateStore, SelectedChannelStore } = Stores;
 		function VoiceProfileSection(props) {
 			const { showProfileSection, ignoreEnabled, ignoredChannels, ignoredGuilds } = Settings.useSettingsState();
 			const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
@@ -656,14 +839,14 @@ function buildPlugin([BasePlugin, Library]) {
 				text = [BdApi.React.createElement("h3", null, guild.name), BdApi.React.createElement("div", null, channel.name)];
 				viewButton = Strings.VIEW;
 				joinButton = inCurrentChannel ? Strings.JOIN_DISABLED : Strings.JOIN;
-				Icon = Speaker;
+				Icon = Icons.Speaker;
 				channelPath = `/channels/${guild.id}/${channel.id}`;
 			} else {
 				headerText = Strings.HEADER_VOICE;
 				text = BdApi.React.createElement("h3", null, channel.name);
 				viewButton = Strings.VIEW_CALL;
 				joinButton = inCurrentChannel ? Strings.JOIN_DISABLED_CALL : Strings.JOIN_CALL;
-				Icon = CallJoin;
+				Icon = Icons.CallJoin;
 				channelPath = `/channels/@me/${channel.id}`;
 			}
 			switch (channel.type) {
@@ -676,7 +859,7 @@ function buildPlugin([BasePlugin, Library]) {
 					break;
 				case 13:
 					headerText = Strings.HEADER_STAGE;
-					Icon = Stage;
+					Icon = Icons.Stage;
 			}
 			const section = BdApi.React.createElement(UserPopoutSection, null, BdApi.React.createElement("h3", {
 				className: modules_9dbd3268.header
@@ -697,7 +880,7 @@ function buildPlugin([BasePlugin, Library]) {
 					if (channelPath)
 						transitionTo(channelPath);
 				}
-			}, viewButton), !isCurrentUser && BdApi.React.createElement(Tooltip, {
+			}, viewButton), !isCurrentUser && BdApi.React.createElement(betterdiscord.Components.Tooltip, {
 				text: joinButton,
 				position: "top"
 			}, (props2) => BdApi.React.createElement("div", {
@@ -708,20 +891,20 @@ function buildPlugin([BasePlugin, Library]) {
 				disabled: inCurrentChannel,
 				onClick: () => {
 					if (channel.id)
-						ChannelActions.selectVoiceChannel(channel.id);
+						ChannelActions?.selectVoiceChannel(channel.id);
 				},
 				onContextMenu: (e) => {
 					if (channel.type === 13)
 						return;
-					zlibrary.ContextMenu.openContextMenu(
+					betterdiscord.ContextMenu.open(
 						e,
-						zlibrary.ContextMenu.buildMenu([
+						betterdiscord.ContextMenu.buildMenu([
 							{
 								label: Strings.JOIN_VIDEO,
 								id: "voice-activity-join-with-video",
 								action: () => {
 									if (channel.id)
-										ChannelActions.selectVoiceChannel(channel.id, true);
+										ChannelActions?.selectVoiceChannel(channel.id, true);
 								}
 							}
 						])
@@ -735,8 +918,6 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// components/SettingsPanel.tsx
-		const { getModule: getModule$1 } = betterdiscord.Webpack;
-		const SwitchItem = getModule$1((m) => m.toString?.().includes("().dividerDefault"), { searchExports: true });
 		const SettingsSwitchItem = (props) => {
 			const value = Settings.useSettingsState()[props.setting];
 			return BdApi.React.createElement(SwitchItem, {
@@ -795,29 +976,24 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		// index.tsx
 		const {
-			Filters: { byProps, byStrings },
-			getModule
+			Filters: { byStrings }
 		} = betterdiscord.Webpack;
-		const { getModuleWithKey, store } = WebpackUtils;
-		const memberItemSelector = `.${getModule(byProps("member", "activity")).member}`;
-		const privateChannelSelector = `.${getModule(byProps("channel", "activity")).channel}`;
-		const peopleItemSelector = `.${getModule(byProps("peopleListItem")).peopleListItem}`;
-		const guildIconSelector = `.${getModule(byProps("folderEndWrapper")).wrapper}`;
-		const children = getModule(byProps("avatar", "children")).children;
+		const { getModuleWithKey } = WebpackUtils;
+		const guildIconSelector = `div:not([data-dnd-name]) + ${iconWrapperSelector}`;
 		class VoiceActivity extends BasePlugin {
 			contextMenuUnpatches;
 			onStart() {
 				this.contextMenuUnpatches = new Set();
-				betterdiscord.DOM.addStyle(styles() + `.${children}:empty { margin-left: 0; } .${children} { display: flex; gap: 8px; }`);
+				betterdiscord.DOM.addStyle(styles() + `${children}:empty { margin-left: 0; } ${children} { display: flex; gap: 8px; }`);
 				Strings.subscribe();
+				this.patchPeopleListItem();
 				this.patchUserPopout();
 				this.patchPrivateChannelProfile();
-				this.patchGuildIcon();
 				this.patchMemberListItem();
-				this.patchPrivateChannel();
-				this.patchPeopleListItem();
 				this.patchChannelContextMenu();
 				this.patchGuildContextMenu();
+				this.patchPrivateChannel();
+				this.patchGuildIcon();
 			}
 			patchUserPopout() {
 				const [UserPopoutBody, key] = getModuleWithKey(byStrings(".showCopiableUsername"));
@@ -848,107 +1024,65 @@ function buildPlugin([BasePlugin, Library]) {
 					}));
 				});
 			}
-			patchGuildIcon() {
-				const getGuildMediaState = (guildId, ignoredChannels) => {
-					const vocalChannelIds = GuildChannelStore.getVocalChannelIds(guildId);
-					let audio = false;
-					let video = false;
-					let screenshare = false;
-					for (const id of vocalChannelIds) {
-						if (ignoredChannels.includes(id))
-							continue;
-						const voiceStates = Object.values(VoiceStateStore.getVoiceStatesForChannel(id));
-						if (!voiceStates.length)
-							continue;
-						else
-							audio = true;
-						if (!video && VoiceStateStore.hasVideo(id))
-							video = true;
-						if (!screenshare && voiceStates.some((voiceState) => voiceState.selfStream))
-							screenshare = true;
-						if (audio && video && screenshare)
-							break;
-					}
-					return { audio, video, screenshare };
-				};
-				const GuildChannelStore = getModule(store("GuildChannelStore"));
-				const element = document.querySelector(guildIconSelector);
-				const targetInstance = betterdiscord.Utils.findInTree(
-					betterdiscord.ReactUtils.getInternalInstance(element),
-					(n) => n?.elementType?.type && n.pendingProps?.mediaState,
-					{ walkable: ["return"] }
-				);
-				betterdiscord.Patcher.before(targetInstance.elementType, "type", (_, [props]) => {
-					const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState();
-					const mediaState = useStateFromStores(
-						[VoiceStateStore],
-						() => getGuildMediaState(props.guild.id, ignoredChannels)
-					);
-					if (showGuildIcons && !ignoredGuilds.includes(props.guild.id)) {
-						props.mediaState = { ...props.mediaState, ...mediaState };
-					} else if (!props.mediaState.participating) {
-						props.mediaState = { ...props.mediaState, ...{ audio: false, video: false, screenshare: false } };
-					}
-				});
-				forceRerender(guildIconSelector);
-			}
-			async patchMemberListItem() {
-				const MemberListItem = await zlibrary.ReactComponents.getComponent(
-					"MemberListItem",
-					memberItemSelector,
-					(c) => c.prototype?.renderPremium
-				);
-				betterdiscord.Patcher.after(MemberListItem.component.prototype, "render", (thisObject, _, ret) => {
-					if (thisObject.props.user) {
+			patchMemberListItem() {
+				const unpatch = betterdiscord.Patcher.after(MemberListItemContainer, "type", (_, _args, containerRet) => {
+					const MemberListItem = containerRet.type;
+					betterdiscord.Patcher.after(MemberListItem.prototype, "render", (that, _2, ret) => {
+						if (!that.props.user)
+							return ret;
 						Array.isArray(ret.props.children) ? ret.props.children.unshift(BdApi.React.createElement(VoiceIcon, {
-							userId: thisObject.props.user.id,
+							userId: that.props.user.id,
 							context: "memberlist"
 						})) : ret.props.children = [BdApi.React.createElement(VoiceIcon, {
-							userId: thisObject.props.user.id,
+							userId: that.props.user.id,
 							context: "memberlist"
 						})];
-					}
+					});
+					unpatch();
 				});
-				forceUpdateAll(memberItemSelector);
 			}
-			async patchPrivateChannel() {
-				const PrivateChannel = await zlibrary.ReactComponents.getComponent(
-					"PrivateChannel",
-					privateChannelSelector,
-					(c) => c.prototype?.renderSubtitle
-				);
-				betterdiscord.Patcher.after(PrivateChannel.component.prototype, "render", (thisObject, _, ret) => {
-					if (!thisObject.props.user)
-						return;
-					const props = betterdiscord.Utils.findInTree(ret, (e) => e?.children && e?.id, { walkable: ["children", "props"] });
-					const children2 = props.children;
-					props.children = (childrenProps) => {
-						const childrenRet = children2(childrenProps);
-						const privateChannel = betterdiscord.Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
-							walkable: ["children", "props"]
-						});
-						privateChannel.children = [
-							privateChannel.children,
-							BdApi.React.createElement("div", {
-								className: modules_df1df857.iconContainer
-							}, BdApi.React.createElement(VoiceIcon, {
-								userId: thisObject.props.user.id,
-								context: "dmlist"
-							}))
-						];
-						return childrenRet;
-					};
+			patchPrivateChannel() {
+				const [PrivateChannelContainer, key] = getModuleWithKey(byStrings("getRecipientId", "isFavorite"));
+				const unpatch = betterdiscord.Patcher.after(PrivateChannelContainer, key, (_, _args, containerRet) => {
+					const PrivateChannel = containerRet.type;
+					betterdiscord.Patcher.after(PrivateChannel.prototype, "render", (that, _2, ret) => {
+						if (!that.props.user)
+							return ret;
+						const props = betterdiscord.Utils.findInTree(ret, (e) => e?.children && e?.id, { walkable: ["children", "props"] });
+						const children2 = props.children;
+						props.children = (childrenProps) => {
+							const childrenRet = children2(childrenProps);
+							const privateChannel = betterdiscord.Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
+								walkable: ["children", "props"]
+							});
+							privateChannel.children = [
+								privateChannel.children,
+								BdApi.React.createElement("div", {
+									className: modules_df1df857.iconContainer
+								}, BdApi.React.createElement(VoiceIcon, {
+									userId: that.props.user.id,
+									context: "dmlist"
+								}))
+							];
+							return childrenRet;
+						};
+					});
+					unpatch();
 				});
-				forceUpdateAll(privateChannelSelector);
 			}
 			async patchPeopleListItem() {
-				const PeopleListItem = await zlibrary.ReactComponents.getComponent(
-					"PeopleListItem",
-					peopleItemSelector,
-					(c) => c.prototype?.componentWillEnter
+				await waitForElement(peopleItemSelector);
+				const element = document.querySelector(peopleItemSelector);
+				const targetInstance = betterdiscord.Utils.findInTree(
+					betterdiscord.ReactUtils.getInternalInstance(element),
+					(n) => n?.elementType?.prototype?.componentWillEnter,
+					{ walkable: ["return"] }
 				);
-				betterdiscord.Patcher.after(PeopleListItem.component.prototype, "render", (thisObject, _, ret) => {
-					if (!thisObject.props.user)
+				const PeopleListItem = targetInstance?.elementType;
+				if (!PeopleListItem)
+					return Logger.error("PeopleListItem component not found");
+				betterdiscord.Patcher.after(PeopleListItem.prototype, "render", (that, _, ret) => {
+					if (!that.props.user)
 						return;
 					const children2 = ret.props.children;
 					ret.props.children = (childrenProps) => {
@@ -959,14 +1093,40 @@ function buildPlugin([BasePlugin, Library]) {
 							BdApi.React.createElement("div", {
 								className: modules_df1df857.iconContainer
 							}, BdApi.React.createElement(VoiceIcon, {
-								userId: thisObject.props.user.id,
+								userId: that.props.user.id,
 								context: "peoplelist"
 							}))
 						);
 						return childrenRet;
 					};
 				});
-				forceUpdateAll(peopleItemSelector);
+				forceUpdateAll(peopleItemSelector, (i) => i.user);
+			}
+			patchGuildIcon() {
+				const element = document.querySelector(guildIconSelector);
+				if (!element)
+					return Logger.error("Guild icon element not found");
+				const targetInstance = betterdiscord.Utils.findInTree(
+					betterdiscord.ReactUtils.getInternalInstance(element),
+					(n) => n?.elementType?.type && n.pendingProps?.mediaState,
+					{ walkable: ["return"] }
+				);
+				const GuildIconComponent = targetInstance?.elementType;
+				if (!GuildIconComponent)
+					return Logger.error("Guild icon component not found");
+				betterdiscord.Patcher.before(GuildIconComponent, "type", (_, [props]) => {
+					const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState();
+					const mediaState = useStateFromStores(
+						[Stores.VoiceStateStore],
+						() => getGuildMediaState(props.guild.id, ignoredChannels)
+					);
+					if (showGuildIcons && !ignoredGuilds.includes(props.guild.id)) {
+						props.mediaState = { ...props.mediaState, ...mediaState };
+					} else if (!props.mediaState.participating) {
+						props.mediaState = { ...props.mediaState, ...{ audio: false, video: false, screenshare: false } };
+					}
+				});
+				forceRerender(element);
 			}
 			patchChannelContextMenu() {
 				const unpatch = betterdiscord.ContextMenu.patch("channel-context", (ret, props) => {
@@ -1026,10 +1186,8 @@ function buildPlugin([BasePlugin, Library]) {
 				Strings.unsubscribe();
 				this.contextMenuUnpatches.forEach((unpatch) => unpatch());
 				this.contextMenuUnpatches.clear();
-				forceUpdateAll(memberItemSelector);
-				forceUpdateAll(privateChannelSelector);
-				forceUpdateAll(peopleItemSelector);
-				forceRerender(guildIconSelector);
+				forceUpdateAll(peopleItemSelector, (i) => i.user);
+				forceRerender(document.querySelector(guildIconSelector));
 			}
 			getSettingsPanel() {
 				return BdApi.React.createElement(SettingsPanel, null);
@@ -1042,11 +1200,11 @@ function buildPlugin([BasePlugin, Library]) {
 		name: "VoiceActivity",
 		author: "Neodymium",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
-		version: "1.6.7",
+		version: "1.7.0",
 		source: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		donate: "https://ko-fi.com/neodymium7",
 		invite: "fRbsqH87Av"
-	}, Library, BasePlugin);
+	}, BasePlugin);
 
 	return Plugin;
 }

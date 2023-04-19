@@ -2,7 +2,7 @@
  * @name CopyCodeblocks
  * @author Neodymium
  * @description Adds a simple copy button to codeblocks.
- * @version 1.2.0
+ * @version 1.2.1
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/CopyCodeblocks/CopyCodeblocks.plugin.js
  * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
@@ -40,7 +40,7 @@ var meta = {
 	name: "CopyCodeblocks",
 	author: "Neodymium",
 	description: "Adds a simple copy button to codeblocks.",
-	version: "1.2.0",
+	version: "1.2.1",
 	source: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/CopyCodeblocks/CopyCodeblocks.plugin.js",
 	donate: "https://ko-fi.com/neodymium7",
 	invite: "fRbsqH87Av"
@@ -61,26 +61,11 @@ var Logger = class {
 		this._log("error", message);
 	}
 };
-var WebpackUtils = {
-	store(name) {
-		return (m) => m._dispatchToken && m.getName() === name;
-	},
-	byId(id) {
-		return (_e, _m, i) => i === id;
-	},
-	byValues(...filters) {
-		return (e, m, i) => {
-			let match = true;
-			for (const filter of filters) {
-				if (!Object.values(e).some((v) => filter(v, m, i))) {
-					match = false;
-					break;
-				}
-			}
-			return match;
-		};
-	},
-	getModuleWithKey(filter) {
+var WebpackUtils = class {
+	static getStore(name) {
+		return betterdiscord.Webpack.getModule((m) => m._dispatchToken && m.getName() === name);
+	}
+	static getModuleWithKey(filter) {
 		let target;
 		let id;
 		let key;
@@ -102,8 +87,15 @@ var WebpackUtils = {
 			}
 		}
 		return [target.exports, key];
-	},
-	expectModule(filter, options) {
+	}
+	static expectModule(filterOrOptions, options) {
+		let filter;
+		if (typeof filterOrOptions === "function") {
+			filter = filterOrOptions;
+		} else {
+			filter = filterOrOptions.filter;
+			options = filterOrOptions;
+		}
 		const found = betterdiscord.Webpack.getModule(filter, options);
 		if (found) return found;
 		const name = options.name ? `'${options.name}'` : `query with filter '${filter.toString()}'`;
@@ -115,6 +107,50 @@ Contact the plugin developer to inform them of this error.`;
 		options.onError?.();
 		if (options.fatal) throw new Error(errorMessage);
 		return options.fallback;
+	}
+	static getClasses(name, classes) {
+		return WebpackUtils.expectModule({
+			filter: betterdiscord.Webpack.Filters.byProps(...classes),
+			name,
+			fallback: classes.reduce((obj, key) => {
+				obj[key] = "unknown-class";
+				return obj;
+			}, {})
+		});
+	}
+	static getSelectors(name, classes) {
+		const module = WebpackUtils.expectModule({
+			filter: betterdiscord.Webpack.Filters.byProps(...classes),
+			name,
+			fallback: {}
+		});
+		if (Object.keys(module).length === 0)
+			return classes.reduce((obj, key) => {
+				obj[key] = null;
+				return obj;
+			}, {});
+		return Object.keys(module).reduce((obj, key) => {
+			obj[key] = `.${module[key].replaceAll(" ", ".")}`;
+			return obj;
+		}, {});
+	}
+	static store(name) {
+		return (m) => m._dispatchToken && m.getName() === name;
+	}
+	static byId(id) {
+		return (_e, _m, i) => i === id;
+	}
+	static byValues(...filters) {
+		return (e, m, i) => {
+			let match = true;
+			for (const filter of filters) {
+				if (!Object.values(e).some((v) => filter(v, m, i))) {
+					match = false;
+					break;
+				}
+			}
+			return match;
+		};
 	}
 };
 
@@ -169,7 +205,7 @@ function Codeblock(props) {
 }
 
 // styles.css
-var css = ".codeblockWrapper {\n\tposition: relative;\n\tmargin: -7px;\n}\n.codeblockContent {\n\tpadding: 7px;\n}\n.copyCodeblockButton {\n\tposition: absolute;\n\tright: 3px;\n\ttop: 3px;\n\theight: 18px;\n\twidth: 18px;\n\tpadding: 2px;\n\tbackground-color: var(--background-tertiary);\n\tcolor: var(--interactive-normal);\n\tbox-shadow: var(--elevation-medium);\n\tborder: 1px solid var(--background-floating);\n\tborder-radius: 4px;\n\tcursor: pointer;\n\topacity: 1;\n\ttransition: opacity 0.1s, transform 0.1s;\n\ttransform: none;\n}\n.copyCodeblockButton:hover {\n\tcolor: var(--interactive-hover);\n}\n.copyCodeblockButton:active {\n\tcolor: var(--interactive-active);\n}\n.codeblockWrapper:not(:hover) .copyCodeblockButton {\n\topacity: 0;\n\ttransform: scale(0.95) translate(2px, -2px);\n}\n";
+var css = ".codeblockWrapper {\n\tposition: relative;\n\tmargin: -7px;\n}\n\n.codeblockContent {\n\tpadding: 7px;\n}\n\n.copyCodeblockButton {\n\tposition: absolute;\n\tright: 3px;\n\ttop: 3px;\n\theight: 18px;\n\twidth: 18px;\n\tpadding: 2px;\n\tbackground-color: var(--background-tertiary);\n\tcolor: var(--interactive-normal);\n\tbox-shadow: var(--elevation-medium);\n\tborder: 1px solid var(--background-floating);\n\tborder-radius: 4px;\n\tcursor: pointer;\n\topacity: 1;\n\ttransition: opacity 0.1s, transform 0.1s;\n\ttransform: none;\n}\n\n.copyCodeblockButton:hover {\n\tcolor: var(--interactive-hover);\n}\n\n.copyCodeblockButton:active {\n\tcolor: var(--interactive-active);\n}\n\n.codeblockWrapper:not(:hover) .copyCodeblockButton {\n\topacity: 0;\n\ttransform: scale(0.95) translate(2px, -2px);\n}\n";
 
 // index.tsx
 const {

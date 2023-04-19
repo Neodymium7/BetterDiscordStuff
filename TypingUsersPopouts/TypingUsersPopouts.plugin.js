@@ -2,7 +2,7 @@
  * @name TypingUsersPopouts
  * @author Neodymium
  * @description Opens the user's popout when clicking on a name in the typing area.
- * @version 1.3.0
+ * @version 1.3.1
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
@@ -40,18 +40,17 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.3.0",
+		version: "1.3.1",
 		description: "Opens the user's popout when clicking on a name in the typing area.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js"
 	},
 	changelog: [
 		{
-			title: "Fixed",
-			type: "fixed",
+			title: "Improved",
+			type: "improved",
 			items: [
-				"Fixed profile loading.",
-				"The plugin should now be much more resilient to errors and updates."
+				"Some small behind the scenes changes and code cleanup."
 			]
 		}
 	]
@@ -71,7 +70,7 @@ if (!global.ZeresPluginLibrary) {
 }
 
 function buildPlugin([BasePlugin, Library]) {
-    var Plugin = (function (betterdiscord, zlibrary, react, meta, Plugin) {
+    var Plugin = (function (betterdiscord, Plugin, react, meta) {
 		'use strict';
 	
 		// bundlebd
@@ -89,26 +88,11 @@ function buildPlugin([BasePlugin, Library]) {
 				this._log("error", message);
 			}
 		};
-		var WebpackUtils = {
-			store(name) {
-				return (m) => m._dispatchToken && m.getName() === name;
-			},
-			byId(id) {
-				return (_e, _m, i) => i === id;
-			},
-			byValues(...filters) {
-				return (e, m, i) => {
-					let match = true;
-					for (const filter of filters) {
-						if (!Object.values(e).some((v) => filter(v, m, i))) {
-							match = false;
-							break;
-						}
-					}
-					return match;
-				};
-			},
-			getModuleWithKey(filter) {
+		var WebpackUtils = class {
+			static getStore(name) {
+				return betterdiscord.Webpack.getModule((m) => m._dispatchToken && m.getName() === name);
+			}
+			static getModuleWithKey(filter) {
 				let target;
 				let id;
 				let key;
@@ -130,8 +114,15 @@ function buildPlugin([BasePlugin, Library]) {
 					}
 				}
 				return [target.exports, key];
-			},
-			expectModule(filter, options) {
+			}
+			static expectModule(filterOrOptions, options) {
+				let filter;
+				if (typeof filterOrOptions === "function") {
+					filter = filterOrOptions;
+				} else {
+					filter = filterOrOptions.filter;
+					options = filterOrOptions;
+				}
 				const found = betterdiscord.Webpack.getModule(filter, options);
 				if (found) return found;
 				const name = options.name ? `'${options.name}'` : `query with filter '${filter.toString()}'`;
@@ -144,34 +135,80 @@ function buildPlugin([BasePlugin, Library]) {
 				if (options.fatal) throw new Error(errorMessage);
 				return options.fallback;
 			}
+			static getClasses(name, classes) {
+				return WebpackUtils.expectModule({
+					filter: betterdiscord.Webpack.Filters.byProps(...classes),
+					name,
+					fallback: classes.reduce((obj, key) => {
+						obj[key] = "unknown-class";
+						return obj;
+					}, {})
+				});
+			}
+			static getSelectors(name, classes) {
+				const module = WebpackUtils.expectModule({
+					filter: betterdiscord.Webpack.Filters.byProps(...classes),
+					name,
+					fallback: {}
+				});
+				if (Object.keys(module).length === 0)
+					return classes.reduce((obj, key) => {
+						obj[key] = null;
+						return obj;
+					}, {});
+				return Object.keys(module).reduce((obj, key) => {
+					obj[key] = `.${module[key].replaceAll(" ", ".")}`;
+					return obj;
+				}, {});
+			}
+			static store(name) {
+				return (m) => m._dispatchToken && m.getName() === name;
+			}
+			static byId(id) {
+				return (_e, _m, i) => i === id;
+			}
+			static byValues(...filters) {
+				return (e, m, i) => {
+					let match = true;
+					for (const filter of filters) {
+						if (!Object.values(e).some((v) => filter(v, m, i))) {
+							match = false;
+							break;
+						}
+					}
+					return match;
+				};
+			}
 		};
 	
 		// modules.tsx
 		const {
-			Filters: { byStrings: byStrings$1 },
-			getModule
+			Filters: { byStrings: byStrings$1 }
 		} = betterdiscord.Webpack;
-		const { expectModule, store } = WebpackUtils;
-		const Error$1 = (props) => BdApi.React.createElement("div", {
+		const { expectModule, getStore, getSelectors } = WebpackUtils;
+		const ErrorPopout = (props) => BdApi.React.createElement("div", {
 			style: { backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" }
 		}, props.message);
-		const UserPopout = expectModule((e) => e.type?.toString().includes('"userId"'), {
+		const UserPopout = expectModule({
+			filter: (e) => e.type?.toString().includes('"userId"'),
 			name: "UserPopout",
-			fallback: (_props) => BdApi.React.createElement(Error$1, {
+			fallback: (_props) => BdApi.React.createElement(ErrorPopout, {
 				message: "Error: User Popout module not found"
 			})
 		});
-		const Popout = expectModule(byStrings$1(".animationPosition"), {
+		const Popout = expectModule({
+			filter: byStrings$1(".animationPosition"),
 			searchExports: true,
 			name: "Popout",
 			fallback: (props) => props.children()
 		});
-		const loadProfile = expectModule(
-			(m) => m.Z?.toString?.().includes("y.apply(this,arguments)") && Object.values(m).length === 1,
-			{ name: "loadProfile" }
-		).Z;
-		const UserStore = getModule(store("UserStore"));
-		const RelationshipStore = getModule(store("RelationshipStore"));
+		const loadProfile = expectModule({
+			filter: (m) => m.Z?.toString?.().includes("y.apply(this,arguments)") && Object.values(m).length === 1,
+			name: "loadProfile"
+		}).Z;
+		const typingSelector = getSelectors("Typing Class", ["typingDots", "typing"]).typing;
+		const UserStore = getStore("UserStore");
+		const RelationshipStore = getStore("RelationshipStore");
 	
 		// index.tsx
 		const {
@@ -187,7 +224,7 @@ function buildPlugin([BasePlugin, Library]) {
 				});
 			});
 		};
-		const nameSelector = `${zlibrary.DiscordSelectors.Typing.typing} strong`;
+		const nameSelector = `${typingSelector} strong`;
 		class TypingUsersPopouts extends Plugin {
 			onStart() {
 				betterdiscord.DOM.addStyle(`${nameSelector} { cursor: pointer; } ${nameSelector}:hover { text-decoration: underline; }`);
@@ -237,15 +274,15 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		return TypingUsersPopouts;
 	
-	})(new BdApi("TypingUsersPopouts"), Library, BdApi.React, {
+	})(new BdApi("TypingUsersPopouts"), BasePlugin, BdApi.React, {
 		name: "TypingUsersPopouts",
 		author: "Neodymium",
 		description: "Opens the user's popout when clicking on a name in the typing area.",
-		version: "1.3.0",
+		version: "1.3.1",
 		source: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js",
 		donate: "https://ko-fi.com/neodymium7",
 		invite: "fRbsqH87Av"
-	}, BasePlugin);
+	});
 
 	return Plugin;
 }
