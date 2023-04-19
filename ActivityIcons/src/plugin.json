@@ -1,9 +1,10 @@
 {
 	"name": "ActivityIcons",
-	"version": "1.2.11",
+	"version": "1.3.0",
 	"description": "Improves the default icons next to statuses",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
 	"author": "Neodymium",
+	"donate": "https://ko-fi.com/neodymium7",
 	"invite": "fRbsqH87Av",
 	"zlibrary": {
 		"info": {
@@ -11,9 +12,13 @@
 		},
 		"changelog": [
 			{
-				"title": "Fixed",
-				"type": "fixed",
-				"items": ["Fixed crashing"]
+				"title": "Improved",
+				"type": "improved",
+				"items": [
+					"Lots of small behind the scenes changes and code cleanup.",
+					"The plugin should be more resistant to changes in Discord, reducing the chance of crashing.",
+					"Added Greek translations (thanks to panos78 on GitHub)."
+				]
 			}
 		]
 	}
