@@ -1,6 +1,6 @@
 import { ContextMenu, UI } from "betterdiscord";
-import { DiscordClasses } from "zlibrary";
 import {
+	AccountClasses,
 	Activity,
 	PanelButton,
 	Sections,
@@ -18,7 +18,7 @@ export default function ActivityToggleButton() {
 	return (
 		<PanelButton
 			icon={activityEnabled ? Activity : ActivityDisabledIcon}
-			iconForeground={activityEnabled ? null : DiscordClasses.AccountDetails.strikethrough}
+			iconForeground={activityEnabled ? null : AccountClasses.strikethrough}
 			tooltipText={activityEnabled ? "Disable Activity" : "Enable Activity"}
 			onClick={() => {
 				if (!updateSetting) {

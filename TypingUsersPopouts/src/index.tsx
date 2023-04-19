@@ -1,8 +1,7 @@
 import { DOM, Patcher, Utils, Webpack } from "betterdiscord";
-import { DiscordSelectors } from "zlibrary";
 import Plugin from "zlibrary/plugin";
 import { WebpackUtils } from "bundlebd";
-import { Popout, RelationshipStore, UserPopout, UserStore, loadProfile } from "./modules";
+import { Popout, RelationshipStore, UserPopout, UserStore, loadProfile, typingSelector } from "./modules";
 
 const {
 	Filters: { byStrings },
@@ -20,7 +19,7 @@ const findChildComponent = async (module: any, functionName: string, filter: (i:
 	});
 };
 
-const nameSelector = `${DiscordSelectors.Typing.typing} strong`;
+const nameSelector = `${typingSelector} strong`;
 
 export default class TypingUsersPopouts extends Plugin {
 	onStart() {

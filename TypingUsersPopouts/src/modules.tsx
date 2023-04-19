@@ -5,7 +5,7 @@ const {
 	Filters: { byStrings },
 } = Webpack;
 
-const { expectModule, getStore } = WebpackUtils;
+const { expectModule, getStore, getSelectors } = WebpackUtils;
 
 const ErrorPopout = (props: { message: string }) => (
 	<div style={{ backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" }}>
@@ -30,6 +30,8 @@ export const loadProfile: any = expectModule<any>({
 	filter: (m) => m.Z?.toString?.().includes("y.apply(this,arguments)") && Object.values(m).length === 1,
 	name: "loadProfile",
 }).Z;
+
+export const typingSelector = getSelectors("Typing Class", ["typingDots", "typing"]).typing;
 
 export const UserStore = getStore("UserStore");
 export const RelationshipStore = getStore("RelationshipStore");

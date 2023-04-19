@@ -135,7 +135,7 @@ export default class VoiceActivity extends BasePlugin {
 				return childrenRet;
 			};
 		});
-		forceUpdateAll(peopleItemSelector);
+		forceUpdateAll(peopleItemSelector, (i) => i.user);
 	}
 
 	patchGuildIcon() {
@@ -160,7 +160,7 @@ export default class VoiceActivity extends BasePlugin {
 				props.mediaState = { ...props.mediaState, ...{ audio: false, video: false, screenshare: false } };
 			}
 		});
-		forceRerender(guildIconSelector);
+		forceRerender(element);
 	}
 
 	patchChannelContextMenu() {
@@ -226,8 +226,8 @@ export default class VoiceActivity extends BasePlugin {
 		Strings.unsubscribe();
 		this.contextMenuUnpatches.forEach((unpatch) => unpatch());
 		this.contextMenuUnpatches.clear();
-		forceUpdateAll(peopleItemSelector);
-		forceRerender(guildIconSelector);
+		forceUpdateAll(peopleItemSelector, (i) => i.user);
+		forceRerender(document.querySelector(guildIconSelector));
 	}
 
 	getSettingsPanel() {

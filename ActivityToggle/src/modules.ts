@@ -6,7 +6,7 @@ const {
 	Filters: { byProps, byStrings },
 } = Webpack;
 
-const { expectModule, getSelectors } = WebpackUtils;
+const { expectModule, getSelectors, getClasses } = WebpackUtils;
 
 export const Sections = expectModule(byProps("ACCOUNT"), {
 	searchExports: true,
@@ -56,4 +56,5 @@ export const UserSettingsWindow: any = expectModule({
 	name: "UserSettingsWindow",
 });
 
-export const { withTagAsButton } = getSelectors("Account Classes", ["withTagAsButton"]);
+export const AccountSelectors = getSelectors("Account Classes", ["withTagAsButton", "container"]);
+export const AccountClasses = getClasses("Account Classes", ["withTagAsButton", "strikethrough"]);

@@ -1,5 +1,4 @@
-import { Patcher, ReactUtils } from "betterdiscord";
-import { ReactTools } from "zlibrary";
+import { Patcher, ReactUtils, Utils } from "betterdiscord";
 import { createSettings, createStrings } from "bundlebd";
 import { DiscordPermissions, Permissions, Stores } from "./discordmodules";
 import locales from "../locales.json";
@@ -63,17 +62,20 @@ export function groupDMName(members: any[]): string {
 	return "Unnamed";
 }
 
-export function forceUpdateAll(selector: string) {
+export function forceUpdateAll(selector: string, propsFilter = (_) => true) {
 	const elements: NodeListOf<HTMLElement> = document.querySelectorAll(selector);
 	for (const element of elements) {
-		const stateNodes = ReactTools.getStateNodes(element);
-		for (const stateNode of stateNodes) stateNode.forceUpdate();
+		const instance = ReactUtils.getInternalInstance(element);
+		const stateNode = Utils.findInTree(
+			instance,
+			(n) => n && n.stateNode && n.stateNode.forceUpdate && propsFilter(n.stateNode.props),
+			{ walkable: ["return"] }
+		).stateNode;
+		stateNode.forceUpdate();
 	}
 }
 
-export function forceRerender(selector: string) {
-	const element: HTMLElement = document.querySelector(selector);
-	if (!element) return;
+export function forceRerender(element: HTMLElement) {
 	const ownerInstance = ReactUtils.getOwnerInstance(element);
 	const cancel = Patcher.instead(ownerInstance, "render", () => {
 		cancel();

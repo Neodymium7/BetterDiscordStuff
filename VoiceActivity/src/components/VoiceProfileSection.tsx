@@ -1,5 +1,4 @@
-import { Components } from "betterdiscord";
-import { ContextMenu } from "zlibrary";
+import { Components, ContextMenu } from "betterdiscord";
 import {
 	ChannelActions,
 	Icons,
@@ -114,7 +113,7 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 									}}
 									onContextMenu={(e) => {
 										if (channel.type === 13) return;
-										ContextMenu.openContextMenu(
+										ContextMenu.open(
 											e,
 											ContextMenu.buildMenu([
 												{

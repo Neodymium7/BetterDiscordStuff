@@ -68,7 +68,6 @@ export const Margins = getClasses("Margins", ["marginBottom8"]);
 
 export const peopleListItemSelector = getSelectors("People List Classes", ["peopleListItem"]).peopleListItem;
 
-export const privateChannelScrollerSelector = getSelectors("Private Channel Classes", [
-	"scroller",
-	"privateChannelsHeaderContainer",
-]).scroller;
+export const memberSelector = getSelectors("Member Class", ["memberInner", "member"]).member;
+
+export const privateChannelSelector = getSelectors("Private Channel Classes", ["favoriteIcon", "channel"]).channel;
