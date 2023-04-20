@@ -1,5 +1,9 @@
 {
 	"en-US": {
+		"ACTIVITY_TOOLTIP_LENGTH_2": "{{ACTIVITY1}} and {{ACTIVITY2}}",
+		"ACTIVITY_TOOLTIP_LENGTH_3": "{{ACTIVITY1}}, {{ACTIVITY2}}, and {{ACTIVITY3}}",
+		"ACTIVITY_TOOLTIP_LENGTH_MANY": "{{ACTIVITY1}}, {{ACTIVITY2}}, and {{COUNT}} more",
+		"LISTENING_TOOLTIP_ARTIST": "by {{NAME}}",
 		"SETTINGS_ICON_BEHAVIOR": "Normal Activity Icon Behavior",
 		"SETTINGS_ICON_BEHAVIOR_NOTE": "Conditions under which normal activity icon (game controller) will be displayed",
 		"SETTINGS_ICON_BEHAVIOR_ACTIVITY": "Normal Activity (Default)",

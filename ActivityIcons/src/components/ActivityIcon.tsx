@@ -1,6 +1,6 @@
 import { Components } from "betterdiscord";
 import { Icons } from "../modules/discordmodules";
-import { Settings } from "../modules/utils";
+import { Settings, Strings, parseStringReact } from "../modules/utils";
 import { Component as Playstation } from "../assets/playstation.svg";
 import { Component as Xbox } from "../assets/xbox.svg";
 
@@ -32,29 +32,26 @@ export default function ActivityIcon(props: ActivityIconProps) {
 	if (normalIconBehavior === 2 && !(hasRP || onPS || onXbox)) return null;
 	else if (normalIconBehavior === 1 && !hasCustomStatus && !(hasRP || onPS || onXbox)) return null;
 
-	let tooltip: React.ReactElement;
+	let tooltip: React.ReactNode;
 	if (normalActivities.length === 1 && hasCustomStatus) {
 		tooltip = <strong>{normalActivities[0].name}</strong>;
 	} else if (normalActivities.length === 2) {
-		tooltip = (
-			<>
-				<strong>{normalActivities[0].name}</strong> and <strong>{normalActivities[1].name}</strong>
-			</>
-		);
+		tooltip = parseStringReact(Strings.ACTIVITY_TOOLTIP_LENGTH_2, {
+			ACTIVITY1: <strong>{normalActivities[0].name}</strong>,
+			ACTIVITY2: <strong>{normalActivities[1].name}</strong>,
+		});
 	} else if (normalActivities.length === 3) {
-		tooltip = (
-			<>
-				<strong>{normalActivities[0].name}</strong>, <strong>{normalActivities[1].name}</strong> and{" "}
-				<strong>{normalActivities[2].name}</strong>
-			</>
-		);
+		tooltip = parseStringReact(Strings.ACTIVITY_TOOLTIP_LENGTH_3, {
+			ACTIVITY1: <strong>{normalActivities[0].name}</strong>,
+			ACTIVITY2: <strong>{normalActivities[1].name}</strong>,
+			ACTIVITY3: <strong>{normalActivities[2].name}</strong>,
+		});
 	} else if (normalActivities.length > 3) {
-		tooltip = (
-			<>
-				<strong>{normalActivities[0].name}</strong>, <strong>{normalActivities[1].name}</strong> and{" "}
-				{normalActivities.length - 2} more
-			</>
-		);
+		tooltip = parseStringReact(Strings.ACTIVITY_TOOLTIP_LENGTH_MANY, {
+			ACTIVITY1: <strong>{normalActivities[0].name}</strong>,
+			ACTIVITY2: <strong>{normalActivities[1].name}</strong>,
+			COUNT: normalActivities.length - 2,
+		});
 	}
 
 	let icon = <Icons.Activity width="16" height="16" />;

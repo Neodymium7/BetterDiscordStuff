@@ -1,5 +1,6 @@
 import { Components } from "betterdiscord";
 import { Icons } from "../modules/discordmodules";
+import { Strings, parseString } from "../modules/utils";
 
 interface ListeningIconProps {
 	activities: any[];
@@ -15,7 +16,11 @@ export default function ListeningIcon(props: ListeningIconProps) {
 				<>
 					<div style={{ fontWeight: "600" }}>{activity.details}</div>
 					{activity.state && (
-						<div style={{ fontWeight: "400" }}>{`by ${activity.state.replace(/;/g, ",")}`}</div>
+						<div style={{ fontWeight: "400" }}>
+							{parseString(Strings.LISTENING_TOOLTIP_ARTIST, {
+								NAME: activity.state.replace(/;/g, ","),
+							})}
+						</div>
 					)}
 				</>
 			}
