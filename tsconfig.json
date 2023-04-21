@@ -4,6 +4,10 @@
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"allowSyntheticDefaultImports": true,
-		"jsx": "react-jsx"
+		"jsx": "react-jsx",
+		"paths": {
+			"@lib": ["./Library/src"],
+			"@lib/*": ["./Library/src/*"]
+		}
 	}
 }

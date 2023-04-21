@@ -1,13 +1,11 @@
 import { DOM, Patcher, Utils, Webpack } from "betterdiscord";
 import Plugin from "zlibrary/plugin";
-import { WebpackUtils } from "bundlebd";
+import { getModuleWithKey } from "@lib/utils/webpack";
 import { Popout, RelationshipStore, UserPopout, UserStore, loadProfile, typingSelector } from "./modules";
 
 const {
 	Filters: { byStrings },
 } = Webpack;
-
-const { getModuleWithKey } = WebpackUtils;
 
 const findChildComponent = async (module: any, functionName: string, filter: (i: any) => boolean) => {
 	return new Promise<any>((resolve, reject) => {

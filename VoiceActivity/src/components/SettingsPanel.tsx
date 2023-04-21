@@ -1,4 +1,4 @@
-import { SettingsKey } from "bundlebd";
+import { SettingsKey } from "@lib";
 import { SwitchItem } from "../modules/discordmodules";
 import { Settings, Strings } from "../modules/utils";
 

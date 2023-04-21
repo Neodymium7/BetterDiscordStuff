@@ -1,7 +1,8 @@
 import { ContextMenu, DOM, Patcher, ReactUtils, Utils, Webpack } from "betterdiscord";
-import { Logger, WebpackUtils } from "bundlebd";
 import BasePlugin from "zlibrary/plugin";
 import styles from "styles";
+import { Logger } from "@lib";
+import { getModuleWithKey } from "@lib/utils/webpack";
 import {
 	MemberListItemContainer,
 	Stores,
@@ -19,8 +20,6 @@ import SettingsPanel from "./components/SettingsPanel";
 const {
 	Filters: { byStrings },
 } = Webpack;
-
-const { getModuleWithKey } = WebpackUtils;
 
 const guildIconSelector = `div:not([data-dnd-name]) + ${iconWrapperSelector}`;
 

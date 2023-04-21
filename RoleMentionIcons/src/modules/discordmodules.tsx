@@ -1,6 +1,4 @@
-import { WebpackUtils } from "bundlebd";
-
-const { expectModule, getStore, getClasses } = WebpackUtils;
+import { expectModule, getStore, getClasses } from "@lib/utils/webpack";
 
 const Error = (_props) => (
 	<div>
