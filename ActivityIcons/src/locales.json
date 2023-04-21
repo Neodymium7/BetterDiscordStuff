@@ -16,5 +16,16 @@
 		"SETTINGS_ICON_BEHAVIOR_ACTIVITY": "Κανονική Δραστηριότητα (Προεπιλογή)",
 		"SETTINGS_ICON_BEHAVIOR_STATUS_AND_ACTIVITY": "Προσαρμοσμένη Κατάσταση και Κανονική Δραστηριότητα",
 		"SETTINGS_ICON_BEHAVIOR_NEVER": "Ποτέ"
+	},
+	"sv": {
+		"ACTIVITY_TOOLTIP_LENGTH_2": "{{ACTIVITY1}} och {{ACTIVITY2}}",
+		"ACTIVITY_TOOLTIP_LENGTH_3": "{{ACTIVITY1}}, {{ACTIVITY2}} och {{ACTIVITY3}}",
+		"ACTIVITY_TOOLTIP_LENGTH_MANY": "{{ACTIVITY1}}, {{ACTIVITY2}} och {{COUNT}} till",
+		"LISTENING_TOOLTIP_ARTIST": "av {{NAME}}",
+		"SETTINGS_ICON_BEHAVIOR": "Ikonbeteende för vanlig aktivitet",
+		"SETTINGS_ICON_BEHAVIOR_NOTE": "Förhållanden under vilka ikonen för vanlig aktivitet (handkontrollen) visas.",
+		"SETTINGS_ICON_BEHAVIOR_ACTIVITY": "Vanlig aktivitet (standard)",
+		"SETTINGS_ICON_BEHAVIOR_STATUS_AND_ACTIVITY": "Anpassad status och vanlig aktivitet",
+		"SETTINGS_ICON_BEHAVIOR_NEVER": "Aldrig"
 	}
 }
