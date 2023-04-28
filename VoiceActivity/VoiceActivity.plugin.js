@@ -2,7 +2,7 @@
  * @name VoiceActivity
  * @author Neodymium
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
- * @version 1.7.0
+ * @version 1.7.1
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
@@ -40,26 +40,17 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.7.0",
+		version: "1.7.1",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
 	},
 	changelog: [
 		{
-			title: "Improved",
-			type: "improved",
-			items: [
-				"Lots of small behind the scenes changes and code cleanup.",
-				"The plugin should be more resistant to changes in Discord, reducing the chance of crashing.",
-				"Added Greek translations (thanks to panos78 on GitHub)."
-			]
-		},
-		{
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed the plugin breaking when the first item in the server list is a folder."
+				"Fixed voice section not appearing in DM profile panel."
 			]
 		}
 	]
@@ -1013,7 +1004,7 @@ function buildPlugin([BasePlugin, Library]) {
 				const [PrivateChannelProfile, key] = getModuleWithKey((m) => m.Inner);
 				const { Inner } = PrivateChannelProfile[key];
 				betterdiscord.Patcher.after(PrivateChannelProfile, key, (_, [props], ret) => {
-					if (props.profileType !== 3)
+					if (props.profileType !== "PANEL")
 						return ret;
 					const sections = betterdiscord.Utils.findInTree(ret, (i) => Array.isArray(i), {
 						walkable: ["props", "children"]
@@ -1200,7 +1191,7 @@ function buildPlugin([BasePlugin, Library]) {
 		name: "VoiceActivity",
 		author: "Neodymium",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
-		version: "1.7.0",
+		version: "1.7.1",
 		source: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		donate: "https://ko-fi.com/neodymium7",
 		invite: "fRbsqH87Av"
