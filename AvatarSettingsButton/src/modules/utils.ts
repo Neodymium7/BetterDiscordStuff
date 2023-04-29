@@ -1,4 +1,4 @@
-import { createSettings, createStrings } from "bundlebd";
+import { createSettings, createStrings } from "@lib";
 import locales from "../locales.json";
 
 export const Settings = createSettings({

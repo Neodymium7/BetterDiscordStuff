@@ -1,11 +1,9 @@
 import { Webpack } from "betterdiscord";
-import { WebpackUtils } from "bundlebd";
+import { expectModule, getClasses, getSelectors } from "@lib/utils/webpack";
 
 const {
 	Filters: { byProps },
 } = Webpack;
-
-const { expectModule, getClasses, getSelectors } = WebpackUtils;
 
 interface AccountClasses {
 	container: string;

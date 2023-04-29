@@ -1,11 +1,9 @@
 import { Webpack } from "betterdiscord";
-import { WebpackUtils } from "bundlebd";
+import { expectModule, getStore, getSelectors } from "@lib/utils/webpack";
 
 const {
 	Filters: { byStrings },
 } = Webpack;
-
-const { expectModule, getStore, getSelectors } = WebpackUtils;
 
 const ErrorPopout = (props: { message: string }) => (
 	<div style={{ backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" }}>

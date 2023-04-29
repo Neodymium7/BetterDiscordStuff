@@ -1,13 +1,11 @@
 import { DOM, Patcher, Webpack } from "betterdiscord";
-import { WebpackUtils } from "bundlebd";
+import { expectModule } from "@lib/utils/webpack";
 import Codeblock from "./components/Codeblock";
 import styles from "./styles.css";
 
 const {
 	Filters: { byProps },
 } = Webpack;
-
-const { expectModule } = WebpackUtils;
 
 const Parser: any = expectModule(byProps("parseTopic"), { name: "Parser" });
 

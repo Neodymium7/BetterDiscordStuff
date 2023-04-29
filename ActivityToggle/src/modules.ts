@@ -1,12 +1,10 @@
 import { Webpack } from "betterdiscord";
-import { WebpackUtils } from "bundlebd";
+import { expectModule, getSelectors, getClasses } from "@lib/utils/webpack";
 import React from "react";
 
 const {
 	Filters: { byProps, byStrings },
 } = Webpack;
-
-const { expectModule, getSelectors, getClasses } = WebpackUtils;
 
 export const Sections = expectModule(byProps("ACCOUNT"), {
 	searchExports: true,

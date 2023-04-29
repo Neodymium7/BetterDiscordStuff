@@ -1,5 +1,5 @@
 import { Patcher, ReactUtils, Utils } from "betterdiscord";
-import { createSettings, createStrings } from "bundlebd";
+import { createSettings, createStrings } from "@lib";
 import { DiscordPermissions, Permissions, Stores } from "./discordmodules";
 import locales from "../locales.json";
 

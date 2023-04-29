@@ -1,11 +1,9 @@
 import { Webpack } from "betterdiscord";
-import { WebpackUtils } from "bundlebd";
+import { expectModule, getStore, getSelectors } from "@lib/utils/webpack";
 
 const {
 	Filters: { byProps, byStrings },
 } = Webpack;
-
-const { expectModule, getStore, getSelectors } = WebpackUtils;
 
 interface IconProps {
 	width?: string;
