@@ -28,17 +28,15 @@ export function parseString(string: string, parseObject: Record<string, string>)
 	return string;
 }
 
-export function parseStringReact(
-	string: string,
-	parseObject: Record<string, string | React.ReactNode>
-): React.ReactNode[] {
+export function parseStringReact(string: string, parseObject: Record<string, React.ReactNode>) {
 	const delimiters = ["{{", "}}"];
-	const splitRegex = new RegExp(`(${delimiters[0]}(?:(?!${delimiters[1]}).)+${delimiters[1]})`, "g");
+	const splitRegex = new RegExp(`(${delimiters[0]}.+?${delimiters[1]})`, "g");
 	const itemRegex = new RegExp(delimiters[0] + "(.+)" + delimiters[1]);
 
-	return string.split(splitRegex).map((part) => {
+	const parts = string.split(splitRegex).filter(Boolean);
+	return parts.map((part) => {
 		if (!itemRegex.test(part)) return part;
 		const key = part.replace(itemRegex, "$1");
-		return parseObject[key] || part;
+		return parseObject[key] ?? part;
 	});
 }

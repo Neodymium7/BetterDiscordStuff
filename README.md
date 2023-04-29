@@ -24,5 +24,5 @@ There are a few simple guidelines for translation contributions:
 -   Follow the formatting of the file.
 -   Keep all string keys the same as in the main locale.
 -   If the string contains variables that are parsed in the code (such as `"Playing {{ACTIVITY}}"`), please include _every_ included variable in the translation.
--   For the language code, make sure it is exactly the same as one of the language codes available in Discord.
+-   For the language code, make sure it is exactly the same as one of the [language codes available in Discord](https://github.com/Neodymium7/BetterDiscordStuff/blob/main/Locales.md).
 -   If you are translating multiple plugins, please make _one_ pull request for all of your translations.
