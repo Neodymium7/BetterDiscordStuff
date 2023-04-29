@@ -3,7 +3,7 @@
 		"target": "es2022",
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
-		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
 		"jsx": "react-jsx",
 		"paths": {
 			"@lib": ["./Library/src"],
