@@ -32,7 +32,9 @@
 		"JOIN_CALL": "Join Call",
 		"JOIN_DISABLED": "Already in Channel",
 		"JOIN_DISABLED_CALL": "Already in Call",
-		"JOIN_VIDEO": "Join With Video"
+		"JOIN_VIDEO": "Join With Video",
+		"MEMBER": "Member",
+		"MEMBERS": "Members"
 	},
 	"el": {
 		"SETTINGS_PROFILE": "Τομέας Προφίλ",

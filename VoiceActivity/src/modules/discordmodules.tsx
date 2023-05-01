@@ -1,5 +1,5 @@
 import { Webpack } from "betterdiscord";
-import { expectModule, getStore, getSelectors } from "@lib/utils/webpack";
+import { expectModule, getStore, getSelectors, getClasses } from "@lib/utils/webpack";
 
 const {
 	Filters: { byProps, byStrings },
@@ -14,6 +14,12 @@ interface IconProps {
 const Error = (_props) => (
 	<div>
 		<h1 style={{ color: "red" }}>Error: Component not found</h1>
+	</div>
+);
+
+const ErrorPopout = (props: { message: string }) => (
+	<div style={{ backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" }}>
+		{props.message}
 	</div>
 );
 
@@ -59,11 +65,31 @@ export const transitionTo: (path: string) => null = expectModule({
 	name: "transitionTo",
 });
 
+export const loadProfile: any = expectModule<any>({
+	filter: (m) => m.Z?.toString?.().includes("y.apply(this,arguments)") && Object.values(m).length === 1,
+	name: "loadProfile",
+}).Z;
+
 export const getAcronym = expectModule({
 	filter: byStrings('.replace(/\'s /g," ").replace(/\\w+/g,'),
 	searchExports: true,
 	name: "getAcronym",
 	fallback: (i: string) => i,
+});
+
+export const Common = expectModule({
+	filter: byProps("Popout", "Avatar"),
+	name: "Common",
+	fallback: {
+		Popout: (props) => <div {...props} />,
+		Avatar: (_props) => null,
+	},
+});
+
+export const UserPopout = expectModule({
+	filter: (e) => e.type?.toString().includes('"userId"'),
+	name: "UserPopout",
+	fallback: (_props: any) => <ErrorPopout message="Error: User Popout module not found" />,
 });
 
 export const SwitchItem = expectModule({
@@ -118,6 +144,14 @@ export const peopleItemSelector = getSelectors("People Item Class", ["peopleList
 export const iconWrapperSelector = getSelectors("Icon Wrapper Class", ["wrapper", "folderEndWrapper"]).wrapper;
 
 export const children = getSelectors("Children Class", ["avatar", "children"]).children;
+
+export const partyMemberClasses = getClasses("Party Member Classes", ["partyMemberKnown", "partyMember"]);
+
+export const partyMembersClasses = getClasses("Party Members Classes", [
+	"wrapper",
+	"partyMembers",
+	"partyMemberOverflow",
+]);
 
 export const Stores = {
 	UserStore: getStore("UserStore"),

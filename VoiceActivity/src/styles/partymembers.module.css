@@ -1,0 +1,14 @@
+.partyMembers {
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin-top: 2px;
+}
+
+.overflow {
+	background-color: var(--profile-role-pill-background-color);
+	color: var(--text-normal);
+	height: 14px;
+	font-size: 12px;
+	line-height: 14px;
+}

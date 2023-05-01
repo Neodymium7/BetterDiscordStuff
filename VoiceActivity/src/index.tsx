@@ -24,21 +24,19 @@ const {
 const guildIconSelector = `div:not([data-dnd-name]) + ${iconWrapperSelector}`;
 
 export default class VoiceActivity extends BasePlugin {
-	contextMenuUnpatches: Set<() => void>;
+	contextMenuUnpatches = new Set<() => void>();
 
 	onStart() {
-		this.contextMenuUnpatches = new Set();
-
 		DOM.addStyle(styles() + `${children}:empty { margin-left: 0; } ${children} { display: flex; gap: 8px; }`);
 		Strings.subscribe();
 		this.patchPeopleListItem();
 		this.patchUserPopout();
-		this.patchPrivateChannelProfile();
 		this.patchMemberListItem();
-		this.patchChannelContextMenu();
-		this.patchGuildContextMenu();
+		this.patchPrivateChannelProfile();
 		this.patchPrivateChannel();
 		this.patchGuildIcon();
+		this.patchChannelContextMenu();
+		this.patchGuildContextMenu();
 	}
 
 	patchUserPopout() {
@@ -222,11 +220,11 @@ export default class VoiceActivity extends BasePlugin {
 	onStop() {
 		DOM.removeStyle();
 		Patcher.unpatchAll();
-		Strings.unsubscribe();
-		this.contextMenuUnpatches.forEach((unpatch) => unpatch());
-		this.contextMenuUnpatches.clear();
 		forceUpdateAll(peopleItemSelector, (i) => i.user);
 		forceRerender(document.querySelector(guildIconSelector));
+		this.contextMenuUnpatches.forEach((unpatch) => unpatch());
+		this.contextMenuUnpatches.clear();
+		Strings.unsubscribe();
 	}
 
 	getSettingsPanel() {
