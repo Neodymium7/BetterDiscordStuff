@@ -24,7 +24,7 @@ const ErrorPopout = (props: { message: string }) => (
 );
 
 export const MemberListItemContainer: any = expectModule({
-	filter: (m) => m.type?.toString().includes("canUseAvatarDecorations"),
+	filter: (m) => m.type?.toString().includes("canRenderAvatarDecorations"),
 	name: "MemberListItemContainer",
 });
 
