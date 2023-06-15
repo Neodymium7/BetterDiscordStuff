@@ -1,8 +1,8 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
+ * @version 1.8.0
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
- * @version 1.7.1
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
@@ -10,25 +10,25 @@
 
 /*@cc_on
 @if (@_jscript)
-    
-    // Offer to self-install for clueless users that try to run this directly.
-    var shell = WScript.CreateObject("WScript.Shell");
-    var fs = new ActiveXObject("Scripting.FileSystemObject");
-    var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\BetterDiscord\plugins");
-    var pathSelf = WScript.ScriptFullName;
-    // Put the user at ease by addressing them in the first person
-    shell.Popup("It looks like you've mistakenly tried to run me directly. \n(Don't do that!)", 0, "I'm a plugin for BetterDiscord", 0x30);
-    if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
-        shell.Popup("I'm in the correct folder already.", 0, "I'm already installed", 0x40);
-    } else if (!fs.FolderExists(pathPlugins)) {
-        shell.Popup("I can't find the BetterDiscord plugins folder.\nAre you sure it's even installed?", 0, "Can't install myself", 0x10);
-    } else if (shell.Popup("Should I copy myself to BetterDiscord's plugins folder for you?", 0, "Do you need some help?", 0x34) === 6) {
-        fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
-        // Show the user where to put plugins in the future
-        shell.Exec("explorer " + pathPlugins);
-        shell.Popup("I'm installed!", 0, "Successfully installed", 0x40);
-    }
-    WScript.Quit();
+
+	// Offer to self-install for clueless users that try to run this directly.
+	var shell = WScript.CreateObject("WScript.Shell");
+	var fs = new ActiveXObject("Scripting.FileSystemObject");
+	var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\BetterDiscord\plugins");
+	var pathSelf = WScript.ScriptFullName;
+	// Put the user at ease by addressing them in the first person
+	shell.Popup("It looks like you've mistakenly tried to run me directly. \n(Don't do that!)", 0, "I'm a plugin for BetterDiscord", 0x30);
+	if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
+		shell.Popup("I'm in the correct folder already.", 0, "I'm already installed", 0x40);
+	} else if (!fs.FolderExists(pathPlugins)) {
+		shell.Popup("I can't find the BetterDiscord plugins folder.\nAre you sure it's even installed?", 0, "Can't install myself", 0x10);
+	} else if (shell.Popup("Should I copy myself to BetterDiscord's plugins folder for you?", 0, "Do you need some help?", 0x34) === 6) {
+		fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
+		// Show the user where to put plugins in the future
+		shell.Exec("explorer " + pathPlugins);
+		shell.Popup("I'm installed!", 0, "Successfully installed", 0x40);
+	}
+	WScript.Quit();
 
 @else@*/
 
@@ -40,40 +40,56 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.7.1",
+		version: "1.8.0",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
 	},
 	changelog: [
 		{
+			title: "Added",
+			type: "improved",
+			items: [
+				"Added participating member display to popout sections."
+			]
+		},
+		{
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed voice section not appearing in DM profile panel."
+				"Fixed member list icons."
 			]
 		}
 	]
 };
 
 if (!global.ZeresPluginLibrary) {
-    BdApi.UI.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
-        confirmText: "Download Now",
-        cancelText: "Cancel",
-        onConfirm: () => {
-            require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
-                if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
-                await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
-            });
-        }
-    });
+	BdApi.UI.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
+		confirmText: "Download Now",
+		cancelText: "Cancel",
+		onConfirm: () => {
+			require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
+				if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
+				await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+			});
+		}
+	});
 }
 
 function buildPlugin([BasePlugin, Library]) {
-    var Plugin = (function (betterdiscord, react, meta, BasePlugin) {
+	const Plugin = (function (betterdiscord, BasePlugin, react) {
 		'use strict';
 	
-		// bundlebd
+		// styles
+		let _styles = "";
+		function _loadStyle(path, css) {
+			_styles += "/*" + path + "*/\n" + css + "\n";
+		}
+		function styles() {
+			return _styles;
+		}
+	
+		// @lib/settings.ts
 		function createSettings(defaultSettings) {
 			let settings = betterdiscord.Data.load("settings");
 			const listeners = new Set();
@@ -91,7 +107,8 @@ function buildPlugin([BasePlugin, Library]) {
 					changed = true;
 				}
 			}
-			if (changed) betterdiscord.Data.save("settings", settings);
+			if (changed)
+				betterdiscord.Data.save("settings", settings);
 			const settingsManager = {
 				addListener(listener) {
 					listeners.add(listener);
@@ -120,7 +137,8 @@ function buildPlugin([BasePlugin, Library]) {
 					set(value) {
 						settings[key] = value;
 						betterdiscord.Data.save("settings", settings);
-						for (const listener of listeners) listener(key, value);
+						for (const listener of listeners)
+							listener(key, value);
 					},
 					enumerable: true,
 					configurable: false
@@ -128,8 +146,10 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 			return settingsManager;
 		}
-		var Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byProps("dispatch", "subscribe"));
-		var LocaleManager = betterdiscord.Webpack.getModule((m) => m.Messages?.CLOSE);
+	
+		// @lib/strings.ts
+		const Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byProps("dispatch", "subscribe"));
+		const LocaleManager = betterdiscord.Webpack.getModule((m) => m.Messages?.CLOSE);
 		function createStrings(locales, defaultLocale) {
 			let strings = locales[defaultLocale];
 			const setLocale = () => {
@@ -155,9 +175,14 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 			return stringsManager;
 		}
-		var Logger = class {
+	
+		// meta
+		const name = "VoiceActivity";
+	
+		// @lib/logger.ts
+		class Logger {
 			static _log(type, message) {
-				console[type](`%c[${meta.name}]`, "color: #3a71c1; font-weight: 700;", message);
+				console[type](`%c[${name}]`, "color: #3a71c1; font-weight: 700;", message);
 			}
 			static log(message) {
 				this._log("log", message);
@@ -168,119 +193,96 @@ function buildPlugin([BasePlugin, Library]) {
 			static error(message) {
 				this._log("error", message);
 			}
-		};
-		var WebpackUtils = class {
-			static getStore(name) {
-				return betterdiscord.Webpack.getModule((m) => m._dispatchToken && m.getName() === name);
-			}
-			static getModuleWithKey(filter) {
-				let target;
-				let id;
-				let key;
-				betterdiscord.Webpack.getModule(
-					(e, m, i) => {
-						if (filter(e, m, i)) {
-							target = m;
-							id = i;
-							return true;
-						}
-						return false;
-					},
-					{ searchExports: true }
-				);
-				for (const k in target.exports) {
-					if (filter(target.exports[k], target, id)) {
-						key = k;
-						break;
+		}
+	
+		// @lib/utils/webpack.ts
+		function getStore(name) {
+			return betterdiscord.Webpack.getModule((m) => m._dispatchToken && m.getName() === name);
+		}
+		function getModuleWithKey(filter) {
+			let target;
+			let id;
+			let key;
+			betterdiscord.Webpack.getModule(
+				(e, m, i) => {
+					if (filter(e, m, i)) {
+						target = m;
+						id = i;
+						return true;
 					}
+					return false;
+				},
+				{ searchExports: true }
+			);
+			for (const k in target.exports) {
+				if (filter(target.exports[k], target, id)) {
+					key = k;
+					break;
 				}
-				return [target.exports, key];
 			}
-			static expectModule(filterOrOptions, options) {
-				let filter;
-				if (typeof filterOrOptions === "function") {
-					filter = filterOrOptions;
-				} else {
-					filter = filterOrOptions.filter;
-					options = filterOrOptions;
-				}
-				const found = betterdiscord.Webpack.getModule(filter, options);
-				if (found) return found;
-				const name = options.name ? `'${options.name}'` : `query with filter '${filter.toString()}'`;
-				const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
-				const errorMessage = `Module ${name} not found.${fallbackMessage}
+			return [target.exports, key];
+		}
+		function expectModule(filterOrOptions, options) {
+			let filter;
+			if (typeof filterOrOptions === "function") {
+				filter = filterOrOptions;
+			} else {
+				filter = filterOrOptions.filter;
+				options = filterOrOptions;
+			}
+			const found = betterdiscord.Webpack.getModule(filter, options);
+			if (found)
+				return found;
+			const name = options.name ? `'${options.name}'` : `query with filter '${filter.toString()}'`;
+			const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
+			const errorMessage = `Module ${name} not found.${fallbackMessage}
 	
 	Contact the plugin developer to inform them of this error.`;
-				Logger.error(errorMessage);
-				options.onError?.();
-				if (options.fatal) throw new Error(errorMessage);
-				return options.fallback;
-			}
-			static getClasses(name, classes) {
-				return WebpackUtils.expectModule({
-					filter: betterdiscord.Webpack.Filters.byProps(...classes),
-					name,
-					fallback: classes.reduce((obj, key) => {
-						obj[key] = "unknown-class";
-						return obj;
-					}, {})
-				});
-			}
-			static getSelectors(name, classes) {
-				const module = WebpackUtils.expectModule({
-					filter: betterdiscord.Webpack.Filters.byProps(...classes),
-					name,
-					fallback: {}
-				});
-				if (Object.keys(module).length === 0)
-					return classes.reduce((obj, key) => {
-						obj[key] = null;
-						return obj;
-					}, {});
-				return Object.keys(module).reduce((obj, key) => {
-					obj[key] = `.${module[key].replaceAll(" ", ".")}`;
+			Logger.error(errorMessage);
+			options.onError?.();
+			if (options.fatal)
+				throw new Error(errorMessage);
+			return options.fallback;
+		}
+		function getClasses(name, classes) {
+			return expectModule({
+				filter: betterdiscord.Webpack.Filters.byProps(...classes),
+				name,
+				fallback: classes.reduce((obj, key) => {
+					obj[key] = "unknown-class";
+					return obj;
+				}, {})
+			});
+		}
+		function getSelectors(name, classes) {
+			const module = expectModule({
+				filter: betterdiscord.Webpack.Filters.byProps(...classes),
+				name,
+				fallback: {}
+			});
+			if (Object.keys(module).length === 0)
+				return classes.reduce((obj, key) => {
+					obj[key] = null;
 					return obj;
 				}, {});
-			}
-			static store(name) {
-				return (m) => m._dispatchToken && m.getName() === name;
-			}
-			static byId(id) {
-				return (_e, _m, i) => i === id;
-			}
-			static byValues(...filters) {
-				return (e, m, i) => {
-					let match = true;
-					for (const filter of filters) {
-						if (!Object.values(e).some((v) => filter(v, m, i))) {
-							match = false;
-							break;
-						}
-					}
-					return match;
-				};
-			}
-		};
-	
-		// styles
-		let _styles = "";
-		function _loadStyle(path, css) {
-			_styles += "/*" + path + "*/\n" + css + "\n";
-		}
-		function styles() {
-			return _styles;
+			return Object.keys(module).reduce((obj, key) => {
+				obj[key] = `.${module[key].replaceAll(" ", ".")}`;
+				return obj;
+			}, {});
 		}
 	
 		// modules/discordmodules.tsx
 		const {
 			Filters: { byProps, byStrings: byStrings$1 }
 		} = betterdiscord.Webpack;
-		const { expectModule, getStore, getSelectors } = WebpackUtils;
 		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
 			style: { color: "red" }
 		}, "Error: Component not found"));
+		const ErrorPopout = (props) => BdApi.React.createElement("div", {
+			style: { backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" }
+		}, props.message);
 		const MemberListItemContainer = expectModule({
-			filter: (m) => m.type?.toString().includes("canUseAvatarDecorations"),
+			filter: (m) => m.type?.toString().includes("canRenderAvatarDecorations"),
 			name: "MemberListItemContainer"
 		});
 		const Permissions = expectModule({
@@ -315,11 +317,32 @@ function buildPlugin([BasePlugin, Library]) {
 			searchExports: true,
 			name: "transitionTo"
 		});
+		const loadProfile = expectModule({
+			filter: (m) => m.Z?.toString?.().includes("y.apply(this,arguments)") && Object.values(m).length === 1,
+			name: "loadProfile"
+		}).Z;
 		const getAcronym = expectModule({
 			filter: byStrings$1(`.replace(/'s /g," ").replace(/\\w+/g,`),
 			searchExports: true,
 			name: "getAcronym",
 			fallback: (i) => i
+		});
+		const Common = expectModule({
+			filter: byProps("Popout", "Avatar"),
+			name: "Common",
+			fallback: {
+				Popout: (props) => BdApi.React.createElement("div", {
+					...props
+				}),
+				Avatar: (_props) => null
+			}
+		});
+		const UserPopout = expectModule({
+			filter: (e) => e.type?.toString().includes('"userId"'),
+			name: "UserPopout",
+			fallback: (_props) => BdApi.React.createElement(ErrorPopout, {
+				message: "Error: User Popout module not found"
+			})
 		});
 		const SwitchItem = expectModule({
 			filter: (m) => m.toString?.().includes("().dividerDefault"),
@@ -369,6 +392,12 @@ function buildPlugin([BasePlugin, Library]) {
 		const peopleItemSelector = getSelectors("People Item Class", ["peopleListItem"]).peopleListItem;
 		const iconWrapperSelector = getSelectors("Icon Wrapper Class", ["wrapper", "folderEndWrapper"]).wrapper;
 		const children = getSelectors("Children Class", ["avatar", "children"]).children;
+		const partyMemberClasses = getClasses("Party Member Classes", ["partyMemberKnown", "partyMember"]);
+		const partyMembersClasses = getClasses("Party Members Classes", [
+			"wrapper",
+			"partyMembers",
+			"partyMemberOverflow"
+		]);
 		const Stores = {
 			UserStore: getStore("UserStore"),
 			GuildChannelStore: getStore("GuildChannelStore"),
@@ -379,7 +408,7 @@ function buildPlugin([BasePlugin, Library]) {
 		};
 	
 		// locales.json
-		var el = {
+		const el = {
 			SETTINGS_PROFILE: "Τομέας Προφίλ",
 			SETTINGS_PROFILE_NOTE: "Εμφανίζει τον τομέα προφίλ για την τρέχουσα δραστηριότητα φωνής στα αναδυόμενα χρήστη και στην πλευρικές μπάρες προφίλ των Άμεσων Μηνυμάτων.",
 			SETTINGS_ICONS: "Εικονίδια Λίστας Μελών",
@@ -414,7 +443,7 @@ function buildPlugin([BasePlugin, Library]) {
 			JOIN_DISABLED_CALL: "Ήδη σε Κλήση",
 			JOIN_VIDEO: "Συμμετοχή με Βίντεο"
 		};
-		var ru = {
+		const ru = {
 			SETTINGS_PROFILE: "Раздел в Профиле",
 			SETTINGS_PROFILE_NOTE: "Показывает раздел для текущей голосовой активности в профиле, всплывающих окнах и боковых панелях в ЛС.",
 			SETTINGS_ICONS: "Иконки в Списке Участников",
@@ -449,7 +478,7 @@ function buildPlugin([BasePlugin, Library]) {
 			JOIN_DISABLED_CALL: "Уже в Звонке",
 			JOIN_VIDEO: "Присоединиться с Видео"
 		};
-		var de = {
+		const de = {
 			SETTINGS_PROFILE: "Profilbereich",
 			SETTINGS_PROFILE_NOTE: "Zeigt den Profilbereich für die aktuelle Sprachaktivität in Benutzer-Popouts und DM-Profilseitenleisten an.",
 			SETTINGS_ICONS: "Symbole in der Mitgliederliste",
@@ -484,7 +513,7 @@ function buildPlugin([BasePlugin, Library]) {
 			JOIN_DISABLED_CALL: "Bereits im Aufruf",
 			JOIN_VIDEO: "Beitreten mit Video"
 		};
-		var locales = {
+		const locales = {
 			"en-US": {
 			SETTINGS_PROFILE: "Profile Section",
 			SETTINGS_PROFILE_NOTE: "Shows profile section for current voice activity in user popouts and DM profile sidebars.",
@@ -518,7 +547,9 @@ function buildPlugin([BasePlugin, Library]) {
 			JOIN_CALL: "Join Call",
 			JOIN_DISABLED: "Already in Channel",
 			JOIN_DISABLED_CALL: "Already in Call",
-			JOIN_VIDEO: "Join With Video"
+			JOIN_VIDEO: "Join With Video",
+			MEMBER: "Member",
+			MEMBERS: "Members"
 		},
 			el: el,
 			ru: ru,
@@ -620,9 +651,9 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// styles/voiceicon.module.scss
-		var css$2 = ".VoiceActivity-voiceicon-icon {\n  height: 20px;\n  width: 20px;\n  min-width: 20px;\n  border-radius: 50%;\n  background-color: var(--background-floating);\n  cursor: pointer;\n}\n.VoiceActivity-voiceicon-icon:hover {\n  background-color: var(--background-tertiary);\n}\n.VoiceActivity-voiceicon-icon svg {\n  padding: 3px;\n  color: var(--interactive-normal);\n}\n\n.VoiceActivity-voiceicon-iconCurrentCall {\n  background-color: var(--status-positive);\n}\n.VoiceActivity-voiceicon-iconCurrentCall:hover {\n  background-color: var(--button-positive-background);\n}\n.VoiceActivity-voiceicon-iconCurrentCall svg {\n  color: #fff;\n}\n\n.VoiceActivity-voiceicon-iconLive {\n  height: 16px;\n  border-radius: 16px;\n  background-color: var(--status-danger);\n  color: #fff;\n  font-size: 12px;\n  line-height: 16px;\n  font-weight: 600;\n  font-family: var(--font-display);\n  text-transform: uppercase;\n}\n.VoiceActivity-voiceicon-iconLive:hover {\n  background-color: var(--button-danger-background);\n}\n.VoiceActivity-voiceicon-iconLive > div {\n  padding: 0 6px;\n}\n\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-header {\n  display: block;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-subtext {\n  display: flex;\n  flex-direction: row;\n  margin-top: 3px;\n}\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-subtext > div {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-tooltipIcon {\n  min-width: 16px;\n  margin-right: 3px;\n  color: var(--interactive-normal);\n}\n\n.VoiceActivity-voiceicon-iconContainer {\n  margin-left: auto;\n}\n.VoiceActivity-voiceicon-iconContainer .VoiceActivity-voiceicon-icon {\n  margin-right: 8px;\n}\n.VoiceActivity-voiceicon-iconContainer .VoiceActivity-voiceicon-iconLive {\n  margin-right: 8px;\n}";
-		_loadStyle("voiceicon.module.scss", css$2);
-		var modules_df1df857 = {"icon":"VoiceActivity-voiceicon-icon","iconCurrentCall":"VoiceActivity-voiceicon-iconCurrentCall","iconLive":"VoiceActivity-voiceicon-iconLive","tooltip":"VoiceActivity-voiceicon-tooltip","header":"VoiceActivity-voiceicon-header","subtext":"VoiceActivity-voiceicon-subtext","tooltipIcon":"VoiceActivity-voiceicon-tooltipIcon","iconContainer":"VoiceActivity-voiceicon-iconContainer"};
+		const css$3 = ".VoiceActivity-voiceicon-icon {\n  height: 20px;\n  width: 20px;\n  min-width: 20px;\n  border-radius: 50%;\n  background-color: var(--background-floating);\n  cursor: pointer;\n}\n.VoiceActivity-voiceicon-icon:hover {\n  background-color: var(--background-tertiary);\n}\n.VoiceActivity-voiceicon-icon svg {\n  padding: 3px;\n  color: var(--interactive-normal);\n}\n\n.VoiceActivity-voiceicon-iconCurrentCall {\n  background-color: var(--status-positive);\n}\n.VoiceActivity-voiceicon-iconCurrentCall:hover {\n  background-color: var(--button-positive-background);\n}\n.VoiceActivity-voiceicon-iconCurrentCall svg {\n  color: #fff;\n}\n\n.VoiceActivity-voiceicon-iconLive {\n  height: 16px;\n  border-radius: 16px;\n  background-color: var(--status-danger);\n  color: #fff;\n  font-size: 12px;\n  line-height: 16px;\n  font-weight: 600;\n  font-family: var(--font-display);\n  text-transform: uppercase;\n}\n.VoiceActivity-voiceicon-iconLive:hover {\n  background-color: var(--button-danger-background);\n}\n.VoiceActivity-voiceicon-iconLive > div {\n  padding: 0 6px;\n}\n\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-header {\n  display: block;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-subtext {\n  display: flex;\n  flex-direction: row;\n  margin-top: 3px;\n}\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-subtext > div {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-tooltipIcon {\n  min-width: 16px;\n  margin-right: 3px;\n  color: var(--interactive-normal);\n}\n\n.VoiceActivity-voiceicon-iconContainer {\n  margin-left: auto;\n}\n.VoiceActivity-voiceicon-iconContainer .VoiceActivity-voiceicon-icon {\n  margin-right: 8px;\n}\n.VoiceActivity-voiceicon-iconContainer .VoiceActivity-voiceicon-iconLive {\n  margin-right: 8px;\n}";
+		_loadStyle("voiceicon.module.scss", css$3);
+		const modules_df1df857 = {"icon":"VoiceActivity-voiceicon-icon","iconCurrentCall":"VoiceActivity-voiceicon-iconCurrentCall","iconLive":"VoiceActivity-voiceicon-iconLive","tooltip":"VoiceActivity-voiceicon-tooltip","header":"VoiceActivity-voiceicon-header","subtext":"VoiceActivity-voiceicon-subtext","tooltipIcon":"VoiceActivity-voiceicon-tooltipIcon","iconContainer":"VoiceActivity-voiceicon-iconContainer"};
 	
 		// components/VoiceIcon.tsx
 		const { ChannelStore: ChannelStore$1, GuildStore: GuildStore$1, UserStore: UserStore$1, VoiceStateStore: VoiceStateStore$1 } = Stores;
@@ -730,17 +761,17 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// styles/voiceprofilesection.module.scss
-		var css$1 = ".VoiceActivity-voiceprofilesection-header {\n  margin-bottom: 8px;\n  color: var(--header-primary);\n  font-size: 12px;\n  line-height: 16px;\n  font-family: var(--font-display);\n  font-weight: 700;\n  text-transform: uppercase;\n}\n\n.VoiceActivity-voiceprofilesection-body {\n  display: flex;\n  flex-direction: row;\n}\n\n.VoiceActivity-voiceprofilesection-text {\n  margin: auto 10px;\n  color: var(--text-normal);\n  font-size: 14px;\n  line-height: 18px;\n  overflow: hidden;\n}\n.VoiceActivity-voiceprofilesection-text > div, .VoiceActivity-voiceprofilesection-text > h3 {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceprofilesection-text > h3 {\n  font-family: var(--font-normal);\n  font-weight: 600;\n}\n\n.VoiceActivity-voiceprofilesection-buttonWrapper {\n  display: flex;\n  flex: 0 1 auto;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-items: stretch;\n  margin-top: 12px;\n}\n.VoiceActivity-voiceprofilesection-buttonWrapper > div[aria-label] {\n  width: 32px;\n  margin-left: 8px;\n}\n\n.VoiceActivity-voiceprofilesection-button {\n  height: 32px;\n  min-height: 32px;\n  width: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  padding: 2px 16px;\n  border-radius: 3px;\n  color: #fff;\n  font-size: 14px;\n  line-height: 16px;\n  font-weight: 500;\n  user-select: none;\n  background-color: var(--profile-gradient-button-color);\n  transition: opacity 0.2s ease-in-out;\n}\n.VoiceActivity-voiceprofilesection-button:hover {\n  opacity: 0.8;\n}\n.VoiceActivity-voiceprofilesection-button:active {\n  opacity: 0.9;\n}\n.VoiceActivity-voiceprofilesection-button:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n\n.VoiceActivity-voiceprofilesection-joinWrapper .VoiceActivity-voiceprofilesection-joinButton {\n  min-width: 32px;\n  max-width: 32px;\n  padding: 0;\n}\n.VoiceActivity-voiceprofilesection-joinWrapper .VoiceActivity-voiceprofilesection-joinButton:disabled {\n  pointer-events: none;\n}\n\n.VoiceActivity-voiceprofilesection-joinWrapperDisabled {\n  cursor: not-allowed;\n}";
-		_loadStyle("voiceprofilesection.module.scss", css$1);
-		var modules_9dbd3268 = {"header":"VoiceActivity-voiceprofilesection-header","body":"VoiceActivity-voiceprofilesection-body","text":"VoiceActivity-voiceprofilesection-text","buttonWrapper":"VoiceActivity-voiceprofilesection-buttonWrapper","button":"VoiceActivity-voiceprofilesection-button","joinWrapper":"VoiceActivity-voiceprofilesection-joinWrapper","joinButton":"VoiceActivity-voiceprofilesection-joinButton","joinWrapperDisabled":"VoiceActivity-voiceprofilesection-joinWrapperDisabled"};
+		const css$2 = ".VoiceActivity-voiceprofilesection-section {\n  position: relative;\n}\n\n.VoiceActivity-voiceprofilesection-header {\n  margin-bottom: 8px;\n  color: var(--header-primary);\n  font-size: 12px;\n  line-height: 16px;\n  font-family: var(--font-display);\n  font-weight: 700;\n  text-transform: uppercase;\n}\n\n.VoiceActivity-voiceprofilesection-body {\n  display: flex;\n  flex-direction: row;\n}\n\n.VoiceActivity-voiceprofilesection-text {\n  margin: auto 10px;\n  color: var(--text-normal);\n  font-size: 14px;\n  line-height: 18px;\n  overflow: hidden;\n}\n.VoiceActivity-voiceprofilesection-text > div, .VoiceActivity-voiceprofilesection-text > h3 {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceprofilesection-text > h3 {\n  font-family: var(--font-normal);\n  font-weight: 600;\n}\n\n.VoiceActivity-voiceprofilesection-buttonWrapper {\n  display: flex;\n  flex: 0 1 auto;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-items: stretch;\n  margin-top: 12px;\n}\n.VoiceActivity-voiceprofilesection-buttonWrapper > div[aria-label] {\n  width: 32px;\n  margin-left: 8px;\n}\n\n.VoiceActivity-voiceprofilesection-button {\n  height: 32px;\n  min-height: 32px;\n  width: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  padding: 2px 16px;\n  border-radius: 3px;\n  color: #fff;\n  font-size: 14px;\n  line-height: 16px;\n  font-weight: 500;\n  user-select: none;\n  background-color: var(--profile-gradient-button-color);\n  transition: opacity 0.2s ease-in-out;\n}\n.VoiceActivity-voiceprofilesection-button:hover {\n  opacity: 0.8;\n}\n.VoiceActivity-voiceprofilesection-button:active {\n  opacity: 0.9;\n}\n.VoiceActivity-voiceprofilesection-button:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n\n.VoiceActivity-voiceprofilesection-joinWrapper .VoiceActivity-voiceprofilesection-joinButton {\n  min-width: 32px;\n  max-width: 32px;\n  padding: 0;\n}\n.VoiceActivity-voiceprofilesection-joinWrapper .VoiceActivity-voiceprofilesection-joinButton:disabled {\n  pointer-events: none;\n}\n\n.VoiceActivity-voiceprofilesection-joinWrapperDisabled {\n  cursor: not-allowed;\n}";
+		_loadStyle("voiceprofilesection.module.scss", css$2);
+		const modules_9dbd3268 = {"section":"VoiceActivity-voiceprofilesection-section","header":"VoiceActivity-voiceprofilesection-header","body":"VoiceActivity-voiceprofilesection-body","text":"VoiceActivity-voiceprofilesection-text","buttonWrapper":"VoiceActivity-voiceprofilesection-buttonWrapper","button":"VoiceActivity-voiceprofilesection-button","joinWrapper":"VoiceActivity-voiceprofilesection-joinWrapper","joinButton":"VoiceActivity-voiceprofilesection-joinButton","joinWrapperDisabled":"VoiceActivity-voiceprofilesection-joinWrapperDisabled"};
 	
 		// styles/guildimage.module.scss
-		var css = ".VoiceActivity-guildimage-defaultIcon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-weight: 500;\n  line-height: 1.2em;\n  white-space: nowrap;\n  background-color: var(--background-primary);\n  color: var(--text-normal);\n  min-width: 48px;\n  width: 48px;\n  height: 48px;\n  border-radius: 16px;\n  cursor: pointer;\n  white-space: nowrap;\n  overflow: hidden;\n}";
-		_loadStyle("guildimage.module.scss", css);
-		var modules_1a1e8d51 = {"defaultIcon":"VoiceActivity-guildimage-defaultIcon"};
+		const css$1 = ".VoiceActivity-guildimage-defaultIcon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-weight: 500;\n  line-height: 1.2em;\n  white-space: nowrap;\n  background-color: var(--background-primary);\n  color: var(--text-normal);\n  min-width: 48px;\n  width: 48px;\n  height: 48px;\n  border-radius: 16px;\n  cursor: pointer;\n  white-space: nowrap;\n  overflow: hidden;\n}";
+		_loadStyle("guildimage.module.scss", css$1);
+		const modules_1a1e8d51 = {"defaultIcon":"VoiceActivity-guildimage-defaultIcon"};
 	
 		// assets/default_group_icon.png
-		var img = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAABgmlDQ1BJQ0MgUHJvZmlsZQAAKM+VkTtIw1AYhb9WxQcVBzuIOGSoThZERRyliiIolFrB12CS2io0sSQtLo6Cq+DgY7Hq4OKsq4OrIAg+QBydnBRdROJ/U6FFqOCFcD/OzTnce34IFrOm5db2gGXnncRYTJuZndPqn6mlBmikTzfd3OTUaJKq6+OWgNpvoiqL/63m1JJrQkATHjJzTl54UXhgLZ9TvCscNpf1lPCpcLcjFxS+V7pR4hfFGZ+DKjPsJBPDwmFhLVPBRgWby44l3C8cSVm25AdnSpxSvK7YyhbMn3uqF4aW7OkppcvXwRjjTBJHw6DAClnyRGW3RXFJyHmsir/d98fFZYhrBVMcI6xioft+1Ax+d+um+3pLSaEY1D153lsn1G/D15bnfR563tcR1DzChV32rxZh8F30rbIWOYCWDTi7LGvGDpxvQttDTnd0X1LzD6bT8HoiY5qF1mtomi/19nPO8R0kpauJK9jbh66MZC9UeXdDZW9//uP3R+wbNjlyjzeozyoAAABgUExURVhl8oGK9LW7+erq/f///97i+7/F+mx38qGo92Ft8mFv8ujs/IuW9PP2/Wx384GM9Kux+MDF+urs/d/i+7S9+Jae9uDj/Jad9srO+tXY+4yU9aqy+MDE+qGn9/T1/neC9Liz/RcAAAAJcEhZcwAACxMAAAsTAQCanBgAAATqaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNC40LjAtRXhpdjIiPg0KICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPg0KICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOkdJTVA9Imh0dHA6Ly93d3cuZ2ltcC5vcmcveG1wLyIgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1wTU06RG9jdW1lbnRJRD0iZ2ltcDpkb2NpZDpnaW1wOmIzMjk5M2JmLTliZTUtNGJmMy04ZWEwLWY3ZDkzNTMyMTY2YiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowNjhkOWE3MS1lYWU3LTRmZjAtYmMxZS04MGUwYmMxMTFkZDUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDplZjU1ZGE0YS0wZTBhLTRjNTctODdmOC1lMmFmMGUyZGEzOGUiIGRjOkZvcm1hdD0iaW1hZ2UvcG5nIiBHSU1QOkFQST0iMi4wIiBHSU1QOlBsYXRmb3JtPSJXaW5kb3dzIiBHSU1QOlRpbWVTdGFtcD0iMTY0ODk0NDg1NjM4ODc5MSIgR0lNUDpWZXJzaW9uPSIyLjEwLjI0IiB0aWZmOk9yaWVudGF0aW9uPSIxIiB4bXA6Q3JlYXRvclRvb2w9IkdJTVAgMi4xMCI+DQogICAgICA8eG1wTU06SGlzdG9yeT4NCiAgICAgICAgPHJkZjpTZXE+DQogICAgICAgICAgPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDpjaGFuZ2VkPSIvIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ3NmFhOGE3LTVhNGEtNDcyNS05YTBjLWU1NzVmMzE1MzFmOCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iR2ltcCAyLjEwIChXaW5kb3dzKSIgc3RFdnQ6d2hlbj0iMjAyMi0wNC0wMlQxNzoxNDoxNiIgLz4NCiAgICAgICAgPC9yZGY6U2VxPg0KICAgICAgPC94bXBNTTpIaXN0b3J5Pg0KICAgIDwvcmRmOkRlc2NyaXB0aW9uPg0KICA8L3JkZjpSREY+DQo8L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9InIiPz6JoorbAAABV0lEQVRoQ+3W23KDIBAGYIOYBk20prWNPb7/W3Z3WQ9lGmeKe/l/N/+IzAYDggUAAAAAAMB/HVzpfXV8kIuTpp3gvHJ8WTcx7VRanlSBrs+aVubxMxn7RdNGq6VVR02Pmjb6WHjCQ+80baxmgDXUxA/FaSPWXUxtctOCVF2Z2uSmhauUnT1RU61p49cq9b6npoOmDV4yK7xN8G8abhfPsXIkq7MxfdGKOt0qBuOtoqjnZ3BcN9BmZ1qftP2L91cXt4ezJszCq7uVtENfytEN1ocZLZlRJ1iNQ2zvNHd6oyWfamLpd809wofWTBxllY6a+UJyFCzkPWsve9+35N9fG/k+nZySufjkveuTOvCuzZmp/WN+F1/859AjSuahLW0LD/2kmWdjBtiNunxr5kmOyhR/VfAk5H9dxDr3TX2kcw6psmHqI51zSJUNUx/pDAAAAAAAsKkofgB06RBbh+d86AAAAABJRU5ErkJggg==";
+		const img = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAABgmlDQ1BJQ0MgUHJvZmlsZQAAKM+VkTtIw1AYhb9WxQcVBzuIOGSoThZERRyliiIolFrB12CS2io0sSQtLo6Cq+DgY7Hq4OKsq4OrIAg+QBydnBRdROJ/U6FFqOCFcD/OzTnce34IFrOm5db2gGXnncRYTJuZndPqn6mlBmikTzfd3OTUaJKq6+OWgNpvoiqL/63m1JJrQkATHjJzTl54UXhgLZ9TvCscNpf1lPCpcLcjFxS+V7pR4hfFGZ+DKjPsJBPDwmFhLVPBRgWby44l3C8cSVm25AdnSpxSvK7YyhbMn3uqF4aW7OkppcvXwRjjTBJHw6DAClnyRGW3RXFJyHmsir/d98fFZYhrBVMcI6xioft+1Ax+d+um+3pLSaEY1D153lsn1G/D15bnfR563tcR1DzChV32rxZh8F30rbIWOYCWDTi7LGvGDpxvQttDTnd0X1LzD6bT8HoiY5qF1mtomi/19nPO8R0kpauJK9jbh66MZC9UeXdDZW9//uP3R+wbNjlyjzeozyoAAABgUExURVhl8oGK9LW7+erq/f///97i+7/F+mx38qGo92Ft8mFv8ujs/IuW9PP2/Wx384GM9Kux+MDF+urs/d/i+7S9+Jae9uDj/Jad9srO+tXY+4yU9aqy+MDE+qGn9/T1/neC9Liz/RcAAAAJcEhZcwAACxMAAAsTAQCanBgAAATqaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNC40LjAtRXhpdjIiPg0KICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPg0KICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOkdJTVA9Imh0dHA6Ly93d3cuZ2ltcC5vcmcveG1wLyIgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1wTU06RG9jdW1lbnRJRD0iZ2ltcDpkb2NpZDpnaW1wOmIzMjk5M2JmLTliZTUtNGJmMy04ZWEwLWY3ZDkzNTMyMTY2YiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowNjhkOWE3MS1lYWU3LTRmZjAtYmMxZS04MGUwYmMxMTFkZDUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDplZjU1ZGE0YS0wZTBhLTRjNTctODdmOC1lMmFmMGUyZGEzOGUiIGRjOkZvcm1hdD0iaW1hZ2UvcG5nIiBHSU1QOkFQST0iMi4wIiBHSU1QOlBsYXRmb3JtPSJXaW5kb3dzIiBHSU1QOlRpbWVTdGFtcD0iMTY0ODk0NDg1NjM4ODc5MSIgR0lNUDpWZXJzaW9uPSIyLjEwLjI0IiB0aWZmOk9yaWVudGF0aW9uPSIxIiB4bXA6Q3JlYXRvclRvb2w9IkdJTVAgMi4xMCI+DQogICAgICA8eG1wTU06SGlzdG9yeT4NCiAgICAgICAgPHJkZjpTZXE+DQogICAgICAgICAgPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDpjaGFuZ2VkPSIvIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ3NmFhOGE3LTVhNGEtNDcyNS05YTBjLWU1NzVmMzE1MzFmOCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iR2ltcCAyLjEwIChXaW5kb3dzKSIgc3RFdnQ6d2hlbj0iMjAyMi0wNC0wMlQxNzoxNDoxNiIgLz4NCiAgICAgICAgPC9yZGY6U2VxPg0KICAgICAgPC94bXBNTTpIaXN0b3J5Pg0KICAgIDwvcmRmOkRlc2NyaXB0aW9uPg0KICA8L3JkZjpSREY+DQo8L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9InIiPz6JoorbAAABV0lEQVRoQ+3W23KDIBAGYIOYBk20prWNPb7/W3Z3WQ9lGmeKe/l/N/+IzAYDggUAAAAAAMB/HVzpfXV8kIuTpp3gvHJ8WTcx7VRanlSBrs+aVubxMxn7RdNGq6VVR02Pmjb6WHjCQ+80baxmgDXUxA/FaSPWXUxtctOCVF2Z2uSmhauUnT1RU61p49cq9b6npoOmDV4yK7xN8G8abhfPsXIkq7MxfdGKOt0qBuOtoqjnZ3BcN9BmZ1qftP2L91cXt4ezJszCq7uVtENfytEN1ocZLZlRJ1iNQ2zvNHd6oyWfamLpd809wofWTBxllY6a+UJyFCzkPWsve9+35N9fG/k+nZySufjkveuTOvCuzZmp/WN+F1/859AjSuahLW0LD/2kmWdjBtiNunxr5kmOyhR/VfAk5H9dxDr3TX2kcw6psmHqI51zSJUNUx/pDAAAAAAAsKkofgB06RBbh+d86AAAAABJRU5ErkJggg==";
 	
 		// components/GuildImage.tsx
 		const getIconFontSize = (name) => {
@@ -795,6 +826,80 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 		}
 	
+		// styles/partymembers.module.css
+		const css = ".VoiceActivity-partymembers-partyMembers {\n\tposition: absolute;\n\ttop: 0;\n\tright: 0;\n\tmargin-top: 2px;\n}\n\n.VoiceActivity-partymembers-overflow {\n\tbackground-color: var(--profile-role-pill-background-color);\n\tcolor: var(--text-normal);\n\theight: 14px;\n\tfont-size: 12px;\n\tline-height: 14px;\n}\n";
+		_loadStyle("partymembers.module.css", css);
+		const modules_e07dfdfd = {"partyMembers":"VoiceActivity-partymembers-partyMembers","overflow":"VoiceActivity-partymembers-overflow"};
+	
+		// components/PartyMembers.tsx
+		function PartyMember(props) {
+			const { member, guildId, popoutDisabled } = props;
+			return popoutDisabled ? BdApi.React.createElement("div", {
+				className: partyMemberClasses.partyMemberKnown,
+				style: { pointerEvents: "none" }
+			}, BdApi.React.createElement(Common.Avatar, {
+				...props,
+				src: member.getAvatarURL(guildId, 20),
+				"aria-label": member.username,
+				size: "SIZE_20",
+				className: partyMemberClasses.partyMember
+			})) : BdApi.React.createElement("div", {
+				className: partyMemberClasses.partyMemberKnown
+			}, BdApi.React.createElement(Common.Popout, {
+				preload: () => loadProfile(member.id, member.getAvatarURL(guildId, 80), {
+					guildId
+				}),
+				renderPopout: (props2) => BdApi.React.createElement(UserPopout, {
+					...props2,
+					userId: member.id,
+					guildId
+				}),
+				position: "left"
+			}, (props2) => BdApi.React.createElement(Common.Avatar, {
+				...props2,
+				src: member.getAvatarURL(guildId, 20),
+				"aria-label": member.username,
+				size: "SIZE_20",
+				className: partyMemberClasses.partyMember
+			})));
+		}
+		function PartyMembers(props) {
+			const { members, guildId, activeUserId } = props;
+			if (members.length < 1)
+				return null;
+			const avatars = members.slice(0, 2).map(
+				(member) => member.id === activeUserId ? BdApi.React.createElement(PartyMember, {
+					member,
+					guildId,
+					popoutDisabled: true
+				}) : BdApi.React.createElement(PartyMember, {
+					member,
+					guildId
+				})
+			);
+			const overflow = Math.min(members.length - avatars.length, 99);
+			if (overflow === 1) {
+				const member = members[2];
+				avatars.push(
+					member.id === activeUserId ? BdApi.React.createElement(PartyMember, {
+						member,
+						guildId,
+						popoutDisabled: true
+					}) : BdApi.React.createElement(PartyMember, {
+						member,
+						guildId
+					})
+				);
+			}
+			return BdApi.React.createElement("div", {
+				className: `${partyMembersClasses.wrapper} ${modules_e07dfdfd.partyMembers}`
+			}, BdApi.React.createElement("div", {
+				className: partyMembersClasses.partyMembers
+			}, avatars, overflow > 1 && BdApi.React.createElement("div", {
+				className: `${partyMembersClasses.partyMemberOverflow} ${modules_e07dfdfd.overflow}`
+			}, "+" + overflow)));
+		}
+	
 		// components/VoiceProfileSection.tsx
 		const { ChannelStore, GuildStore, UserStore, VoiceStateStore, SelectedChannelStore } = Stores;
 		function VoiceProfileSection(props) {
@@ -816,6 +921,9 @@ function buildPlugin([BasePlugin, Library]) {
 				return null;
 			if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id)))
 				return null;
+			const members = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id)).map(
+				(id) => UserStore.getUser(id)
+			);
 			let headerText;
 			let text;
 			let viewButton;
@@ -846,13 +954,18 @@ function buildPlugin([BasePlugin, Library]) {
 					break;
 				case 3:
 					headerText = Strings.HEADER_GROUP;
-					text = BdApi.React.createElement("h3", null, channel.name || groupDMName(channel.recipients));
+					text = [
+						BdApi.React.createElement("h3", null, channel.name || groupDMName(channel.recipients)),
+						BdApi.React.createElement("div", null, `${channel.recipients.length + 1} ${channel.recipients.length === 0 ? Strings.MEMBER : Strings.MEMBERS}`)
+					];
 					break;
 				case 13:
 					headerText = Strings.HEADER_STAGE;
 					Icon = Icons.Stage;
 			}
-			const section = BdApi.React.createElement(UserPopoutSection, null, BdApi.React.createElement("h3", {
+			const section = BdApi.React.createElement(UserPopoutSection, null, BdApi.React.createElement("div", {
+				className: modules_9dbd3268.section
+			}, BdApi.React.createElement("h3", {
 				className: modules_9dbd3268.header
 			}, headerText), !(channel.type === 1) && BdApi.React.createElement("div", {
 				className: modules_9dbd3268.body
@@ -862,7 +975,11 @@ function buildPlugin([BasePlugin, Library]) {
 				channelPath
 			}), BdApi.React.createElement("div", {
 				className: modules_9dbd3268.text
-			}, text)), BdApi.React.createElement("div", {
+			}, text), BdApi.React.createElement(PartyMembers, {
+				members,
+				guildId: guild?.id,
+				activeUserId: props.userId
+			})), BdApi.React.createElement("div", {
 				className: modules_9dbd3268.buttonWrapper
 			}, BdApi.React.createElement("button", {
 				className: modules_9dbd3268.button,
@@ -904,7 +1021,7 @@ function buildPlugin([BasePlugin, Library]) {
 			}, BdApi.React.createElement(Icon, {
 				width: "18",
 				height: "18"
-			}))))));
+			})))))));
 			return props.wrapper ? BdApi.React.createElement(props.wrapper, null, section) : section;
 		}
 	
@@ -969,22 +1086,20 @@ function buildPlugin([BasePlugin, Library]) {
 		const {
 			Filters: { byStrings }
 		} = betterdiscord.Webpack;
-		const { getModuleWithKey } = WebpackUtils;
 		const guildIconSelector = `div:not([data-dnd-name]) + ${iconWrapperSelector}`;
 		class VoiceActivity extends BasePlugin {
-			contextMenuUnpatches;
+			contextMenuUnpatches = new Set();
 			onStart() {
-				this.contextMenuUnpatches = new Set();
 				betterdiscord.DOM.addStyle(styles() + `${children}:empty { margin-left: 0; } ${children} { display: flex; gap: 8px; }`);
 				Strings.subscribe();
 				this.patchPeopleListItem();
 				this.patchUserPopout();
-				this.patchPrivateChannelProfile();
 				this.patchMemberListItem();
-				this.patchChannelContextMenu();
-				this.patchGuildContextMenu();
+				this.patchPrivateChannelProfile();
 				this.patchPrivateChannel();
 				this.patchGuildIcon();
+				this.patchChannelContextMenu();
+				this.patchGuildContextMenu();
 			}
 			patchUserPopout() {
 				const [UserPopoutBody, key] = getModuleWithKey(byStrings(".showCopiableUsername"));
@@ -1174,11 +1289,11 @@ function buildPlugin([BasePlugin, Library]) {
 			onStop() {
 				betterdiscord.DOM.removeStyle();
 				betterdiscord.Patcher.unpatchAll();
-				Strings.unsubscribe();
-				this.contextMenuUnpatches.forEach((unpatch) => unpatch());
-				this.contextMenuUnpatches.clear();
 				forceUpdateAll(peopleItemSelector, (i) => i.user);
 				forceRerender(document.querySelector(guildIconSelector));
+				this.contextMenuUnpatches.forEach((unpatch) => unpatch());
+				this.contextMenuUnpatches.clear();
+				Strings.unsubscribe();
 			}
 			getSettingsPanel() {
 				return BdApi.React.createElement(SettingsPanel, null);
@@ -1187,15 +1302,7 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		return VoiceActivity;
 	
-	})(new BdApi("VoiceActivity"), BdApi.React, {
-		name: "VoiceActivity",
-		author: "Neodymium",
-		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
-		version: "1.7.1",
-		source: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
-		donate: "https://ko-fi.com/neodymium7",
-		invite: "fRbsqH87Av"
-	}, BasePlugin);
+	})(new BdApi("VoiceActivity"), BasePlugin, BdApi.React);
 
 	return Plugin;
 }
