@@ -65,11 +65,6 @@ export const transitionTo: (path: string) => null = expectModule({
 	name: "transitionTo",
 });
 
-export const loadProfile: any = expectModule<any>({
-	filter: (m) => m.Z?.toString?.().includes("y.apply(this,arguments)") && Object.values(m).length === 1,
-	name: "loadProfile",
-}).Z;
-
 export const getAcronym = expectModule({
 	filter: byStrings('.replace(/\'s /g," ").replace(/\\w+/g,'),
 	searchExports: true,
@@ -84,12 +79,6 @@ export const Common = expectModule({
 		Popout: (props) => <div {...props} />,
 		Avatar: (_props) => null,
 	},
-});
-
-export const UserPopout = expectModule({
-	filter: (e) => e.type?.toString().includes('"userId"'),
-	name: "UserPopout",
-	fallback: (_props: any) => <ErrorPopout message="Error: User Popout module not found" />,
 });
 
 export const SwitchItem = expectModule({
@@ -145,7 +134,7 @@ export const iconWrapperSelector = getSelectors("Icon Wrapper Class", ["wrapper"
 
 export const children = getSelectors("Children Class", ["avatar", "children"]).children;
 
-export const partyMemberClasses = getClasses("Party Member Classes", ["partyMemberKnown", "partyMember"]);
+export const avatarMasked = getClasses("Masked Avatar Class", ["avatarMasked"]).avatarMasked;
 
 export const partyMembersClasses = getClasses("Party Members Classes", [
 	"wrapper",
@@ -160,4 +149,5 @@ export const Stores = {
 	GuildStore: getStore("GuildStore"),
 	ChannelStore: getStore("ChannelStore"),
 	SelectedChannelStore: getStore("SelectedChannelStore"),
+	GuildMemberStore: getStore("GuildMemberStore"),
 };

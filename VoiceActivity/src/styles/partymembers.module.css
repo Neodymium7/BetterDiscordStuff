@@ -5,8 +5,12 @@
 	margin-top: 2px;
 }
 
+.partyMemberAvatar {
+	cursor: auto;
+}
+
 .overflow {
-	background-color: var(--profile-role-pill-background-color);
+	background: radial-gradient(circle at -10px 10px, transparent 14px, var(--profile-role-pill-background-color) 0);
 	color: var(--text-normal);
 	height: 14px;
 	font-size: 12px;

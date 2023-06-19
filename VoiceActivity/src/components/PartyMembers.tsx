@@ -1,46 +1,33 @@
-import { Common, UserPopout, loadProfile, partyMemberClasses, partyMembersClasses } from "../modules/discordmodules";
+import { Components } from "betterdiscord";
+import { Common, partyMembersClasses, Stores, avatarMasked } from "../modules/discordmodules";
 import styles from "../styles/partymembers.module.css";
 
 interface PartyMemberProps {
 	member: any;
 	guildId?: string;
-	popoutDisabled?: boolean;
+	last?: boolean;
 }
 
 function PartyMember(props: PartyMemberProps) {
-	const { member, guildId, popoutDisabled } = props;
+	const { member, guildId, last } = props;
 
-	return popoutDisabled ? (
-		<div className={partyMemberClasses.partyMemberKnown} style={{ pointerEvents: "none" }}>
-			<Common.Avatar
-				{...props}
-				src={member.getAvatarURL(guildId, 20)}
-				aria-label={member.username}
-				size={"SIZE_20"}
-				className={partyMemberClasses.partyMember}
-			/>
-		</div>
-	) : (
-		<div className={partyMemberClasses.partyMemberKnown}>
-			<Common.Popout
-				preload={() =>
-					loadProfile(member.id, member.getAvatarURL(guildId, 80), {
-						guildId,
-					})
-				}
-				renderPopout={(props) => <UserPopout {...props} userId={member.id} guildId={guildId} />}
-				position="left"
-			>
-				{(props) => (
+	const displayName = Stores.GuildMemberStore.getNick(guildId, member.id) || member.username;
+
+	const avatarClassName = last ? styles.partyMemberAvatar : `${styles.partyMemberAvatar} ${avatarMasked}`;
+
+	return (
+		<div className={styles.partyMember}>
+			<Components.Tooltip text={displayName}>
+				{(tooltipProps: any) => (
 					<Common.Avatar
-						{...props}
+						{...tooltipProps}
 						src={member.getAvatarURL(guildId, 20)}
 						aria-label={member.username}
 						size={"SIZE_20"}
-						className={partyMemberClasses.partyMember}
+						className={avatarClassName}
 					/>
 				)}
-			</Common.Popout>
+			</Components.Tooltip>
 		</div>
 	);
 }
@@ -48,34 +35,28 @@ function PartyMember(props: PartyMemberProps) {
 interface PartyMembersProps {
 	members: any[];
 	guildId?: string;
-	activeUserId?: string;
 }
 
 export default function PartyMembers(props: PartyMembersProps) {
-	const { members, guildId, activeUserId } = props;
+	const { members, guildId } = props;
 
 	if (members.length < 1) return null;
 
-	const avatars = members
-		.slice(0, 2)
-		.map((member) =>
-			member.id === activeUserId ? (
-				<PartyMember member={member} guildId={guildId} popoutDisabled />
-			) : (
-				<PartyMember member={member} guildId={guildId} />
-			)
-		);
+	const displayedMembers = members.slice(0, 2);
+	const avatars = displayedMembers.map((member, index) => {
+		const isLastItem = index === displayedMembers.length - 1;
+		return <PartyMember member={member} guildId={guildId} last={isLastItem} />;
+	});
 
 	const overflow = Math.min(members.length - avatars.length, 99);
 
 	if (overflow === 1) {
+		const prevMember = members[1];
 		const member = members[2];
+		avatars.pop();
 		avatars.push(
-			member.id === activeUserId ? (
-				<PartyMember member={member} guildId={guildId} popoutDisabled />
-			) : (
-				<PartyMember member={member} guildId={guildId} />
-			)
+			<PartyMember member={prevMember} guildId={guildId} />,
+			<PartyMember member={member} guildId={guildId} last />
 		);
 	}
 

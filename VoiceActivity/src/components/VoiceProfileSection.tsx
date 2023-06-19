@@ -95,7 +95,7 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 					<div className={styles.body}>
 						<GuildImage guild={guild} channel={channel} channelPath={channelPath} />
 						<div className={styles.text}>{text}</div>
-						<PartyMembers members={members} guildId={guild?.id} activeUserId={props.userId} />
+						<PartyMembers members={members} guildId={guild?.id} />
 					</div>
 				)}
 				<div className={styles.buttonWrapper}>
