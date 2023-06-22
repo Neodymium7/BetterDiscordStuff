@@ -11,7 +11,9 @@ interface ActivityIconProps {
 }
 
 export default function ActivityIcon(props: ActivityIconProps) {
-	const { normalIconBehavior } = Settings.useSettingsState();
+	const { normalActivityIcons } = Settings.useSettingsState();
+
+	if (!normalActivityIcons) return null;
 
 	const isBot =
 		props.activities.length === 1 &&
@@ -29,8 +31,6 @@ export default function ActivityIcon(props: ActivityIconProps) {
 	const onXbox = normalActivities.some((activity) => activity.platform === "xbox");
 
 	if (normalActivities.length === 0) return null;
-	if (normalIconBehavior === 2 && !(hasRP || onPS || onXbox)) return null;
-	else if (normalIconBehavior === 1 && !hasCustomStatus && !(hasRP || onPS || onXbox)) return null;
 
 	let tooltip: React.ReactNode;
 	if (normalActivities.length === 1 && hasCustomStatus) {

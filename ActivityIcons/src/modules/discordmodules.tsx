@@ -39,28 +39,19 @@ export const Icons = {
 		name: "Headset",
 		fallback: (_props: IconProps) => null,
 	}),
+	Rocket: expectModule({
+		filter: byStrings("M4.92871 13.4149L10.5857 19.0709L18.3639 11.2927C19.7781"),
+		name: "Rocket",
+		fallback: (_props: IconProps) => null,
+	}),
 };
 
-export const SettingsComponents = {
-	RadioGroup: expectModule({
-		filter: (m) => m.Sizes && m.toString().includes("radioItemClassName"),
-		searchExports: true,
-		name: "RadioGroup",
-		fallback: Error,
-	}),
-	SettingsItem: expectModule({
-		filter: (m) => m.render?.toString().includes("required"),
-		searchExports: true,
-		name: "SettingsItem",
-		fallback: Error,
-	}),
-	SettingsNote: expectModule({
-		filter: (m) => m.Types && m.toString().includes("selectable"),
-		searchExports: true,
-		name: "SettingsNote",
-		fallback: Error,
-	}),
-};
+export const SwitchItem = expectModule({
+	filter: (m) => m.toString?.().includes("().dividerDefault"),
+	searchExports: true,
+	name: "SwitchItem",
+	fallback: Error,
+});
 
 export const Margins = getClasses("Margins", ["marginBottom8"]);
 

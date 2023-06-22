@@ -1,25 +1,35 @@
-import { Margins, SettingsComponents } from "../modules/discordmodules";
+import { SwitchItem } from "../modules/discordmodules";
 import { Settings, Strings } from "../modules/utils";
 
-const { RadioGroup, SettingsItem, SettingsNote } = SettingsComponents;
-
 export default function SettingsPanel() {
-	const settings = Settings.useSettingsState();
+	const settingsState = Settings.useSettingsState();
 
 	return (
-		<SettingsItem title={Strings.SETTINGS_ICON_BEHAVIOR}>
-			<SettingsNote className={Margins.marginBottom8} type="description">
-				{Strings.SETTINGS_ICON_BEHAVIOR_NOTE}
-			</SettingsNote>
-			<RadioGroup
-				options={[
-					{ name: Strings.SETTINGS_ICON_BEHAVIOR_ACTIVITY, value: 0 },
-					{ name: Strings.SETTINGS_ICON_BEHAVIOR_STATUS_AND_ACTIVITY, value: 1 },
-					{ name: Strings.SETTINGS_ICON_BEHAVIOR_NEVER, value: 2 },
-				]}
-				onChange={({ value }) => (Settings.normalIconBehavior = value)}
-				value={settings.normalIconBehavior}
+		<>
+			<SwitchItem
+				children={Strings.SETTINGS_VOICE_ACTIVITY}
+				note={Strings.SETTINGS_VOICE_ACTIVITY_NOTE}
+				value={settingsState.voiceActivityIcons}
+				onChange={(v: boolean) => {
+					Settings.voiceActivityIcons = v;
+				}}
 			/>
-		</SettingsItem>
+			<SwitchItem
+				children={Strings.SETTINGS_NORMAL_ACTIVITY}
+				note={Strings.SETTINGS_NORMAL_ACTIVITY_NOTE}
+				value={settingsState.normalActivityIcons}
+				onChange={(v: boolean) => {
+					Settings.normalActivityIcons = v;
+				}}
+			/>
+			<SwitchItem
+				children={Strings.SETTINGS_LISTENING}
+				note={Strings.SETTINGS_LISTENING_NOTE}
+				value={settingsState.listeningIcons}
+				onChange={(v: boolean) => {
+					Settings.listeningIcons = v;
+				}}
+			/>
+		</>
 	);
 }

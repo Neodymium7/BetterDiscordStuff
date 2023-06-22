@@ -1,12 +1,15 @@
 import { Components } from "betterdiscord";
 import { Icons } from "../modules/discordmodules";
-import { Strings, parseString } from "../modules/utils";
+import { Settings, Strings, parseString } from "../modules/utils";
 
 interface ListeningIconProps {
 	activities: any[];
 }
 
 export default function ListeningIcon(props: ListeningIconProps) {
+	const { listeningIcons } = Settings.useSettingsState();
+	if (!listeningIcons) return null;
+
 	const activity = props.activities.filter((activity) => activity.type === 2)[0];
 	if (!activity) return null;
 
