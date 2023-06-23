@@ -1,8 +1,9 @@
 import { Components } from "betterdiscord";
 import { Icons } from "../modules/discordmodules";
-import { Settings, Strings, parseStringReact } from "../modules/utils";
+import { Settings, Strings } from "../modules/utils";
 import { Component as Playstation } from "../assets/playstation.svg";
 import { Component as Xbox } from "../assets/xbox.svg";
+import { parseStringReact } from "@lib/utils/string";
 
 const botActivityKeys = ["created_at", "id", "name", "type", "url"];
 

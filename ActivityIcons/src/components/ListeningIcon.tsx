@@ -1,6 +1,7 @@
 import { Components } from "betterdiscord";
 import { Icons } from "../modules/discordmodules";
-import { Settings, Strings, parseString } from "../modules/utils";
+import { Settings, Strings } from "../modules/utils";
+import { parseString } from "@lib/utils/string";
 
 interface ListeningIconProps {
 	activities: any[];
