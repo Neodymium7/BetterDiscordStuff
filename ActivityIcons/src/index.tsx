@@ -11,7 +11,6 @@ import styles from "./styles.css";
 import ActivityIcon from "./components/ActivityIcon";
 import ListeningIcon from "./components/ListeningIcon";
 import SettingsPanel from "./components/SettingsPanel";
-import VoiceActivityIcon from "./components/VoiceActivityIcon";
 
 export default class ActivityIcons extends BasePlugin {
 	onStart() {
@@ -25,7 +24,6 @@ export default class ActivityIcons extends BasePlugin {
 			if (!ret) return;
 			ret.props.children[2] = null;
 			ret.props.children.push(
-				<VoiceActivityIcon activities={props.activities} />,
 				<ActivityIcon activities={props.activities} />,
 				<ListeningIcon activities={props.activities} />
 			);

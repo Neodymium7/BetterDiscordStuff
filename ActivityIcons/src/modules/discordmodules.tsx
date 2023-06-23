@@ -39,11 +39,6 @@ export const Icons = {
 		name: "Headset",
 		fallback: (_props: IconProps) => null,
 	}),
-	Rocket: expectModule({
-		filter: byStrings("M4.92871 13.4149L10.5857 19.0709L18.3639 11.2927C19.7781"),
-		name: "Rocket",
-		fallback: (_props: IconProps) => null,
-	}),
 };
 
 export const SwitchItem = expectModule({

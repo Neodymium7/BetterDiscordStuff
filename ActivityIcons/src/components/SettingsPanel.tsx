@@ -7,14 +7,6 @@ export default function SettingsPanel() {
 	return (
 		<>
 			<SwitchItem
-				children={Strings.SETTINGS_VOICE_ACTIVITY}
-				note={Strings.SETTINGS_VOICE_ACTIVITY_NOTE}
-				value={settingsState.voiceActivityIcons}
-				onChange={(v: boolean) => {
-					Settings.voiceActivityIcons = v;
-				}}
-			/>
-			<SwitchItem
 				children={Strings.SETTINGS_NORMAL_ACTIVITY}
 				note={Strings.SETTINGS_NORMAL_ACTIVITY_NOTE}
 				value={settingsState.normalActivityIcons}
