@@ -25,7 +25,7 @@ export default function ActivityToggleButton() {
 					return UI.alert("Error", "Could not update setting. See the console for more information.");
 				}
 				updateSetting(!activityEnabled);
-				playSound(activityEnabled ? "stream_user_left" : "stream_user_joined", 0.4);
+				playSound(activityEnabled ? "activity_user_left" : "activity_user_join", 0.4);
 			}}
 			onContextMenu={(e: React.MouseEvent) => {
 				ContextMenu.open(
