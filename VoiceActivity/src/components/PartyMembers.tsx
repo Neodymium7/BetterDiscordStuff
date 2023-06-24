@@ -11,7 +11,8 @@ interface PartyMemberProps {
 function PartyMember(props: PartyMemberProps) {
 	const { member, guildId, last } = props;
 
-	const displayName = Stores.GuildMemberStore.getNick(guildId, member.id) || member.username;
+	const nick = Stores.GuildMemberStore.getNick(guildId, member.id);
+	const displayName = nick || member.globalName || member.username;
 
 	const avatarClassName = last ? styles.partyMemberAvatar : `${styles.partyMemberAvatar} ${avatarMasked}`;
 
