@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.0
+ * @version 1.8.1
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,7 +40,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.0",
+		version: "1.8.1",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -50,14 +50,14 @@ const config = {
 			title: "Added",
 			type: "improved",
 			items: [
-				"Added participating member display to popout sections."
+				"Improved appearance of participating members in popouts."
 			]
 		},
 		{
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed member list icons."
+				"Fixed member list icons (again)."
 			]
 		}
 	]
@@ -278,11 +278,8 @@ function buildPlugin([BasePlugin, Library]) {
 		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
 			style: { color: "red" }
 		}, "Error: Component not found"));
-		const ErrorPopout = (props) => BdApi.React.createElement("div", {
-			style: { backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" }
-		}, props.message);
 		const MemberListItemContainer = expectModule({
-			filter: (m) => m.type?.toString().includes("canRenderAvatarDecorations"),
+			filter: (m) => m.type?.toString().includes("canUseAvatarDecorations"),
 			name: "MemberListItemContainer"
 		});
 		const Permissions = expectModule({
@@ -317,10 +314,6 @@ function buildPlugin([BasePlugin, Library]) {
 			searchExports: true,
 			name: "transitionTo"
 		});
-		const loadProfile = expectModule({
-			filter: (m) => m.Z?.toString?.().includes("y.apply(this,arguments)") && Object.values(m).length === 1,
-			name: "loadProfile"
-		}).Z;
 		const getAcronym = expectModule({
 			filter: byStrings$1(`.replace(/'s /g," ").replace(/\\w+/g,`),
 			searchExports: true,
@@ -336,13 +329,6 @@ function buildPlugin([BasePlugin, Library]) {
 				}),
 				Avatar: (_props) => null
 			}
-		});
-		const UserPopout = expectModule({
-			filter: (e) => e.type?.toString().includes('"userId"'),
-			name: "UserPopout",
-			fallback: (_props) => BdApi.React.createElement(ErrorPopout, {
-				message: "Error: User Popout module not found"
-			})
 		});
 		const SwitchItem = expectModule({
 			filter: (m) => m.toString?.().includes("().dividerDefault"),
@@ -392,7 +378,7 @@ function buildPlugin([BasePlugin, Library]) {
 		const peopleItemSelector = getSelectors("People Item Class", ["peopleListItem"]).peopleListItem;
 		const iconWrapperSelector = getSelectors("Icon Wrapper Class", ["wrapper", "folderEndWrapper"]).wrapper;
 		const children = getSelectors("Children Class", ["avatar", "children"]).children;
-		const partyMemberClasses = getClasses("Party Member Classes", ["partyMemberKnown", "partyMember"]);
+		const avatarMasked = getClasses("Masked Avatar Class", ["avatarMasked"]).avatarMasked;
 		const partyMembersClasses = getClasses("Party Members Classes", [
 			"wrapper",
 			"partyMembers",
@@ -404,7 +390,8 @@ function buildPlugin([BasePlugin, Library]) {
 			VoiceStateStore: getStore("VoiceStateStore"),
 			GuildStore: getStore("GuildStore"),
 			ChannelStore: getStore("ChannelStore"),
-			SelectedChannelStore: getStore("SelectedChannelStore")
+			SelectedChannelStore: getStore("SelectedChannelStore"),
+			GuildMemberStore: getStore("GuildMemberStore")
 		};
 	
 		// locales.json
@@ -827,67 +814,55 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// styles/partymembers.module.css
-		const css = ".VoiceActivity-partymembers-partyMembers {\n\tposition: absolute;\n\ttop: 0;\n\tright: 0;\n\tmargin-top: 2px;\n}\n\n.VoiceActivity-partymembers-overflow {\n\tbackground-color: var(--profile-role-pill-background-color);\n\tcolor: var(--text-normal);\n\theight: 14px;\n\tfont-size: 12px;\n\tline-height: 14px;\n}\n";
+		const css = ".VoiceActivity-partymembers-partyMembers {\n\tposition: absolute;\n\ttop: 0;\n\tright: 0;\n\tmargin-top: 2px;\n}\n\n.VoiceActivity-partymembers-partyMemberAvatar {\n\tcursor: auto;\n}\n\n.VoiceActivity-partymembers-overflow {\n\tbackground: radial-gradient(circle at -10px 10px, transparent 14px, var(--profile-role-pill-background-color) 0);\n\tcolor: var(--text-normal);\n\theight: 14px;\n\tfont-size: 12px;\n\tline-height: 14px;\n}\n";
 		_loadStyle("partymembers.module.css", css);
-		const modules_e07dfdfd = {"partyMembers":"VoiceActivity-partymembers-partyMembers","overflow":"VoiceActivity-partymembers-overflow"};
+		const modules_e07dfdfd = {"partyMembers":"VoiceActivity-partymembers-partyMembers","partyMemberAvatar":"VoiceActivity-partymembers-partyMemberAvatar","overflow":"VoiceActivity-partymembers-overflow"};
 	
 		// components/PartyMembers.tsx
 		function PartyMember(props) {
-			const { member, guildId, popoutDisabled } = props;
-			return popoutDisabled ? BdApi.React.createElement("div", {
-				className: partyMemberClasses.partyMemberKnown,
-				style: { pointerEvents: "none" }
-			}, BdApi.React.createElement(Common.Avatar, {
-				...props,
+			const { member, guildId, last } = props;
+			const nick = Stores.GuildMemberStore.getNick(guildId, member.id);
+			const displayName = nick || member.globalName || member.username;
+			const avatarClassName = last ? modules_e07dfdfd.partyMemberAvatar : `${modules_e07dfdfd.partyMemberAvatar} ${avatarMasked}`;
+			return BdApi.React.createElement("div", {
+				className: modules_e07dfdfd.partyMember
+			}, BdApi.React.createElement(betterdiscord.Components.Tooltip, {
+				text: displayName
+			}, (tooltipProps) => BdApi.React.createElement(Common.Avatar, {
+				...tooltipProps,
 				src: member.getAvatarURL(guildId, 20),
 				"aria-label": member.username,
 				size: "SIZE_20",
-				className: partyMemberClasses.partyMember
-			})) : BdApi.React.createElement("div", {
-				className: partyMemberClasses.partyMemberKnown
-			}, BdApi.React.createElement(Common.Popout, {
-				preload: () => loadProfile(member.id, member.getAvatarURL(guildId, 80), {
-					guildId
-				}),
-				renderPopout: (props2) => BdApi.React.createElement(UserPopout, {
-					...props2,
-					userId: member.id,
-					guildId
-				}),
-				position: "left"
-			}, (props2) => BdApi.React.createElement(Common.Avatar, {
-				...props2,
-				src: member.getAvatarURL(guildId, 20),
-				"aria-label": member.username,
-				size: "SIZE_20",
-				className: partyMemberClasses.partyMember
+				className: avatarClassName
 			})));
 		}
 		function PartyMembers(props) {
-			const { members, guildId, activeUserId } = props;
+			const { members, guildId } = props;
 			if (members.length < 1)
 				return null;
-			const avatars = members.slice(0, 2).map(
-				(member) => member.id === activeUserId ? BdApi.React.createElement(PartyMember, {
+			const displayedMembers = members.slice(0, 2);
+			const avatars = displayedMembers.map((member, index) => {
+				const isLastItem = index === displayedMembers.length - 1;
+				return BdApi.React.createElement(PartyMember, {
 					member,
 					guildId,
-					popoutDisabled: true
-				}) : BdApi.React.createElement(PartyMember, {
-					member,
-					guildId
-				})
-			);
+					last: isLastItem
+				});
+			});
 			const overflow = Math.min(members.length - avatars.length, 99);
 			if (overflow === 1) {
+				const prevMember = members[1];
 				const member = members[2];
+				avatars.pop();
 				avatars.push(
-					member.id === activeUserId ? BdApi.React.createElement(PartyMember, {
+					BdApi.React.createElement(PartyMember, {
+						member: prevMember,
+						guildId
+					}),
+					BdApi.React.createElement(PartyMember, {
 						member,
 						guildId,
-						popoutDisabled: true
-					}) : BdApi.React.createElement(PartyMember, {
-						member,
-						guildId
+						last: true
 					})
 				);
 			}
@@ -977,8 +952,7 @@ function buildPlugin([BasePlugin, Library]) {
 				className: modules_9dbd3268.text
 			}, text), BdApi.React.createElement(PartyMembers, {
 				members,
-				guildId: guild?.id,
-				activeUserId: props.userId
+				guildId: guild?.id
 			})), BdApi.React.createElement("div", {
 				className: modules_9dbd3268.buttonWrapper
 			}, BdApi.React.createElement("button", {
