@@ -1,7 +1,7 @@
 {
 	"name": "VoiceActivity",
 	"author": "Neodymium",
-	"version": "1.8.0",
+	"version": "1.8.1",
 	"description": "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 	"donate": "https://ko-fi.com/neodymium7",
@@ -14,12 +14,12 @@
 			{
 				"title": "Added",
 				"type": "improved",
-				"items": ["Added participating member display to popout sections."]
+				"items": ["Improved appearance of participating members in popouts."]
 			},
 			{
 				"title": "Fixed",
 				"type": "fixed",
-				"items": ["Fixed member list icons."]
+				"items": ["Fixed member list icons (again)."]
 			}
 		]
 	}
