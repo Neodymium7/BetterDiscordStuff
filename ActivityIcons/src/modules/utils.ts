@@ -2,7 +2,13 @@ import { ReactUtils, Utils } from "betterdiscord";
 import { createSettings, createStrings } from "@lib";
 import locales from "../locales.json";
 
-export const Settings = createSettings({ normalActivityIcons: true, listeningIcons: true });
+export const Settings = createSettings({
+	normalActivityIcons: true,
+	richPresenceIcons: true,
+	platformIcons: true,
+	listeningIcons: true,
+	watchingIcons: true,
+});
 
 export const Strings = createStrings(locales, "en-US");
 

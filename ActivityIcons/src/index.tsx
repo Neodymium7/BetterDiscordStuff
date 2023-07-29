@@ -11,6 +11,7 @@ import styles from "./styles.css";
 import ActivityIcon from "./components/ActivityIcon";
 import ListeningIcon from "./components/ListeningIcon";
 import SettingsPanel from "./components/SettingsPanel";
+import WatchingIcon from "./components/WatchingIcon";
 
 export default class ActivityIcons extends BasePlugin {
 	onStart() {
@@ -25,6 +26,7 @@ export default class ActivityIcons extends BasePlugin {
 			ret.props.children[2] = null;
 			ret.props.children.push(
 				<ActivityIcon activities={props.activities} />,
+				<WatchingIcon activities={props.activities} />,
 				<ListeningIcon activities={props.activities} />
 			);
 		});

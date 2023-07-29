@@ -39,6 +39,11 @@ export const Icons = {
 		name: "Headset",
 		fallback: (_props: IconProps) => null,
 	}),
+	Screen: expectModule({
+		filter: byStrings("M4 2.5C2.897 2.5 2 3.397 2 4.5V15.5C2 16.604 2.897", "2.5H4ZM20"),
+		name: "Screen",
+		fallback: (_props: IconProps) => null,
+	}),
 };
 
 export const SwitchItem = expectModule({

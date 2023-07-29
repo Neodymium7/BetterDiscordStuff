@@ -12,9 +12,9 @@ interface ActivityIconProps {
 }
 
 export default function ActivityIcon(props: ActivityIconProps) {
-	const { normalActivityIcons } = Settings.useSettingsState();
+	const { normalActivityIcons, richPresenceIcons, platformIcons } = Settings.useSettingsState();
 
-	if (!normalActivityIcons) return null;
+	if (!normalActivityIcons && !richPresenceIcons && !platformIcons) return null;
 
 	const isBot =
 		props.activities.length === 1 &&
@@ -32,6 +32,9 @@ export default function ActivityIcon(props: ActivityIconProps) {
 	const onXbox = normalActivities.some((activity) => activity.platform === "xbox");
 
 	if (normalActivities.length === 0) return null;
+	if (!normalActivityIcons && !hasRP && !onPS && !onXbox) return null;
+	if (!normalActivityIcons && !platformIcons && richPresenceIcons && !hasRP) return null;
+	if (!normalActivityIcons && !richPresenceIcons && platformIcons && !onPS && !onXbox) return null;
 
 	let tooltip: React.ReactNode;
 	if (normalActivities.length === 1 && hasCustomStatus) {
@@ -56,9 +59,9 @@ export default function ActivityIcon(props: ActivityIconProps) {
 	}
 
 	let icon = <Icons.Activity width="16" height="16" />;
-	if (onPS) icon = <Playstation width="14" height="14" className="activity-icon-small" />;
-	if (onXbox) icon = <Xbox width="14" height="14" className="activity-icon-small" />;
-	if (hasRP) icon = <Icons.RichActivity width="16" height="16" />;
+	if (platformIcons && onPS) icon = <Playstation width="14" height="14" className="activity-icon-small" />;
+	if (platformIcons && onXbox) icon = <Xbox width="14" height="14" className="activity-icon-small" />;
+	if (richPresenceIcons && hasRP) icon = <Icons.RichActivity width="16" height="16" />;
 
 	return tooltip ? (
 		<Components.Tooltip text={tooltip} position="top">
