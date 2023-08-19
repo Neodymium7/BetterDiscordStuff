@@ -22,11 +22,12 @@ if (updatedPlugins.length === 0) {
 		const srcPath = path.join(dirName, "src");
 
 		const ignored = ignore.includes(dirName);
+		const deprecated = dirName.includes("DEPRECATED");
 		const isValidPlugin =
 			fs.existsSync(srcPath) &&
 			fs.lstatSync(srcPath).isDirectory() &&
 			fs.existsSync(path.resolve(srcPath, "plugin.json"));
-		if (ignored || !isValidPlugin) return false;
+		if (ignored || deprecated || !isValidPlugin) return false;
 
 		const prevPluginPath = path.join(dirName, dirName + ".plugin.js");
 
