@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.1
+ * @version 1.8.2
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,24 +40,17 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.1",
+		version: "1.8.2",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
 	},
 	changelog: [
 		{
-			title: "Added",
-			type: "improved",
-			items: [
-				"Improved appearance of participating members in popouts."
-			]
-		},
-		{
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed member list icons (again)."
+				"Fixed occasional crashing on some languages."
 			]
 		}
 	]
@@ -167,7 +160,7 @@ function buildPlugin([BasePlugin, Library]) {
 			for (const key in strings) {
 				Object.defineProperty(stringsManager, key, {
 					get() {
-						return strings[key] || this.locales[this.defaultLocale][key];
+						return strings[key] || locales[defaultLocale][key];
 					},
 					enumerable: true,
 					configurable: false
