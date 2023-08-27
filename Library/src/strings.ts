@@ -58,7 +58,7 @@ export function createStrings<T extends LocalesObject, D extends keyof T>(locale
 	for (const key in strings) {
 		Object.defineProperty(stringsManager, key, {
 			get() {
-				return strings[key] || this.locales[this.defaultLocale][key];
+				return strings[key] || locales[defaultLocale][key];
 			},
 			enumerable: true,
 			configurable: false,
