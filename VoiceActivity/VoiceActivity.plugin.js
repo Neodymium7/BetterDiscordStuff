@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.2
+ * @version 1.8.3
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,7 +40,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.2",
+		version: "1.8.3",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -50,7 +50,8 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed occasional crashing on some languages."
+				"Fixed broken member list icons.",
+				"Fixed some minor styling issues."
 			]
 		}
 	]
@@ -272,7 +273,7 @@ function buildPlugin([BasePlugin, Library]) {
 			style: { color: "red" }
 		}, "Error: Component not found"));
 		const MemberListItemContainer = expectModule({
-			filter: (m) => m.type?.toString().includes("canUseAvatarDecorations"),
+			filter: (m) => m.type?.toString().includes("useName"),
 			name: "MemberListItemContainer"
 		});
 		const Permissions = expectModule({
@@ -631,7 +632,7 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// styles/voiceicon.module.scss
-		const css$3 = ".VoiceActivity-voiceicon-icon {\n  height: 20px;\n  width: 20px;\n  min-width: 20px;\n  border-radius: 50%;\n  background-color: var(--background-floating);\n  cursor: pointer;\n}\n.VoiceActivity-voiceicon-icon:hover {\n  background-color: var(--background-tertiary);\n}\n.VoiceActivity-voiceicon-icon svg {\n  padding: 3px;\n  color: var(--interactive-normal);\n}\n\n.VoiceActivity-voiceicon-iconCurrentCall {\n  background-color: var(--status-positive);\n}\n.VoiceActivity-voiceicon-iconCurrentCall:hover {\n  background-color: var(--button-positive-background);\n}\n.VoiceActivity-voiceicon-iconCurrentCall svg {\n  color: #fff;\n}\n\n.VoiceActivity-voiceicon-iconLive {\n  height: 16px;\n  border-radius: 16px;\n  background-color: var(--status-danger);\n  color: #fff;\n  font-size: 12px;\n  line-height: 16px;\n  font-weight: 600;\n  font-family: var(--font-display);\n  text-transform: uppercase;\n}\n.VoiceActivity-voiceicon-iconLive:hover {\n  background-color: var(--button-danger-background);\n}\n.VoiceActivity-voiceicon-iconLive > div {\n  padding: 0 6px;\n}\n\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-header {\n  display: block;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-subtext {\n  display: flex;\n  flex-direction: row;\n  margin-top: 3px;\n}\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-subtext > div {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-tooltipIcon {\n  min-width: 16px;\n  margin-right: 3px;\n  color: var(--interactive-normal);\n}\n\n.VoiceActivity-voiceicon-iconContainer {\n  margin-left: auto;\n}\n.VoiceActivity-voiceicon-iconContainer .VoiceActivity-voiceicon-icon {\n  margin-right: 8px;\n}\n.VoiceActivity-voiceicon-iconContainer .VoiceActivity-voiceicon-iconLive {\n  margin-right: 8px;\n}";
+		const css$3 = ".VoiceActivity-voiceicon-icon {\n  height: 20px;\n  width: 20px;\n  min-width: 20px;\n  border-radius: 50%;\n  background-color: var(--background-floating);\n  cursor: pointer;\n}\n.VoiceActivity-voiceicon-icon:hover {\n  background-color: var(--background-tertiary);\n}\n.VoiceActivity-voiceicon-icon svg {\n  padding: 3px;\n  color: var(--interactive-normal);\n}\n\n.VoiceActivity-voiceicon-iconCurrentCall {\n  background-color: var(--status-positive);\n}\n.VoiceActivity-voiceicon-iconCurrentCall:hover {\n  background-color: var(--button-positive-background);\n}\n.VoiceActivity-voiceicon-iconCurrentCall svg {\n  color: #fff;\n}\n\n.VoiceActivity-voiceicon-iconLive {\n  height: 16px;\n  border-radius: 16px;\n  background-color: var(--status-danger);\n  color: #fff;\n  font-size: 12px;\n  line-height: 16px;\n  font-weight: 600;\n  font-family: var(--font-display);\n  text-transform: uppercase;\n}\n.VoiceActivity-voiceicon-iconLive:hover {\n  background-color: var(--button-danger-background);\n}\n.VoiceActivity-voiceicon-iconLive > div {\n  padding: 0 6px;\n}\n\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-header {\n  display: block;\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-subtext {\n  display: flex;\n  flex-direction: row;\n  margin-top: 3px;\n}\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-subtext > div {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-tooltipIcon {\n  min-width: 16px;\n  margin-right: 3px;\n  color: var(--interactive-normal);\n}\n\n.VoiceActivity-voiceicon-iconContainer {\n  margin-left: auto;\n}\n.VoiceActivity-voiceicon-iconContainer .VoiceActivity-voiceicon-icon {\n  margin-inline: 8px;\n}\n.VoiceActivity-voiceicon-iconContainer .VoiceActivity-voiceicon-iconLive {\n  margin-inline: 8px;\n}";
 		_loadStyle("voiceicon.module.scss", css$3);
 		const modules_df1df857 = {"icon":"VoiceActivity-voiceicon-icon","iconCurrentCall":"VoiceActivity-voiceicon-iconCurrentCall","iconLive":"VoiceActivity-voiceicon-iconLive","tooltip":"VoiceActivity-voiceicon-tooltip","header":"VoiceActivity-voiceicon-header","subtext":"VoiceActivity-voiceicon-subtext","tooltipIcon":"VoiceActivity-voiceicon-tooltipIcon","iconContainer":"VoiceActivity-voiceicon-iconContainer"};
 	
