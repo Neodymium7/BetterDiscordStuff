@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.3
+ * @version 1.8.4
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,7 +40,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.3",
+		version: "1.8.4",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -50,8 +50,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed broken member list icons.",
-				"Fixed some minor styling issues."
+				"Fixed popout section not appearing."
 			]
 		}
 	]
@@ -1070,14 +1069,13 @@ function buildPlugin([BasePlugin, Library]) {
 				this.patchGuildContextMenu();
 			}
 			patchUserPopout() {
+				const activitySectionFilter = (section) => section?.props.hasOwnProperty("activity");
 				const [UserPopoutBody, key] = getModuleWithKey(byStrings(".showCopiableUsername"));
 				betterdiscord.Patcher.after(UserPopoutBody, key, (_, [props], ret) => {
-					const popoutSections = betterdiscord.Utils.findInTree(ret, (i) => i.onScroll, {
+					const popoutSections = betterdiscord.Utils.findInTree(ret, (i) => Array.isArray(i) && i.some(activitySectionFilter), {
 						walkable: ["props", "children"]
-					})?.children;
-					const activitySectionIndex = popoutSections.findIndex(
-						(section) => section.props.hasOwnProperty("activity")
-					);
+					});
+					const activitySectionIndex = popoutSections.findIndex(activitySectionFilter);
 					popoutSections.splice(activitySectionIndex, 0, BdApi.React.createElement(VoiceProfileSection, {
 						userId: props.user.id
 					}));
