@@ -40,14 +40,14 @@ export default class VoiceActivity extends BasePlugin {
 	}
 
 	patchUserPopout() {
+		const activitySectionFilter = (section: any) => section?.props.hasOwnProperty("activity");
+
 		const [UserPopoutBody, key] = getModuleWithKey(byStrings(".showCopiableUsername"));
 		Patcher.after(UserPopoutBody, key, (_, [props]: [any], ret) => {
-			const popoutSections = Utils.findInTree(ret, (i) => i.onScroll, {
+			const popoutSections = Utils.findInTree(ret, (i) => Array.isArray(i) && i.some(activitySectionFilter), {
 				walkable: ["props", "children"],
-			})?.children;
-			const activitySectionIndex = popoutSections.findIndex((section: any) =>
-				section.props.hasOwnProperty("activity")
-			);
+			});
+			const activitySectionIndex = popoutSections.findIndex(activitySectionFilter);
 			popoutSections.splice(activitySectionIndex, 0, <VoiceProfileSection userId={props.user.id} />);
 		});
 	}
