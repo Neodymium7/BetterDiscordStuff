@@ -1,7 +1,7 @@
 /**
  * @name PinnedMessageIcons
  * @author Neodymium
- * @version 1.0.5
+ * @version 1.0.6
  * @description Displays an icon on and adds a class to pinned messages. (Heavily inspired by PinIcon by Qwerasd, go check out their plugin!)
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/PinnedMessageIcons/PinnedMessageIcons.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/PinnedMessageIcons/PinnedMessageIcons.plugin.js
@@ -9,9 +9,9 @@
  */
 
 const { DOM, Patcher, Webpack } = new BdApi("PinnedMessageIcons");
-const { getModule, Filters: { byStrings } } = Webpack;
+const { getModule, modules } = Webpack;
 
-const Pin = getModule(byStrings("M22 12L12.101 2.10101L10.686 3.51401L12.101 4.92901L7.15096"));
+const Pin = getModule((_e, _m, i) => modules[i].toString().includes("M22 12L12.101 2.10101L10.686 3.51401L12.101 4.92901L7.15096")).Z;
 
 module.exports = class PinnedMessageIcons {
     start() {
