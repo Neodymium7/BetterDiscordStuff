@@ -1,7 +1,7 @@
 /**
  * @name ActivityToggle
  * @author Neodymium
- * @version 1.2.8
+ * @version 1.2.9
  * @description Adds a button to quickly toggle Activity Status.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,7 +40,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.2.8",
+		version: "1.2.9",
 		description: "Adds a button to quickly toggle Activity Status.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityToggle/ActivityToggle.plugin.js"
@@ -132,6 +132,26 @@ function buildPlugin([BasePlugin, Library]) {
 				return obj;
 			}, {});
 		}
+		function bySourceStrings(...strings) {
+			return (_e, _m, i) => {
+				const moduleSource = betterdiscord.Webpack.modules[i].toString();
+				let match = true;
+				for (const string of strings) {
+					if (!moduleSource.includes(string)) {
+						match = false;
+						break;
+					}
+				}
+				return match;
+			};
+		}
+		function getIcon(name, searchString) {
+			return expectModule({
+				filter: bySourceStrings(searchString),
+				name,
+				fallback: { Z: (_props) => null }
+			}).Z;
+		}
 	
 		// modules.ts
 		const {
@@ -149,16 +169,8 @@ function buildPlugin([BasePlugin, Library]) {
 			name: "PanelButton",
 			fatal: true
 		});
-		const Activity = expectModule({
-			filter: byStrings("M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264"),
-			name: "Activity",
-			fallback: () => null
-		});
-		const Settings = expectModule({
-			filter: byStrings("M14 7V9C14 9 12.5867 9"),
-			name: "Settings",
-			fallback: () => null
-		});
+		const Activity = getIcon("Activity", "M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264");
+		const Settings = getIcon("Settings", "M14 7V9C14 9 12.5867 9");
 		const playSound = expectModule({
 			filter: byStrings(".getSoundpack()"),
 			searchExports: true,

@@ -1,7 +1,7 @@
 /**
  * @name ActivityIcons
  * @author Neodymium
- * @version 1.4.0
+ * @version 1.4.1
  * @description Improves the default icons next to statuses
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,18 +40,17 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.4.0",
+		version: "1.4.1",
 		description: "Improves the default icons next to statuses",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js"
 	},
 	changelog: [
 		{
-			title: "Improved",
-			type: "improved",
+			title: "Fixed",
+			type: "fixed",
 			items: [
-				"Added icon for 'Watching' activities",
-				"Added more settings options."
+				"Fixed icons not rendering."
 			]
 		}
 	]
@@ -154,6 +153,26 @@ function buildPlugin([BasePlugin, Library]) {
 				return match;
 			};
 		}
+		function bySourceStrings(...strings) {
+			return (_e, _m, i) => {
+				const moduleSource = betterdiscord.Webpack.modules[i].toString();
+				let match = true;
+				for (const string of strings) {
+					if (!moduleSource.includes(string)) {
+						match = false;
+						break;
+					}
+				}
+				return match;
+			};
+		}
+		function getIcon(name, searchString) {
+			return expectModule({
+				filter: bySourceStrings(searchString),
+				name,
+				fallback: { Z: (_props) => null }
+			}).Z;
+		}
 	
 		// modules/discordmodules.tsx
 		const {
@@ -168,26 +187,10 @@ function buildPlugin([BasePlugin, Library]) {
 			fatal: true
 		});
 		const Icons = {
-			Activity: expectModule({
-				filter: byStrings("M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264"),
-				name: "Activity",
-				fallback: (_props) => null
-			}),
-			RichActivity: expectModule({
-				filter: byStrings("M6,7 L2,7 L2,6 L6,6 L6,7 Z M8,5 L2,5 L2,4 L8,4"),
-				name: "RichActivity",
-				fallback: (_props) => null
-			}),
-			Headset: expectModule({
-				filter: byStrings("M12 2.00305C6.486 2.00305 2 6.48805 2 12.0031V20.0031C2"),
-				name: "Headset",
-				fallback: (_props) => null
-			}),
-			Screen: expectModule({
-				filter: byStrings("M4 2.5C2.897 2.5 2 3.397 2 4.5V15.5C2 16.604 2.897", "2.5H4ZM20"),
-				name: "Screen",
-				fallback: (_props) => null
-			})
+			Activity: getIcon("Activity", "M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264"),
+			RichActivity: getIcon("RichActivity", "M6,7 L2,7 L2,6 L6,6 L6,7 Z M8,5 L2,5 L2,4 L8,4"),
+			Headset: getIcon("Headset", "M12 2.00305C6.486 2.00305 2 6.48805 2 12.0031V20.0031C2"),
+			Screen: getIcon("Screen", "M4 2.5C2.897 2.5 2 3.397 2 4.5V15.5C2 16.604 2.897")
 		};
 		const SwitchItem = expectModule({
 			filter: (m) => m.toString?.().includes("().dividerDefault"),
@@ -278,7 +281,7 @@ function buildPlugin([BasePlugin, Library]) {
 			for (const key in strings) {
 				Object.defineProperty(stringsManager, key, {
 					get() {
-						return strings[key] || this.locales[this.defaultLocale][key];
+						return strings[key] || locales[defaultLocale][key];
 					},
 					enumerable: true,
 					configurable: false

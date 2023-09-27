@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.4
+ * @version 1.8.5
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,7 +40,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.4",
+		version: "1.8.5",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -50,7 +50,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed popout section not appearing."
+				"Fixed icons not rendering."
 			]
 		}
 	]
@@ -263,6 +263,26 @@ function buildPlugin([BasePlugin, Library]) {
 				return obj;
 			}, {});
 		}
+		function bySourceStrings(...strings) {
+			return (_e, _m, i) => {
+				const moduleSource = betterdiscord.Webpack.modules[i].toString();
+				let match = true;
+				for (const string of strings) {
+					if (!moduleSource.includes(string)) {
+						match = false;
+						break;
+					}
+				}
+				return match;
+			};
+		}
+		function getIcon(name, searchString) {
+			return expectModule({
+				filter: bySourceStrings(searchString),
+				name,
+				fallback: { Z: (_props) => null }
+			}).Z;
+		}
 	
 		// modules/discordmodules.tsx
 		const {
@@ -330,43 +350,16 @@ function buildPlugin([BasePlugin, Library]) {
 			fallback: Error$1
 		});
 		const Icons = {
-			CallJoin: expectModule({
-				filter: byStrings$1("M11 5V3C16.515 3 21 7.486"),
-				name: "CallJoin",
-				fallback: (_props) => null
-			}),
-			People: expectModule({
-				filter: byStrings$1("M14 8.00598C14 10.211 12.206 12.006"),
-				name: "People",
-				fallback: (_props) => null
-			}),
-			Speaker: expectModule({
-				filter: byStrings$1("M11.383 3.07904C11.009 2.92504 10.579 3.01004"),
-				name: "Speaker",
-				fallback: (_props) => null
-			}),
-			Muted: expectModule({
-				filter: byStrings$1("M6.7 11H5C5 12.19 5.34 13.3"),
-				name: "Muted",
-				fallback: (_props) => null
-			}),
-			Deafened: expectModule({
-				filter: byStrings$1("M6.16204 15.0065C6.10859 15.0022 6.05455 15"),
-				name: "Deafened",
-				fallback: (_props) => null
-			}),
-			Video: expectModule({
-				filter: byStrings$1("M21.526 8.149C21.231 7.966 20.862 7.951"),
-				name: "Video",
-				fallback: (_props) => null
-			}),
-			Stage: expectModule({
-				filter: byStrings$1(
-					"M14 13C14 14.1 13.1 15 12 15C10.9 15 10 14.1 10 13C10 11.9 10.9 11 12 11C13.1 11 14 11.9 14 13ZM8.5 20V19.5C8.5"
-				),
-				name: "Stage",
-				fallback: (_props) => null
-			})
+			CallJoin: getIcon("CallJoin", "M11 5V3C16.515 3 21 7.486"),
+			People: getIcon("People", "M14 8.00598C14 10.211 12.206 12.006"),
+			Speaker: getIcon("Speaker", "M11.383 3.07904C11.009 2.92504 10.579 3.01004"),
+			Muted: getIcon("Muted", "M6.7 11H5C5 12.19 5.34 13.3"),
+			Deafened: getIcon("Deafened", "M6.16204 15.0065C6.10859 15.0022 6.05455 15"),
+			Video: getIcon("Video", "M21.526 8.149C21.231 7.966 20.862 7.951"),
+			Stage: getIcon(
+				"Stage",
+				"M14 13C14 14.1 13.1 15 12 15C10.9 15 10 14.1 10 13C10 11.9 10.9 11 12 11C13.1 11 14 11.9 14 13ZM8.5 20V19.5C8.5"
+			)
 		};
 		const peopleItemSelector = getSelectors("People Item Class", ["peopleListItem"]).peopleListItem;
 		const iconWrapperSelector = getSelectors("Icon Wrapper Class", ["wrapper", "folderEndWrapper"]).wrapper;
