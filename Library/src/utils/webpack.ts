@@ -4,6 +4,12 @@ import { SearchOptions } from "bdapi";
 
 type Filter = (e: any, m: any, i: string) => boolean;
 
+interface IconProps {
+	width?: string;
+	height?: string;
+	className?: string;
+}
+
 /**
  * Options for the `expectModule` function. Takes all options for a normal `getModule` query as well as:
  * - `name`: The name of the module (for error logging)
@@ -181,4 +187,39 @@ export function byValues(...filters: Filter[]) {
 
 		return match;
 	};
+}
+
+/**
+ * Generates a Webpack filter to get a module that contains provided strings in its source.
+ * @param strings - The strings to search for.
+ * @returns  The generated filter.
+ */
+export function bySourceStrings(...strings: string[]) {
+	return (_e: any, _m: any, i: string) => {
+		const moduleSource: string = Webpack.modules[i].toString();
+		let match = true;
+
+		for (const string of strings) {
+			if (!moduleSource.includes(string)) {
+				match = false;
+				break;
+			}
+		}
+
+		return match;
+	};
+}
+
+/**
+ * Gets an SVG icon component using a search string, such as a portion of the icon's SVG path. Handles when no module is found.
+ * @param name - The name of the icon
+ * @param searchString - A string to search for.
+ * @returns The icon component.
+ */
+export function getIcon(name: string, searchString: string) {
+	return expectModule<any>({
+		filter: bySourceStrings(searchString),
+		name,
+		fallback: { Z: (_props: IconProps) => null },
+	}).Z;
 }
