@@ -1,5 +1,5 @@
 import { Webpack } from "betterdiscord";
-import { expectModule, getStore, getSelectors, getClasses } from "@lib/utils/webpack";
+import { expectModule, getStore, getSelectors, getClasses, getIcon } from "@lib/utils/webpack";
 
 const {
 	Filters: { byProps, byStrings },
@@ -14,12 +14,6 @@ interface IconProps {
 const Error = (_props) => (
 	<div>
 		<h1 style={{ color: "red" }}>Error: Component not found</h1>
-	</div>
-);
-
-const ErrorPopout = (props: { message: string }) => (
-	<div style={{ backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" }}>
-		{props.message}
 	</div>
 );
 
@@ -89,43 +83,16 @@ export const SwitchItem = expectModule({
 });
 
 export const Icons = {
-	CallJoin: expectModule({
-		filter: byStrings("M11 5V3C16.515 3 21 7.486"),
-		name: "CallJoin",
-		fallback: (_props: IconProps) => null,
-	}),
-	People: expectModule({
-		filter: byStrings("M14 8.00598C14 10.211 12.206 12.006"),
-		name: "People",
-		fallback: (_props: IconProps) => null,
-	}),
-	Speaker: expectModule({
-		filter: byStrings("M11.383 3.07904C11.009 2.92504 10.579 3.01004"),
-		name: "Speaker",
-		fallback: (_props: IconProps) => null,
-	}),
-	Muted: expectModule({
-		filter: byStrings("M6.7 11H5C5 12.19 5.34 13.3"),
-		name: "Muted",
-		fallback: (_props: IconProps) => null,
-	}),
-	Deafened: expectModule({
-		filter: byStrings("M6.16204 15.0065C6.10859 15.0022 6.05455 15"),
-		name: "Deafened",
-		fallback: (_props: IconProps) => null,
-	}),
-	Video: expectModule({
-		filter: byStrings("M21.526 8.149C21.231 7.966 20.862 7.951"),
-		name: "Video",
-		fallback: (_props: IconProps) => null,
-	}),
-	Stage: expectModule({
-		filter: byStrings(
-			"M14 13C14 14.1 13.1 15 12 15C10.9 15 10 14.1 10 13C10 11.9 10.9 11 12 11C13.1 11 14 11.9 14 13ZM8.5 20V19.5C8.5"
-		),
-		name: "Stage",
-		fallback: (_props: IconProps) => null,
-	}),
+	CallJoin: getIcon("CallJoin", "M11 5V3C16.515 3 21 7.486"),
+	People: getIcon("People", "M14 8.00598C14 10.211 12.206 12.006"),
+	Speaker: getIcon("Speaker", "M11.383 3.07904C11.009 2.92504 10.579 3.01004"),
+	Muted: getIcon("Muted", "M6.7 11H5C5 12.19 5.34 13.3"),
+	Deafened: getIcon("Deafened", "M6.16204 15.0065C6.10859 15.0022 6.05455 15"),
+	Video: getIcon("Video", "M21.526 8.149C21.231 7.966 20.862 7.951"),
+	Stage: getIcon(
+		"Stage",
+		"M14 13C14 14.1 13.1 15 12 15C10.9 15 10 14.1 10 13C10 11.9 10.9 11 12 11C13.1 11 14 11.9 14 13ZM8.5 20V19.5C8.5"
+	),
 };
 
 export const peopleItemSelector = getSelectors("People Item Class", ["peopleListItem"]).peopleListItem;

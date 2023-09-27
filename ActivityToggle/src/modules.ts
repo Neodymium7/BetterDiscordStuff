@@ -1,5 +1,5 @@
 import { Webpack } from "betterdiscord";
-import { expectModule, getSelectors, getClasses } from "@lib/utils/webpack";
+import { expectModule, getSelectors, getClasses, getIcon } from "@lib/utils/webpack";
 import React from "react";
 
 const {
@@ -20,18 +20,9 @@ export const PanelButton: React.FunctionComponent<any> = expectModule({
 	fatal: true,
 });
 
-export const Activity = expectModule({
-	filter: byStrings("M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264"),
-	name: "Activity",
-	fallback: () => null,
-});
+export const Activity = getIcon("Activity", "M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264");
 
-export const Settings = expectModule({
-	filter: byStrings("M14 7V9C14 9 12.5867 9"),
-	name: "Settings",
-	fallback: () => null,
-});
-
+export const Settings = getIcon("Settings", "M14 7V9C14 9 12.5867 9");
 export const playSound: (id: string, vol: number) => void = expectModule({
 	filter: byStrings(".getSoundpack()"),
 	searchExports: true,

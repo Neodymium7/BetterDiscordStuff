@@ -192,7 +192,7 @@ export function byValues(...filters: Filter[]) {
 /**
  * Generates a Webpack filter to get a module that contains provided strings in its source.
  * @param strings - The strings to search for.
- * @returns  The generated filter.
+ * @returns The generated filter.
  */
 export function bySourceStrings(...strings: string[]) {
 	return (_e: any, _m: any, i: string) => {
@@ -216,7 +216,7 @@ export function bySourceStrings(...strings: string[]) {
  * @param searchString - A string to search for.
  * @returns The icon component.
  */
-export function getIcon(name: string, searchString: string) {
+export function getIcon(name: string, searchString: string): (props: IconProps) => JSX.Element {
 	return expectModule<any>({
 		filter: bySourceStrings(searchString),
 		name,
