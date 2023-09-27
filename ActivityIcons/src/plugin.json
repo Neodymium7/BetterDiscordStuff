@@ -1,7 +1,7 @@
 {
 	"name": "ActivityIcons",
 	"author": "Neodymium",
-	"version": "1.4.0",
+	"version": "1.4.1",
 	"description": "Improves the default icons next to statuses",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
 	"donate": "https://ko-fi.com/neodymium7",
@@ -12,9 +12,9 @@
 		},
 		"changelog": [
 			{
-				"title": "Improved",
-				"type": "improved",
-				"items": ["Added icon for 'Watching' activities", "Added more settings options."]
+				"title": "Fixed",
+				"type": "fixed",
+				"items": ["Fixed icons not rendering."]
 			}
 		]
 	}
