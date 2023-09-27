@@ -196,6 +196,7 @@ export function byValues(...filters: Filter[]) {
  */
 export function bySourceStrings(...strings: string[]) {
 	return (_e: any, _m: any, i: string) => {
+		// @ts-ignore
 		const moduleSource: string = Webpack.modules[i].toString();
 		let match = true;
 
