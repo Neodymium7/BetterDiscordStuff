@@ -4,4 +4,4 @@
 
 Adds a copy button to codeblocks.
 
-![preview](https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/CopyCodeblocks/assets/preview.png)
+![preview](https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/CopyCodeblocks%20-%20DEPRECATED/assets/preview.png)
