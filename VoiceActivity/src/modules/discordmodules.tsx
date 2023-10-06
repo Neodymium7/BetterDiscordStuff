@@ -5,22 +5,11 @@ const {
 	Filters: { byProps, byStrings },
 } = Webpack;
 
-interface IconProps {
-	width?: string;
-	height?: string;
-	className?: string;
-}
-
 const Error = (_props) => (
 	<div>
 		<h1 style={{ color: "red" }}>Error: Component not found</h1>
 	</div>
 );
-
-export const MemberListItemContainer: any = expectModule({
-	filter: (m) => m.type?.toString().includes("useName"),
-	name: "MemberListItemContainer",
-});
 
 export const Permissions: any = expectModule({
 	filter: byProps("computePermissions"),

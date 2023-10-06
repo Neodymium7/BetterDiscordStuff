@@ -4,7 +4,6 @@ import styles from "styles";
 import { Logger } from "@lib";
 import { getModuleWithKey } from "@lib/utils/webpack";
 import {
-	MemberListItemContainer,
 	Stores,
 	children,
 	iconWrapperSelector,
@@ -65,17 +64,12 @@ export default class VoiceActivity extends BasePlugin {
 	}
 
 	patchMemberListItem() {
-		const unpatch = Patcher.after(MemberListItemContainer, "type", (_, _args, containerRet) => {
-			const MemberListItem = containerRet.type;
-
-			Patcher.after(MemberListItem.prototype, "render", (that: any, _, ret) => {
-				if (!that.props.user) return ret;
-				Array.isArray(ret.props.children)
-					? ret.props.children.unshift(<VoiceIcon userId={that.props.user.id} context="memberlist" />)
-					: (ret.props.children = [<VoiceIcon userId={that.props.user.id} context="memberlist" />]);
-			});
-
-			unpatch();
+		const [MemberListItem, key] = getModuleWithKey(byStrings("isMobile", "premiumIcon"));
+		Patcher.after(MemberListItem, key, (_, [props]: [any], ret) => {
+			if (!props.user) return ret;
+			Array.isArray(ret.props.children)
+				? ret.props.children.unshift(<VoiceIcon userId={props.user.id} context="memberlist" />)
+				: (ret.props.children = [<VoiceIcon userId={props.user.id} context="memberlist" />]);
 		});
 	}
 
