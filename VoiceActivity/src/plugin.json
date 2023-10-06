@@ -1,7 +1,7 @@
 {
 	"name": "VoiceActivity",
 	"author": "Neodymium",
-	"version": "1.8.5",
+	"version": "1.8.6",
 	"description": "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 	"donate": "https://ko-fi.com/neodymium7",
@@ -14,7 +14,11 @@
 			{
 				"title": "Fixed",
 				"type": "fixed",
-				"items": ["Fixed icons not rendering."]
+				"items": [
+					"Fixed alignment of DM profile sidebar section.",
+					"Fixed member list icons.",
+					"Fixed DM icons."
+				]
 			}
 		]
 	}
