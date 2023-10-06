@@ -57,9 +57,9 @@ export default class VoiceActivity extends BasePlugin {
 		const { Inner } = PrivateChannelProfile[key];
 		Patcher.after(PrivateChannelProfile, key, (_, [props]: [any], ret) => {
 			if (props.profileType !== "PANEL") return ret;
-			const sections = Utils.findInTree(ret, (i) => Array.isArray(i), {
+			const sections = Utils.findInTree(ret, (i) => Array.isArray(i.children) && !i.value, {
 				walkable: ["props", "children"],
-			});
+			}).children;
 			sections.splice(2, 0, <VoiceProfileSection userId={props.user.id} wrapper={Inner} />);
 		});
 	}
