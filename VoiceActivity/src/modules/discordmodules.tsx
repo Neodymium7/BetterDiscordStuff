@@ -11,6 +11,12 @@ const Error = (_props) => (
 	</div>
 );
 
+export const PrivateChannelContainer: any = expectModule({
+	filter: (m) => m.render?.toString().includes("innerRef"),
+	name: "PrivateChannelContainer",
+	searchExports: true,
+});
+
 export const Permissions: any = expectModule({
 	filter: byProps("computePermissions"),
 	name: "Permissions",

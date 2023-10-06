@@ -4,6 +4,7 @@ import styles from "styles";
 import { Logger } from "@lib";
 import { getModuleWithKey } from "@lib/utils/webpack";
 import {
+	PrivateChannelContainer,
 	Stores,
 	children,
 	iconWrapperSelector,
@@ -74,30 +75,28 @@ export default class VoiceActivity extends BasePlugin {
 	}
 
 	patchPrivateChannel() {
-		const [PrivateChannelContainer, key] = getModuleWithKey(byStrings("getRecipientId", "isFavorite"));
-		const unpatch = Patcher.after(PrivateChannelContainer, key, (_, _args, containerRet) => {
-			const PrivateChannel = containerRet.type;
+		Patcher.after(PrivateChannelContainer, "render", (_, [props]: [any], ret) => {
+			if (!props["aria-label"]?.includes("direct message")) return ret;
 
-			Patcher.after(PrivateChannel.prototype, "render", (that: any, _, ret) => {
-				if (!that.props.user) return ret;
-				const props = Utils.findInTree(ret, (e) => e?.children && e?.id, { walkable: ["children", "props"] });
-				const children = props.children;
-				props.children = (childrenProps: any) => {
-					const childrenRet = children(childrenProps);
-					const privateChannel = Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
-						walkable: ["children", "props"],
-					});
-					privateChannel.children = [
-						privateChannel.children,
-						<div className={iconStyles.iconContainer}>
-							<VoiceIcon userId={that.props.user.id} context="dmlist" />
-						</div>,
-					];
-					return childrenRet;
-				};
-			});
+			const split = props.to.split("/");
+			const channelId = split[split.length - 1];
+			const channel = Stores.ChannelStore.getChannel(channelId);
+			const userId = channel.recipients[0];
 
-			unpatch();
+			const children = ret.props.children;
+			ret.props.children = (childrenProps) => {
+				const childrenRet = children(childrenProps);
+				const privateChannel = Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
+					walkable: ["children", "props"],
+				});
+				privateChannel.children = [
+					privateChannel.children,
+					<div className={iconStyles.iconContainer}>
+						<VoiceIcon userId={userId} context="dmlist" />
+					</div>,
+				];
+				return childrenRet;
+			};
 		});
 	}
 
