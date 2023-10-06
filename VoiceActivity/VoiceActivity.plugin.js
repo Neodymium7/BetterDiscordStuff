@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.5
+ * @version 1.8.6
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,7 +40,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.5",
+		version: "1.8.6",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -50,7 +50,9 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed icons not rendering."
+				"Fixed alignment of DM profile sidebar section.",
+				"Fixed member list icons.",
+				"Fixed DM icons."
 			]
 		}
 	]
@@ -291,9 +293,10 @@ function buildPlugin([BasePlugin, Library]) {
 		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
 			style: { color: "red" }
 		}, "Error: Component not found"));
-		const MemberListItemContainer = expectModule({
-			filter: (m) => m.type?.toString().includes("useName"),
-			name: "MemberListItemContainer"
+		const PrivateChannelContainer = expectModule({
+			filter: (m) => m.render?.toString().includes("innerRef"),
+			name: "PrivateChannelContainer",
+			searchExports: true
 		});
 		const Permissions = expectModule({
 			filter: byProps("computePermissions"),
@@ -1080,9 +1083,9 @@ function buildPlugin([BasePlugin, Library]) {
 				betterdiscord.Patcher.after(PrivateChannelProfile, key, (_, [props], ret) => {
 					if (props.profileType !== "PANEL")
 						return ret;
-					const sections = betterdiscord.Utils.findInTree(ret, (i) => Array.isArray(i), {
+					const sections = betterdiscord.Utils.findInTree(ret, (i) => Array.isArray(i.children) && !i.value, {
 						walkable: ["props", "children"]
-					});
+					}).children;
 					sections.splice(2, 0, BdApi.React.createElement(VoiceProfileSection, {
 						userId: props.user.id,
 						wrapper: Inner
@@ -1090,49 +1093,44 @@ function buildPlugin([BasePlugin, Library]) {
 				});
 			}
 			patchMemberListItem() {
-				const unpatch = betterdiscord.Patcher.after(MemberListItemContainer, "type", (_, _args, containerRet) => {
-					const MemberListItem = containerRet.type;
-					betterdiscord.Patcher.after(MemberListItem.prototype, "render", (that, _2, ret) => {
-						if (!that.props.user)
-							return ret;
-						Array.isArray(ret.props.children) ? ret.props.children.unshift(BdApi.React.createElement(VoiceIcon, {
-							userId: that.props.user.id,
-							context: "memberlist"
-						})) : ret.props.children = [BdApi.React.createElement(VoiceIcon, {
-							userId: that.props.user.id,
-							context: "memberlist"
-						})];
-					});
-					unpatch();
+				const [MemberListItem, key] = getModuleWithKey(byStrings("isMobile", "premiumIcon"));
+				betterdiscord.Patcher.after(MemberListItem, key, (_, [props], ret) => {
+					if (!props.user)
+						return ret;
+					Array.isArray(ret.props.children) ? ret.props.children.unshift(BdApi.React.createElement(VoiceIcon, {
+						userId: props.user.id,
+						context: "memberlist"
+					})) : ret.props.children = [BdApi.React.createElement(VoiceIcon, {
+						userId: props.user.id,
+						context: "memberlist"
+					})];
 				});
 			}
 			patchPrivateChannel() {
-				const [PrivateChannelContainer, key] = getModuleWithKey(byStrings("getRecipientId", "isFavorite"));
-				const unpatch = betterdiscord.Patcher.after(PrivateChannelContainer, key, (_, _args, containerRet) => {
-					const PrivateChannel = containerRet.type;
-					betterdiscord.Patcher.after(PrivateChannel.prototype, "render", (that, _2, ret) => {
-						if (!that.props.user)
-							return ret;
-						const props = betterdiscord.Utils.findInTree(ret, (e) => e?.children && e?.id, { walkable: ["children", "props"] });
-						const children2 = props.children;
-						props.children = (childrenProps) => {
-							const childrenRet = children2(childrenProps);
-							const privateChannel = betterdiscord.Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
-								walkable: ["children", "props"]
-							});
-							privateChannel.children = [
-								privateChannel.children,
-								BdApi.React.createElement("div", {
-									className: modules_df1df857.iconContainer
-								}, BdApi.React.createElement(VoiceIcon, {
-									userId: that.props.user.id,
-									context: "dmlist"
-								}))
-							];
-							return childrenRet;
-						};
-					});
-					unpatch();
+				betterdiscord.Patcher.after(PrivateChannelContainer, "render", (_, [props], ret) => {
+					if (!props["aria-label"]?.includes("direct message"))
+						return ret;
+					const split = props.to.split("/");
+					const channelId = split[split.length - 1];
+					const channel = Stores.ChannelStore.getChannel(channelId);
+					const userId = channel.recipients[0];
+					const children2 = ret.props.children;
+					ret.props.children = (childrenProps) => {
+						const childrenRet = children2(childrenProps);
+						const privateChannel = betterdiscord.Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
+							walkable: ["children", "props"]
+						});
+						privateChannel.children = [
+							privateChannel.children,
+							BdApi.React.createElement("div", {
+								className: modules_df1df857.iconContainer
+							}, BdApi.React.createElement(VoiceIcon, {
+								userId,
+								context: "dmlist"
+							}))
+						];
+						return childrenRet;
+					};
 				});
 			}
 			async patchPeopleListItem() {
