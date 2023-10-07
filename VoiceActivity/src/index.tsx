@@ -76,15 +76,16 @@ export default class VoiceActivity extends BasePlugin {
 
 	patchPrivateChannel() {
 		Patcher.after(PrivateChannelContainer, "render", (_, [props]: [any], ret) => {
-			if (!props["aria-label"]?.includes("direct message")) return ret;
-
+			if (typeof props.to !== "string") return ret;
 			const split = props.to.split("/");
 			const channelId = split[split.length - 1];
 			const channel = Stores.ChannelStore.getChannel(channelId);
+			if (channel.type !== 1) return ret;
+
 			const userId = channel.recipients[0];
 
 			const children = ret.props.children;
-			ret.props.children = (childrenProps) => {
+			ret.props.children = (childrenProps: any) => {
 				const childrenRet = children(childrenProps);
 				const privateChannel = Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
 					walkable: ["children", "props"],
