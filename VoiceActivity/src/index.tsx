@@ -76,7 +76,9 @@ export default class VoiceActivity extends BasePlugin {
 
 	patchPrivateChannel() {
 		Patcher.after(PrivateChannelContainer, "render", (_, [props]: [any], ret) => {
+			if (!props.className) return ret;
 			if (typeof props.to !== "string") return ret;
+
 			const split = props.to.split("/");
 			const channelId = split[split.length - 1];
 			const channel = Stores.ChannelStore.getChannel(channelId);
