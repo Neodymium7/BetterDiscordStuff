@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.7
+ * @version 1.8.8
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,7 +40,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.7",
+		version: "1.8.8",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -50,7 +50,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed DM icons."
+				"Fixed crashing when joining a private call."
 			]
 		}
 	]
@@ -1106,6 +1106,8 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 			patchPrivateChannel() {
 				betterdiscord.Patcher.after(PrivateChannelContainer, "render", (_, [props], ret) => {
+					if (!props.className)
+						return ret;
 					if (typeof props.to !== "string")
 						return ret;
 					const split = props.to.split("/");
