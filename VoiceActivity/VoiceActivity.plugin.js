@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.6
+ * @version 1.8.7
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,7 +40,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.6",
+		version: "1.8.7",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -50,8 +50,6 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed alignment of DM profile sidebar section.",
-				"Fixed member list icons.",
 				"Fixed DM icons."
 			]
 		}
@@ -1108,11 +1106,13 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 			patchPrivateChannel() {
 				betterdiscord.Patcher.after(PrivateChannelContainer, "render", (_, [props], ret) => {
-					if (!props["aria-label"]?.includes("direct message"))
+					if (typeof props.to !== "string")
 						return ret;
 					const split = props.to.split("/");
 					const channelId = split[split.length - 1];
 					const channel = Stores.ChannelStore.getChannel(channelId);
+					if (channel.type !== 1)
+						return ret;
 					const userId = channel.recipients[0];
 					const children2 = ret.props.children;
 					ret.props.children = (childrenProps) => {
