@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.8
+ * @version 1.8.9
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,7 +40,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.8",
+		version: "1.8.9",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -50,7 +50,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed crashing when joining a private call."
+				"Fixed DM icons."
 			]
 		}
 	]
@@ -292,7 +292,7 @@ function buildPlugin([BasePlugin, Library]) {
 			style: { color: "red" }
 		}, "Error: Component not found"));
 		const PrivateChannelContainer = expectModule({
-			filter: (m) => m.render?.toString().includes("innerRef"),
+			filter: (m) => m.render?.toString().includes(".component", "innerRef"),
 			name: "PrivateChannelContainer",
 			searchExports: true
 		});
