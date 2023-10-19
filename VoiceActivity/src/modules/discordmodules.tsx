@@ -12,7 +12,7 @@ const Error = (_props) => (
 );
 
 export const PrivateChannelContainer: any = expectModule({
-	filter: (m) => m.render?.toString().includes("innerRef"),
+	filter: (m) => m.render?.toString().includes(".component", "innerRef"),
 	name: "PrivateChannelContainer",
 	searchExports: true,
 });
