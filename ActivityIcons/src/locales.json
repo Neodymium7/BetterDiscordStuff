@@ -20,5 +20,21 @@
 		"ACTIVITY_TOOLTIP_LENGTH_3": "{{ACTIVITY1}}, {{ACTIVITY2}} och {{ACTIVITY3}}",
 		"ACTIVITY_TOOLTIP_LENGTH_MANY": "{{ACTIVITY1}}, {{ACTIVITY2}} och {{COUNT}} till",
 		"LISTENING_TOOLTIP_ARTIST": "av {{NAME}}"
+	},
+	"fr": {
+		"ACTIVITY_TOOLTIP_LENGTH_2": "{{ACTIVITY1}} et {{ACTIVITY2}}",
+		"ACTIVITY_TOOLTIP_LENGTH_3": "{{ACTIVITY1}}, {{ACTIVITY2}}, et {{ACTIVITY3}}",
+		"ACTIVITY_TOOLTIP_LENGTH_MANY": "{{ACTIVITY1}}, {{ACTIVITY2}}, et {{COUNT}} de plus",
+		"LISTENING_TOOLTIP_ARTIST": "de {{NAME}}",
+		"SETTINGS_NORMAL_ACTIVITY": "Icônes d'activité normale",
+		"SETTINGS_NORMAL_ACTIVITY_NOTE": "Affiche des icônes pour les activités normales (jeux et autres activités).",
+		"SETTINGS_RICH_PRESENCE": "Icônes Rich Presence",
+		"SETTINGS_RICH_PRESENCE_NOTE": "Affiche des icônes pour les activités Rich Presence (remplace l'icône d'activité normale).",
+		"SETTINGS_PLATFORM": "Icônes de Plateforme",
+		"SETTINGS_PLATFORM_NOTE": "Affiche des icônes pour les activités sur plateformes (Xbox, Playstation, etc.) (remplace l'icône d'activité normale).",
+		"SETTINGS_WATCHING": "Icônes de visionnage",
+		"SETTINGS_WATCHING_NOTE": "Affiche des icônes pour les activités de visionnage (YouTube Watch Together, etc.).",
+		"SETTINGS_LISTENING": "Icônes d'écoute",
+		"SETTINGS_LISTENING_NOTE": "Affiche des icônes pour les activités d'écoute (Spotify)."
 	}
 }
