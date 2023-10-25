@@ -14,5 +14,13 @@
 		"SETTINGS_HERE_NOTE": "Εμφάνιση εικονιδίων στις αναφορές «@here».",
 		"SETTINGS_ROLE_ICONS": "Εικονίδια Ρόλων",
 		"SETTINGS_ROLE_ICONS_NOTE": "Εμφάνιση Εικονιδίων Ρόλων αντί για το προεπιλεγμένο εικονίδιο όταν είναι διαθέσιμο."
+	},
+	"fr": {
+		"SETTINGS_EVERYONE": "@everyone",
+		"SETTINGS_EVERYONE_NOTE": "Affiche des icônes sur les mentions \"@everyone\".",
+		"SETTINGS_HERE": "@here",
+		"SETTINGS_HERE_NOTE": "Affiche des icônes sur les mentions \"@here\".",
+		"SETTINGS_ROLE_ICONS": "Icônes de Rôle",
+		"SETTINGS_ROLE_ICONS_NOTE": "Affiche des icônes de rôle au lieu des icônes par défaut quand applicable"
 	}
 }

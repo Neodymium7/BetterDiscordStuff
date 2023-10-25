@@ -34,5 +34,23 @@
 		"SETTINGS_OPTIONS_NOTHING": "Τίποτα",
 		"SETTINGS_TOOLTIP": "Επεξηγηση",
 		"SETTINGS_TOOLTIP_NOTE": "Εμφάνιση επεξήγησης όταν μεταβαίνει ο δείκτης του ποντικιού πάνω από το εικονίδιο του χρήστη."
+	},
+	"fr": {
+		"TOOLTIP_USER_SETTINGS": "Paramètres utilisateur",
+		"TOOLTIP_SETTINGS_SHORTCUT": "Raccourcis de Paramètres",
+		"TOOLTIP_SET_STATUS": "Définir le status",
+		"DEFAULT": "Par défaut",
+		"SETTINGS_CLICK": "Clic",
+		"SETTINGS_CLICK_NOTE": "Ce qui s'ouvre en cliquant sur l'avatar utilisateur. RAPPEL Si rien n'est défini pour ouvrir les paramètres, vous pouvez utiliser le raccourcis Ctrl + ,.",
+		"SETTINGS_RIGHT_CLICK": "Clic Droit",
+		"SETTINGS_RIGHT_CLICK_NOTE": "Ce qui s'ouvre en cliquant droit sur l'avatar utilisateur.",
+		"SETTINGS_MIDDLE_CLICK": "Clic Molette",
+		"SETTINGS_MIDDLE_CLICK_NOTE": "Ce qui s'ouvre en cliquant sur la molette sur l'avatar utilisateur.",
+		"SETTINGS_OPTIONS_OPEN_SETTINGS": "Paramètres",
+		"SETTINGS_OPTIONS_CONTEXT_MENU": "Menu Contextuel des Paramètres",
+		"SETTINGS_OPTIONS_STATUS_PICKER": "Sélecteur de status",
+		"SETTINGS_OPTIONS_NOTHING": "Rien",
+		"SETTINGS_TOOLTIP": "Info-bulle",
+		"SETTINGS_TOOLTIP_NOTE": "Affiche une info-bulle en passant au-dessus de l'avatar utilisateur."
 	}
 }
