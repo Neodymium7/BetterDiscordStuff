@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.9
+ * @version 1.8.10
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,17 +40,26 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.9",
+		version: "1.8.10",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
 	},
 	changelog: [
 		{
+			title: "Added",
+			type: "improved",
+			items: [
+				"Added French translations (Thanks to Piquixel on GitHub!)"
+			]
+		},
+		{
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed DM icons."
+				"Fixed crashing on startup.",
+				"Attempted to fix issues with the newest Discord update.",
+				"NOTE: Discord broke a lot, including BD itself, so the plugin may experience issues until BD is updated and I can update the plugin accordingly."
 			]
 		}
 	]
@@ -192,29 +201,6 @@ function buildPlugin([BasePlugin, Library]) {
 		function getStore(name) {
 			return betterdiscord.Webpack.getModule((m) => m._dispatchToken && m.getName() === name);
 		}
-		function getModuleWithKey(filter) {
-			let target;
-			let id;
-			let key;
-			betterdiscord.Webpack.getModule(
-				(e, m, i) => {
-					if (filter(e, m, i)) {
-						target = m;
-						id = i;
-						return true;
-					}
-					return false;
-				},
-				{ searchExports: true }
-			);
-			for (const k in target.exports) {
-				if (filter(target.exports[k], target, id)) {
-					key = k;
-					break;
-				}
-			}
-			return [target.exports, key];
-		}
 		function expectModule(filterOrOptions, options) {
 			let filter;
 			if (typeof filterOrOptions === "function") {
@@ -278,77 +264,84 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 		function getIcon(name, searchString) {
 			return expectModule({
-				filter: bySourceStrings(searchString),
+				filter: (e, m, i) => {
+					return bySourceStrings(searchString)(e, m, i) && typeof e == "function";
+				},
 				name,
-				fallback: { Z: (_props) => null }
-			}).Z;
+				fallback: (_props) => null
+			});
 		}
 	
 		// modules/discordmodules.tsx
 		const {
-			Filters: { byProps, byStrings: byStrings$1 }
+			Filters: { byProps, byStrings }
 		} = betterdiscord.Webpack;
 		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
 			style: { color: "red" }
 		}, "Error: Component not found"));
+		const MemberListItem = expectModule({
+			filter: byStrings("memberInner"),
+			name: "MemberListItem",
+			defaultExport: false
+		});
+		const UserPopoutBody = expectModule({
+			filter: byStrings("hideNote", "canDM"),
+			name: "UserPopoutBody",
+			defaultExport: false
+		});
+		const PrivateChannelProfile = expectModule({
+			filter: (m) => m.Inner,
+			name: "PrivateChannelProfile",
+			defaultExport: false
+		});
 		const PrivateChannelContainer = expectModule({
 			filter: (m) => m.render?.toString().includes(".component", "innerRef"),
 			name: "PrivateChannelContainer",
 			searchExports: true
 		});
-		const Permissions = expectModule({
-			filter: byProps("computePermissions"),
-			name: "Permissions",
+		const canViewChannel = expectModule({
+			filter: (m) => m.canViewChannel,
+			name: "canViewChannel",
 			fatal: true
-		});
-		const DiscordPermissions = expectModule({
-			filter: byProps("VIEW_CREATOR_MONETIZATION_ANALYTICS"),
-			searchExports: true,
-			name: "DiscordPermissions",
-			fallback: {
-				VIEW_CHANNEL: 1024n
-			}
-		});
+		})?.canViewChannel;
 		const GuildActions = expectModule({ filter: byProps("requestMembers"), name: "GuildActions" });
 		const ChannelActions = expectModule({ filter: byProps("selectChannel"), name: "ChannelActions" });
 		const UserPopoutSection = expectModule({
-			filter: byStrings$1(".lastSection", ".children"),
+			filter: byStrings("lastSection", "children"),
 			name: "UserPopoutSection",
 			fallback: (props) => BdApi.React.createElement("div", {
 				...props
 			})
 		});
-		const useStateFromStores = expectModule({
-			filter: byStrings$1("useStateFromStores"),
-			name: "useStateFromStores",
+		const Flux = expectModule({
+			filter: byProps("useStateFromStores"),
+			name: "Flux",
 			fatal: true
 		});
 		const transitionTo = expectModule({
-			filter: byStrings$1("transitionTo -"),
+			filter: byStrings("transitionTo -"),
 			searchExports: true,
 			name: "transitionTo"
 		});
 		const getAcronym = expectModule({
-			filter: byStrings$1(`.replace(/'s /g," ").replace(/\\w+/g,`),
+			filter: byStrings(`.replace(/'s /g," ").replace(/\\w+/g,`),
 			searchExports: true,
 			name: "getAcronym",
 			fallback: (i) => i
 		});
 		const Common = expectModule({
-			filter: byProps("Popout", "Avatar"),
+			filter: byProps("Popout", "Avatar", "FormSwitch", "Tooltip"),
 			name: "Common",
 			fallback: {
 				Popout: (props) => BdApi.React.createElement("div", {
 					...props
 				}),
-				Avatar: (_props) => null
+				Avatar: (_props) => null,
+				FormSwitch: Error$1,
+				Tooltip: (props) => BdApi.React.createElement("div", {
+					...props
+				})
 			}
-		});
-		const SwitchItem = expectModule({
-			filter: (m) => m.toString?.().includes("().dividerDefault"),
-			searchExports: true,
-			name: "SwitchItem",
-			fallback: Error$1
 		});
 		const Icons = {
 			CallJoin: getIcon("CallJoin", "M11 5V3C16.515 3 21 7.486"),
@@ -487,6 +480,43 @@ function buildPlugin([BasePlugin, Library]) {
 			JOIN_DISABLED_CALL: "Bereits im Aufruf",
 			JOIN_VIDEO: "Beitreten mit Video"
 		};
+		const fr = {
+			SETTINGS_PROFILE: "Section de profil",
+			SETTINGS_PROFILE_NOTE: "Affiche une section de profile pour l'activité vocale actuelle dans les popouts utilisateur et les profiles latéraux de MP.",
+			SETTINGS_ICONS: "Icônes de la liste de membre",
+			SETTINGS_ICONS_NOTE: "Affiche des icônes dans la liste de membre quand quelqu'un est dans un salon vocal.",
+			SETTINGS_DM_ICONS: "Icônes de MP",
+			SETTINGS_DM_ICONS_NOTE: "Affiche des icônes dans la liste de MP quand quelqu'un est dans un salon vocal.",
+			SETTINGS_PEOPLE_ICONS: "Icônes de la liste d'amis",
+			SETTINGS_PEOPLE_ICONS_NOTE: "Affiche des icônes dans la liste d'amis quand quelqu'un est dans un salon vocal.",
+			SETTINGS_GUILD_ICONS: "Icônes de serveur",
+			SETTINGS_GUILD_ICONS_NOTE: "Affiche des icônes de vocal sur les serveurs même quand vous ne participez pas.",
+			SETTINGS_COLOR: "Liste de membre - Couleur d'icône du salon actuel",
+			SETTINGS_COLOR_NOTE: "Rends les icônes de la liste de membre vertes quand un utilisateur est dans le salon vocal actuel.",
+			SETTINGS_STATUS: "Liste de membre - Afficher les icônes de status",
+			SETTINGS_STATUS_NOTE: "Change les icônes de la liste de membre quand un utilisateur est muet, mis en sourdine, ou a la vidéo activée.",
+			SETTINGS_IGNORE: "Ignorer",
+			SETTINGS_IGNORE_NOTE: "Ajoute une option dans les menus contextuels des salons vocaux et serveurs pour ignorer le dit salon/serveur dans les icônes de liste de membre et popouts utilisateur.",
+			CONTEXT_IGNORE: "Ignorer dans Activité Vocale",
+			VOICE_CALL: "Appel vocal",
+			PRIVATE_CALL: "Appel privé",
+			GROUP_CALL: "Appel de groupe",
+			LIVE: "Live",
+			HEADER: "Dans un salon vocal",
+			HEADER_VOICE: "Dans un appel vocal",
+			HEADER_PRIVATE: "Dans un appel privé",
+			HEADER_GROUP: "Dans un appel de groupe",
+			HEADER_STAGE: "Dans un salon de conférence",
+			VIEW: "Voir le salon",
+			VIEW_CALL: "Voir l'appel",
+			JOIN: "Rejoindre le salon",
+			JOIN_CALL: "Rejoindre l'appel",
+			JOIN_DISABLED: "Déjà dans le salon",
+			JOIN_DISABLED_CALL: "Déjà en appel",
+			JOIN_VIDEO: "Rejoidre avec vidéo",
+			MEMBER: "Membre",
+			MEMBERS: "Membres"
+		};
 		const locales = {
 			"en-US": {
 			SETTINGS_PROFILE: "Profile Section",
@@ -527,7 +557,8 @@ function buildPlugin([BasePlugin, Library]) {
 		},
 			el: el,
 			ru: ru,
-			de: de
+			de: de,
+			fr: fr
 		};
 	
 		// modules/utils.ts
@@ -545,13 +576,6 @@ function buildPlugin([BasePlugin, Library]) {
 			ignoredGuilds: []
 		});
 		const Strings = createStrings(locales, "en-US");
-		function checkPermissions(channel) {
-			return Permissions.can({
-				permission: DiscordPermissions.VIEW_CHANNEL,
-				user: UserStore$2.getCurrentUser(),
-				context: channel
-			});
-		}
 		const getGuildMediaState = (guildId, ignoredChannels) => {
 			const vocalChannelIds = GuildChannelStore.getVocalChannelIds(guildId);
 			let audio = false;
@@ -642,8 +666,11 @@ function buildPlugin([BasePlugin, Library]) {
 				currentChannelColor,
 				showStatusIcons
 			} = Settings.useSettingsState();
-			const voiceState = useStateFromStores([VoiceStateStore$1], () => VoiceStateStore$1.getVoiceStateForUser(props.userId));
-			const currentUserVoiceState = useStateFromStores(
+			const voiceState = Flux.useStateFromStores(
+				[VoiceStateStore$1],
+				() => VoiceStateStore$1.getVoiceStateForUser(props.userId)
+			);
+			const currentUserVoiceState = Flux.useStateFromStores(
 				[VoiceStateStore$1],
 				() => VoiceStateStore$1.getVoiceStateForUser(UserStore$1.getCurrentUser()?.id)
 			);
@@ -659,7 +686,7 @@ function buildPlugin([BasePlugin, Library]) {
 			if (!channel)
 				return null;
 			const guild = GuildStore$1.getGuild(channel.guild_id);
-			if (guild && !checkPermissions(channel))
+			if (guild && !canViewChannel(channel))
 				return null;
 			if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id)))
 				return null;
@@ -711,7 +738,7 @@ function buildPlugin([BasePlugin, Library]) {
 					if (channelPath)
 						transitionTo(channelPath);
 				}
-			}, BdApi.React.createElement(betterdiscord.Components.Tooltip, {
+			}, BdApi.React.createElement(Common.Tooltip, {
 				text: BdApi.React.createElement("div", {
 					className: modules_df1df857.tooltip
 				}, BdApi.React.createElement("div", {
@@ -866,8 +893,11 @@ function buildPlugin([BasePlugin, Library]) {
 		const { ChannelStore, GuildStore, UserStore, VoiceStateStore, SelectedChannelStore } = Stores;
 		function VoiceProfileSection(props) {
 			const { showProfileSection, ignoreEnabled, ignoredChannels, ignoredGuilds } = Settings.useSettingsState();
-			const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
-			const currentUserVoiceState = useStateFromStores(
+			const voiceState = Flux.useStateFromStores(
+				[VoiceStateStore],
+				() => VoiceStateStore.getVoiceStateForUser(props.userId)
+			);
+			const currentUserVoiceState = Flux.useStateFromStores(
 				[VoiceStateStore],
 				() => VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
 			);
@@ -879,7 +909,7 @@ function buildPlugin([BasePlugin, Library]) {
 			if (!channel)
 				return null;
 			const guild = GuildStore.getGuild(channel.guild_id);
-			if (guild && !checkPermissions(channel))
+			if (guild && !canViewChannel(channel))
 				return null;
 			if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id)))
 				return null;
@@ -989,7 +1019,7 @@ function buildPlugin([BasePlugin, Library]) {
 		// components/SettingsPanel.tsx
 		const SettingsSwitchItem = (props) => {
 			const value = Settings.useSettingsState()[props.setting];
-			return BdApi.React.createElement(SwitchItem, {
+			return BdApi.React.createElement(Common.FormSwitch, {
 				children: props.name,
 				note: props.note,
 				value,
@@ -1044,9 +1074,6 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// index.tsx
-		const {
-			Filters: { byStrings }
-		} = betterdiscord.Webpack;
 		const guildIconSelector = `div:not([data-dnd-name]) + ${iconWrapperSelector}`;
 		class VoiceActivity extends BasePlugin {
 			contextMenuUnpatches = new Set();
@@ -1064,8 +1091,7 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 			patchUserPopout() {
 				const activitySectionFilter = (section) => section?.props.hasOwnProperty("activity");
-				const [UserPopoutBody, key] = getModuleWithKey(byStrings(".showCopiableUsername"));
-				betterdiscord.Patcher.after(UserPopoutBody, key, (_, [props], ret) => {
+				betterdiscord.Patcher.after(UserPopoutBody, "default", (_, [props], ret) => {
 					const popoutSections = betterdiscord.Utils.findInTree(ret, (i) => Array.isArray(i) && i.some(activitySectionFilter), {
 						walkable: ["props", "children"]
 					});
@@ -1076,9 +1102,8 @@ function buildPlugin([BasePlugin, Library]) {
 				});
 			}
 			patchPrivateChannelProfile() {
-				const [PrivateChannelProfile, key] = getModuleWithKey((m) => m.Inner);
-				const { Inner } = PrivateChannelProfile[key];
-				betterdiscord.Patcher.after(PrivateChannelProfile, key, (_, [props], ret) => {
+				const { Inner } = PrivateChannelProfile.default;
+				betterdiscord.Patcher.after(PrivateChannelProfile, "default", (_, [props], ret) => {
 					if (props.profileType !== "PANEL")
 						return ret;
 					const sections = betterdiscord.Utils.findInTree(ret, (i) => Array.isArray(i.children) && !i.value, {
@@ -1091,8 +1116,7 @@ function buildPlugin([BasePlugin, Library]) {
 				});
 			}
 			patchMemberListItem() {
-				const [MemberListItem, key] = getModuleWithKey(byStrings("isMobile", "premiumIcon"));
-				betterdiscord.Patcher.after(MemberListItem, key, (_, [props], ret) => {
+				betterdiscord.Patcher.after(MemberListItem, "default", (_, [props], ret) => {
 					if (!props.user)
 						return ret;
 					Array.isArray(ret.props.children) ? ret.props.children.unshift(BdApi.React.createElement(VoiceIcon, {
@@ -1181,7 +1205,7 @@ function buildPlugin([BasePlugin, Library]) {
 					return Logger.error("Guild icon component not found");
 				betterdiscord.Patcher.before(GuildIconComponent, "type", (_, [props]) => {
 					const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState();
-					const mediaState = useStateFromStores(
+					const mediaState = Flux.useStateFromStores(
 						[Stores.VoiceStateStore],
 						() => getGuildMediaState(props.guild.id, ignoredChannels)
 					);
