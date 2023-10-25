@@ -1,8 +1,8 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
+ * @version 2.1.1
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
- * @version 2.1.0
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
@@ -10,25 +10,25 @@
 
 /*@cc_on
 @if (@_jscript)
-    
-    // Offer to self-install for clueless users that try to run this directly.
-    var shell = WScript.CreateObject("WScript.Shell");
-    var fs = new ActiveXObject("Scripting.FileSystemObject");
-    var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\BetterDiscord\plugins");
-    var pathSelf = WScript.ScriptFullName;
-    // Put the user at ease by addressing them in the first person
-    shell.Popup("It looks like you've mistakenly tried to run me directly. \n(Don't do that!)", 0, "I'm a plugin for BetterDiscord", 0x30);
-    if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
-        shell.Popup("I'm in the correct folder already.", 0, "I'm already installed", 0x40);
-    } else if (!fs.FolderExists(pathPlugins)) {
-        shell.Popup("I can't find the BetterDiscord plugins folder.\nAre you sure it's even installed?", 0, "Can't install myself", 0x10);
-    } else if (shell.Popup("Should I copy myself to BetterDiscord's plugins folder for you?", 0, "Do you need some help?", 0x34) === 6) {
-        fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
-        // Show the user where to put plugins in the future
-        shell.Exec("explorer " + pathPlugins);
-        shell.Popup("I'm installed!", 0, "Successfully installed", 0x40);
-    }
-    WScript.Quit();
+
+	// Offer to self-install for clueless users that try to run this directly.
+	var shell = WScript.CreateObject("WScript.Shell");
+	var fs = new ActiveXObject("Scripting.FileSystemObject");
+	var pathPlugins = shell.ExpandEnvironmentStrings("%APPDATA%\BetterDiscord\plugins");
+	var pathSelf = WScript.ScriptFullName;
+	// Put the user at ease by addressing them in the first person
+	shell.Popup("It looks like you've mistakenly tried to run me directly. \n(Don't do that!)", 0, "I'm a plugin for BetterDiscord", 0x30);
+	if (fs.GetParentFolderName(pathSelf) === fs.GetAbsolutePathName(pathPlugins)) {
+		shell.Popup("I'm in the correct folder already.", 0, "I'm already installed", 0x40);
+	} else if (!fs.FolderExists(pathPlugins)) {
+		shell.Popup("I can't find the BetterDiscord plugins folder.\nAre you sure it's even installed?", 0, "Can't install myself", 0x10);
+	} else if (shell.Popup("Should I copy myself to BetterDiscord's plugins folder for you?", 0, "Do you need some help?", 0x34) === 6) {
+		fs.CopyFile(pathSelf, fs.BuildPath(pathPlugins, fs.GetFileName(pathSelf)), true);
+		// Show the user where to put plugins in the future
+		shell.Exec("explorer " + pathPlugins);
+		shell.Popup("I'm installed!", 0, "Successfully installed", 0x40);
+	}
+	WScript.Quit();
 
 @else@*/
 
@@ -40,42 +40,161 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "2.1.0",
+		version: "2.1.1",
 		description: "Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
 	},
 	changelog: [
 		{
-			title: "Improved",
+			title: "Added",
 			type: "improved",
 			items: [
-				"Lots of small behind the scenes changes and code cleanup.",
-				"The plugin should be more resistant to changes in Discord, reducing the chance of crashing.",
-				"Added Greek translations (thanks to panos78 on GitHub)."
+				"Added French translations (Thanks to Piquixel on GitHub!)"
+			]
+		},
+		{
+			title: "Fixed",
+			type: "fixed",
+			items: [
+				"Attempted to fix issues with the newest Discord update.",
+				"NOTE: Discord broke a lot, including BD itself, so the plugin may experience issues until BD is updated and I can update the plugin accordingly."
 			]
 		}
 	]
 };
 
 if (!global.ZeresPluginLibrary) {
-    BdApi.UI.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
-        confirmText: "Download Now",
-        cancelText: "Cancel",
-        onConfirm: () => {
-            require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
-                if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
-                await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
-            });
-        }
-    });
+	BdApi.UI.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
+		confirmText: "Download Now",
+		cancelText: "Cancel",
+		onConfirm: () => {
+			require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
+				if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
+				await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+			});
+		}
+	});
 }
 
 function buildPlugin([BasePlugin, Library]) {
-    var Plugin = (function (betterdiscord, BasePlugin, react, meta) {
+	const Plugin = (function (betterdiscord, BasePlugin, react) {
 		'use strict';
 	
-		// bundlebd
+		// meta
+		const name = "AvatarSettingsButton";
+	
+		// @lib/logger.ts
+		class Logger {
+			static _log(type, message) {
+				console[type](`%c[${name}]`, "color: #3a71c1; font-weight: 700;", message);
+			}
+			static log(message) {
+				this._log("log", message);
+			}
+			static warn(message) {
+				this._log("warn", message);
+			}
+			static error(message) {
+				this._log("error", message);
+			}
+		}
+	
+		// @lib/utils/webpack.ts
+		function expectModule(filterOrOptions, options) {
+			let filter;
+			if (typeof filterOrOptions === "function") {
+				filter = filterOrOptions;
+			} else {
+				filter = filterOrOptions.filter;
+				options = filterOrOptions;
+			}
+			const found = betterdiscord.Webpack.getModule(filter, options);
+			if (found)
+				return found;
+			const name = options.name ? `'${options.name}'` : `query with filter '${filter.toString()}'`;
+			const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
+			const errorMessage = `Module ${name} not found.${fallbackMessage}
+	
+	Contact the plugin developer to inform them of this error.`;
+			Logger.error(errorMessage);
+			options.onError?.();
+			if (options.fatal)
+				throw new Error(errorMessage);
+			return options.fallback;
+		}
+		function getClasses(name, classes) {
+			return expectModule({
+				filter: betterdiscord.Webpack.Filters.byProps(...classes),
+				name,
+				fallback: classes.reduce((obj, key) => {
+					obj[key] = "unknown-class";
+					return obj;
+				}, {})
+			});
+		}
+		function getSelectors(name, classes) {
+			const module = expectModule({
+				filter: betterdiscord.Webpack.Filters.byProps(...classes),
+				name,
+				fallback: {}
+			});
+			if (Object.keys(module).length === 0)
+				return classes.reduce((obj, key) => {
+					obj[key] = null;
+					return obj;
+				}, {});
+			return Object.keys(module).reduce((obj, key) => {
+				obj[key] = `.${module[key].replaceAll(" ", ".")}`;
+				return obj;
+			}, {});
+		}
+	
+		// modules/discordmodules.tsx
+		const {
+			Filters: { byProps }
+		} = betterdiscord.Webpack;
+		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
+			style: { color: "red" }
+		}, "Error: Component not found"));
+		const Common = expectModule({
+			filter: byProps("FormSwitch", "RadioGroup", "FormItem", "FormLabel", "FormDivider"),
+			name: "Common",
+			fallback: {
+				FormSwitch: Error$1,
+				RadioGroup: Error$1,
+				FormItem: Error$1,
+				FormLabel: Error$1,
+				FormDivider: Error$1
+			}
+		});
+		const UserSettingsWindow = expectModule({
+			filter: byProps("saveAccountChanges"),
+			name: "UserSettingsWindow",
+			fatal: true
+		});
+		const Sections = expectModule({
+			filter: byProps("ACCOUNT"),
+			searchExports: true,
+			name: "Sections",
+			fallback: { ACCOUNT: "Account" }
+		});
+		const accountClasses = expectModule(byProps("buildOverrideButton"), {
+			name: "Account Classes",
+			fatal: true
+		});
+		const Margins = getClasses("Margins", ["marginTop20", "marginBottom8"]);
+		const tooltipClasses = getClasses("Tooltip Classes", [
+			"tooltip",
+			"tooltipTop",
+			"tooltipPrimary",
+			"tooltipPointer",
+			"tooltipContent"
+		]);
+		const layerContainerSelector = getSelectors("Layer Container Class", ["layerContainer"]).layerContainer;
+		const appSelector = getSelectors("App Class", ["appAsidePanelWrapper", "app"]).app;
+	
+		// @lib/settings.ts
 		function createSettings(defaultSettings) {
 			let settings = betterdiscord.Data.load("settings");
 			const listeners = new Set();
@@ -93,7 +212,8 @@ function buildPlugin([BasePlugin, Library]) {
 					changed = true;
 				}
 			}
-			if (changed) betterdiscord.Data.save("settings", settings);
+			if (changed)
+				betterdiscord.Data.save("settings", settings);
 			const settingsManager = {
 				addListener(listener) {
 					listeners.add(listener);
@@ -122,7 +242,8 @@ function buildPlugin([BasePlugin, Library]) {
 					set(value) {
 						settings[key] = value;
 						betterdiscord.Data.save("settings", settings);
-						for (const listener of listeners) listener(key, value);
+						for (const listener of listeners)
+							listener(key, value);
 					},
 					enumerable: true,
 					configurable: false
@@ -130,8 +251,10 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 			return settingsManager;
 		}
-		var Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byProps("dispatch", "subscribe"));
-		var LocaleManager = betterdiscord.Webpack.getModule((m) => m.Messages?.CLOSE);
+	
+		// @lib/strings.ts
+		const Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byProps("dispatch", "subscribe"));
+		const LocaleManager = betterdiscord.Webpack.getModule((m) => m.Messages?.CLOSE);
 		function createStrings(locales, defaultLocale) {
 			let strings = locales[defaultLocale];
 			const setLocale = () => {
@@ -149,7 +272,7 @@ function buildPlugin([BasePlugin, Library]) {
 			for (const key in strings) {
 				Object.defineProperty(stringsManager, key, {
 					get() {
-						return strings[key] || this.locales[this.defaultLocale][key];
+						return strings[key] || locales[defaultLocale][key];
 					},
 					enumerable: true,
 					configurable: false
@@ -157,181 +280,9 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 			return stringsManager;
 		}
-		var Logger = class {
-			static _log(type, message) {
-				console[type](`%c[${meta.name}]`, "color: #3a71c1; font-weight: 700;", message);
-			}
-			static log(message) {
-				this._log("log", message);
-			}
-			static warn(message) {
-				this._log("warn", message);
-			}
-			static error(message) {
-				this._log("error", message);
-			}
-		};
-		var WebpackUtils = class {
-			static getStore(name) {
-				return betterdiscord.Webpack.getModule((m) => m._dispatchToken && m.getName() === name);
-			}
-			static getModuleWithKey(filter) {
-				let target;
-				let id;
-				let key;
-				betterdiscord.Webpack.getModule(
-					(e, m, i) => {
-						if (filter(e, m, i)) {
-							target = m;
-							id = i;
-							return true;
-						}
-						return false;
-					},
-					{ searchExports: true }
-				);
-				for (const k in target.exports) {
-					if (filter(target.exports[k], target, id)) {
-						key = k;
-						break;
-					}
-				}
-				return [target.exports, key];
-			}
-			static expectModule(filterOrOptions, options) {
-				let filter;
-				if (typeof filterOrOptions === "function") {
-					filter = filterOrOptions;
-				} else {
-					filter = filterOrOptions.filter;
-					options = filterOrOptions;
-				}
-				const found = betterdiscord.Webpack.getModule(filter, options);
-				if (found) return found;
-				const name = options.name ? `'${options.name}'` : `query with filter '${filter.toString()}'`;
-				const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
-				const errorMessage = `Module ${name} not found.${fallbackMessage}
-	
-	Contact the plugin developer to inform them of this error.`;
-				Logger.error(errorMessage);
-				options.onError?.();
-				if (options.fatal) throw new Error(errorMessage);
-				return options.fallback;
-			}
-			static getClasses(name, classes) {
-				return WebpackUtils.expectModule({
-					filter: betterdiscord.Webpack.Filters.byProps(...classes),
-					name,
-					fallback: classes.reduce((obj, key) => {
-						obj[key] = "unknown-class";
-						return obj;
-					}, {})
-				});
-			}
-			static getSelectors(name, classes) {
-				const module = WebpackUtils.expectModule({
-					filter: betterdiscord.Webpack.Filters.byProps(...classes),
-					name,
-					fallback: {}
-				});
-				if (Object.keys(module).length === 0)
-					return classes.reduce((obj, key) => {
-						obj[key] = null;
-						return obj;
-					}, {});
-				return Object.keys(module).reduce((obj, key) => {
-					obj[key] = `.${module[key].replaceAll(" ", ".")}`;
-					return obj;
-				}, {});
-			}
-			static store(name) {
-				return (m) => m._dispatchToken && m.getName() === name;
-			}
-			static byId(id) {
-				return (_e, _m, i) => i === id;
-			}
-			static byValues(...filters) {
-				return (e, m, i) => {
-					let match = true;
-					for (const filter of filters) {
-						if (!Object.values(e).some((v) => filter(v, m, i))) {
-							match = false;
-							break;
-						}
-					}
-					return match;
-				};
-			}
-		};
-	
-		// modules/discordmodules.tsx
-		const {
-			Filters: { byProps }
-		} = betterdiscord.Webpack;
-		const { expectModule, getClasses, getSelectors } = WebpackUtils;
-		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
-			style: { color: "red" }
-		}, "Error: Component not found"));
-		const UserSettingsWindow = expectModule({
-			filter: byProps("saveAccountChanges"),
-			name: "UserSettingsWindow",
-			fatal: true
-		});
-		const Sections = expectModule({
-			filter: byProps("ACCOUNT"),
-			searchExports: true,
-			name: "Sections",
-			fallback: { ACCOUNT: "Account" }
-		});
-		const SettingsComponents = {
-			RadioGroup: expectModule({
-				filter: (m) => m.Sizes && m.toString().includes("radioItemClassName"),
-				searchExports: true,
-				name: "RadioGroup",
-				fallback: Error$1
-			}),
-			SwitchItem: expectModule({
-				filter: (m) => m.toString?.().includes("().dividerDefault"),
-				searchExports: true,
-				name: "SwitchItem",
-				fallback: Error$1
-			}),
-			SettingsItem: expectModule({
-				filter: (m) => m.render?.toString().includes("required"),
-				searchExports: true,
-				name: "SettingsItem",
-				fallback: Error$1
-			}),
-			SettingsNote: expectModule({
-				filter: (m) => m.Types && m.toString().includes("selectable"),
-				searchExports: true,
-				name: "SettingsNote",
-				fallback: Error$1
-			}),
-			SettingsDivider: expectModule({
-				filter: (m) => m.toString?.().includes("().divider") && m.toString().includes("style"),
-				searchExports: true,
-				name: "SettingsDivider",
-				fallback: Error$1
-			})
-		};
-		const accountClasses = expectModule(byProps("buildOverrideButton"), {
-			name: "Account Classes",
-			fatal: true
-		});
-		const Margins = getClasses("Margins", ["marginTop20", "marginBottom8"]);
-		const tooltipClasses = getClasses("Tooltip Classes", [
-			"tooltip",
-			"tooltipTop",
-			"tooltipPrimary",
-			"tooltipPointer",
-			"tooltipContent"
-		]);
-		const layerContainerSelector = getSelectors("Layer Container Class", ["layerContainer"]).layerContainer;
-		const appSelector = getSelectors("App Class", ["appAsidePanelWrapper", "app"]).app;
 	
 		// locales.json
-		var el = {
+		const el = {
 			TOOLTIP_USER_SETTINGS: "Ρυθμίσεις Χρήστη",
 			TOOLTIP_SETTINGS_SHORTCUT: "Συντομεύσεις Ρυθμίσεων",
 			TOOLTIP_SET_STATUS: "Ορισμός Κατάστασης",
@@ -349,7 +300,25 @@ function buildPlugin([BasePlugin, Library]) {
 			SETTINGS_TOOLTIP: "Επεξηγηση",
 			SETTINGS_TOOLTIP_NOTE: "Εμφάνιση επεξήγησης όταν μεταβαίνει ο δείκτης του ποντικιού πάνω από το εικονίδιο του χρήστη."
 		};
-		var locales = {
+		const fr = {
+			TOOLTIP_USER_SETTINGS: "Paramètres utilisateur",
+			TOOLTIP_SETTINGS_SHORTCUT: "Raccourcis de Paramètres",
+			TOOLTIP_SET_STATUS: "Définir le status",
+			DEFAULT: "Par défaut",
+			SETTINGS_CLICK: "Clic",
+			SETTINGS_CLICK_NOTE: "Ce qui s'ouvre en cliquant sur l'avatar utilisateur. RAPPEL Si rien n'est défini pour ouvrir les paramètres, vous pouvez utiliser le raccourcis Ctrl + ,.",
+			SETTINGS_RIGHT_CLICK: "Clic Droit",
+			SETTINGS_RIGHT_CLICK_NOTE: "Ce qui s'ouvre en cliquant droit sur l'avatar utilisateur.",
+			SETTINGS_MIDDLE_CLICK: "Clic Molette",
+			SETTINGS_MIDDLE_CLICK_NOTE: "Ce qui s'ouvre en cliquant sur la molette sur l'avatar utilisateur.",
+			SETTINGS_OPTIONS_OPEN_SETTINGS: "Paramètres",
+			SETTINGS_OPTIONS_CONTEXT_MENU: "Menu Contextuel des Paramètres",
+			SETTINGS_OPTIONS_STATUS_PICKER: "Sélecteur de status",
+			SETTINGS_OPTIONS_NOTHING: "Rien",
+			SETTINGS_TOOLTIP: "Info-bulle",
+			SETTINGS_TOOLTIP_NOTE: "Affiche une info-bulle en passant au-dessus de l'avatar utilisateur."
+		};
+		const locales = {
 			"en-US": {
 			TOOLTIP_USER_SETTINGS: "User Settings",
 			TOOLTIP_SETTINGS_SHORTCUT: "Settings Shortcuts",
@@ -368,7 +337,8 @@ function buildPlugin([BasePlugin, Library]) {
 			SETTINGS_TOOLTIP: "Tooltip",
 			SETTINGS_TOOLTIP_NOTE: "Show tooltip when hovering over user avatar."
 		},
-			el: el
+			el: el,
+			fr: fr
 		};
 	
 		// modules/utils.ts
@@ -439,12 +409,12 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// components/SettingsPanel.tsx
-		const { RadioGroup, SettingsItem, SettingsNote, SettingsDivider, SwitchItem } = SettingsComponents;
+		const { RadioGroup, FormItem, FormLabel, FormDivider, FormSwitch } = Common;
 		function SettingsPanel() {
 			const settings = Settings.useSettingsState();
-			return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(SettingsItem, {
+			return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(FormItem, {
 				title: Strings.SETTINGS_CLICK
-			}, BdApi.React.createElement(SettingsNote, {
+			}, BdApi.React.createElement(FormLabel, {
 				className: Margins.marginBottom8,
 				type: "description"
 			}, Strings.SETTINGS_CLICK_NOTE), BdApi.React.createElement(RadioGroup, {
@@ -456,12 +426,12 @@ function buildPlugin([BasePlugin, Library]) {
 				],
 				onChange: ({ value }) => Settings.click = value,
 				value: settings.click
-			}), BdApi.React.createElement(SettingsDivider, {
+			}), BdApi.React.createElement(FormDivider, {
 				className: Margins.marginTop20
-			})), BdApi.React.createElement(SettingsItem, {
+			})), BdApi.React.createElement(FormItem, {
 				title: Strings.SETTINGS_RIGHT_CLICK,
 				className: Margins.marginTop20
-			}, BdApi.React.createElement(SettingsNote, {
+			}, BdApi.React.createElement(FormLabel, {
 				className: Margins.marginBottom8,
 				type: "description"
 			}, Strings.SETTINGS_RIGHT_CLICK_NOTE), BdApi.React.createElement(RadioGroup, {
@@ -473,12 +443,12 @@ function buildPlugin([BasePlugin, Library]) {
 				],
 				onChange: ({ value }) => Settings.contextmenu = value,
 				value: settings.contextmenu
-			}), BdApi.React.createElement(SettingsDivider, {
+			}), BdApi.React.createElement(FormDivider, {
 				className: Margins.marginTop20
-			})), BdApi.React.createElement(SettingsItem, {
+			})), BdApi.React.createElement(FormItem, {
 				title: Strings.SETTINGS_MIDDLE_CLICK,
 				className: Margins.marginTop20
-			}, BdApi.React.createElement(SettingsNote, {
+			}, BdApi.React.createElement(FormLabel, {
 				className: Margins.marginBottom8,
 				type: "description"
 			}, Strings.SETTINGS_MIDDLE_CLICK_NOTE), BdApi.React.createElement(RadioGroup, {
@@ -490,9 +460,9 @@ function buildPlugin([BasePlugin, Library]) {
 				],
 				onChange: ({ value }) => Settings.middleclick = value,
 				value: settings.middleclick
-			}), BdApi.React.createElement(SettingsDivider, {
+			}), BdApi.React.createElement(FormDivider, {
 				className: Margins.marginTop20
-			})), BdApi.React.createElement(SwitchItem, {
+			})), BdApi.React.createElement(FormSwitch, {
 				className: Margins.marginTop20,
 				children: Strings.SETTINGS_TOOLTIP,
 				note: Strings.SETTINGS_TOOLTIP_NOTE,
@@ -629,15 +599,7 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		return AvatarSettingsButton;
 	
-	})(new BdApi("AvatarSettingsButton"), BasePlugin, BdApi.React, {
-		name: "AvatarSettingsButton",
-		author: "Neodymium",
-		description: "Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.",
-		version: "2.1.0",
-		source: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
-		donate: "https://ko-fi.com/neodymium7",
-		invite: "fRbsqH87Av"
-	});
+	})(new BdApi("AvatarSettingsButton"), BasePlugin, BdApi.React);
 
 	return Plugin;
 }
