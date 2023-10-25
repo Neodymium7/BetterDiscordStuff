@@ -1,25 +1,23 @@
-import { ContextMenu, DOM, Patcher, ReactUtils, Utils, Webpack } from "betterdiscord";
+import { ContextMenu, DOM, Patcher, ReactUtils, Utils } from "betterdiscord";
 import BasePlugin from "zlibrary/plugin";
 import styles from "styles";
 import { Logger } from "@lib";
-import { getModuleWithKey } from "@lib/utils/webpack";
 import {
 	PrivateChannelContainer,
+	MemberListItem,
 	Stores,
 	children,
 	iconWrapperSelector,
 	peopleItemSelector,
-	useStateFromStores,
+	Flux,
+	UserPopoutBody,
+	PrivateChannelProfile,
 } from "./modules/discordmodules";
 import { Settings, Strings, forceRerender, forceUpdateAll, getGuildMediaState, waitForElement } from "./modules/utils";
 import iconStyles from "./styles/voiceicon.module.scss";
 import VoiceIcon from "./components/VoiceIcon";
 import VoiceProfileSection from "./components/VoiceProfileSection";
 import SettingsPanel from "./components/SettingsPanel";
-
-const {
-	Filters: { byStrings },
-} = Webpack;
 
 const guildIconSelector = `div:not([data-dnd-name]) + ${iconWrapperSelector}`;
 
@@ -42,8 +40,7 @@ export default class VoiceActivity extends BasePlugin {
 	patchUserPopout() {
 		const activitySectionFilter = (section: any) => section?.props.hasOwnProperty("activity");
 
-		const [UserPopoutBody, key] = getModuleWithKey(byStrings(".showCopiableUsername"));
-		Patcher.after(UserPopoutBody, key, (_, [props]: [any], ret) => {
+		Patcher.after(UserPopoutBody, "default", (_, [props]: [any], ret) => {
 			const popoutSections = Utils.findInTree(ret, (i) => Array.isArray(i) && i.some(activitySectionFilter), {
 				walkable: ["props", "children"],
 			});
@@ -53,9 +50,8 @@ export default class VoiceActivity extends BasePlugin {
 	}
 
 	patchPrivateChannelProfile() {
-		const [PrivateChannelProfile, key] = getModuleWithKey((m) => m.Inner);
-		const { Inner } = PrivateChannelProfile[key];
-		Patcher.after(PrivateChannelProfile, key, (_, [props]: [any], ret) => {
+		const { Inner } = PrivateChannelProfile.default;
+		Patcher.after(PrivateChannelProfile, "default", (_, [props]: [any], ret) => {
 			if (props.profileType !== "PANEL") return ret;
 			const sections = Utils.findInTree(ret, (i) => Array.isArray(i.children) && !i.value, {
 				walkable: ["props", "children"],
@@ -65,8 +61,7 @@ export default class VoiceActivity extends BasePlugin {
 	}
 
 	patchMemberListItem() {
-		const [MemberListItem, key] = getModuleWithKey(byStrings("isMobile", "premiumIcon"));
-		Patcher.after(MemberListItem, key, (_, [props]: [any], ret) => {
+		Patcher.after(MemberListItem, "default", (_, [props]: [any], ret) => {
 			if (!props.user) return ret;
 			Array.isArray(ret.props.children)
 				? ret.props.children.unshift(<VoiceIcon userId={props.user.id} context="memberlist" />)
@@ -143,7 +138,7 @@ export default class VoiceActivity extends BasePlugin {
 		if (!GuildIconComponent) return Logger.error("Guild icon component not found");
 		Patcher.before(GuildIconComponent, "type", (_, [props]: [any]) => {
 			const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState();
-			const mediaState = useStateFromStores([Stores.VoiceStateStore], () =>
+			const mediaState = Flux.useStateFromStores([Stores.VoiceStateStore], () =>
 				getGuildMediaState(props.guild.id, ignoredChannels)
 			);
 

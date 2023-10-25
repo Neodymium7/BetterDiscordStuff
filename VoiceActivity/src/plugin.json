@@ -1,7 +1,7 @@
 {
 	"name": "VoiceActivity",
 	"author": "Neodymium",
-	"version": "1.8.9",
+	"version": "1.8.10",
 	"description": "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 	"donate": "https://ko-fi.com/neodymium7",
@@ -12,9 +12,18 @@
 		},
 		"changelog": [
 			{
+				"title": "Added",
+				"type": "improved",
+				"items": ["Added French translations (Thanks to Piquixel on GitHub!)"]
+			},
+			{
 				"title": "Fixed",
 				"type": "fixed",
-				"items": ["Fixed DM icons."]
+				"items": [
+					"Fixed crashing on startup.",
+					"Attempted to fix issues with the newest Discord update.",
+					"NOTE: Discord broke a lot, including BD itself, so the plugin may experience issues until BD is updated and I can update the plugin accordingly."
+				]
 			}
 		]
 	}

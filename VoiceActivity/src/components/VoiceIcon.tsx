@@ -1,6 +1,5 @@
-import { Components } from "betterdiscord";
-import { Settings, Strings, checkPermissions, groupDMName } from "../modules/utils";
-import { Icons, Stores, transitionTo, useStateFromStores } from "../modules/discordmodules";
+import { Settings, Strings, groupDMName } from "../modules/utils";
+import { Common, Icons, Stores, transitionTo, Flux, canViewChannel } from "../modules/discordmodules";
 import styles from "../styles/voiceicon.module.scss";
 
 interface VoiceIconProps {
@@ -22,8 +21,10 @@ export default function VoiceIcon(props: VoiceIconProps) {
 		showStatusIcons,
 	} = Settings.useSettingsState();
 
-	const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
-	const currentUserVoiceState = useStateFromStores([VoiceStateStore], () =>
+	const voiceState = Flux.useStateFromStores([VoiceStateStore], () =>
+		VoiceStateStore.getVoiceStateForUser(props.userId)
+	);
+	const currentUserVoiceState = Flux.useStateFromStores([VoiceStateStore], () =>
 		VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
 	);
 
@@ -34,7 +35,7 @@ export default function VoiceIcon(props: VoiceIconProps) {
 	const channel = ChannelStore.getChannel(voiceState.channelId);
 	if (!channel) return null;
 	const guild = GuildStore.getGuild(channel.guild_id);
-	if (guild && !checkPermissions(channel)) return null;
+	if (guild && !canViewChannel(channel)) return null;
 
 	if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
 
@@ -87,7 +88,7 @@ export default function VoiceIcon(props: VoiceIconProps) {
 				if (channelPath) transitionTo(channelPath);
 			}}
 		>
-			<Components.Tooltip
+			<Common.Tooltip
 				text={
 					<div className={styles.tooltip}>
 						<div className={styles.header} style={{ fontWeight: "600" }}>
@@ -103,7 +104,7 @@ export default function VoiceIcon(props: VoiceIconProps) {
 				{(props: any) => (
 					<div {...props}>{!voiceState.selfStream ? <Icon width="14" height="14" /> : Strings.LIVE}</div>
 				)}
-			</Components.Tooltip>
+			</Common.Tooltip>
 		</div>
 	);
 }

@@ -5,9 +5,10 @@ import {
 	Stores,
 	UserPopoutSection,
 	transitionTo,
-	useStateFromStores,
+	Flux,
+	canViewChannel,
 } from "../modules/discordmodules";
-import { Settings, Strings, checkPermissions, groupDMName } from "../modules/utils";
+import { Settings, Strings, groupDMName } from "../modules/utils";
 import styles from "../styles/voiceprofilesection.module.scss";
 import GuildImage from "./GuildImage";
 import PartyMembers from "./PartyMembers";
@@ -22,8 +23,10 @@ const { ChannelStore, GuildStore, UserStore, VoiceStateStore, SelectedChannelSto
 export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 	const { showProfileSection, ignoreEnabled, ignoredChannels, ignoredGuilds } = Settings.useSettingsState();
 
-	const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
-	const currentUserVoiceState = useStateFromStores([VoiceStateStore], () =>
+	const voiceState = Flux.useStateFromStores([VoiceStateStore], () =>
+		VoiceStateStore.getVoiceStateForUser(props.userId)
+	);
+	const currentUserVoiceState = Flux.useStateFromStores([VoiceStateStore], () =>
 		VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
 	);
 
@@ -33,7 +36,7 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 	const channel = ChannelStore.getChannel(voiceState.channelId);
 	if (!channel) return null;
 	const guild = GuildStore.getGuild(channel.guild_id);
-	if (guild && !checkPermissions(channel)) return null;
+	if (guild && !canViewChannel(channel)) return null;
 
 	if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
 

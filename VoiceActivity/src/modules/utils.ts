@@ -1,6 +1,6 @@
 import { Patcher, ReactUtils, Utils } from "betterdiscord";
 import { createSettings, createStrings } from "@lib";
-import { DiscordPermissions, Permissions, Stores } from "./discordmodules";
+import { Stores } from "./discordmodules";
 import locales from "../locales.json";
 
 const { UserStore, GuildChannelStore, VoiceStateStore } = Stores;
@@ -19,14 +19,6 @@ export const Settings = createSettings({
 });
 
 export const Strings = createStrings(locales, "en-US");
-
-export function checkPermissions(channel: any): boolean {
-	return Permissions.can({
-		permission: DiscordPermissions.VIEW_CHANNEL,
-		user: UserStore.getCurrentUser(),
-		context: channel,
-	});
-}
 
 export const getGuildMediaState = (guildId: string, ignoredChannels: string[]) => {
 	const vocalChannelIds = GuildChannelStore.getVocalChannelIds(guildId);

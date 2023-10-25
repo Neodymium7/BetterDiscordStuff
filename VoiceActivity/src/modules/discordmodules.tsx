@@ -11,40 +11,49 @@ const Error = (_props) => (
 	</div>
 );
 
+export const MemberListItem: any = expectModule({
+	filter: byStrings("memberInner"),
+	name: "MemberListItem",
+	defaultExport: false,
+});
+
+export const UserPopoutBody: any = expectModule({
+	filter: byStrings("hideNote", "canDM"),
+	name: "UserPopoutBody",
+	defaultExport: false,
+});
+
+export const PrivateChannelProfile: any = expectModule({
+	filter: (m) => m.Inner,
+	name: "PrivateChannelProfile",
+	defaultExport: false,
+});
+
 export const PrivateChannelContainer: any = expectModule({
 	filter: (m) => m.render?.toString().includes(".component", "innerRef"),
 	name: "PrivateChannelContainer",
 	searchExports: true,
 });
 
-export const Permissions: any = expectModule({
-	filter: byProps("computePermissions"),
-	name: "Permissions",
+export const canViewChannel = expectModule<any>({
+	filter: (m) => m.canViewChannel,
+	name: "canViewChannel",
 	fatal: true,
-});
-
-export const DiscordPermissions = expectModule({
-	filter: byProps("VIEW_CREATOR_MONETIZATION_ANALYTICS"),
-	searchExports: true,
-	name: "DiscordPermissions",
-	fallback: {
-		VIEW_CHANNEL: 1024n,
-	},
-});
+})?.canViewChannel;
 
 export const GuildActions: any = expectModule({ filter: byProps("requestMembers"), name: "GuildActions" });
 
 export const ChannelActions: any = expectModule({ filter: byProps("selectChannel"), name: "ChannelActions" });
 
 export const UserPopoutSection = expectModule({
-	filter: byStrings(".lastSection", ".children"),
+	filter: byStrings("lastSection", "children"),
 	name: "UserPopoutSection",
 	fallback: (props) => <div {...props} />,
 });
 
-export const useStateFromStores: any = expectModule({
-	filter: byStrings("useStateFromStores"),
-	name: "useStateFromStores",
+export const Flux: any = expectModule({
+	filter: byProps("useStateFromStores"),
+	name: "Flux",
 	fatal: true,
 });
 
@@ -62,19 +71,14 @@ export const getAcronym = expectModule({
 });
 
 export const Common = expectModule({
-	filter: byProps("Popout", "Avatar"),
+	filter: byProps("Popout", "Avatar", "FormSwitch", "Tooltip"),
 	name: "Common",
 	fallback: {
 		Popout: (props) => <div {...props} />,
 		Avatar: (_props) => null,
+		FormSwitch: Error,
+		Tooltip: (props) => <div {...props} />,
 	},
-});
-
-export const SwitchItem = expectModule({
-	filter: (m) => m.toString?.().includes("().dividerDefault"),
-	searchExports: true,
-	name: "SwitchItem",
-	fallback: Error,
 });
 
 export const Icons = {

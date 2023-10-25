@@ -63,6 +63,7 @@ export function getModuleWithKey(filter: Filter): [any, string] {
 		},
 		{ searchExports: true }
 	);
+	if (!target) return undefined;
 	for (const k in target.exports) {
 		if (filter(target.exports[k], target, id)) {
 			key = k;
@@ -219,8 +220,10 @@ export function bySourceStrings(...strings: string[]) {
  */
 export function getIcon(name: string, searchString: string): (props: IconProps) => JSX.Element {
 	return expectModule<any>({
-		filter: bySourceStrings(searchString),
+		filter: (e, m, i) => {
+			return bySourceStrings(searchString)(e, m, i) && typeof e == "function";
+		},
 		name,
-		fallback: { Z: (_props: IconProps) => null },
-	}).Z;
+		fallback: (_props: IconProps) => null,
+	});
 }

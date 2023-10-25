@@ -1,5 +1,5 @@
 import { SettingsKey } from "@lib";
-import { SwitchItem } from "../modules/discordmodules";
+import { Common } from "../modules/discordmodules";
 import { Settings, Strings } from "../modules/utils";
 
 type SwitchSetting = SettingsKey<typeof Settings, boolean>;
@@ -21,7 +21,7 @@ const SettingsSwitchItem = (props: SwitchItemProps) => {
 	const value = Settings.useSettingsState()[props.setting];
 
 	return (
-		<SwitchItem
+		<Common.FormSwitch
 			children={props.name}
 			note={props.note}
 			value={value}
