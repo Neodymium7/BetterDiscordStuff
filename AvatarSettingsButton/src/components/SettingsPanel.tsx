@@ -1,17 +1,17 @@
-import { Margins, SettingsComponents } from "../modules/discordmodules";
+import { Margins, Common } from "../modules/discordmodules";
 import { Settings, Strings } from "../modules/utils";
 
-const { RadioGroup, SettingsItem, SettingsNote, SettingsDivider, SwitchItem } = SettingsComponents;
+const { RadioGroup, FormItem, FormLabel, FormDivider, FormSwitch } = Common;
 
 export default function SettingsPanel() {
 	const settings = Settings.useSettingsState();
 
 	return (
 		<>
-			<SettingsItem title={Strings.SETTINGS_CLICK}>
-				<SettingsNote className={Margins.marginBottom8} type="description">
+			<FormItem title={Strings.SETTINGS_CLICK}>
+				<FormLabel className={Margins.marginBottom8} type="description">
 					{Strings.SETTINGS_CLICK_NOTE}
-				</SettingsNote>
+				</FormLabel>
 				<RadioGroup
 					options={[
 						{ name: `${Strings.SETTINGS_OPTIONS_OPEN_SETTINGS} (${Strings.DEFAULT})`, value: 1 },
@@ -22,12 +22,12 @@ export default function SettingsPanel() {
 					onChange={({ value }) => (Settings.click = value)}
 					value={settings.click}
 				/>
-				<SettingsDivider className={Margins.marginTop20} />
-			</SettingsItem>
-			<SettingsItem title={Strings.SETTINGS_RIGHT_CLICK} className={Margins.marginTop20}>
-				<SettingsNote className={Margins.marginBottom8} type="description">
+				<FormDivider className={Margins.marginTop20} />
+			</FormItem>
+			<FormItem title={Strings.SETTINGS_RIGHT_CLICK} className={Margins.marginTop20}>
+				<FormLabel className={Margins.marginBottom8} type="description">
 					{Strings.SETTINGS_RIGHT_CLICK_NOTE}
-				</SettingsNote>
+				</FormLabel>
 				<RadioGroup
 					options={[
 						{ name: Strings.SETTINGS_OPTIONS_OPEN_SETTINGS, value: 1 },
@@ -38,12 +38,12 @@ export default function SettingsPanel() {
 					onChange={({ value }) => (Settings.contextmenu = value)}
 					value={settings.contextmenu}
 				/>
-				<SettingsDivider className={Margins.marginTop20} />
-			</SettingsItem>
-			<SettingsItem title={Strings.SETTINGS_MIDDLE_CLICK} className={Margins.marginTop20}>
-				<SettingsNote className={Margins.marginBottom8} type="description">
+				<FormDivider className={Margins.marginTop20} />
+			</FormItem>
+			<FormItem title={Strings.SETTINGS_MIDDLE_CLICK} className={Margins.marginTop20}>
+				<FormLabel className={Margins.marginBottom8} type="description">
 					{Strings.SETTINGS_MIDDLE_CLICK_NOTE}
-				</SettingsNote>
+				</FormLabel>
 				<RadioGroup
 					options={[
 						{ name: Strings.SETTINGS_OPTIONS_OPEN_SETTINGS, value: 1 },
@@ -54,9 +54,9 @@ export default function SettingsPanel() {
 					onChange={({ value }) => (Settings.middleclick = value)}
 					value={settings.middleclick}
 				/>
-				<SettingsDivider className={Margins.marginTop20} />
-			</SettingsItem>
-			<SwitchItem
+				<FormDivider className={Margins.marginTop20} />
+			</FormItem>
+			<FormSwitch
 				className={Margins.marginTop20}
 				children={Strings.SETTINGS_TOOLTIP}
 				note={Strings.SETTINGS_TOOLTIP_NOTE}

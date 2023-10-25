@@ -17,6 +17,18 @@ const Error = (_props) => (
 	</div>
 );
 
+export const Common = expectModule({
+	filter: byProps("FormSwitch", "RadioGroup", "FormItem", "FormLabel", "FormDivider"),
+	name: "Common",
+	fallback: {
+		FormSwitch: Error,
+		RadioGroup: Error,
+		FormItem: Error,
+		FormLabel: Error,
+		FormDivider: Error,
+	},
+});
+
 export const UserSettingsWindow: any = expectModule({
 	filter: byProps("saveAccountChanges"),
 	name: "UserSettingsWindow",
@@ -29,39 +41,6 @@ export const Sections = expectModule({
 	name: "Sections",
 	fallback: { ACCOUNT: "Account" },
 });
-
-export const SettingsComponents = {
-	RadioGroup: expectModule({
-		filter: (m) => m.Sizes && m.toString().includes("radioItemClassName"),
-		searchExports: true,
-		name: "RadioGroup",
-		fallback: Error,
-	}),
-	SwitchItem: expectModule({
-		filter: (m) => m.toString?.().includes("().dividerDefault"),
-		searchExports: true,
-		name: "SwitchItem",
-		fallback: Error,
-	}),
-	SettingsItem: expectModule({
-		filter: (m) => m.render?.toString().includes("required"),
-		searchExports: true,
-		name: "SettingsItem",
-		fallback: Error,
-	}),
-	SettingsNote: expectModule({
-		filter: (m) => m.Types && m.toString().includes("selectable"),
-		searchExports: true,
-		name: "SettingsNote",
-		fallback: Error,
-	}),
-	SettingsDivider: expectModule({
-		filter: (m) => m.toString?.().includes("().divider") && m.toString().includes("style"),
-		searchExports: true,
-		name: "SettingsDivider",
-		fallback: Error,
-	}),
-};
 
 export const accountClasses = expectModule<AccountClasses>(byProps("buildOverrideButton"), {
 	name: "Account Classes",
