@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.10
+ * @version 1.8.11
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,7 +40,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.10",
+		version: "1.8.11",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -58,8 +58,7 @@ const config = {
 			type: "fixed",
 			items: [
 				"Fixed crashing on startup.",
-				"Attempted to fix issues with the newest Discord update.",
-				"NOTE: Discord broke a lot, including BD itself, so the plugin may experience issues until BD is updated and I can update the plugin accordingly."
+				"Fixed issues with the newest Discord update."
 			]
 		}
 	]
@@ -307,7 +306,7 @@ function buildPlugin([BasePlugin, Library]) {
 		const GuildActions = expectModule({ filter: byProps("requestMembers"), name: "GuildActions" });
 		const ChannelActions = expectModule({ filter: byProps("selectChannel"), name: "ChannelActions" });
 		const UserPopoutSection = expectModule({
-			filter: byStrings("lastSection", "children"),
+			filter: byStrings(".lastSection", ".section"),
 			name: "UserPopoutSection",
 			fallback: (props) => BdApi.React.createElement("div", {
 				...props
