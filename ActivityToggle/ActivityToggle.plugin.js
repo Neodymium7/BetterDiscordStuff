@@ -1,7 +1,7 @@
 /**
  * @name ActivityToggle
  * @author Neodymium
- * @version 1.2.9
+ * @version 1.2.10
  * @description Adds a button to quickly toggle Activity Status.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,7 +40,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.2.9",
+		version: "1.2.10",
 		description: "Adds a button to quickly toggle Activity Status.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityToggle/ActivityToggle.plugin.js"
@@ -147,10 +147,12 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 		function getIcon(name, searchString) {
 			return expectModule({
-				filter: bySourceStrings(searchString),
+				filter: (e, m, i) => {
+					return bySourceStrings(searchString)(e, m, i) && typeof e == "function";
+				},
 				name,
-				fallback: { Z: (_props) => null }
-			}).Z;
+				fallback: (_props) => null
+			});
 		}
 	
 		// modules.ts
@@ -176,16 +178,16 @@ function buildPlugin([BasePlugin, Library]) {
 			searchExports: true,
 			name: "playSound"
 		});
-		const { useSetting, updateSetting } = expectModule({
-			filter: (m) => Object.values(m).some((e) => e?.useSetting),
-			name: "ActivitySettingManager",
+		const ShowCurrentGame = expectModule({
+			filter: byProps("ShowCurrentGame"),
+			name: "ShowCurrentGame",
 			fallback: {
-				G6: {
+				ShowCurrentGame: {
 					useSetting: () => React.useState(true),
 					updateSetting: void 0
 				}
 			}
-		}).G6;
+		})?.ShowCurrentGame;
 		const UserSettingsWindow = expectModule({
 			filter: byProps("open", "updateAccount"),
 			name: "UserSettingsWindow"
@@ -214,16 +216,16 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		// components/ActivityToggleButton.tsx
 		function ActivityToggleButton() {
-			const activityEnabled = useSetting();
+			const activityEnabled = ShowCurrentGame.useSetting();
 			return BdApi.React.createElement(PanelButton, {
 				icon: activityEnabled ? Activity : ActivityDisabled,
 				iconForeground: activityEnabled ? null : AccountClasses.strikethrough,
 				tooltipText: activityEnabled ? "Disable Activity" : "Enable Activity",
 				onClick: () => {
-					if (!updateSetting) {
+					if (!ShowCurrentGame.updateSetting) {
 						return betterdiscord.UI.alert("Error", "Could not update setting. See the console for more information.");
 					}
-					updateSetting(!activityEnabled);
+					ShowCurrentGame.updateSetting(!activityEnabled);
 					playSound(activityEnabled ? "activity_user_left" : "activity_user_join", 0.4);
 				},
 				onContextMenu: (e) => {

@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 2.1.1
+ * @version 2.1.2
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,7 +40,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "2.1.1",
+		version: "2.1.2",
 		description: "Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
@@ -57,8 +57,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Attempted to fix issues with the newest Discord update.",
-				"NOTE: Discord broke a lot, including BD itself, so the plugin may experience issues until BD is updated and I can update the plugin accordingly."
+				"Fixed issues with the newest Discord update."
 			]
 		}
 	]
@@ -158,13 +157,13 @@ function buildPlugin([BasePlugin, Library]) {
 			style: { color: "red" }
 		}, "Error: Component not found"));
 		const Common = expectModule({
-			filter: byProps("FormSwitch", "RadioGroup", "FormItem", "FormLabel", "FormDivider"),
+			filter: byProps("FormSwitch", "RadioGroup", "FormItem", "FormText", "FormDivider"),
 			name: "Common",
 			fallback: {
 				FormSwitch: Error$1,
 				RadioGroup: Error$1,
 				FormItem: Error$1,
-				FormLabel: Error$1,
+				FormText: Error$1,
 				FormDivider: Error$1
 			}
 		});
@@ -409,12 +408,12 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// components/SettingsPanel.tsx
-		const { RadioGroup, FormItem, FormLabel, FormDivider, FormSwitch } = Common;
+		const { RadioGroup, FormItem, FormText, FormDivider, FormSwitch } = Common;
 		function SettingsPanel() {
 			const settings = Settings.useSettingsState();
 			return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(FormItem, {
 				title: Strings.SETTINGS_CLICK
-			}, BdApi.React.createElement(FormLabel, {
+			}, BdApi.React.createElement(FormText, {
 				className: Margins.marginBottom8,
 				type: "description"
 			}, Strings.SETTINGS_CLICK_NOTE), BdApi.React.createElement(RadioGroup, {
@@ -431,7 +430,7 @@ function buildPlugin([BasePlugin, Library]) {
 			})), BdApi.React.createElement(FormItem, {
 				title: Strings.SETTINGS_RIGHT_CLICK,
 				className: Margins.marginTop20
-			}, BdApi.React.createElement(FormLabel, {
+			}, BdApi.React.createElement(FormText, {
 				className: Margins.marginBottom8,
 				type: "description"
 			}, Strings.SETTINGS_RIGHT_CLICK_NOTE), BdApi.React.createElement(RadioGroup, {
@@ -448,7 +447,7 @@ function buildPlugin([BasePlugin, Library]) {
 			})), BdApi.React.createElement(FormItem, {
 				title: Strings.SETTINGS_MIDDLE_CLICK,
 				className: Margins.marginTop20
-			}, BdApi.React.createElement(FormLabel, {
+			}, BdApi.React.createElement(FormText, {
 				className: Margins.marginBottom8,
 				type: "description"
 			}, Strings.SETTINGS_MIDDLE_CLICK_NOTE), BdApi.React.createElement(RadioGroup, {
