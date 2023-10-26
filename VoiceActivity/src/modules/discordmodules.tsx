@@ -46,7 +46,7 @@ export const GuildActions: any = expectModule({ filter: byProps("requestMembers"
 export const ChannelActions: any = expectModule({ filter: byProps("selectChannel"), name: "ChannelActions" });
 
 export const UserPopoutSection = expectModule({
-	filter: byStrings("lastSection", "children"),
+	filter: byStrings(".lastSection", ".section"),
 	name: "UserPopoutSection",
 	fallback: (props) => <div {...props} />,
 });
