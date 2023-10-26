@@ -1,11 +1,14 @@
-import { DOM, Patcher, Utils, Webpack } from "betterdiscord";
+import { DOM, Patcher, Utils } from "betterdiscord";
 import Plugin from "zlibrary/plugin";
-import { getModuleWithKey } from "@lib/utils/webpack";
-import { Popout, RelationshipStore, UserPopout, UserStore, loadProfile, typingSelector } from "./modules";
-
-const {
-	Filters: { byStrings },
-} = Webpack;
+import {
+	Common,
+	RelationshipStore,
+	UserPopout,
+	UserStore,
+	loadProfile,
+	typingSelector,
+	TypingUsersContainer,
+} from "./modules";
 
 const findChildComponent = async (module: any, functionName: string, filter: (i: any) => boolean) => {
 	return new Promise<any>((resolve, reject) => {
@@ -26,8 +29,7 @@ export default class TypingUsersPopouts extends Plugin {
 	}
 
 	async patch() {
-		const [TypingUsersContainer, key] = getModuleWithKey(byStrings("typingUsers:"));
-		const TypingUsers = await findChildComponent(TypingUsersContainer, key, (i) => i.prototype?.render);
+		const TypingUsers = await findChildComponent(TypingUsersContainer, "default", (i) => i.prototype?.render);
 
 		Patcher.after(TypingUsers.prototype, "render", (that: any, _, ret) => {
 			const text = Utils.findInTree(ret, (e) => e.children?.length && e.children[0]?.type === "strong", {
@@ -48,7 +50,7 @@ export default class TypingUsersPopouts extends Plugin {
 				const user = UserStore.getUser(typingUsersIds[i++]);
 
 				return (
-					<Popout
+					<Common.Popout
 						align="left"
 						position="top"
 						key={user.id}
@@ -58,7 +60,7 @@ export default class TypingUsersPopouts extends Plugin {
 						}
 					>
 						{(props) => <strong {...props} {...e.props} />}
-					</Popout>
+					</Common.Popout>
 				);
 			});
 		});

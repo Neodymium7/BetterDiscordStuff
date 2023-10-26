@@ -2,7 +2,7 @@ import { Webpack } from "betterdiscord";
 import { expectModule, getStore, getSelectors } from "@lib/utils/webpack";
 
 const {
-	Filters: { byStrings },
+	Filters: { byStrings, byProps },
 } = Webpack;
 
 const ErrorPopout = (props: { message: string }) => (
@@ -11,23 +11,30 @@ const ErrorPopout = (props: { message: string }) => (
 	</div>
 );
 
+export const TypingUsersContainer: any = expectModule({
+	filter: (m) => m.default?.toString?.().includes("typingUsers:"),
+	name: "TypingUsersContainer",
+	fatal: true,
+});
+
 export const UserPopout = expectModule({
-	filter: (e) => e.type?.toString().includes('"userId"'),
+	filter: (m) => m.type?.toString?.().includes('"Unexpected missing user"'),
 	name: "UserPopout",
 	fallback: (_props: any) => <ErrorPopout message="Error: User Popout module not found" />,
 });
 
-export const Popout = expectModule({
-	filter: byStrings(".animationPosition"),
-	searchExports: true,
-	name: "Popout",
-	fallback: (props: any) => props.children(),
+export const Common = expectModule({
+	filter: byProps("Popout"),
+	name: "Common",
+	fallback: {
+		Popout: (props: any) => props.children(),
+	},
 });
 
 export const loadProfile: any = expectModule<any>({
-	filter: (m) => m.Z?.toString?.().includes("y.apply(this,arguments)") && Object.values(m).length === 1,
+	filter: byStrings("preloadUserBanner"),
 	name: "loadProfile",
-}).Z;
+});
 
 export const typingSelector = getSelectors("Typing Class", ["typingDots", "typing"]).typing;
 
