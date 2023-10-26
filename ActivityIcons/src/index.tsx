@@ -21,7 +21,7 @@ export default class ActivityIcons extends BasePlugin {
 	}
 
 	patchActivityStatus() {
-		Patcher.after(ActivityStatus, "Z", (_, [props]: [any], ret) => {
+		Patcher.after(ActivityStatus, "default", (_, [props]: [any], ret) => {
 			if (!ret) return;
 			ret.props.children[2] = null;
 			ret.props.children.push(

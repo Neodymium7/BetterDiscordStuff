@@ -1,4 +1,9 @@
+import { Webpack } from "betterdiscord";
 import { expectModule, getStore, getClasses } from "@lib/utils/webpack";
+
+const {
+	Filters: { byProps },
+} = Webpack;
 
 const Error = (_props) => (
 	<div>
@@ -6,11 +11,12 @@ const Error = (_props) => (
 	</div>
 );
 
-export const SwitchItem = expectModule({
-	filter: (m) => m.toString?.().includes("().dividerDefault"),
-	searchExports: true,
-	name: "SwitchItem",
-	fallback: Error,
+export const Common = expectModule({
+	filter: byProps("FormSwitch"),
+	name: "Common",
+	fallback: {
+		FormSwitch: Error,
+	},
 });
 
 export const roleMention = getClasses("Role Mention Class", ["roleMention"]).roleMention.split(" ")[0];

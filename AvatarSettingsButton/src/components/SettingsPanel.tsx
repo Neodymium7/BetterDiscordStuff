@@ -1,7 +1,7 @@
 import { Margins, Common } from "../modules/discordmodules";
 import { Settings, Strings } from "../modules/utils";
 
-const { RadioGroup, FormItem, FormLabel, FormDivider, FormSwitch } = Common;
+const { RadioGroup, FormItem, FormText, FormDivider, FormSwitch } = Common;
 
 export default function SettingsPanel() {
 	const settings = Settings.useSettingsState();
@@ -9,9 +9,9 @@ export default function SettingsPanel() {
 	return (
 		<>
 			<FormItem title={Strings.SETTINGS_CLICK}>
-				<FormLabel className={Margins.marginBottom8} type="description">
+				<FormText className={Margins.marginBottom8} type="description">
 					{Strings.SETTINGS_CLICK_NOTE}
-				</FormLabel>
+				</FormText>
 				<RadioGroup
 					options={[
 						{ name: `${Strings.SETTINGS_OPTIONS_OPEN_SETTINGS} (${Strings.DEFAULT})`, value: 1 },
@@ -25,9 +25,9 @@ export default function SettingsPanel() {
 				<FormDivider className={Margins.marginTop20} />
 			</FormItem>
 			<FormItem title={Strings.SETTINGS_RIGHT_CLICK} className={Margins.marginTop20}>
-				<FormLabel className={Margins.marginBottom8} type="description">
+				<FormText className={Margins.marginBottom8} type="description">
 					{Strings.SETTINGS_RIGHT_CLICK_NOTE}
-				</FormLabel>
+				</FormText>
 				<RadioGroup
 					options={[
 						{ name: Strings.SETTINGS_OPTIONS_OPEN_SETTINGS, value: 1 },
@@ -41,9 +41,9 @@ export default function SettingsPanel() {
 				<FormDivider className={Margins.marginTop20} />
 			</FormItem>
 			<FormItem title={Strings.SETTINGS_MIDDLE_CLICK} className={Margins.marginTop20}>
-				<FormLabel className={Margins.marginBottom8} type="description">
+				<FormText className={Margins.marginBottom8} type="description">
 					{Strings.SETTINGS_MIDDLE_CLICK_NOTE}
-				</FormLabel>
+				</FormText>
 				<RadioGroup
 					options={[
 						{ name: Strings.SETTINGS_OPTIONS_OPEN_SETTINGS, value: 1 },

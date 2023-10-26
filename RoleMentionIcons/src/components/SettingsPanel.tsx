@@ -1,10 +1,10 @@
-import { SwitchItem } from "../modules/discordmodules";
+import { Common } from "../modules/discordmodules";
 import { Settings, Strings } from "../modules/utils";
 
 export default function SettingsPanel() {
 	return (
 		<>
-			<SwitchItem
+			<Common.FormSwitch
 				children={Strings.SETTINGS_EVERYONE}
 				note={Strings.SETTINGS_EVERYONE_NOTE}
 				value={Settings.everyone}
@@ -12,7 +12,7 @@ export default function SettingsPanel() {
 					Settings.everyone = v;
 				}}
 			/>
-			<SwitchItem
+			<Common.FormSwitch
 				children={Strings.SETTINGS_HERE}
 				note={Strings.SETTINGS_HERE_NOTE}
 				value={Settings.here}
@@ -20,7 +20,7 @@ export default function SettingsPanel() {
 					Settings.here = v;
 				}}
 			/>
-			<SwitchItem
+			<Common.FormSwitch
 				children={Strings.SETTINGS_ROLE_ICONS}
 				note={Strings.SETTINGS_ROLE_ICONS_NOTE}
 				value={Settings.showRoleIcons}

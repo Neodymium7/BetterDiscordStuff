@@ -1,8 +1,8 @@
 import { Webpack } from "betterdiscord";
-import { byValues, expectModule, getClasses, getSelectors, getIcon } from "@lib/utils/webpack";
+import { expectModule, getClasses, getSelectors, getIcon } from "@lib/utils/webpack";
 
 const {
-	Filters: { byStrings },
+	Filters: { byProps },
 } = Webpack;
 
 const Error = (_props) => (
@@ -12,7 +12,7 @@ const Error = (_props) => (
 );
 
 export const ActivityStatus: any = expectModule({
-	filter: byValues(byStrings("applicationStream")),
+	filter: byProps("ActivityEmoji"),
 	name: "ActivityStatus",
 	fatal: true,
 });
@@ -24,11 +24,12 @@ export const Icons = {
 	Screen: getIcon("Screen", "M4 2.5C2.897 2.5 2 3.397 2 4.5V15.5C2 16.604 2.897"),
 };
 
-export const SwitchItem = expectModule({
-	filter: (m) => m.toString?.().includes("().dividerDefault"),
-	searchExports: true,
-	name: "SwitchItem",
-	fallback: Error,
+export const Common = expectModule({
+	filter: byProps("FormSwitch"),
+	name: "Common",
+	fallback: {
+		FormSwitch: Error,
+	},
 });
 
 export const Margins = getClasses("Margins", ["marginBottom8"]);

@@ -7,13 +7,12 @@ import {
 	Settings,
 	UserSettingsWindow,
 	playSound,
-	updateSetting,
-	useSetting,
+	ShowCurrentGame,
 } from "../modules";
 import ActivityDisabledIcon from "./ActivityDisabledIcon";
 
 export default function ActivityToggleButton() {
-	const activityEnabled = useSetting();
+	const activityEnabled = ShowCurrentGame.useSetting();
 
 	return (
 		<PanelButton
@@ -21,10 +20,10 @@ export default function ActivityToggleButton() {
 			iconForeground={activityEnabled ? null : AccountClasses.strikethrough}
 			tooltipText={activityEnabled ? "Disable Activity" : "Enable Activity"}
 			onClick={() => {
-				if (!updateSetting) {
+				if (!ShowCurrentGame.updateSetting) {
 					return UI.alert("Error", "Could not update setting. See the console for more information.");
 				}
-				updateSetting(!activityEnabled);
+				ShowCurrentGame.updateSetting(!activityEnabled);
 				playSound(activityEnabled ? "activity_user_left" : "activity_user_join", 0.4);
 			}}
 			onContextMenu={(e: React.MouseEvent) => {

@@ -1,4 +1,4 @@
-import { SwitchItem } from "../modules/discordmodules";
+import { Common } from "../modules/discordmodules";
 import { Settings, Strings } from "../modules/utils";
 
 export default function SettingsPanel() {
@@ -6,7 +6,7 @@ export default function SettingsPanel() {
 
 	return (
 		<>
-			<SwitchItem
+			<Common.FormSwitch
 				children={Strings.SETTINGS_NORMAL_ACTIVITY}
 				note={Strings.SETTINGS_NORMAL_ACTIVITY_NOTE}
 				value={settingsState.normalActivityIcons}
@@ -14,7 +14,7 @@ export default function SettingsPanel() {
 					Settings.normalActivityIcons = v;
 				}}
 			/>
-			<SwitchItem
+			<Common.FormSwitch
 				children={Strings.SETTINGS_RICH_PRESENCE}
 				note={Strings.SETTINGS_RICH_PRESENCE_NOTE}
 				value={settingsState.richPresenceIcons}
@@ -22,7 +22,7 @@ export default function SettingsPanel() {
 					Settings.richPresenceIcons = v;
 				}}
 			/>
-			<SwitchItem
+			<Common.FormSwitch
 				children={Strings.SETTINGS_PLATFORM}
 				note={Strings.SETTINGS_PLATFORM_NOTE}
 				value={settingsState.platformIcons}
@@ -30,7 +30,7 @@ export default function SettingsPanel() {
 					Settings.platformIcons = v;
 				}}
 			/>
-			<SwitchItem
+			<Common.FormSwitch
 				children={Strings.SETTINGS_LISTENING}
 				note={Strings.SETTINGS_LISTENING_NOTE}
 				value={settingsState.listeningIcons}
@@ -38,7 +38,7 @@ export default function SettingsPanel() {
 					Settings.listeningIcons = v;
 				}}
 			/>
-			<SwitchItem
+			<Common.FormSwitch
 				children={Strings.SETTINGS_WATCHING}
 				note={Strings.SETTINGS_WATCHING_NOTE}
 				value={settingsState.watchingIcons}

@@ -1,7 +1,7 @@
 /**
  * @name PinnedMessageIcons
  * @author Neodymium
- * @version 1.0.6
+ * @version 1.0.4
  * @description Displays an icon on and adds a class to pinned messages. (Heavily inspired by PinIcon by Qwerasd, go check out their plugin!)
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/PinnedMessageIcons/PinnedMessageIcons.plugin.js
  * @updateUrl https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/PinnedMessageIcons/PinnedMessageIcons.plugin.js
@@ -9,9 +9,16 @@
  */
 
 const { DOM, Patcher, Webpack } = new BdApi("PinnedMessageIcons");
-const { getModule, modules } = Webpack;
+const { getModule } = Webpack;
 
-const Pin = getModule((_e, _m, i) => modules[i].toString().includes("M22 12L12.101 2.10101L10.686 3.51401L12.101 4.92901L7.15096")).Z;
+const pinPath = "M22 12L12.101 2.10101L10.686 3.51401L12.101 4.92901L7.15096"
+
+const Pin = getModule((e, _m, i) => {
+    const moduleSource = Webpack.modules[i].toString();
+    return moduleSource.includes(pinPath) && typeof e === "function"
+});
+
+const Message = getModule((m) => m.default?.toString?.().includes("childrenRepliedMessage"));
 
 module.exports = class PinnedMessageIcons {
     start() {
@@ -23,8 +30,7 @@ module.exports = class PinnedMessageIcons {
             color: var(--interactive-normal);
         }`);
 
-        const Message = getModule((m) => Object.values(m).some(p => p?.toString?.().includes('"childrenRepliedMessage"')));
-		Patcher.after(Message, "Z", (_, [props], ret) => {
+		Patcher.after(Message, "default", (_, [props], ret) => {
             if (!props.childrenMessageContent.props.message) return ret;
 
             const isPinned = props.childrenMessageContent.props.message.pinned;

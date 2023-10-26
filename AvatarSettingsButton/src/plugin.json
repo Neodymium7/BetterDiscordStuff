@@ -1,7 +1,7 @@
 {
 	"name": "AvatarSettingsButton",
 	"author": "Neodymium",
-	"version": "2.1.1",
+	"version": "2.1.2",
 	"description": "Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
 	"donate": "https://ko-fi.com/neodymium7",
@@ -19,10 +19,7 @@
 			{
 				"title": "Fixed",
 				"type": "fixed",
-				"items": [
-					"Attempted to fix issues with the newest Discord update.",
-					"NOTE: Discord broke a lot, including BD itself, so the plugin may experience issues until BD is updated and I can update the plugin accordingly."
-				]
+				"items": ["Fixed issues with the newest Discord update."]
 			}
 		]
 	}

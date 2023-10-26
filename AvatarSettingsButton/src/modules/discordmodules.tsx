@@ -18,13 +18,13 @@ const Error = (_props) => (
 );
 
 export const Common = expectModule({
-	filter: byProps("FormSwitch", "RadioGroup", "FormItem", "FormLabel", "FormDivider"),
+	filter: byProps("FormSwitch", "RadioGroup", "FormItem", "FormText", "FormDivider"),
 	name: "Common",
 	fallback: {
 		FormSwitch: Error,
 		RadioGroup: Error,
 		FormItem: Error,
-		FormLabel: Error,
+		FormText: Error,
 		FormDivider: Error,
 	},
 });
