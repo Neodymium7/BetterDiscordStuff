@@ -38,7 +38,7 @@ export default class VoiceActivity extends BasePlugin {
 	}
 
 	patchUserPopout() {
-		const activitySectionFilter = (section: any) => section?.props.hasOwnProperty("activity");
+		const activitySectionFilter = (section: any) => section?.props?.hasOwnProperty("activity");
 
 		Patcher.after(UserPopoutBody, "default", (_, [props]: [any], ret) => {
 			const popoutSections = Utils.findInTree(ret, (i) => Array.isArray(i) && i.some(activitySectionFilter), {
