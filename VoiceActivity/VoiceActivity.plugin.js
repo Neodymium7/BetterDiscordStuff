@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.11
+ * @version 1.8.12
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @donate https://ko-fi.com/neodymium7
@@ -40,25 +40,17 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.11",
+		version: "1.8.12",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
 	},
 	changelog: [
 		{
-			title: "Added",
-			type: "improved",
-			items: [
-				"Added French translations (Thanks to Piquixel on GitHub!)"
-			]
-		},
-		{
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed crashing on startup.",
-				"Fixed issues with the newest Discord update."
+				"Fixed user popout section."
 			]
 		}
 	]
@@ -1089,7 +1081,7 @@ function buildPlugin([BasePlugin, Library]) {
 				this.patchGuildContextMenu();
 			}
 			patchUserPopout() {
-				const activitySectionFilter = (section) => section?.props.hasOwnProperty("activity");
+				const activitySectionFilter = (section) => section?.props?.hasOwnProperty("activity");
 				betterdiscord.Patcher.after(UserPopoutBody, "default", (_, [props], ret) => {
 					const popoutSections = betterdiscord.Utils.findInTree(ret, (i) => Array.isArray(i) && i.some(activitySectionFilter), {
 						walkable: ["props", "children"]
