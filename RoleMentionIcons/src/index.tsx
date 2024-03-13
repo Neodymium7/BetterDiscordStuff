@@ -39,7 +39,7 @@ export default class RoleMentionIcons extends BasePlugin {
 			const isHere = props.roleName === "@here";
 			let role;
 			if (props.guildId) {
-				role = filter(GuildStore.getGuild(props.guildId)?.roles, (r) => r.id === props.roleId);
+				role = filter(GuildStore.getRoles(props.guildId), (r) => r.id === props.roleId);
 				role = role[Object.keys(role)[0]];
 			}
 			if ((Settings.everyone || !isEveryone) && (Settings.here || !isHere)) {
