@@ -1,10 +1,9 @@
 /**
  * @name RoleMentionIcons
  * @author Neodymium
- * @version 1.3.1
+ * @version 1.3.2
  * @description Displays icons next to role mentions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js
- * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
  */
 
@@ -40,24 +39,18 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.3.1",
+		version: "1.3.2",
 		description: "Displays icons next to role mentions.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js"
 	},
 	changelog: [
 		{
-			title: "Added",
-			type: "improved",
-			items: [
-				"Added French translations (Thanks to Piquixel on GitHub!)"
-			]
-		},
-		{
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed issues with the newest Discord update."
+				"Fixed icons not appearing.",
+				"Fixed settings toggles not displaying proper state."
 			]
 		}
 	]
@@ -138,13 +131,13 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		// modules/discordmodules.tsx
 		const {
-			Filters: { byProps }
+			Filters: { byKeys }
 		} = betterdiscord.Webpack;
 		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
 			style: { color: "red" }
 		}, "Error: Component not found"));
 		const Common = expectModule({
-			filter: byProps("FormSwitch"),
+			filter: byKeys("FormSwitch"),
 			name: "Common",
 			fallback: {
 				FormSwitch: Error$1
@@ -212,7 +205,7 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// @lib/strings.ts
-		const Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byProps("dispatch", "subscribe"));
+		const Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byKeys("dispatch", "subscribe"));
 		const LocaleManager = betterdiscord.Webpack.getModule((m) => m.Messages?.CLOSE);
 		function createStrings(locales, defaultLocale) {
 			let strings = locales[defaultLocale];
@@ -309,24 +302,25 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		// components/SettingsPanel.tsx
 		function SettingsPanel() {
+			const settingsState = Settings.useSettingsState();
 			return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(Common.FormSwitch, {
 				children: Strings.SETTINGS_EVERYONE,
 				note: Strings.SETTINGS_EVERYONE_NOTE,
-				value: Settings.everyone,
+				value: settingsState.everyone,
 				onChange: (v) => {
 					Settings.everyone = v;
 				}
 			}), BdApi.React.createElement(Common.FormSwitch, {
 				children: Strings.SETTINGS_HERE,
 				note: Strings.SETTINGS_HERE_NOTE,
-				value: Settings.here,
+				value: settingsState.here,
 				onChange: (v) => {
 					Settings.here = v;
 				}
 			}), BdApi.React.createElement(Common.FormSwitch, {
 				children: Strings.SETTINGS_ROLE_ICONS,
 				note: Strings.SETTINGS_ROLE_ICONS_NOTE,
-				value: Settings.showRoleIcons,
+				value: settingsState.showRoleIcons,
 				onChange: (v) => {
 					Settings.showRoleIcons = v;
 				}
@@ -365,7 +359,7 @@ function buildPlugin([BasePlugin, Library]) {
 					const isHere = props.roleName === "@here";
 					let role;
 					if (props.guildId) {
-						role = filter(GuildStore.getGuild(props.guildId)?.roles, (r) => r.id === props.roleId);
+						role = filter(GuildStore.getRoles(props.guildId), (r) => r.id === props.roleId);
 						role = role[Object.keys(role)[0]];
 					}
 					if ((Settings.everyone || !isEveryone) && (Settings.here || !isHere)) {
