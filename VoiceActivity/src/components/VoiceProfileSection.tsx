@@ -15,7 +15,7 @@ import PartyMembers from "./PartyMembers";
 
 interface VoiceProfileSectionProps {
 	userId: string;
-	wrapper?: React.FunctionComponent;
+	wrapper?: React.FunctionComponent<React.PropsWithChildren>;
 }
 
 const { ChannelStore, GuildStore, UserStore, VoiceStateStore, SelectedChannelStore } = Stores;
