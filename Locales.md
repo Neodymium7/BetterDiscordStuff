@@ -1,10 +1,11 @@
-Here is a list of every locale in Discord (Updated April 2023):
+Here is a list of every locale in Discord (Updated March 2024):
 
 -   `da` - Danish
 -   `de` - German
 -   `en-UK` - English, UK
 -   `en-US` - English, US
 -   `es-ES` - Spanish
+-   `es-419` - Spanish, LATAM
 -   `fr` - French
 -   `hr` - Croatian
 -   `it` - Italian
