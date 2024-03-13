@@ -1,10 +1,9 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 2.1.2
+ * @version 2.1.3
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
- * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
  */
 
@@ -40,24 +39,17 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "2.1.2",
+		version: "2.1.3",
 		description: "Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
 	},
 	changelog: [
 		{
-			title: "Added",
-			type: "improved",
-			items: [
-				"Added French translations (Thanks to Piquixel on GitHub!)"
-			]
-		},
-		{
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed issues with the newest Discord update."
+				"Fixed avatar opening blank settings window."
 			]
 		}
 	]
@@ -151,13 +143,13 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		// modules/discordmodules.tsx
 		const {
-			Filters: { byProps }
+			Filters: { byKeys }
 		} = betterdiscord.Webpack;
 		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
 			style: { color: "red" }
 		}, "Error: Component not found"));
 		const Common = expectModule({
-			filter: byProps("FormSwitch", "RadioGroup", "FormItem", "FormText", "FormDivider"),
+			filter: byKeys("FormSwitch", "RadioGroup", "FormItem", "FormText", "FormDivider"),
 			name: "Common",
 			fallback: {
 				FormSwitch: Error$1,
@@ -168,17 +160,17 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 		});
 		const UserSettingsWindow = expectModule({
-			filter: byProps("saveAccountChanges"),
+			filter: byKeys("saveAccountChanges"),
 			name: "UserSettingsWindow",
 			fatal: true
 		});
 		const Sections = expectModule({
-			filter: byProps("ACCOUNT"),
+			filter: byKeys("ACCOUNT", "ACCESSIBILITY"),
 			searchExports: true,
 			name: "Sections",
 			fallback: { ACCOUNT: "Account" }
 		});
-		const accountClasses = expectModule(byProps("buildOverrideButton"), {
+		const accountClasses = expectModule(byKeys("buildOverrideButton"), {
 			name: "Account Classes",
 			fatal: true
 		});
