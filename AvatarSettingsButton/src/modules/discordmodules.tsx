@@ -2,7 +2,7 @@ import { Webpack } from "betterdiscord";
 import { expectModule, getClasses, getSelectors } from "@lib/utils/webpack";
 
 const {
-	Filters: { byProps },
+	Filters: { byKeys },
 } = Webpack;
 
 interface AccountClasses {
@@ -18,7 +18,7 @@ const Error = (_props) => (
 );
 
 export const Common = expectModule({
-	filter: byProps("FormSwitch", "RadioGroup", "FormItem", "FormText", "FormDivider"),
+	filter: byKeys("FormSwitch", "RadioGroup", "FormItem", "FormText", "FormDivider"),
 	name: "Common",
 	fallback: {
 		FormSwitch: Error,
@@ -30,19 +30,19 @@ export const Common = expectModule({
 });
 
 export const UserSettingsWindow: any = expectModule({
-	filter: byProps("saveAccountChanges"),
+	filter: byKeys("saveAccountChanges"),
 	name: "UserSettingsWindow",
 	fatal: true,
 });
 
 export const Sections = expectModule({
-	filter: byProps("ACCOUNT"),
+	filter: byKeys("ACCOUNT", "ACCESSIBILITY"),
 	searchExports: true,
 	name: "Sections",
 	fallback: { ACCOUNT: "Account" },
 });
 
-export const accountClasses = expectModule<AccountClasses>(byProps("buildOverrideButton"), {
+export const accountClasses = expectModule<AccountClasses>(byKeys("buildOverrideButton"), {
 	name: "Account Classes",
 	fatal: true,
 });

@@ -6,10 +6,6 @@ A collection of Neodymium's plugins for BetterDiscord
 
 [Support Server](https://discord.gg/fRbsqH87Av)
 
-## Donate
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/neodymium7)
-
 ## Contributing
 
 ### Features and Bug Fixes
