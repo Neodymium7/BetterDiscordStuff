@@ -17,7 +17,7 @@ export default function WatchingIcon(props: WatchingIconProps) {
 		<Components.Tooltip text={<strong>{activity.name}</strong>}>
 			{(props) => (
 				<div {...props} className="activity-icon">
-					<Icons.Screen className="activity-icon-small" width="14" height="14" />
+					<Icons.Screen width="13" height="13" />
 				</div>
 			)}
 		</Components.Tooltip>

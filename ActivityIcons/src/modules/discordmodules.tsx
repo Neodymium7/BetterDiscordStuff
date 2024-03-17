@@ -2,7 +2,7 @@ import { Webpack } from "betterdiscord";
 import { expectModule, getClasses, getSelectors, getIcon } from "@lib/utils/webpack";
 
 const {
-	Filters: { byProps },
+	Filters: { byKeys },
 } = Webpack;
 
 const Error = (_props) => (
@@ -12,7 +12,7 @@ const Error = (_props) => (
 );
 
 export const ActivityStatus: any = expectModule({
-	filter: byProps("ActivityEmoji"),
+	filter: byKeys("ActivityEmoji"),
 	name: "ActivityStatus",
 	fatal: true,
 });
@@ -25,7 +25,7 @@ export const Icons = {
 };
 
 export const Common = expectModule({
-	filter: byProps("FormSwitch"),
+	filter: byKeys("FormSwitch"),
 	name: "Common",
 	fallback: {
 		FormSwitch: Error,

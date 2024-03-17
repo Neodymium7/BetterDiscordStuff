@@ -4,10 +4,9 @@
 	margin-left: 4px;
 	-webkit-box-flex: 0;
 	flex: 0 0 auto;
-}
-
-.activity-icon-small {
-	margin: 1px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .rich-activity-icon {

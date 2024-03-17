@@ -58,9 +58,9 @@ export default function ActivityIcon(props: ActivityIconProps) {
 		});
 	}
 
-	let icon = <Icons.Activity width="16" height="16" />;
-	if (platformIcons && onPS) icon = <Playstation width="14" height="14" className="activity-icon-small" />;
-	if (platformIcons && onXbox) icon = <Xbox width="14" height="14" className="activity-icon-small" />;
+	let icon = <Icons.Activity width="13" height="13" />;
+	if (platformIcons && onPS) icon = <Playstation width="13" height="13" />;
+	if (platformIcons && onXbox) icon = <Xbox width="13" height="13" />;
 	if (richPresenceIcons && hasRP) icon = <Icons.RichActivity width="16" height="16" />;
 
 	return tooltip ? (
