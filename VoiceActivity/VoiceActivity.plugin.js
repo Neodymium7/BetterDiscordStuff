@@ -1,10 +1,9 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.12
+ * @version 1.8.13
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
- * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
  */
 
@@ -40,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.12",
+		version: "1.8.13",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -50,7 +49,8 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed user popout section."
+				"Fixed guild icon behavior with inactive stage channels.",
+				"Fixed guild icons not respecting settings."
 			]
 		}
 	]
@@ -141,7 +141,7 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// @lib/strings.ts
-		const Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byProps("dispatch", "subscribe"));
+		const Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byKeys("dispatch", "subscribe"));
 		const LocaleManager = betterdiscord.Webpack.getModule((m) => m.Messages?.CLOSE);
 		function createStrings(locales, defaultLocale) {
 			let strings = locales[defaultLocale];
@@ -265,7 +265,7 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		// modules/discordmodules.tsx
 		const {
-			Filters: { byProps, byStrings }
+			Filters: { byKeys, byStrings }
 		} = betterdiscord.Webpack;
 		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
 			style: { color: "red" }
@@ -295,8 +295,8 @@ function buildPlugin([BasePlugin, Library]) {
 			name: "canViewChannel",
 			fatal: true
 		})?.canViewChannel;
-		const GuildActions = expectModule({ filter: byProps("requestMembers"), name: "GuildActions" });
-		const ChannelActions = expectModule({ filter: byProps("selectChannel"), name: "ChannelActions" });
+		const GuildActions = expectModule({ filter: byKeys("requestMembers"), name: "GuildActions" });
+		const ChannelActions = expectModule({ filter: byKeys("selectChannel"), name: "ChannelActions" });
 		const UserPopoutSection = expectModule({
 			filter: byStrings(".lastSection", ".section"),
 			name: "UserPopoutSection",
@@ -305,7 +305,7 @@ function buildPlugin([BasePlugin, Library]) {
 			})
 		});
 		const Flux = expectModule({
-			filter: byProps("useStateFromStores"),
+			filter: byKeys("useStateFromStores"),
 			name: "Flux",
 			fatal: true
 		});
@@ -321,7 +321,7 @@ function buildPlugin([BasePlugin, Library]) {
 			fallback: (i) => i
 		});
 		const Common = expectModule({
-			filter: byProps("Popout", "Avatar", "FormSwitch", "Tooltip"),
+			filter: byKeys("Popout", "Avatar", "FormSwitch", "Tooltip"),
 			name: "Common",
 			fallback: {
 				Popout: (props) => BdApi.React.createElement("div", {
@@ -553,7 +553,7 @@ function buildPlugin([BasePlugin, Library]) {
 		};
 	
 		// modules/utils.ts
-		const { UserStore: UserStore$2, GuildChannelStore, VoiceStateStore: VoiceStateStore$2 } = Stores;
+		const { UserStore: UserStore$2, GuildChannelStore, VoiceStateStore: VoiceStateStore$2, ChannelStore: ChannelStore$2 } = Stores;
 		const Settings = createSettings({
 			showProfileSection: true,
 			showMemberListIcons: true,
@@ -578,7 +578,7 @@ function buildPlugin([BasePlugin, Library]) {
 				const voiceStates = Object.values(VoiceStateStore$2.getVoiceStatesForChannel(id));
 				if (!voiceStates.length)
 					continue;
-				else
+				if (ChannelStore$2.getChannel(id).type !== 13)
 					audio = true;
 				if (!video && VoiceStateStore$2.hasVideo(id))
 					video = true;
@@ -1202,7 +1202,7 @@ function buildPlugin([BasePlugin, Library]) {
 					);
 					if (showGuildIcons && !ignoredGuilds.includes(props.guild.id)) {
 						props.mediaState = { ...props.mediaState, ...mediaState };
-					} else if (!props.mediaState.participating) {
+					} else if (!props.mediaState.isCurrentUserConnected) {
 						props.mediaState = { ...props.mediaState, ...{ audio: false, video: false, screenshare: false } };
 					}
 				});
