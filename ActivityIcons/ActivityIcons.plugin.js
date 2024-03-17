@@ -1,10 +1,9 @@
 /**
  * @name ActivityIcons
  * @author Neodymium
- * @version 1.4.2
+ * @version 1.4.3
  * @description Improves the default icons next to statuses
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
- * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
  */
 
@@ -40,24 +39,17 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.4.2",
+		version: "1.4.3",
 		description: "Improves the default icons next to statuses",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js"
 	},
 	changelog: [
 		{
-			title: "Added",
-			type: "improved",
-			items: [
-				"Added French translations (Thanks to Piquixel on GitHub!)"
-			]
-		},
-		{
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed issues with the newest Discord update."
+				"Adjusted icon sizes to better fit with Discord's new icons."
 			]
 		}
 	]
@@ -173,13 +165,13 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		// modules/discordmodules.tsx
 		const {
-			Filters: { byProps }
+			Filters: { byKeys }
 		} = betterdiscord.Webpack;
 		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
 			style: { color: "red" }
 		}, "Error: Component not found"));
 		const ActivityStatus = expectModule({
-			filter: byProps("ActivityEmoji"),
+			filter: byKeys("ActivityEmoji"),
 			name: "ActivityStatus",
 			fatal: true
 		});
@@ -190,7 +182,7 @@ function buildPlugin([BasePlugin, Library]) {
 			Screen: getIcon("Screen", "M4 2.5C2.897 2.5 2 3.397 2 4.5V15.5C2 16.604 2.897")
 		};
 		const Common = expectModule({
-			filter: byProps("FormSwitch"),
+			filter: byKeys("FormSwitch"),
 			name: "Common",
 			fallback: {
 				FormSwitch: Error$1
@@ -260,7 +252,7 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// @lib/strings.ts
-		const Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byProps("dispatch", "subscribe"));
+		const Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byKeys("dispatch", "subscribe"));
 		const LocaleManager = betterdiscord.Webpack.getModule((m) => m.Messages?.CLOSE);
 		function createStrings(locales, defaultLocale) {
 			let strings = locales[defaultLocale];
@@ -354,7 +346,7 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// styles.css
-		const css = ".activity-icon {\n\twidth: 16px;\n\theight: 16px;\n\tmargin-left: 4px;\n\t-webkit-box-flex: 0;\n\tflex: 0 0 auto;\n}\n\n.activity-icon-small {\n\tmargin: 1px;\n}\n\n.rich-activity-icon {\n\tmargin-left: 2px;\n\tmargin-right: -2px;\n}\n\n.activity-icon > div {\n\twidth: inherit;\n\theight: inherit;\n}\n";
+		const css = ".activity-icon {\n\twidth: 16px;\n\theight: 16px;\n\tmargin-left: 4px;\n\t-webkit-box-flex: 0;\n\tflex: 0 0 auto;\n\tdisplay: flex;\n\talign-items: center;\n\tjustify-content: center;\n}\n\n.rich-activity-icon {\n\tmargin-left: 2px;\n\tmargin-right: -2px;\n}\n\n.activity-icon > div {\n\twidth: inherit;\n\theight: inherit;\n}\n";
 	
 		// assets/playstation.svg
 		const SvgPlaystation = (props) => BdApi.React.createElement("svg", {
@@ -441,20 +433,18 @@ function buildPlugin([BasePlugin, Library]) {
 				});
 			}
 			let icon = BdApi.React.createElement(Icons.Activity, {
-				width: "16",
-				height: "16"
+				width: "13",
+				height: "13"
 			});
 			if (platformIcons && onPS)
 				icon = BdApi.React.createElement(SvgPlaystation, {
-					width: "14",
-					height: "14",
-					className: "activity-icon-small"
+					width: "13",
+					height: "13"
 				});
 			if (platformIcons && onXbox)
 				icon = BdApi.React.createElement(SvgXbox, {
-					width: "14",
-					height: "14",
-					className: "activity-icon-small"
+					width: "13",
+					height: "13"
 				});
 			if (richPresenceIcons && hasRP)
 				icon = BdApi.React.createElement(Icons.RichActivity, {
@@ -493,9 +483,8 @@ function buildPlugin([BasePlugin, Library]) {
 				...props2,
 				className: "activity-icon"
 			}, BdApi.React.createElement(Icons.Headset, {
-				className: "activity-icon-small",
-				width: "14",
-				height: "14"
+				width: "13",
+				height: "13"
 			})));
 		}
 	
@@ -554,9 +543,8 @@ function buildPlugin([BasePlugin, Library]) {
 				...props2,
 				className: "activity-icon"
 			}, BdApi.React.createElement(Icons.Screen, {
-				className: "activity-icon-small",
-				width: "14",
-				height: "14"
+				width: "13",
+				height: "13"
 			})));
 		}
 	
