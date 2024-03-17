@@ -3,7 +3,7 @@ import { createSettings, createStrings } from "@lib";
 import { Stores } from "./discordmodules";
 import locales from "../locales.json";
 
-const { UserStore, GuildChannelStore, VoiceStateStore } = Stores;
+const { UserStore, GuildChannelStore, VoiceStateStore, ChannelStore } = Stores;
 
 export const Settings = createSettings({
 	showProfileSection: true,
@@ -31,7 +31,7 @@ export const getGuildMediaState = (guildId: string, ignoredChannels: string[]) =
 
 		const voiceStates: any[] = Object.values(VoiceStateStore.getVoiceStatesForChannel(id));
 		if (!voiceStates.length) continue;
-		else audio = true;
+		if (ChannelStore.getChannel(id).type !== 13) audio = true;
 
 		if (!video && VoiceStateStore.hasVideo(id)) video = true;
 		if (!screenshare && voiceStates.some((voiceState) => voiceState.selfStream)) screenshare = true;

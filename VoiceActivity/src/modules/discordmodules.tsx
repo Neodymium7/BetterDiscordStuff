@@ -2,7 +2,7 @@ import { Webpack } from "betterdiscord";
 import { expectModule, getStore, getSelectors, getClasses, getIcon } from "@lib/utils/webpack";
 
 const {
-	Filters: { byProps, byStrings },
+	Filters: { byKeys, byStrings },
 } = Webpack;
 
 const Error = (_props) => (
@@ -41,9 +41,9 @@ export const canViewChannel = expectModule<any>({
 	fatal: true,
 })?.canViewChannel;
 
-export const GuildActions: any = expectModule({ filter: byProps("requestMembers"), name: "GuildActions" });
+export const GuildActions: any = expectModule({ filter: byKeys("requestMembers"), name: "GuildActions" });
 
-export const ChannelActions: any = expectModule({ filter: byProps("selectChannel"), name: "ChannelActions" });
+export const ChannelActions: any = expectModule({ filter: byKeys("selectChannel"), name: "ChannelActions" });
 
 export const UserPopoutSection = expectModule({
 	filter: byStrings(".lastSection", ".section"),
@@ -52,7 +52,7 @@ export const UserPopoutSection = expectModule({
 });
 
 export const Flux: any = expectModule({
-	filter: byProps("useStateFromStores"),
+	filter: byKeys("useStateFromStores"),
 	name: "Flux",
 	fatal: true,
 });
@@ -71,7 +71,7 @@ export const getAcronym = expectModule({
 });
 
 export const Common = expectModule({
-	filter: byProps("Popout", "Avatar", "FormSwitch", "Tooltip"),
+	filter: byKeys("Popout", "Avatar", "FormSwitch", "Tooltip"),
 	name: "Common",
 	fallback: {
 		Popout: (props) => <div {...props} />,
