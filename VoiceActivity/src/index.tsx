@@ -142,7 +142,7 @@ export default class VoiceActivity extends BasePlugin {
 				getGuildMediaState(props.guild.id, ignoredChannels)
 			);
 
-			if (showGuildIcons && !ignoredGuilds.includes(props.guild.id)) {
+			if (showGuildIcons && !ignoredGuilds.includes(props.guild.id) && !props.mediaState.gaming) {
 				props.mediaState = { ...props.mediaState, ...mediaState };
 			} else if (!props.mediaState.isCurrentUserConnected) {
 				props.mediaState = { ...props.mediaState, ...{ audio: false, video: false, screenshare: false } };

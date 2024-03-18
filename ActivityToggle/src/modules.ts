@@ -3,10 +3,10 @@ import { expectModule, getSelectors, getClasses, getIcon } from "@lib/utils/webp
 import React from "react";
 
 const {
-	Filters: { byProps, byStrings },
+	Filters: { byKeys, byStrings },
 } = Webpack;
 
-export const Sections = expectModule(byProps("ACCOUNT"), {
+export const Sections = expectModule(byKeys("ACCOUNT", "ACCESSIBILITY"), {
 	searchExports: true,
 	name: "Sections",
 	fallback: {
@@ -24,14 +24,15 @@ export const Activity = getIcon("Activity", "M5.79335761,5 L18.2066424,5 C19.780
 
 export const Settings = getIcon("Settings", "M14 7V9C14 9 12.5867 9");
 
-export const playSound: (id: string, vol: number) => void = expectModule({
-	filter: byStrings(".getSoundpack()"),
-	searchExports: true,
-	name: "playSound",
+export const Sounds: {
+	playSound: (id: string, vol: number) => void;
+} = expectModule({
+	filter: byKeys("playSound", "createSound"),
+	name: "Sounds",
 });
 
 export const ShowCurrentGame = expectModule({
-	filter: byProps("ShowCurrentGame"),
+	filter: byKeys("ShowCurrentGame"),
 	name: "ShowCurrentGame",
 	fallback: {
 		ShowCurrentGame: {
@@ -42,7 +43,7 @@ export const ShowCurrentGame = expectModule({
 })?.ShowCurrentGame;
 
 export const UserSettingsWindow: any = expectModule({
-	filter: byProps("open", "updateAccount"),
+	filter: byKeys("open", "updateAccount"),
 	name: "UserSettingsWindow",
 });
 

@@ -6,7 +6,7 @@ import {
 	Sections,
 	Settings,
 	UserSettingsWindow,
-	playSound,
+	Sounds,
 	ShowCurrentGame,
 } from "../modules";
 import ActivityDisabledIcon from "./ActivityDisabledIcon";
@@ -24,7 +24,7 @@ export default function ActivityToggleButton() {
 					return UI.alert("Error", "Could not update setting. See the console for more information.");
 				}
 				ShowCurrentGame.updateSetting(!activityEnabled);
-				playSound(activityEnabled ? "activity_user_left" : "activity_user_join", 0.4);
+				Sounds.playSound(activityEnabled ? "activity_user_left" : "activity_user_join", 0.4);
 			}}
 			onContextMenu={(e: React.MouseEvent) => {
 				ContextMenu.open(
