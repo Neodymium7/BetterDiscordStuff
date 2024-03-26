@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.13
+ * @version 1.8.14
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.13",
+		version: "1.8.14",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -49,8 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed guild icon behavior with inactive stage channels.",
-				"Fixed guild icons not respecting settings."
+				"Fixed member list icons crashing on PTB/Canary."
 			]
 		}
 	]
@@ -1110,13 +1109,23 @@ function buildPlugin([BasePlugin, Library]) {
 				betterdiscord.Patcher.after(MemberListItem, "default", (_, [props], ret) => {
 					if (!props.user)
 						return ret;
-					Array.isArray(ret.props.children) ? ret.props.children.unshift(BdApi.React.createElement(VoiceIcon, {
-						userId: props.user.id,
-						context: "memberlist"
-					})) : ret.props.children = [BdApi.React.createElement(VoiceIcon, {
-						userId: props.user.id,
-						context: "memberlist"
-					})];
+					const patch = (element) => {
+						const icon = BdApi.React.createElement(VoiceIcon, {
+							userId: props.user.id,
+							context: "memberlist"
+						});
+						Array.isArray(element.props.children) ? element.props.children.unshift(icon) : element.props.children = [icon];
+					};
+					if (ret.props.avatar) {
+						patch(ret);
+					} else {
+						const children2 = ret.props.children;
+						ret.props.children = (childrenProps) => {
+							const childrenRet = children2(childrenProps);
+							patch(childrenRet);
+							return childrenRet;
+						};
+					}
 				});
 			}
 			patchPrivateChannel() {
@@ -1200,7 +1209,7 @@ function buildPlugin([BasePlugin, Library]) {
 						[Stores.VoiceStateStore],
 						() => getGuildMediaState(props.guild.id, ignoredChannels)
 					);
-					if (showGuildIcons && !ignoredGuilds.includes(props.guild.id)) {
+					if (showGuildIcons && !ignoredGuilds.includes(props.guild.id) && !props.mediaState.gaming) {
 						props.mediaState = { ...props.mediaState, ...mediaState };
 					} else if (!props.mediaState.isCurrentUserConnected) {
 						props.mediaState = { ...props.mediaState, ...{ audio: false, video: false, screenshare: false } };
