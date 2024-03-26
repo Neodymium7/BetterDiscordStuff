@@ -63,9 +63,29 @@ export default class VoiceActivity extends BasePlugin {
 	patchMemberListItem() {
 		Patcher.after(MemberListItem, "default", (_, [props]: [any], ret) => {
 			if (!props.user) return ret;
-			Array.isArray(ret.props.children)
-				? ret.props.children.unshift(<VoiceIcon userId={props.user.id} context="memberlist" />)
-				: (ret.props.children = [<VoiceIcon userId={props.user.id} context="memberlist" />]);
+
+			const patch = (element) => {
+				const icon = <VoiceIcon userId={props.user.id} context="memberlist" />;
+
+				Array.isArray(element.props.children)
+					? element.props.children.unshift(icon)
+					: (element.props.children = [icon]);
+			};
+
+			// Stable
+			if (ret.props.avatar) {
+				patch(ret);
+			}
+
+			// PTB/Canary
+			else {
+				const children = ret.props.children;
+				ret.props.children = (childrenProps) => {
+					const childrenRet = children(childrenProps);
+					patch(childrenRet);
+					return childrenRet;
+				};
+			}
 		});
 	}
 
