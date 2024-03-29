@@ -23,7 +23,15 @@ export default class ActivityIcons extends BasePlugin {
 	patchActivityStatus() {
 		Patcher.after(ActivityStatus, "default", (_, [props]: [any], ret) => {
 			if (!ret) return;
-			ret.props.children[2] = null;
+
+			const defaultIconIndex = ret.props.children.findIndex((element) =>
+				element?.props?.className?.startsWith("icon")
+			);
+
+			if (defaultIconIndex !== -1) {
+				ret.props.children[defaultIconIndex] = null;
+			}
+
 			ret.props.children.push(
 				<ActivityIcon activities={props.activities} />,
 				<WatchingIcon activities={props.activities} />,
