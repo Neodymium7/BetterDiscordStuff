@@ -1,7 +1,7 @@
 /**
  * @name ActivityIcons
  * @author Neodymium
- * @version 1.4.3
+ * @version 1.4.4
  * @description Improves the default icons next to statuses
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.4.3",
+		version: "1.4.4",
 		description: "Improves the default icons next to statuses",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Adjusted icon sizes to better fit with Discord's new icons."
+				"Fixed rendering duplicate rich presence icons."
 			]
 		}
 	]
@@ -559,7 +559,12 @@ function buildPlugin([BasePlugin, Library]) {
 				betterdiscord.Patcher.after(ActivityStatus, "default", (_, [props], ret) => {
 					if (!ret)
 						return;
-					ret.props.children[2] = null;
+					const defaultIconIndex = ret.props.children.findIndex(
+						(element) => element?.props?.className?.startsWith("icon")
+					);
+					if (defaultIconIndex !== -1) {
+						ret.props.children[defaultIconIndex] = null;
+					}
 					ret.props.children.push(
 						BdApi.React.createElement(ActivityIcon, {
 							activities: props.activities
