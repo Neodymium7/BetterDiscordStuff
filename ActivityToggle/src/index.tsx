@@ -14,7 +14,14 @@ export default class ActivityToggle extends Plugin {
 		this.forceUpdate = owner.forceUpdate.bind(owner);
 
 		Patcher.after(Account.prototype, "render", (_that, [_props], ret) => {
-			ret.props.children[1].props.children.unshift(<ActivityToggleButton />);
+			const buttonContainerFilter = (i) =>
+				Array.isArray(i?.props?.children) &&
+				i?.props.children.some((e) => e?.props?.hasOwnProperty("selfMute"));
+
+			const buttonContainer = BdApi.Utils.findInTree(ret.props.children, buttonContainerFilter, {
+				walkable: ["children", "props"],
+			});
+			buttonContainer.props.children.unshift(<ActivityToggleButton />);
 		});
 
 		this.forceUpdate();
