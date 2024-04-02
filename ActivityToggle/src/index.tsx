@@ -1,4 +1,4 @@
-import { DOM, Patcher, ReactUtils } from "betterdiscord";
+import { DOM, Patcher, ReactUtils, Utils } from "betterdiscord";
 import Plugin from "zlibrary/plugin";
 import { AccountSelectors } from "./modules";
 import ActivityToggleButton from "./components/ActivityToggleButton";
@@ -15,10 +15,9 @@ export default class ActivityToggle extends Plugin {
 
 		Patcher.after(Account.prototype, "render", (_that, [_props], ret) => {
 			const buttonContainerFilter = (i) =>
-				Array.isArray(i?.props?.children) &&
-				i?.props.children.some((e) => e?.props?.hasOwnProperty("selfMute"));
+				Array.isArray(i?.props?.children) && i.props.children.some((e) => e?.props?.hasOwnProperty("selfMute"));
 
-			const buttonContainer = BdApi.Utils.findInTree(ret.props.children, buttonContainerFilter, {
+			const buttonContainer = Utils.findInTree(ret.props.children, buttonContainerFilter, {
 				walkable: ["children", "props"],
 			});
 			buttonContainer.props.children.unshift(<ActivityToggleButton />);
