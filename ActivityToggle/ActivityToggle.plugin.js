@@ -1,7 +1,7 @@
 /**
  * @name ActivityToggle
  * @author Neodymium
- * @version 1.2.11
+ * @version 1.2.12
  * @description Adds a button to quickly toggle Activity Status.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.2.11",
+		version: "1.2.12",
 		description: "Adds a button to quickly toggle Activity Status.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityToggle/ActivityToggle.plugin.js"
@@ -253,7 +253,11 @@ function buildPlugin([BasePlugin, Library]) {
 				const Account = owner._reactInternals.type;
 				this.forceUpdate = owner.forceUpdate.bind(owner);
 				betterdiscord.Patcher.after(Account.prototype, "render", (_that, [_props], ret) => {
-					ret.props.children[1].props.children.unshift(BdApi.React.createElement(ActivityToggleButton, null));
+					const buttonContainerFilter = (i) => Array.isArray(i?.props?.children) && i.props.children.some((e) => e?.props?.hasOwnProperty("selfMute"));
+					const buttonContainer = betterdiscord.Utils.findInTree(ret.props.children, buttonContainerFilter, {
+						walkable: ["children", "props"]
+					});
+					buttonContainer.props.children.unshift(BdApi.React.createElement(ActivityToggleButton, null));
 				});
 				this.forceUpdate();
 			}
