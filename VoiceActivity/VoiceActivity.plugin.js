@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.14
+ * @version 1.8.15
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.14",
+		version: "1.8.15",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed member list icons crashing on PTB/Canary."
+				"Fixed patching private channel profile."
 			]
 		}
 	]
@@ -280,7 +280,7 @@ function buildPlugin([BasePlugin, Library]) {
 			defaultExport: false
 		});
 		const PrivateChannelProfile = expectModule({
-			filter: (m) => m.Inner,
+			filter: (m) => m.default?.Overlay,
 			name: "PrivateChannelProfile",
 			defaultExport: false
 		});
@@ -1092,16 +1092,16 @@ function buildPlugin([BasePlugin, Library]) {
 				});
 			}
 			patchPrivateChannelProfile() {
-				const { Inner } = PrivateChannelProfile.default;
+				if (!PrivateChannelProfile)
+					return;
+				const { Overlay } = PrivateChannelProfile.default;
 				betterdiscord.Patcher.after(PrivateChannelProfile, "default", (_, [props], ret) => {
-					if (props.profileType !== "PANEL")
-						return ret;
-					const sections = betterdiscord.Utils.findInTree(ret, (i) => Array.isArray(i.children) && !i.value, {
+					const sections = betterdiscord.Utils.findInTree(ret, (i) => Array.isArray(i.children) && !i.profileType, {
 						walkable: ["props", "children"]
 					}).children;
 					sections.splice(2, 0, BdApi.React.createElement(VoiceProfileSection, {
 						userId: props.user.id,
-						wrapper: Inner
+						wrapper: Overlay
 					}));
 				});
 			}
@@ -1209,7 +1209,7 @@ function buildPlugin([BasePlugin, Library]) {
 						[Stores.VoiceStateStore],
 						() => getGuildMediaState(props.guild.id, ignoredChannels)
 					);
-					if (showGuildIcons && !ignoredGuilds.includes(props.guild.id) && !props.mediaState.gaming) {
+					if (showGuildIcons && !ignoredGuilds.includes(props.guild.id)) {
 						props.mediaState = { ...props.mediaState, ...mediaState };
 					} else if (!props.mediaState.isCurrentUserConnected) {
 						props.mediaState = { ...props.mediaState, ...{ audio: false, video: false, screenshare: false } };
