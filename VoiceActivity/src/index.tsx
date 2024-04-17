@@ -50,13 +50,14 @@ export default class VoiceActivity extends BasePlugin {
 	}
 
 	patchPrivateChannelProfile() {
-		const { Inner } = PrivateChannelProfile.default;
+		if (!PrivateChannelProfile) return;
+
+		const { Overlay } = PrivateChannelProfile.default;
 		Patcher.after(PrivateChannelProfile, "default", (_, [props]: [any], ret) => {
-			if (props.profileType !== "PANEL") return ret;
-			const sections = Utils.findInTree(ret, (i) => Array.isArray(i.children) && !i.value, {
+			const sections = Utils.findInTree(ret, (i) => Array.isArray(i.children) && !i.profileType, {
 				walkable: ["props", "children"],
 			}).children;
-			sections.splice(2, 0, <VoiceProfileSection userId={props.user.id} wrapper={Inner} />);
+			sections.splice(2, 0, <VoiceProfileSection userId={props.user.id} wrapper={Overlay} />);
 		});
 	}
 
@@ -162,7 +163,7 @@ export default class VoiceActivity extends BasePlugin {
 				getGuildMediaState(props.guild.id, ignoredChannels)
 			);
 
-			if (showGuildIcons && !ignoredGuilds.includes(props.guild.id) && !props.mediaState.gaming) {
+			if (showGuildIcons && !ignoredGuilds.includes(props.guild.id)) {
 				props.mediaState = { ...props.mediaState, ...mediaState };
 			} else if (!props.mediaState.isCurrentUserConnected) {
 				props.mediaState = { ...props.mediaState, ...{ audio: false, video: false, screenshare: false } };
