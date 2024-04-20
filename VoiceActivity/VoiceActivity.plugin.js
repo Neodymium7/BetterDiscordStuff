@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.15
+ * @version 1.8.16
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.15",
+		version: "1.8.16",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -279,9 +279,9 @@ function buildPlugin([BasePlugin, Library]) {
 			name: "UserPopoutBody",
 			defaultExport: false
 		});
-		const PrivateChannelProfile = expectModule({
+		const UserProfile = expectModule({
 			filter: (m) => m.default?.Overlay,
-			name: "PrivateChannelProfile",
+			name: "UserProfile",
 			defaultExport: false
 		});
 		const PrivateChannelContainer = expectModule({
@@ -1073,7 +1073,7 @@ function buildPlugin([BasePlugin, Library]) {
 				this.patchPeopleListItem();
 				this.patchUserPopout();
 				this.patchMemberListItem();
-				this.patchPrivateChannelProfile();
+				this.patchUserPanel();
 				this.patchPrivateChannel();
 				this.patchGuildIcon();
 				this.patchChannelContextMenu();
@@ -1091,12 +1091,15 @@ function buildPlugin([BasePlugin, Library]) {
 					}));
 				});
 			}
-			patchPrivateChannelProfile() {
-				if (!PrivateChannelProfile)
+			patchUserPanel() {
+				if (!UserProfile)
 					return;
-				const { Overlay } = PrivateChannelProfile.default;
-				betterdiscord.Patcher.after(PrivateChannelProfile, "default", (_, [props], ret) => {
-					const sections = betterdiscord.Utils.findInTree(ret, (i) => Array.isArray(i.children) && !i.profileType, {
+				const { Overlay } = UserProfile.default;
+				betterdiscord.Patcher.after(UserProfile, "default", (_, [props], ret) => {
+					const profileInner = betterdiscord.Utils.findInTree(ret, (i) => i.profileType, { walkable: ["props", "children"] });
+					if (profileInner.profileType !== "PANEL")
+						return ret;
+					const sections = betterdiscord.Utils.findInTree(profileInner.children, (i) => Array.isArray(i.children), {
 						walkable: ["props", "children"]
 					}).children;
 					sections.splice(2, 0, BdApi.React.createElement(VoiceProfileSection, {
