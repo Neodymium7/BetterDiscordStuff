@@ -11,7 +11,7 @@ import {
 	peopleItemSelector,
 	Flux,
 	UserPopoutBody,
-	PrivateChannelProfile,
+	UserProfile,
 } from "./modules/discordmodules";
 import { Settings, Strings, forceRerender, forceUpdateAll, getGuildMediaState, waitForElement } from "./modules/utils";
 import iconStyles from "./styles/voiceicon.module.scss";
@@ -30,7 +30,7 @@ export default class VoiceActivity extends BasePlugin {
 		this.patchPeopleListItem();
 		this.patchUserPopout();
 		this.patchMemberListItem();
-		this.patchPrivateChannelProfile();
+		this.patchUserPanel();
 		this.patchPrivateChannel();
 		this.patchGuildIcon();
 		this.patchChannelContextMenu();
@@ -49,14 +49,19 @@ export default class VoiceActivity extends BasePlugin {
 		});
 	}
 
-	patchPrivateChannelProfile() {
-		if (!PrivateChannelProfile) return;
+	patchUserPanel() {
+		if (!UserProfile) return;
+		const { Overlay } = UserProfile.default;
 
-		const { Overlay } = PrivateChannelProfile.default;
-		Patcher.after(PrivateChannelProfile, "default", (_, [props]: [any], ret) => {
-			const sections = Utils.findInTree(ret, (i) => Array.isArray(i.children) && !i.profileType, {
+		Patcher.after(UserProfile, "default", (_, [props]: [any], ret) => {
+			const profileInner = Utils.findInTree(ret, (i) => i.profileType, { walkable: ["props", "children"] });
+
+			if (profileInner.profileType !== "PANEL") return ret;
+
+			const sections = Utils.findInTree(profileInner.children, (i) => Array.isArray(i.children), {
 				walkable: ["props", "children"],
 			}).children;
+
 			sections.splice(2, 0, <VoiceProfileSection userId={props.user.id} wrapper={Overlay} />);
 		});
 	}

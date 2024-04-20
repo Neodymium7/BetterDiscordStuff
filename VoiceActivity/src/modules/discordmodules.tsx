@@ -23,9 +23,9 @@ export const UserPopoutBody: any = expectModule({
 	defaultExport: false,
 });
 
-export const PrivateChannelProfile: any = expectModule({
+export const UserProfile: any = expectModule({
 	filter: (m) => m.default?.Overlay,
-	name: "PrivateChannelProfile",
+	name: "UserProfile",
 	defaultExport: false,
 });
 
