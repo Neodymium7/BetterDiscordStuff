@@ -1,10 +1,9 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.3.3
+ * @version 1.3.4
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
- * @donate https://ko-fi.com/neodymium7
  * @invite fRbsqH87Av
  */
 
@@ -40,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.3.3",
+		version: "1.3.4",
 		description: "Opens the user's popout when clicking on a name in the typing area.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js"
@@ -50,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed issues with the newest Discord update."
+				"Fixed opening popout."
 			]
 		}
 	]
@@ -137,7 +136,7 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		// modules.tsx
 		const {
-			Filters: { byStrings, byProps }
+			Filters: { byStrings, byKeys }
 		} = betterdiscord.Webpack;
 		const ErrorPopout = (props) => BdApi.React.createElement("div", {
 			style: { backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" }
@@ -148,14 +147,14 @@ function buildPlugin([BasePlugin, Library]) {
 			fatal: true
 		});
 		const UserPopout = expectModule({
-			filter: (m) => m.type?.toString?.().includes('"Unexpected missing user"'),
+			filter: (m) => m.default?.toString?.().includes('"Unexpected missing user"'),
 			name: "UserPopout",
-			fallback: (_props) => BdApi.React.createElement(ErrorPopout, {
+			fallback: { default: (_props) => BdApi.React.createElement(ErrorPopout, {
 				message: "Error: User Popout module not found"
-			})
-		});
+			}) }
+		}).default;
 		const Common = expectModule({
-			filter: byProps("Popout"),
+			filter: byKeys("Popout"),
 			name: "Common",
 			fallback: {
 				Popout: (props) => props.children()
