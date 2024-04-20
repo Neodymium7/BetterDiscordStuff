@@ -2,7 +2,7 @@ import { Webpack } from "betterdiscord";
 import { expectModule, getStore, getSelectors } from "@lib/utils/webpack";
 
 const {
-	Filters: { byStrings, byProps },
+	Filters: { byStrings, byKeys },
 } = Webpack;
 
 const ErrorPopout = (props: { message: string }) => (
@@ -18,13 +18,13 @@ export const TypingUsersContainer: any = expectModule({
 });
 
 export const UserPopout = expectModule({
-	filter: (m) => m.type?.toString?.().includes('"Unexpected missing user"'),
+	filter: (m) => m.default?.toString?.().includes('"Unexpected missing user"'),
 	name: "UserPopout",
-	fallback: (_props: any) => <ErrorPopout message="Error: User Popout module not found" />,
-});
+	fallback: { default: (_props: any) => <ErrorPopout message="Error: User Popout module not found" /> },
+}).default;
 
 export const Common = expectModule({
-	filter: byProps("Popout"),
+	filter: byKeys("Popout"),
 	name: "Common",
 	fallback: {
 		Popout: (props: any) => props.children(),
