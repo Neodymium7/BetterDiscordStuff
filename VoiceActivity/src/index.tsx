@@ -53,7 +53,7 @@ export default class VoiceActivity extends BasePlugin {
 		if (!UserProfile) return;
 		const { Overlay } = UserProfile.default;
 
-		Patcher.after(UserProfile, "default", (_, [props]: [any], ret) => {
+		Patcher.after(UserProfile.default, "render", (_, [props]: [any], ret) => {
 			const profileInner = Utils.findInTree(ret, (i) => i.profileType, { walkable: ["props", "children"] });
 
 			if (profileInner.profileType !== "PANEL") return ret;
