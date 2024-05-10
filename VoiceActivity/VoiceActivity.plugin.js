@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.16
+ * @version 1.8.17
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.16",
+		version: "1.8.17",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed patching private channel profile."
+				"Fixed patching user panel."
 			]
 		}
 	]
@@ -1095,7 +1095,7 @@ function buildPlugin([BasePlugin, Library]) {
 				if (!UserProfile)
 					return;
 				const { Overlay } = UserProfile.default;
-				betterdiscord.Patcher.after(UserProfile, "default", (_, [props], ret) => {
+				betterdiscord.Patcher.after(UserProfile.default, "render", (_, [props], ret) => {
 					const profileInner = betterdiscord.Utils.findInTree(ret, (i) => i.profileType, { walkable: ["props", "children"] });
 					if (profileInner.profileType !== "PANEL")
 						return ret;
