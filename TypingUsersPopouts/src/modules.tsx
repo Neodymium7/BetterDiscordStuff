@@ -1,5 +1,5 @@
 import { Webpack } from "betterdiscord";
-import { expectModule, getStore, getSelectors } from "@lib/utils/webpack";
+import { expectModule, getSelectors } from "@lib/utils/webpack";
 
 const {
 	Filters: { byStrings, byKeys },
@@ -12,16 +12,16 @@ const ErrorPopout = (props: { message: string }) => (
 );
 
 export const TypingUsersContainer: any = expectModule({
-	filter: (m) => m.default?.toString?.().includes("typingUsers:"),
+	filter: (m) => m.Z?.toString?.().includes("typingUsers:"),
 	name: "TypingUsersContainer",
 	fatal: true,
 });
 
 export const UserPopout = expectModule({
-	filter: (m) => m.default?.toString?.().includes('"Unexpected missing user"'),
+	filter: (m) => m.toString?.().includes('"Unexpected missing user"'),
 	name: "UserPopout",
-	fallback: { default: (_props: any) => <ErrorPopout message="Error: User Popout module not found" /> },
-}).default;
+	fallback: (_props: any) => <ErrorPopout message="Error: User Popout module not found" />,
+});
 
 export const Common = expectModule({
 	filter: byKeys("Popout"),
@@ -38,5 +38,5 @@ export const loadProfile: any = expectModule<any>({
 
 export const typingSelector = getSelectors("Typing Class", ["typingDots", "typing"]).typing;
 
-export const UserStore = getStore("UserStore");
-export const RelationshipStore = getStore("RelationshipStore");
+export const UserStore = Webpack.getStore("UserStore");
+export const RelationshipStore = Webpack.getStore("RelationshipStore");

@@ -32,7 +32,7 @@ export default function ListeningIcon(props: ListeningIconProps) {
 		>
 			{(props) => (
 				<div {...props} className="activity-icon">
-					<Icons.Headset width="13" height="13" />
+					<Icons.Headset color="currentColor" size="13" width="13" height="13" />
 				</div>
 			)}
 		</Components.Tooltip>

@@ -29,7 +29,7 @@ export default class TypingUsersPopouts extends Plugin {
 	}
 
 	async patch() {
-		const TypingUsers = await findChildComponent(TypingUsersContainer, "default", (i) => i.prototype?.render);
+		const TypingUsers = await findChildComponent(TypingUsersContainer, "Z", (i) => i.prototype?.render);
 
 		Patcher.after(TypingUsers.prototype, "render", (that: any, _, ret) => {
 			const text = Utils.findInTree(ret, (e) => e.children?.length && e.children[0]?.type === "strong", {

@@ -1,8 +1,9 @@
 import { Webpack } from "betterdiscord";
-import { expectModule, getStore, getSelectors, getClasses, getIcon } from "@lib/utils/webpack";
+import { expectModule, getSelectors, getClasses, getIcon, bySourceStrings } from "@lib/utils/webpack";
 
 const {
 	Filters: { byKeys, byStrings },
+	getStore,
 } = Webpack;
 
 const Error = (_props) => (
@@ -24,9 +25,9 @@ export const UserPopoutBody: any = expectModule({
 });
 
 export const UserProfile: any = expectModule({
-	filter: (m) => m.default?.Overlay,
+	filter: (m) => m?.Overlay,
 	name: "UserProfile",
-	defaultExport: false,
+	defaultExport: true,
 });
 
 export const PrivateChannelContainer: any = expectModule({
@@ -34,12 +35,6 @@ export const PrivateChannelContainer: any = expectModule({
 	name: "PrivateChannelContainer",
 	searchExports: true,
 });
-
-export const canViewChannel = expectModule<any>({
-	filter: (m) => m.canViewChannel,
-	name: "canViewChannel",
-	fatal: true,
-})?.canViewChannel;
 
 export const GuildActions: any = expectModule({ filter: byKeys("requestMembers"), name: "GuildActions" });
 
@@ -51,10 +46,20 @@ export const UserPopoutSection = expectModule({
 	fallback: (props) => <div {...props} />,
 });
 
-export const Flux: any = expectModule({
-	filter: byKeys("useStateFromStores"),
+export const useStateFromStores: any = expectModule({
+	filter: byStrings("useStateFromStores"),
 	name: "Flux",
 	fatal: true,
+	searchExports: true,
+});
+
+export const Permissions = expectModule({
+	filter: byKeys("VIEW_CREATOR_MONETIZATION_ANALYTICS"),
+	searchExports: true,
+	name: "Permissions",
+	fallback: {
+		VIEW_CHANNEL: 1024n,
+	},
 });
 
 export const transitionTo: (path: string) => null = expectModule({
@@ -82,16 +87,13 @@ export const Common = expectModule({
 });
 
 export const Icons = {
-	CallJoin: getIcon("CallJoin", "M11 5V3C16.515 3 21 7.486"),
-	People: getIcon("People", "M14 8.00598C14 10.211 12.206 12.006"),
-	Speaker: getIcon("Speaker", "M11.383 3.07904C11.009 2.92504 10.579 3.01004"),
-	Muted: getIcon("Muted", "M6.7 11H5C5 12.19 5.34 13.3"),
-	Deafened: getIcon("Deafened", "M6.16204 15.0065C6.10859 15.0022 6.05455 15"),
-	Video: getIcon("Video", "M21.526 8.149C21.231 7.966 20.862 7.951"),
-	Stage: getIcon(
-		"Stage",
-		"M14 13C14 14.1 13.1 15 12 15C10.9 15 10 14.1 10 13C10 11.9 10.9 11 12 11C13.1 11 14 11.9 14 13ZM8.5 20V19.5C8.5"
-	),
+	CallJoin: getIcon("CallJoin", "M2 7.4A5.4 5.4 0 0 1 7.4 2c.36 0 .7.22.83.55l1.93 4.64a1 1"),
+	People: getIcon("People", "M14.5 8a3 3 0 1 0-2.7-4.3c-.2.4.06.86.44 1.12a5 5 0 0 1 2.14 "),
+	Speaker: getIcon("Speaker", "M12 3a1 1 0 0 0-1-1h-.06a1 1 0 0 0-.74.32L5.92 7H3a1 1"),
+	Muted: getIcon("Muted", "m2.7 22.7 20-20a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4"),
+	Deafened: getIcon("Deafened", "M22.7 2.7a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4"),
+	Video: getIcon("Video", "M4 4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h11a3 3"),
+	Stage: getIcon("Stage", "M19.61 18.25a1.08 1.08 0 0 1-.07-1.33 9 9 0 1 0-15.07"),
 };
 
 export const peopleItemSelector = getSelectors("People Item Class", ["peopleListItem"]).peopleListItem;
@@ -108,6 +110,8 @@ export const partyMembersClasses = getClasses("Party Members Classes", [
 	"partyMemberOverflow",
 ]);
 
+export const overlay = getClasses("Overlay Class", ["overlay", "profilePanel"]).overlay;
+
 export const Stores = {
 	UserStore: getStore("UserStore"),
 	GuildChannelStore: getStore("GuildChannelStore"),
@@ -116,4 +120,5 @@ export const Stores = {
 	ChannelStore: getStore("ChannelStore"),
 	SelectedChannelStore: getStore("SelectedChannelStore"),
 	GuildMemberStore: getStore("GuildMemberStore"),
+	PermissionStore: getStore("PermissionStore"),
 };

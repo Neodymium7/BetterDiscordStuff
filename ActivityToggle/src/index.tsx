@@ -1,12 +1,11 @@
 import { DOM, Patcher, ReactUtils, Utils } from "betterdiscord";
-import Plugin from "zlibrary/plugin";
 import { AccountSelectors } from "./modules";
 import ActivityToggleButton from "./components/ActivityToggleButton";
 
-export default class ActivityToggle extends Plugin {
+export default class ActivityToggle {
 	forceUpdate?: () => void;
 
-	async onStart() {
+	async start() {
 		DOM.addStyle(`${AccountSelectors.withTagAsButton} { min-width: 70px; }`);
 
 		const owner: any = ReactUtils.getOwnerInstance(document.querySelector(AccountSelectors.container));
@@ -26,7 +25,7 @@ export default class ActivityToggle extends Plugin {
 		this.forceUpdate();
 	}
 
-	onStop() {
+	stop() {
 		DOM.removeStyle();
 		Patcher.unpatchAll();
 		this.forceUpdate?.();

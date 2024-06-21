@@ -1,5 +1,5 @@
 import { Webpack } from "betterdiscord";
-import { expectModule, getSelectors, getClasses, getIcon } from "@lib/utils/webpack";
+import { expectModule, getSelectors, getIcon } from "@lib/utils/webpack";
 import React from "react";
 
 const {
@@ -20,27 +20,29 @@ export const PanelButton: React.FunctionComponent<any> = expectModule({
 	fatal: true,
 });
 
-export const Activity = getIcon("Activity", "M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264");
+export const Activity = getIcon(
+	"Activity",
+	"M20.97 4.06c0 .18.08.35.24.43.55.28.9.82 1.04 1.42.3 1.24.75 3.7.75 7.09v4.91a3.09"
+);
 
-export const Settings = getIcon("Settings", "M14 7V9C14 9 12.5867 9");
+export const Settings = getIcon("Settings", "M10.56 1.1c-.46.05-.7.53-.64.98.18 1.16-.19 2.2-.98 2.53");
 
-export const Sounds: {
-	playSound: (id: string, vol: number) => void;
-} = expectModule({
-	filter: byKeys("playSound", "createSound"),
-	name: "Sounds",
+export const playSound: (id: string, vol: number) => void = expectModule({
+	filter: byStrings("Unable to find sound for pack name:"),
+	name: "playSound",
+	searchExports: true,
 });
 
 export const ShowCurrentGame = expectModule({
-	filter: byKeys("ShowCurrentGame"),
+	filter: (m) => Object.values(m).some((e: any) => e?.useSetting),
 	name: "ShowCurrentGame",
 	fallback: {
-		ShowCurrentGame: {
+		G6: {
 			useSetting: () => React.useState(true),
 			updateSetting: undefined as (...args: any) => void,
 		},
 	},
-})?.ShowCurrentGame;
+})?.G6;
 
 export const UserSettingsWindow: any = expectModule({
 	filter: byKeys("open", "updateAccount"),
@@ -48,4 +50,3 @@ export const UserSettingsWindow: any = expectModule({
 });
 
 export const AccountSelectors = getSelectors("Account Classes", ["withTagAsButton", "container"]);
-export const AccountClasses = getClasses("Account Classes", ["withTagAsButton", "strikethrough"]);

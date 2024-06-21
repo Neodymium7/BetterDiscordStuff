@@ -1,9 +1,9 @@
 import { Patcher, ReactUtils, Utils } from "betterdiscord";
 import { createSettings, createStrings } from "@lib";
-import { Stores } from "./discordmodules";
+import { Stores, Permissions } from "./discordmodules";
 import locales from "../locales.json";
 
-const { UserStore, GuildChannelStore, VoiceStateStore, ChannelStore } = Stores;
+const { UserStore, GuildChannelStore, VoiceStateStore, ChannelStore, PermissionStore } = Stores;
 
 export const Settings = createSettings({
 	showProfileSection: true,
@@ -19,6 +19,10 @@ export const Settings = createSettings({
 });
 
 export const Strings = createStrings(locales, "en-US");
+
+export const canViewChannel = (channel: any): boolean => {
+	return PermissionStore.can(Permissions.VIEW_CHANNEL, channel);
+};
 
 export const getGuildMediaState = (guildId: string, ignoredChannels: string[]) => {
 	const vocalChannelIds = GuildChannelStore.getVocalChannelIds(guildId);

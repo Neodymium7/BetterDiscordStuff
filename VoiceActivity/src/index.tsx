@@ -9,7 +9,7 @@ import {
 	children,
 	iconWrapperSelector,
 	peopleItemSelector,
-	Flux,
+	useStateFromStores,
 	UserPopoutBody,
 	UserProfile,
 } from "./modules/discordmodules";
@@ -40,7 +40,7 @@ export default class VoiceActivity extends BasePlugin {
 	patchUserPopout() {
 		const activitySectionFilter = (section: any) => section?.props?.hasOwnProperty("activity");
 
-		Patcher.after(UserPopoutBody, "default", (_, [props]: [any], ret) => {
+		Patcher.after(UserPopoutBody, "Z", (_, [props]: [any], ret) => {
 			const popoutSections = Utils.findInTree(ret, (i) => Array.isArray(i) && i.some(activitySectionFilter), {
 				walkable: ["props", "children"],
 			});
@@ -51,9 +51,9 @@ export default class VoiceActivity extends BasePlugin {
 
 	patchUserPanel() {
 		if (!UserProfile) return;
-		const { Overlay } = UserProfile.default;
+		const { Overlay } = UserProfile;
 
-		Patcher.after(UserProfile.default, "render", (_, [props]: [any], ret) => {
+		Patcher.after(UserProfile, "render", (_, [props]: [any], ret) => {
 			const profileInner = Utils.findInTree(ret, (i) => i.profileType, { walkable: ["props", "children"] });
 
 			if (profileInner.profileType !== "PANEL") return ret;
@@ -67,7 +67,7 @@ export default class VoiceActivity extends BasePlugin {
 	}
 
 	patchMemberListItem() {
-		Patcher.after(MemberListItem, "default", (_, [props]: [any], ret) => {
+		Patcher.after(MemberListItem, "Z", (_, [props]: [any], ret) => {
 			if (!props.user) return ret;
 
 			const patch = (element) => {
@@ -164,7 +164,7 @@ export default class VoiceActivity extends BasePlugin {
 		if (!GuildIconComponent) return Logger.error("Guild icon component not found");
 		Patcher.before(GuildIconComponent, "type", (_, [props]: [any]) => {
 			const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState();
-			const mediaState = Flux.useStateFromStores([Stores.VoiceStateStore], () =>
+			const mediaState = useStateFromStores([Stores.VoiceStateStore], () =>
 				getGuildMediaState(props.guild.id, ignoredChannels)
 			);
 

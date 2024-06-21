@@ -7,7 +7,9 @@ type Filter = (e: any, m: any, i: string) => boolean;
 interface IconProps {
 	width?: string;
 	height?: string;
+	size?: string;
 	className?: string;
+	color?: string;
 }
 
 /**
@@ -33,45 +35,6 @@ type ExpectOptions<T> = {
  * - `onError`: A callback function that is run when the module is not found
  */
 type ExpectOptionsWithFilter<T> = ExpectOptions<T> & { filter: Filter };
-
-/**
- * Gets a Flux store by its name.
- * @param name The name of the store.
- * @returns The found store.
- */
-export function getStore(name: string) {
-	return Webpack.getModule((m: any) => m._dispatchToken && m.getName() === name);
-}
-
-/**
- * Finds a module with a property value that satisfies a filter, as well as the key of that property. Useful for patching.
- * @param filter A function to use to filter modules.
- * @returns An array containing the module and key.
- */
-export function getModuleWithKey(filter: Filter): [any, string] {
-	let target: any;
-	let id: string;
-	let key: string;
-	Webpack.getModule(
-		(e, m, i) => {
-			if (filter(e, m, i)) {
-				target = m;
-				id = i;
-				return true;
-			}
-			return false;
-		},
-		{ searchExports: true }
-	);
-	if (!target) return undefined;
-	for (const k in target.exports) {
-		if (filter(target.exports[k], target, id)) {
-			key = k;
-			break;
-		}
-	}
-	return [target.exports, key];
-}
 
 /**
  * Finds a module using a filter function, and handles the error if the module is not found.
@@ -225,5 +188,6 @@ export function getIcon(name: string, searchString: string): (props: IconProps) 
 		},
 		name,
 		fallback: (_props: IconProps) => null,
+		searchExports: true,
 	});
 }

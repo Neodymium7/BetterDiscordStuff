@@ -1,5 +1,5 @@
-import { Settings, Strings, groupDMName } from "../modules/utils";
-import { Common, Icons, Stores, transitionTo, Flux, canViewChannel } from "../modules/discordmodules";
+import { Settings, Strings, groupDMName, canViewChannel } from "../modules/utils";
+import { Common, Icons, Stores, transitionTo, useStateFromStores } from "../modules/discordmodules";
 import styles from "../styles/voiceicon.module.scss";
 
 interface VoiceIconProps {
@@ -21,10 +21,8 @@ export default function VoiceIcon(props: VoiceIconProps) {
 		showStatusIcons,
 	} = Settings.useSettingsState();
 
-	const voiceState = Flux.useStateFromStores([VoiceStateStore], () =>
-		VoiceStateStore.getVoiceStateForUser(props.userId)
-	);
-	const currentUserVoiceState = Flux.useStateFromStores([VoiceStateStore], () =>
+	const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
+	const currentUserVoiceState = useStateFromStores([VoiceStateStore], () =>
 		VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
 	);
 
@@ -41,7 +39,7 @@ export default function VoiceIcon(props: VoiceIconProps) {
 
 	let text: string;
 	let subtext: string;
-	let TooltipIcon: React.FunctionComponent<{ width: string; height: string; className: string }>;
+	let TooltipIcon: React.FunctionComponent<any>;
 	let channelPath: string;
 	let className = styles.icon;
 
@@ -95,14 +93,26 @@ export default function VoiceIcon(props: VoiceIconProps) {
 							{text}
 						</div>
 						<div className={styles.subtext}>
-							<TooltipIcon className={styles.tooltipIcon} width="16" height="16" />
+							<TooltipIcon
+								className={styles.tooltipIcon}
+								size="16"
+								width="16"
+								height="16"
+								color="currentColor"
+							/>
 							<div style={{ fontWeight: "400" }}>{subtext}</div>
 						</div>
 					</div>
 				}
 			>
 				{(props: any) => (
-					<div {...props}>{!voiceState.selfStream ? <Icon width="14" height="14" /> : Strings.LIVE}</div>
+					<div {...props}>
+						{!voiceState.selfStream ? (
+							<Icon size="14" width="14" height="14" color="currentColor" />
+						) : (
+							Strings.LIVE
+						)}
+					</div>
 				)}
 			</Common.Tooltip>
 		</div>

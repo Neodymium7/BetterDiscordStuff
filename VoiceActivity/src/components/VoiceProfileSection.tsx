@@ -4,18 +4,18 @@ import {
 	Icons,
 	Stores,
 	UserPopoutSection,
+	overlay,
 	transitionTo,
-	Flux,
-	canViewChannel,
+	useStateFromStores,
 } from "../modules/discordmodules";
-import { Settings, Strings, groupDMName } from "../modules/utils";
+import { Settings, Strings, groupDMName, canViewChannel } from "../modules/utils";
 import styles from "../styles/voiceprofilesection.module.scss";
 import GuildImage from "./GuildImage";
 import PartyMembers from "./PartyMembers";
 
 interface VoiceProfileSectionProps {
 	userId: string;
-	wrapper?: React.FunctionComponent<React.PropsWithChildren>;
+	wrapper?: React.FunctionComponent<React.PropsWithChildren<{ className: any }>>;
 }
 
 const { ChannelStore, GuildStore, UserStore, VoiceStateStore, SelectedChannelStore } = Stores;
@@ -23,10 +23,8 @@ const { ChannelStore, GuildStore, UserStore, VoiceStateStore, SelectedChannelSto
 export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 	const { showProfileSection, ignoreEnabled, ignoredChannels, ignoredGuilds } = Settings.useSettingsState();
 
-	const voiceState = Flux.useStateFromStores([VoiceStateStore], () =>
-		VoiceStateStore.getVoiceStateForUser(props.userId)
-	);
-	const currentUserVoiceState = Flux.useStateFromStores([VoiceStateStore], () =>
+	const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
+	const currentUserVoiceState = useStateFromStores([VoiceStateStore], () =>
 		VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
 	);
 
@@ -48,7 +46,7 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 	let text: string | JSX.Element | JSX.Element[];
 	let viewButton: string;
 	let joinButton: string;
-	let Icon: React.FunctionComponent<{ width: string; height: string }>;
+	let Icon: React.FunctionComponent<any>;
 	let channelPath: string;
 
 	const inCurrentChannel = channel.id === currentUserVoiceState?.channelId;
@@ -145,7 +143,7 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 											);
 										}}
 									>
-										<Icon width="18" height="18" />
+										<Icon size="18" width="18" height="18" color="currentColor" />
 									</button>
 								</div>
 							)}
@@ -156,5 +154,5 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 		</UserPopoutSection>
 	);
 
-	return props.wrapper ? <props.wrapper>{section}</props.wrapper> : section;
+	return props.wrapper ? <props.wrapper className={overlay}>{section}</props.wrapper> : section;
 }
