@@ -1,7 +1,7 @@
 /**
  * @name ActivityIcons
  * @author Neodymium
- * @version 1.4.4
+ * @version 1.4.5
  * @description Improves the default icons next to statuses
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.4.4",
+		version: "1.4.5",
 		description: "Improves the default icons next to statuses",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed rendering duplicate rich presence icons."
+				"Fixed after latest Discord update."
 			]
 		}
 	]
@@ -159,7 +159,8 @@ function buildPlugin([BasePlugin, Library]) {
 					return bySourceStrings(searchString)(e, m, i) && typeof e == "function";
 				},
 				name,
-				fallback: (_props) => null
+				fallback: (_props) => null,
+				searchExports: true
 			});
 		}
 	
@@ -171,15 +172,17 @@ function buildPlugin([BasePlugin, Library]) {
 			style: { color: "red" }
 		}, "Error: Component not found"));
 		const ActivityStatus = expectModule({
-			filter: byKeys("ActivityEmoji"),
+			filter: (m) => Object.values(m).some(
+				(v) => typeof v === "function" && v?.toString?.().includes("translateSurrogatesToInlineEmoji")
+			),
 			name: "ActivityStatus",
 			fatal: true
 		});
 		const Icons = {
-			Activity: getIcon("Activity", "M5.79335761,5 L18.2066424,5 C19.7805584,5 21.0868816,6.21634264"),
+			Activity: getIcon("Activity", "M20.97 4.06c0 .18.08.35.24.43.55.28.9.82 1.04 1.42.3 1.24.75 3.7.75 7.09v4.91a3.09"),
 			RichActivity: getIcon("RichActivity", "M6,7 L2,7 L2,6 L6,6 L6,7 Z M8,5 L2,5 L2,4 L8,4"),
-			Headset: getIcon("Headset", "M12 2.00305C6.486 2.00305 2 6.48805 2 12.0031V20.0031C2"),
-			Screen: getIcon("Screen", "M4 2.5C2.897 2.5 2 3.397 2 4.5V15.5C2 16.604 2.897")
+			Headset: getIcon("Headset", "M12 3a9 9 0 0 0-8.95 10h1.87a5 5 0 0 1 4.1 2.13l1.37 1.97a3.1 3.1 0 0"),
+			Screen: getIcon("Screen", "M5 2a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3H5ZM13.5 20a.5.5")
 		};
 		const Common = expectModule({
 			filter: byKeys("FormSwitch"),
@@ -433,21 +436,29 @@ function buildPlugin([BasePlugin, Library]) {
 				});
 			}
 			let icon = BdApi.React.createElement(Icons.Activity, {
+				color: "currentColor",
+				size: "13",
 				width: "13",
 				height: "13"
 			});
 			if (platformIcons && onPS)
 				icon = BdApi.React.createElement(SvgPlaystation, {
+					color: "currentColor",
+					size: "13",
 					width: "13",
 					height: "13"
 				});
 			if (platformIcons && onXbox)
 				icon = BdApi.React.createElement(SvgXbox, {
+					color: "currentColor",
+					size: "13",
 					width: "13",
 					height: "13"
 				});
 			if (richPresenceIcons && hasRP)
 				icon = BdApi.React.createElement(Icons.RichActivity, {
+					color: "currentColor",
+					size: "16",
 					width: "16",
 					height: "16"
 				});
@@ -483,6 +494,8 @@ function buildPlugin([BasePlugin, Library]) {
 				...props2,
 				className: "activity-icon"
 			}, BdApi.React.createElement(Icons.Headset, {
+				color: "currentColor",
+				size: "13",
 				width: "13",
 				height: "13"
 			})));
@@ -543,6 +556,8 @@ function buildPlugin([BasePlugin, Library]) {
 				...props2,
 				className: "activity-icon"
 			}, BdApi.React.createElement(Icons.Screen, {
+				color: "currentColor",
+				size: "13",
 				width: "13",
 				height: "13"
 			})));
@@ -556,7 +571,7 @@ function buildPlugin([BasePlugin, Library]) {
 				this.patchActivityStatus();
 			}
 			patchActivityStatus() {
-				betterdiscord.Patcher.after(ActivityStatus, "default", (_, [props], ret) => {
+				betterdiscord.Patcher.after(ActivityStatus, "Z", (_, [props], ret) => {
 					if (!ret)
 						return;
 					const defaultIconIndex = ret.props.children.findIndex(

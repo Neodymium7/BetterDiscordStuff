@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.17
+ * @version 1.8.18
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.17",
+		version: "1.8.18",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed patching user panel."
+				"Fixed after the latest Discord update."
 			]
 		}
 	]
@@ -188,9 +188,6 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// @lib/utils/webpack.ts
-		function getStore(name) {
-			return betterdiscord.Webpack.getModule((m) => m._dispatchToken && m.getName() === name);
-		}
 		function expectModule(filterOrOptions, options) {
 			let filter;
 			if (typeof filterOrOptions === "function") {
@@ -258,13 +255,15 @@ function buildPlugin([BasePlugin, Library]) {
 					return bySourceStrings(searchString)(e, m, i) && typeof e == "function";
 				},
 				name,
-				fallback: (_props) => null
+				fallback: (_props) => null,
+				searchExports: true
 			});
 		}
 	
 		// modules/discordmodules.tsx
 		const {
-			Filters: { byKeys, byStrings }
+			Filters: { byKeys, byStrings },
+			getStore
 		} = betterdiscord.Webpack;
 		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
 			style: { color: "red" }
@@ -280,20 +279,15 @@ function buildPlugin([BasePlugin, Library]) {
 			defaultExport: false
 		});
 		const UserProfile = expectModule({
-			filter: (m) => m.default?.Overlay,
+			filter: (m) => m?.Overlay,
 			name: "UserProfile",
-			defaultExport: false
+			defaultExport: true
 		});
 		const PrivateChannelContainer = expectModule({
 			filter: (m) => m.render?.toString().includes(".component", "innerRef"),
 			name: "PrivateChannelContainer",
 			searchExports: true
 		});
-		const canViewChannel = expectModule({
-			filter: (m) => m.canViewChannel,
-			name: "canViewChannel",
-			fatal: true
-		})?.canViewChannel;
 		const GuildActions = expectModule({ filter: byKeys("requestMembers"), name: "GuildActions" });
 		const ChannelActions = expectModule({ filter: byKeys("selectChannel"), name: "ChannelActions" });
 		const UserPopoutSection = expectModule({
@@ -303,10 +297,19 @@ function buildPlugin([BasePlugin, Library]) {
 				...props
 			})
 		});
-		const Flux = expectModule({
-			filter: byKeys("useStateFromStores"),
+		const useStateFromStores = expectModule({
+			filter: byStrings("useStateFromStores"),
 			name: "Flux",
-			fatal: true
+			fatal: true,
+			searchExports: true
+		});
+		const Permissions = expectModule({
+			filter: byKeys("VIEW_CREATOR_MONETIZATION_ANALYTICS"),
+			searchExports: true,
+			name: "Permissions",
+			fallback: {
+				VIEW_CHANNEL: 1024n
+			}
 		});
 		const transitionTo = expectModule({
 			filter: byStrings("transitionTo -"),
@@ -334,16 +337,13 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 		});
 		const Icons = {
-			CallJoin: getIcon("CallJoin", "M11 5V3C16.515 3 21 7.486"),
-			People: getIcon("People", "M14 8.00598C14 10.211 12.206 12.006"),
-			Speaker: getIcon("Speaker", "M11.383 3.07904C11.009 2.92504 10.579 3.01004"),
-			Muted: getIcon("Muted", "M6.7 11H5C5 12.19 5.34 13.3"),
-			Deafened: getIcon("Deafened", "M6.16204 15.0065C6.10859 15.0022 6.05455 15"),
-			Video: getIcon("Video", "M21.526 8.149C21.231 7.966 20.862 7.951"),
-			Stage: getIcon(
-				"Stage",
-				"M14 13C14 14.1 13.1 15 12 15C10.9 15 10 14.1 10 13C10 11.9 10.9 11 12 11C13.1 11 14 11.9 14 13ZM8.5 20V19.5C8.5"
-			)
+			CallJoin: getIcon("CallJoin", "M2 7.4A5.4 5.4 0 0 1 7.4 2c.36 0 .7.22.83.55l1.93 4.64a1 1"),
+			People: getIcon("People", "M14.5 8a3 3 0 1 0-2.7-4.3c-.2.4.06.86.44 1.12a5 5 0 0 1 2.14 "),
+			Speaker: getIcon("Speaker", "M12 3a1 1 0 0 0-1-1h-.06a1 1 0 0 0-.74.32L5.92 7H3a1 1"),
+			Muted: getIcon("Muted", "m2.7 22.7 20-20a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4"),
+			Deafened: getIcon("Deafened", "M22.7 2.7a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4"),
+			Video: getIcon("Video", "M4 4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h11a3 3"),
+			Stage: getIcon("Stage", "M19.61 18.25a1.08 1.08 0 0 1-.07-1.33 9 9 0 1 0-15.07")
 		};
 		const peopleItemSelector = getSelectors("People Item Class", ["peopleListItem"]).peopleListItem;
 		const iconWrapperSelector = getSelectors("Icon Wrapper Class", ["wrapper", "folderEndWrapper"]).wrapper;
@@ -354,6 +354,7 @@ function buildPlugin([BasePlugin, Library]) {
 			"partyMembers",
 			"partyMemberOverflow"
 		]);
+		const overlay = getClasses("Overlay Class", ["overlay", "profilePanel"]).overlay;
 		const Stores = {
 			UserStore: getStore("UserStore"),
 			GuildChannelStore: getStore("GuildChannelStore"),
@@ -361,7 +362,8 @@ function buildPlugin([BasePlugin, Library]) {
 			GuildStore: getStore("GuildStore"),
 			ChannelStore: getStore("ChannelStore"),
 			SelectedChannelStore: getStore("SelectedChannelStore"),
-			GuildMemberStore: getStore("GuildMemberStore")
+			GuildMemberStore: getStore("GuildMemberStore"),
+			PermissionStore: getStore("PermissionStore")
 		};
 	
 		// locales.json
@@ -552,7 +554,7 @@ function buildPlugin([BasePlugin, Library]) {
 		};
 	
 		// modules/utils.ts
-		const { UserStore: UserStore$2, GuildChannelStore, VoiceStateStore: VoiceStateStore$2, ChannelStore: ChannelStore$2 } = Stores;
+		const { UserStore: UserStore$2, GuildChannelStore, VoiceStateStore: VoiceStateStore$2, ChannelStore: ChannelStore$2, PermissionStore } = Stores;
 		const Settings = createSettings({
 			showProfileSection: true,
 			showMemberListIcons: true,
@@ -566,6 +568,9 @@ function buildPlugin([BasePlugin, Library]) {
 			ignoredGuilds: []
 		});
 		const Strings = createStrings(locales, "en-US");
+		const canViewChannel = (channel) => {
+			return PermissionStore.can(Permissions.VIEW_CHANNEL, channel);
+		};
 		const getGuildMediaState = (guildId, ignoredChannels) => {
 			const vocalChannelIds = GuildChannelStore.getVocalChannelIds(guildId);
 			let audio = false;
@@ -656,11 +661,8 @@ function buildPlugin([BasePlugin, Library]) {
 				currentChannelColor,
 				showStatusIcons
 			} = Settings.useSettingsState();
-			const voiceState = Flux.useStateFromStores(
-				[VoiceStateStore$1],
-				() => VoiceStateStore$1.getVoiceStateForUser(props.userId)
-			);
-			const currentUserVoiceState = Flux.useStateFromStores(
+			const voiceState = useStateFromStores([VoiceStateStore$1], () => VoiceStateStore$1.getVoiceStateForUser(props.userId));
+			const currentUserVoiceState = useStateFromStores(
 				[VoiceStateStore$1],
 				() => VoiceStateStore$1.getVoiceStateForUser(UserStore$1.getCurrentUser()?.id)
 			);
@@ -738,16 +740,20 @@ function buildPlugin([BasePlugin, Library]) {
 					className: modules_df1df857.subtext
 				}, BdApi.React.createElement(TooltipIcon, {
 					className: modules_df1df857.tooltipIcon,
+					size: "16",
 					width: "16",
-					height: "16"
+					height: "16",
+					color: "currentColor"
 				}), BdApi.React.createElement("div", {
 					style: { fontWeight: "400" }
 				}, subtext)))
 			}, (props2) => BdApi.React.createElement("div", {
 				...props2
 			}, !voiceState.selfStream ? BdApi.React.createElement(Icon, {
+				size: "14",
 				width: "14",
-				height: "14"
+				height: "14",
+				color: "currentColor"
 			}) : Strings.LIVE)));
 		}
 	
@@ -883,11 +889,8 @@ function buildPlugin([BasePlugin, Library]) {
 		const { ChannelStore, GuildStore, UserStore, VoiceStateStore, SelectedChannelStore } = Stores;
 		function VoiceProfileSection(props) {
 			const { showProfileSection, ignoreEnabled, ignoredChannels, ignoredGuilds } = Settings.useSettingsState();
-			const voiceState = Flux.useStateFromStores(
-				[VoiceStateStore],
-				() => VoiceStateStore.getVoiceStateForUser(props.userId)
-			);
-			const currentUserVoiceState = Flux.useStateFromStores(
+			const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
+			const currentUserVoiceState = useStateFromStores(
 				[VoiceStateStore],
 				() => VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
 			);
@@ -1000,10 +1003,14 @@ function buildPlugin([BasePlugin, Library]) {
 					);
 				}
 			}, BdApi.React.createElement(Icon, {
+				size: "18",
 				width: "18",
-				height: "18"
+				height: "18",
+				color: "currentColor"
 			})))))));
-			return props.wrapper ? BdApi.React.createElement(props.wrapper, null, section) : section;
+			return props.wrapper ? BdApi.React.createElement(props.wrapper, {
+				className: overlay
+			}, section) : section;
 		}
 	
 		// components/SettingsPanel.tsx
@@ -1081,7 +1088,7 @@ function buildPlugin([BasePlugin, Library]) {
 			}
 			patchUserPopout() {
 				const activitySectionFilter = (section) => section?.props?.hasOwnProperty("activity");
-				betterdiscord.Patcher.after(UserPopoutBody, "default", (_, [props], ret) => {
+				betterdiscord.Patcher.after(UserPopoutBody, "Z", (_, [props], ret) => {
 					const popoutSections = betterdiscord.Utils.findInTree(ret, (i) => Array.isArray(i) && i.some(activitySectionFilter), {
 						walkable: ["props", "children"]
 					});
@@ -1094,8 +1101,8 @@ function buildPlugin([BasePlugin, Library]) {
 			patchUserPanel() {
 				if (!UserProfile)
 					return;
-				const { Overlay } = UserProfile.default;
-				betterdiscord.Patcher.after(UserProfile.default, "render", (_, [props], ret) => {
+				const { Overlay } = UserProfile;
+				betterdiscord.Patcher.after(UserProfile, "render", (_, [props], ret) => {
 					const profileInner = betterdiscord.Utils.findInTree(ret, (i) => i.profileType, { walkable: ["props", "children"] });
 					if (profileInner.profileType !== "PANEL")
 						return ret;
@@ -1109,7 +1116,7 @@ function buildPlugin([BasePlugin, Library]) {
 				});
 			}
 			patchMemberListItem() {
-				betterdiscord.Patcher.after(MemberListItem, "default", (_, [props], ret) => {
+				betterdiscord.Patcher.after(MemberListItem, "Z", (_, [props], ret) => {
 					if (!props.user)
 						return ret;
 					const patch = (element) => {
@@ -1208,7 +1215,7 @@ function buildPlugin([BasePlugin, Library]) {
 					return Logger.error("Guild icon component not found");
 				betterdiscord.Patcher.before(GuildIconComponent, "type", (_, [props]) => {
 					const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState();
-					const mediaState = Flux.useStateFromStores(
+					const mediaState = useStateFromStores(
 						[Stores.VoiceStateStore],
 						() => getGuildMediaState(props.guild.id, ignoredChannels)
 					);
