@@ -13,7 +13,7 @@ export default class AvatarSettingsButton extends BasePlugin {
 	clearListeners: () => void;
 
 	onStart() {
-		DOM.addStyle(`${settingsSelector} { display: none; } .${accountClasses.withTagAsButton} { width: 100%; }`);
+		DOM.addStyle(`${settingsSelector} { display: none; } .${accountClasses.avatarWrapper} { width: 100%; }`);
 		Strings.subscribe();
 		Settings.addListener(() => {
 			this.addListeners();

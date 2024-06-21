@@ -49,4 +49,8 @@ export const UserSettingsWindow: any = expectModule({
 	name: "UserSettingsWindow",
 });
 
-export const AccountSelectors = getSelectors("Account Classes", ["withTagAsButton", "container"]);
+export const AccountSelectors = getSelectors("Account Classes", [
+	"avatarWrapper",
+	"accountProfilePopoutWrapper",
+	"container",
+]);

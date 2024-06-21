@@ -6,7 +6,7 @@ export default class ActivityToggle {
 	forceUpdate?: () => void;
 
 	async start() {
-		DOM.addStyle(`${AccountSelectors.withTagAsButton} { min-width: 70px; }`);
+		DOM.addStyle(`${AccountSelectors.avatarWrapper} { min-width: 70px; }`);
 
 		const owner: any = ReactUtils.getOwnerInstance(document.querySelector(AccountSelectors.container));
 		const Account = owner._reactInternals.type;

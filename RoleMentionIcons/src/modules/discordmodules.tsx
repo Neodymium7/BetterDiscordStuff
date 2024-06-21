@@ -1,8 +1,9 @@
 import { Webpack } from "betterdiscord";
-import { expectModule, getStore, getClasses } from "@lib/utils/webpack";
+import { expectModule, getClasses } from "@lib/utils/webpack";
 
 const {
 	Filters: { byKeys },
+	getStore,
 } = Webpack;
 
 const Error = (_props) => (
