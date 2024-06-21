@@ -1,7 +1,7 @@
 /**
  * @name ActivityToggle
  * @author Neodymium
- * @version 1.2.13
+ * @version 1.2.14
  * @description Adds a button to quickly toggle Activity Status.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  * @invite fRbsqH87Av
@@ -158,7 +158,11 @@ const UserSettingsWindow = expectModule({
 	filter: byKeys("open", "updateAccount"),
 	name: "UserSettingsWindow"
 });
-const AccountSelectors = getSelectors("Account Classes", ["withTagAsButton", "container"]);
+const AccountSelectors = getSelectors("Account Classes", [
+	"avatarWrapper",
+	"accountProfilePopoutWrapper",
+	"container"
+]);
 
 // components/ActivityDisabledIcon.tsx
 function ActivityDisabled(props) {
@@ -213,7 +217,7 @@ function ActivityToggleButton() {
 class ActivityToggle {
 	forceUpdate;
 	async start() {
-		betterdiscord.DOM.addStyle(`${AccountSelectors.withTagAsButton} { min-width: 70px; }`);
+		betterdiscord.DOM.addStyle(`${AccountSelectors.avatarWrapper} { min-width: 70px; }`);
 		const owner = betterdiscord.ReactUtils.getOwnerInstance(document.querySelector(AccountSelectors.container));
 		const Account = owner._reactInternals.type;
 		this.forceUpdate = owner.forceUpdate.bind(owner);

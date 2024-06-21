@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 2.1.3
+ * @version 2.1.4
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "2.1.3",
+		version: "2.1.4",
 		description: "Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed avatar opening blank settings window."
+				"Fixed styles after latest Discord update."
 			]
 		}
 	]
@@ -244,7 +244,7 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// @lib/strings.ts
-		const Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byProps("dispatch", "subscribe"));
+		const Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byKeys("dispatch", "subscribe"));
 		const LocaleManager = betterdiscord.Webpack.getModule((m) => m.Messages?.CLOSE);
 		function createStrings(locales, defaultLocale) {
 			let strings = locales[defaultLocale];
@@ -470,7 +470,7 @@ function buildPlugin([BasePlugin, Library]) {
 			tooltip = null;
 			clearListeners;
 			onStart() {
-				betterdiscord.DOM.addStyle(`${settingsSelector} { display: none; } .${accountClasses.withTagAsButton} { width: 100%; }`);
+				betterdiscord.DOM.addStyle(`${settingsSelector} { display: none; } .${accountClasses.avatarWrapper} { width: 100%; }`);
 				Strings.subscribe();
 				Settings.addListener(() => {
 					this.addListeners();
