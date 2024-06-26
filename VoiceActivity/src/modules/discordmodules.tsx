@@ -1,5 +1,5 @@
 import { Webpack } from "betterdiscord";
-import { expectModule, getSelectors, getClasses, getIcon, bySourceStrings } from "@lib/utils/webpack";
+import { expectModule, getSelectors, getClasses, getIcon } from "@lib/utils/webpack";
 
 const {
 	Filters: { byKeys, byStrings },
@@ -30,6 +30,18 @@ export const UserProfile: any = expectModule({
 	defaultExport: true,
 });
 
+export const NewUserPanelBody: any = expectModule({
+	filter: byStrings("NOTE", "PANEL"),
+	name: "NewUserPanel",
+	defaultExport: false,
+});
+
+export const NewUserPopoutBody: any = expectModule({
+	filter: byStrings("BiteSizeProfileBody"),
+	name: "NewUserPopoutBody",
+	defaultExport: false,
+});
+
 export const PrivateChannelContainer: any = expectModule({
 	filter: (m) => m.render?.toString().includes(".component", "innerRef"),
 	name: "PrivateChannelContainer",
@@ -39,12 +51,6 @@ export const PrivateChannelContainer: any = expectModule({
 export const GuildActions: any = expectModule({ filter: byKeys("requestMembers"), name: "GuildActions" });
 
 export const ChannelActions: any = expectModule({ filter: byKeys("selectChannel"), name: "ChannelActions" });
-
-export const UserPopoutSection = expectModule({
-	filter: byStrings(".lastSection", ".section"),
-	name: "UserPopoutSection",
-	fallback: (props) => <div {...props} />,
-});
 
 export const useStateFromStores: any = expectModule({
 	filter: byStrings("useStateFromStores"),

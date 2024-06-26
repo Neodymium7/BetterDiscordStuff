@@ -1,7 +1,7 @@
 .partyMembers {
 	position: absolute;
-	top: 0;
-	right: 0;
+	top: 4px;
+	right: 6px;
 	margin-top: 2px;
 }
 
@@ -10,7 +10,7 @@
 }
 
 .overflow {
-	background: radial-gradient(circle at -10px 10px, transparent 14px, var(--profile-role-pill-background-color) 0);
+	background: radial-gradient(circle at -10px 10px, transparent 14px, var(--bg-mod-subtle) 0);
 	color: var(--text-normal);
 	height: 14px;
 	font-size: 12px;

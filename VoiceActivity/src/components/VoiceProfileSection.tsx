@@ -1,13 +1,5 @@
 import { Components, ContextMenu } from "betterdiscord";
-import {
-	ChannelActions,
-	Icons,
-	Stores,
-	UserPopoutSection,
-	overlay,
-	transitionTo,
-	useStateFromStores,
-} from "../modules/discordmodules";
+import { ChannelActions, Icons, Stores, overlay, transitionTo, useStateFromStores } from "../modules/discordmodules";
 import { Settings, Strings, groupDMName, canViewChannel } from "../modules/utils";
 import styles from "../styles/voiceprofilesection.module.scss";
 import GuildImage from "./GuildImage";
@@ -16,6 +8,7 @@ import PartyMembers from "./PartyMembers";
 interface VoiceProfileSectionProps {
 	userId: string;
 	wrapper?: React.FunctionComponent<React.PropsWithChildren<{ className: any }>>;
+	new?: boolean;
 }
 
 const { ChannelStore, GuildStore, UserStore, VoiceStateStore, SelectedChannelStore } = Stores;
@@ -89,69 +82,67 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 	}
 
 	const section = (
-		<UserPopoutSection>
-			<div className={styles.section}>
-				<h3 className={styles.header}>{headerText}</h3>
-				{!(channel.type === 1) && (
-					<div className={styles.body}>
-						<GuildImage guild={guild} channel={channel} channelPath={channelPath} />
-						<div className={styles.text}>{text}</div>
-						<PartyMembers members={members} guildId={guild?.id} />
-					</div>
-				)}
-				<div className={styles.buttonWrapper}>
-					<button
-						className={styles.button}
-						disabled={channelSelected}
-						onClick={() => {
-							if (channelPath) transitionTo(channelPath);
-						}}
-					>
-						{viewButton}
-					</button>
-					{!isCurrentUser && (
-						<Components.Tooltip text={joinButton} position="top">
-							{(props: any) => (
-								<div
-									{...props}
-									className={
-										inCurrentChannel
-											? `${styles.joinWrapper} ${styles.joinWrapperDisabled}`
-											: styles.joinWrapper
-									}
-								>
-									<button
-										className={`${styles.button} ${styles.joinButton}`}
-										disabled={inCurrentChannel}
-										onClick={() => {
-											if (channel.id) ChannelActions?.selectVoiceChannel(channel.id);
-										}}
-										onContextMenu={(e) => {
-											if (channel.type === 13) return;
-											ContextMenu.open(
-												e,
-												ContextMenu.buildMenu([
-													{
-														label: Strings.JOIN_VIDEO,
-														id: "voice-activity-join-with-video",
-														action: () => {
-															if (channel.id)
-																ChannelActions?.selectVoiceChannel(channel.id, true);
-														},
-													},
-												])
-											);
-										}}
-									>
-										<Icon size="18" width="18" height="18" color="currentColor" />
-									</button>
-								</div>
-							)}
-						</Components.Tooltip>
-					)}
+		<div className={props.new ? styles.newSection : styles.section}>
+			<h3 className={styles.header}>{headerText}</h3>
+			{!(channel.type === 1) && (
+				<div className={styles.body}>
+					<GuildImage guild={guild} channel={channel} channelPath={channelPath} />
+					<div className={styles.text}>{text}</div>
+					<PartyMembers members={members} guildId={guild?.id} />
 				</div>
+			)}
+			<div className={styles.buttonWrapper}>
+				<button
+					className={styles.button}
+					disabled={channelSelected}
+					onClick={() => {
+						if (channelPath) transitionTo(channelPath);
+					}}
+				>
+					{viewButton}
+				</button>
+				{!isCurrentUser && (
+					<Components.Tooltip text={joinButton} position="top">
+						{(props: any) => (
+							<div
+								{...props}
+								className={
+									inCurrentChannel
+										? `${styles.joinWrapper} ${styles.joinWrapperDisabled}`
+										: styles.joinWrapper
+								}
+							>
+								<button
+									className={`${styles.button} ${styles.joinButton}`}
+									disabled={inCurrentChannel}
+									onClick={() => {
+										if (channel.id) ChannelActions?.selectVoiceChannel(channel.id);
+									}}
+									onContextMenu={(e) => {
+										if (channel.type === 13) return;
+										ContextMenu.open(
+											e,
+											ContextMenu.buildMenu([
+												{
+													label: Strings.JOIN_VIDEO,
+													id: "voice-activity-join-with-video",
+													action: () => {
+														if (channel.id)
+															ChannelActions?.selectVoiceChannel(channel.id, true);
+													},
+												},
+											])
+										);
+									}}
+								>
+									<Icon size="18" width="18" height="18" color="currentColor" />
+								</button>
+							</div>
+						)}
+					</Components.Tooltip>
+				)}
 			</div>
-		</UserPopoutSection>
+		</div>
 	);
 
 	return props.wrapper ? <props.wrapper className={overlay}>{section}</props.wrapper> : section;

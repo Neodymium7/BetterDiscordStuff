@@ -12,6 +12,8 @@ import {
 	useStateFromStores,
 	UserPopoutBody,
 	UserProfile,
+	NewUserPanelBody,
+	NewUserPopoutBody,
 } from "./modules/discordmodules";
 import { Settings, Strings, forceRerender, forceUpdateAll, getGuildMediaState, waitForElement } from "./modules/utils";
 import iconStyles from "./styles/voiceicon.module.scss";
@@ -31,6 +33,8 @@ export default class VoiceActivity extends BasePlugin {
 		this.patchUserPopout();
 		this.patchMemberListItem();
 		this.patchUserPanel();
+		this.patchNewUserPanel();
+		this.patchNewUserPopout();
 		this.patchPrivateChannel();
 		this.patchGuildIcon();
 		this.patchChannelContextMenu();
@@ -62,7 +66,21 @@ export default class VoiceActivity extends BasePlugin {
 				walkable: ["props", "children"],
 			}).children;
 
+			if (sections[0].props.profileType) return ret;
+
 			sections.splice(2, 0, <VoiceProfileSection userId={props.user.id} wrapper={Overlay} />);
+		});
+	}
+
+	patchNewUserPanel() {
+		Patcher.after(NewUserPanelBody, "Z", (_, [props]: [any], ret) => {
+			ret.props.children.splice(1, 0, <VoiceProfileSection userId={props.user.id} new />);
+		});
+	}
+
+	patchNewUserPopout() {
+		Patcher.after(NewUserPopoutBody, "Z", (_, [props]: [any], ret) => {
+			ret.props.children.splice(5, 0, <VoiceProfileSection userId={props.user.id} new />);
 		});
 	}
 
