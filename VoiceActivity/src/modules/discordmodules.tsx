@@ -37,7 +37,7 @@ export const NewUserPanelBody: any = expectModule({
 });
 
 export const NewUserPopoutBody: any = expectModule({
-	filter: byStrings("BiteSizeProfileBody"),
+	filter: byStrings("BITE_SIZE", "PROFILE_POPOUT", "hidePersonalInformation"),
 	name: "NewUserPopoutBody",
 	defaultExport: false,
 });
