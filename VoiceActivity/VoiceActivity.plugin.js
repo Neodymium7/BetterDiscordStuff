@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.18
+ * @version 1.8.19
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.18",
+		version: "1.8.19",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed after the latest Discord update."
+				"Compatibility with new profile popout redesign."
 			]
 		}
 	]
@@ -283,6 +283,16 @@ function buildPlugin([BasePlugin, Library]) {
 			name: "UserProfile",
 			defaultExport: true
 		});
+		const NewUserPanelBody = expectModule({
+			filter: byStrings("NOTE", "PANEL"),
+			name: "NewUserPanel",
+			defaultExport: false
+		});
+		const NewUserPopoutBody = expectModule({
+			filter: byStrings("BiteSizeProfileBody"),
+			name: "NewUserPopoutBody",
+			defaultExport: false
+		});
 		const PrivateChannelContainer = expectModule({
 			filter: (m) => m.render?.toString().includes(".component", "innerRef"),
 			name: "PrivateChannelContainer",
@@ -290,13 +300,6 @@ function buildPlugin([BasePlugin, Library]) {
 		});
 		const GuildActions = expectModule({ filter: byKeys("requestMembers"), name: "GuildActions" });
 		const ChannelActions = expectModule({ filter: byKeys("selectChannel"), name: "ChannelActions" });
-		const UserPopoutSection = expectModule({
-			filter: byStrings(".lastSection", ".section"),
-			name: "UserPopoutSection",
-			fallback: (props) => BdApi.React.createElement("div", {
-				...props
-			})
-		});
 		const useStateFromStores = expectModule({
 			filter: byStrings("useStateFromStores"),
 			name: "Flux",
@@ -758,9 +761,9 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// styles/voiceprofilesection.module.scss
-		const css$2 = ".VoiceActivity-voiceprofilesection-section {\n  position: relative;\n}\n\n.VoiceActivity-voiceprofilesection-header {\n  margin-bottom: 8px;\n  color: var(--header-primary);\n  font-size: 12px;\n  line-height: 16px;\n  font-family: var(--font-display);\n  font-weight: 700;\n  text-transform: uppercase;\n}\n\n.VoiceActivity-voiceprofilesection-body {\n  display: flex;\n  flex-direction: row;\n}\n\n.VoiceActivity-voiceprofilesection-text {\n  margin: auto 10px;\n  color: var(--text-normal);\n  font-size: 14px;\n  line-height: 18px;\n  overflow: hidden;\n}\n.VoiceActivity-voiceprofilesection-text > div, .VoiceActivity-voiceprofilesection-text > h3 {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceprofilesection-text > h3 {\n  font-family: var(--font-normal);\n  font-weight: 600;\n}\n\n.VoiceActivity-voiceprofilesection-buttonWrapper {\n  display: flex;\n  flex: 0 1 auto;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-items: stretch;\n  margin-top: 12px;\n}\n.VoiceActivity-voiceprofilesection-buttonWrapper > div[aria-label] {\n  width: 32px;\n  margin-left: 8px;\n}\n\n.VoiceActivity-voiceprofilesection-button {\n  height: 32px;\n  min-height: 32px;\n  width: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  padding: 2px 16px;\n  border-radius: 3px;\n  color: #fff;\n  font-size: 14px;\n  line-height: 16px;\n  font-weight: 500;\n  user-select: none;\n  background-color: var(--profile-gradient-button-color);\n  transition: opacity 0.2s ease-in-out;\n}\n.VoiceActivity-voiceprofilesection-button:hover {\n  opacity: 0.8;\n}\n.VoiceActivity-voiceprofilesection-button:active {\n  opacity: 0.9;\n}\n.VoiceActivity-voiceprofilesection-button:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n\n.VoiceActivity-voiceprofilesection-joinWrapper .VoiceActivity-voiceprofilesection-joinButton {\n  min-width: 32px;\n  max-width: 32px;\n  padding: 0;\n}\n.VoiceActivity-voiceprofilesection-joinWrapper .VoiceActivity-voiceprofilesection-joinButton:disabled {\n  pointer-events: none;\n}\n\n.VoiceActivity-voiceprofilesection-joinWrapperDisabled {\n  cursor: not-allowed;\n}";
+		const css$2 = ".VoiceActivity-voiceprofilesection-section,\n.VoiceActivity-voiceprofilesection-newSection {\n  position: relative;\n}\n\n.VoiceActivity-voiceprofilesection-section {\n  padding-top: 12px;\n}\n\n.VoiceActivity-voiceprofilesection-newSection {\n  padding: 8px;\n  border-radius: 8px;\n  background: var(--bg-mod-faint);\n}\n\n.theme-light.custom-profile-theme .VoiceActivity-voiceprofilesection-newSection {\n  background: rgb(var(--bg-overlay-color)/0.4);\n}\n\n.theme-dark.custom-profile-theme .VoiceActivity-voiceprofilesection-newSection {\n  background: rgb(var(--bg-overlay-color)/var(--bg-overlay-opacity-5));\n}\n\n.VoiceActivity-voiceprofilesection-header {\n  margin-bottom: 8px;\n  color: var(--header-primary);\n  font-size: 12px;\n  line-height: 16px;\n}\n\n.VoiceActivity-voiceprofilesection-section .VoiceActivity-voiceprofilesection-header {\n  font-family: var(--font-display);\n  font-weight: 700;\n  text-transform: uppercase;\n}\n\n.VoiceActivity-voiceprofilesection-newSection .VoiceActivity-voiceprofilesection-header {\n  font-family: var(--font-primary);\n  font-weight: 600;\n}\n\n.VoiceActivity-voiceprofilesection-body {\n  display: flex;\n  flex-direction: row;\n}\n\n.VoiceActivity-voiceprofilesection-section .VoiceActivity-voiceprofilesection-text {\n  margin: auto 10px;\n  color: var(--text-normal);\n  font-size: 14px;\n  line-height: 18px;\n  overflow: hidden;\n}\n.VoiceActivity-voiceprofilesection-section .VoiceActivity-voiceprofilesection-text > div, .VoiceActivity-voiceprofilesection-section .VoiceActivity-voiceprofilesection-text > h3 {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceprofilesection-section .VoiceActivity-voiceprofilesection-text > h3 {\n  font-family: var(--font-normal);\n  font-weight: 600;\n}\n\n.VoiceActivity-voiceprofilesection-newSection .VoiceActivity-voiceprofilesection-text {\n  color: var(--text-normal);\n  margin-bottom: -1px;\n  margin-left: 10px;\n  flex: 1 1 auto;\n}\n.VoiceActivity-voiceprofilesection-newSection .VoiceActivity-voiceprofilesection-text > div, .VoiceActivity-voiceprofilesection-newSection .VoiceActivity-voiceprofilesection-text > h3 {\n  overflow: hidden;\n  white-space: nowrap;\n  text-overflow: ellipsis;\n}\n.VoiceActivity-voiceprofilesection-newSection .VoiceActivity-voiceprofilesection-text > h3 {\n  font-size: 14px;\n  line-height: 18px;\n  font-weight: 600;\n  font-family: var(--font-primary);\n}\n.VoiceActivity-voiceprofilesection-newSection .VoiceActivity-voiceprofilesection-text > div {\n  font-size: 12px;\n  line-height: 16px;\n  font-weight: 400;\n}\n\n.VoiceActivity-voiceprofilesection-buttonWrapper {\n  display: flex;\n  flex: 0 1 auto;\n  flex-direction: row;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-items: stretch;\n  margin-top: 12px;\n}\n.VoiceActivity-voiceprofilesection-buttonWrapper > div[aria-label] {\n  width: 32px;\n  margin-left: 8px;\n}\n\n.VoiceActivity-voiceprofilesection-button {\n  height: 32px;\n  min-height: 32px;\n  width: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  padding: 2px 16px;\n  border-radius: 3px;\n  color: var(--white-500);\n  font-size: 14px;\n  line-height: 16px;\n  font-weight: 500;\n  user-select: none;\n  background-color: var(--profile-gradient-button-color);\n  transition: opacity var(--custom-button-transition-duration) ease;\n}\n.VoiceActivity-voiceprofilesection-button:hover {\n  opacity: 0.8;\n}\n.VoiceActivity-voiceprofilesection-button:active {\n  opacity: 0.9;\n}\n.VoiceActivity-voiceprofilesection-button:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n\n.VoiceActivity-voiceprofilesection-joinWrapper .VoiceActivity-voiceprofilesection-joinButton {\n  min-width: 32px;\n  max-width: 32px;\n  padding: 0;\n}\n.VoiceActivity-voiceprofilesection-joinWrapper .VoiceActivity-voiceprofilesection-joinButton:disabled {\n  pointer-events: none;\n}\n\n.VoiceActivity-voiceprofilesection-joinWrapperDisabled {\n  cursor: not-allowed;\n}";
 		_loadStyle("voiceprofilesection.module.scss", css$2);
-		const modules_9dbd3268 = {"section":"VoiceActivity-voiceprofilesection-section","header":"VoiceActivity-voiceprofilesection-header","body":"VoiceActivity-voiceprofilesection-body","text":"VoiceActivity-voiceprofilesection-text","buttonWrapper":"VoiceActivity-voiceprofilesection-buttonWrapper","button":"VoiceActivity-voiceprofilesection-button","joinWrapper":"VoiceActivity-voiceprofilesection-joinWrapper","joinButton":"VoiceActivity-voiceprofilesection-joinButton","joinWrapperDisabled":"VoiceActivity-voiceprofilesection-joinWrapperDisabled"};
+		const modules_9dbd3268 = {"section":"VoiceActivity-voiceprofilesection-section","newSection":"VoiceActivity-voiceprofilesection-newSection","header":"VoiceActivity-voiceprofilesection-header","body":"VoiceActivity-voiceprofilesection-body","text":"VoiceActivity-voiceprofilesection-text","buttonWrapper":"VoiceActivity-voiceprofilesection-buttonWrapper","button":"VoiceActivity-voiceprofilesection-button","joinWrapper":"VoiceActivity-voiceprofilesection-joinWrapper","joinButton":"VoiceActivity-voiceprofilesection-joinButton","joinWrapperDisabled":"VoiceActivity-voiceprofilesection-joinWrapperDisabled"};
 	
 		// styles/guildimage.module.scss
 		const css$1 = ".VoiceActivity-guildimage-defaultIcon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-weight: 500;\n  line-height: 1.2em;\n  white-space: nowrap;\n  background-color: var(--background-primary);\n  color: var(--text-normal);\n  min-width: 48px;\n  width: 48px;\n  height: 48px;\n  border-radius: 16px;\n  cursor: pointer;\n  white-space: nowrap;\n  overflow: hidden;\n}";
@@ -824,7 +827,7 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// styles/partymembers.module.css
-		const css = ".VoiceActivity-partymembers-partyMembers {\n\tposition: absolute;\n\ttop: 0;\n\tright: 0;\n\tmargin-top: 2px;\n}\n\n.VoiceActivity-partymembers-partyMemberAvatar {\n\tcursor: auto;\n}\n\n.VoiceActivity-partymembers-overflow {\n\tbackground: radial-gradient(circle at -10px 10px, transparent 14px, var(--profile-role-pill-background-color) 0);\n\tcolor: var(--text-normal);\n\theight: 14px;\n\tfont-size: 12px;\n\tline-height: 14px;\n}\n";
+		const css = ".VoiceActivity-partymembers-partyMembers {\n\tposition: absolute;\n\ttop: 4px;\n\tright: 6px;\n\tmargin-top: 2px;\n}\n\n.VoiceActivity-partymembers-partyMemberAvatar {\n\tcursor: auto;\n}\n\n.VoiceActivity-partymembers-overflow {\n\tbackground: radial-gradient(circle at -10px 10px, transparent 14px, var(--bg-mod-subtle) 0);\n\tcolor: var(--text-normal);\n\theight: 14px;\n\tfont-size: 12px;\n\tline-height: 14px;\n}\n";
 		_loadStyle("partymembers.module.css", css);
 		const modules_e07dfdfd = {"partyMembers":"VoiceActivity-partymembers-partyMembers","partyMemberAvatar":"VoiceActivity-partymembers-partyMemberAvatar","overflow":"VoiceActivity-partymembers-overflow"};
 	
@@ -948,8 +951,8 @@ function buildPlugin([BasePlugin, Library]) {
 					headerText = Strings.HEADER_STAGE;
 					Icon = Icons.Stage;
 			}
-			const section = BdApi.React.createElement(UserPopoutSection, null, BdApi.React.createElement("div", {
-				className: modules_9dbd3268.section
+			const section = BdApi.React.createElement("div", {
+				className: props.new ? modules_9dbd3268.newSection : modules_9dbd3268.section
 			}, BdApi.React.createElement("h3", {
 				className: modules_9dbd3268.header
 			}, headerText), !(channel.type === 1) && BdApi.React.createElement("div", {
@@ -1007,7 +1010,7 @@ function buildPlugin([BasePlugin, Library]) {
 				width: "18",
 				height: "18",
 				color: "currentColor"
-			})))))));
+			}))))));
 			return props.wrapper ? BdApi.React.createElement(props.wrapper, {
 				className: overlay
 			}, section) : section;
@@ -1081,6 +1084,8 @@ function buildPlugin([BasePlugin, Library]) {
 				this.patchUserPopout();
 				this.patchMemberListItem();
 				this.patchUserPanel();
+				this.patchNewUserPanel();
+				this.patchNewUserPopout();
 				this.patchPrivateChannel();
 				this.patchGuildIcon();
 				this.patchChannelContextMenu();
@@ -1109,9 +1114,27 @@ function buildPlugin([BasePlugin, Library]) {
 					const sections = betterdiscord.Utils.findInTree(profileInner.children, (i) => Array.isArray(i.children), {
 						walkable: ["props", "children"]
 					}).children;
+					if (sections[0].props.profileType)
+						return ret;
 					sections.splice(2, 0, BdApi.React.createElement(VoiceProfileSection, {
 						userId: props.user.id,
 						wrapper: Overlay
+					}));
+				});
+			}
+			patchNewUserPanel() {
+				betterdiscord.Patcher.after(NewUserPanelBody, "Z", (_, [props], ret) => {
+					ret.props.children.splice(1, 0, BdApi.React.createElement(VoiceProfileSection, {
+						userId: props.user.id,
+						new: true
+					}));
+				});
+			}
+			patchNewUserPopout() {
+				betterdiscord.Patcher.after(NewUserPopoutBody, "Z", (_, [props], ret) => {
+					ret.props.children.splice(5, 0, BdApi.React.createElement(VoiceProfileSection, {
+						userId: props.user.id,
+						new: true
 					}));
 				});
 			}
