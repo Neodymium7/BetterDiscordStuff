@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.19
+ * @version 1.8.20
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.19",
+		version: "1.8.20",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -289,7 +289,7 @@ function buildPlugin([BasePlugin, Library]) {
 			defaultExport: false
 		});
 		const NewUserPopoutBody = expectModule({
-			filter: byStrings("BiteSizeProfileBody"),
+			filter: byStrings("BITE_SIZE", "PROFILE_POPOUT", "hidePersonalInformation"),
 			name: "NewUserPopoutBody",
 			defaultExport: false
 		});
