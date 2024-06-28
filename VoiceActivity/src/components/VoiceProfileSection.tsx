@@ -1,9 +1,16 @@
 import { Components, ContextMenu } from "betterdiscord";
-import { ChannelActions, Icons, Stores, overlay, transitionTo, useStateFromStores } from "../modules/discordmodules";
+import {
+	ChannelActions,
+	Icons,
+	Stores,
+	overlay,
+	transitionTo,
+	useStateFromStores,
+	PartyMembers,
+} from "../modules/discordmodules";
 import { Settings, Strings, groupDMName, canViewChannel } from "../modules/utils";
 import styles from "../styles/voiceprofilesection.module.scss";
 import GuildImage from "./GuildImage";
-import PartyMembers from "./PartyMembers";
 
 interface VoiceProfileSectionProps {
 	userId: string;
@@ -88,7 +95,9 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 				<div className={styles.body}>
 					<GuildImage guild={guild} channel={channel} channelPath={channelPath} />
 					<div className={styles.text}>{text}</div>
-					<PartyMembers members={members} guildId={guild?.id} />
+					<div className={styles.partyMembers}>
+						<PartyMembers members={members} guildId={guild?.id} partySize={{ totalSize: members.length }} />
+					</div>
 				</div>
 			)}
 			<div className={styles.buttonWrapper}>

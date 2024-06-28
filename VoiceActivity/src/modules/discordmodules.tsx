@@ -37,7 +37,7 @@ export const NewUserPanelBody: any = expectModule({
 });
 
 export const NewUserPopoutBody: any = expectModule({
-	filter: byStrings("BITE_SIZE", "PROFILE_POPOUT", "hidePersonalInformation"),
+	filter: byStrings("BITE_SIZE", "PROFILE_POPOUT", "ROLES"),
 	name: "NewUserPopoutBody",
 	defaultExport: false,
 });
@@ -46,6 +46,12 @@ export const PrivateChannelContainer: any = expectModule({
 	filter: (m) => m.render?.toString().includes(".component", "innerRef"),
 	name: "PrivateChannelContainer",
 	searchExports: true,
+});
+
+export const PartyMembers: any = expectModule({
+	filter: byStrings("partyMembers", "knownSize"),
+	name: "PartyMembers",
+	fallback: (_props) => null,
 });
 
 export const GuildActions: any = expectModule({ filter: byKeys("requestMembers"), name: "GuildActions" });
