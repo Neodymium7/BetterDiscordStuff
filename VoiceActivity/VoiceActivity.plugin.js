@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.22
+ * @version 1.8.23
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.22",
+		version: "1.8.23",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed patching user panel."
+				"Fixed patching user panel (again)."
 			]
 		}
 	]
@@ -284,7 +284,7 @@ function buildPlugin([BasePlugin, Library]) {
 			defaultExport: true
 		});
 		const NewUserPanelBody = expectModule({
-			filter: byStrings("PANEL", "BiteSizeProfileDirectMessageSection"),
+			filter: byStrings("PANEL", "SimplifiedProfilePanelBody"),
 			name: "NewUserPanelBody",
 			defaultExport: false
 		});
