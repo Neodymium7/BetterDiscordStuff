@@ -31,7 +31,7 @@ export const UserProfile: any = expectModule({
 });
 
 export const NewUserPanelBody: any = expectModule({
-	filter: byStrings("PANEL", "BiteSizeProfileDirectMessageSection"),
+	filter: byStrings("PANEL", "SimplifiedProfilePanelBody"),
 	name: "NewUserPanelBody",
 	defaultExport: false,
 });
