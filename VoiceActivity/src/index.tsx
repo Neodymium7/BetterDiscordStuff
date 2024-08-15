@@ -10,10 +10,8 @@ import {
 	iconWrapperSelector,
 	peopleItemSelector,
 	useStateFromStores,
+	UserPanelBody,
 	UserPopoutBody,
-	UserProfile,
-	NewUserPanelBody,
-	NewUserPopoutBody,
 } from "./modules/discordmodules";
 import { Settings, Strings, forceRerender, forceUpdateAll, getGuildMediaState, waitForElement } from "./modules/utils";
 import iconStyles from "./styles/voiceicon.module.scss";
@@ -30,56 +28,23 @@ export default class VoiceActivity extends BasePlugin {
 		DOM.addStyle(styles() + `${children}:empty { margin-left: 0; } ${children} { display: flex; gap: 8px; }`);
 		Strings.subscribe();
 		this.patchPeopleListItem();
-		this.patchUserPopout();
 		this.patchMemberListItem();
 		this.patchUserPanel();
-		this.patchNewUserPanel();
-		this.patchNewUserPopout();
+		this.patchUserPopout();
 		this.patchPrivateChannel();
 		this.patchGuildIcon();
 		this.patchChannelContextMenu();
 		this.patchGuildContextMenu();
 	}
 
-	patchUserPopout() {
-		const activitySectionFilter = (section: any) => section?.props?.hasOwnProperty("activity");
-
-		Patcher.after(UserPopoutBody, "Z", (_, [props]: [any], ret) => {
-			const popoutSections = Utils.findInTree(ret, (i) => Array.isArray(i) && i.some(activitySectionFilter), {
-				walkable: ["props", "children"],
-			});
-			const activitySectionIndex = popoutSections.findIndex(activitySectionFilter);
-			popoutSections.splice(activitySectionIndex, 0, <VoiceProfileSection userId={props.user.id} />);
-		});
-	}
-
 	patchUserPanel() {
-		if (!UserProfile) return;
-		const { Overlay } = UserProfile;
-
-		Patcher.after(UserProfile, "render", (_, [props]: [any], ret) => {
-			const profileInner = Utils.findInTree(ret, (i) => i.profileType, { walkable: ["props", "children"] });
-
-			if (profileInner.profileType !== "PANEL") return ret;
-
-			const sections = Utils.findInTree(profileInner.children, (i) => Array.isArray(i.children), {
-				walkable: ["props", "children"],
-			}).children;
-
-			if (sections[0].props.profileType) return ret;
-
-			sections.splice(2, 0, <VoiceProfileSection userId={props.user.id} wrapper={Overlay} />);
-		});
-	}
-
-	patchNewUserPanel() {
-		Patcher.after(NewUserPanelBody, "Z", (_, [props]: [any], ret) => {
+		Patcher.after(UserPanelBody, "Z", (_, [props]: [any], ret) => {
 			ret.props.children.splice(1, 0, <VoiceProfileSection userId={props.user.id} new />);
 		});
 	}
 
-	patchNewUserPopout() {
-		Patcher.after(NewUserPopoutBody, "Z", (_, [props]: [any], ret) => {
+	patchUserPopout() {
+		Patcher.after(UserPopoutBody, "Z", (_, [props]: [any], ret) => {
 			ret.props.children.splice(5, 0, <VoiceProfileSection userId={props.user.id} new />);
 		});
 	}

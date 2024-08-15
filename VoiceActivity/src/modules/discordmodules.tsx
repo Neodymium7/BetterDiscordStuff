@@ -18,25 +18,13 @@ export const MemberListItem: any = expectModule({
 	defaultExport: false,
 });
 
-export const UserPopoutBody: any = expectModule({
-	filter: byStrings("hideNote", "canDM"),
-	name: "UserPopoutBody",
-	defaultExport: false,
-});
-
-export const UserProfile: any = expectModule({
-	filter: (m) => m?.Overlay,
-	name: "UserProfile",
-	defaultExport: true,
-});
-
-export const NewUserPanelBody: any = expectModule({
+export const UserPanelBody: any = expectModule({
 	filter: byStrings("PANEL", "SimplifiedProfilePanelBody"),
 	name: "NewUserPanelBody",
 	defaultExport: false,
 });
 
-export const NewUserPopoutBody: any = expectModule({
+export const UserPopoutBody: any = expectModule({
 	filter: byStrings(".BITE_SIZE", ".PROFILE_POPOUT"),
 	name: "NewUserPopoutBody",
 	defaultExport: false,
@@ -121,8 +109,6 @@ export const partyMembersClasses = getClasses("Party Members Classes", [
 	"partyMembers",
 	"partyMemberOverflow",
 ]);
-
-export const overlay = getClasses("Overlay Class", ["overlay", "profilePanel"]).overlay;
 
 export const Stores = {
 	UserStore: getStore("UserStore"),

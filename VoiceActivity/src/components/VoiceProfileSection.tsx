@@ -3,7 +3,6 @@ import {
 	ChannelActions,
 	Icons,
 	Stores,
-	overlay,
 	transitionTo,
 	useStateFromStores,
 	PartyMembers,
@@ -14,7 +13,7 @@ import GuildImage from "./GuildImage";
 
 interface VoiceProfileSectionProps {
 	userId: string;
-	wrapper?: React.FunctionComponent<React.PropsWithChildren<{ className: any }>>;
+	wrapper?: React.FunctionComponent<React.PropsWithChildren>;
 	new?: boolean;
 }
 
@@ -154,5 +153,5 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 		</div>
 	);
 
-	return props.wrapper ? <props.wrapper className={overlay}>{section}</props.wrapper> : section;
+	return props.wrapper ? <props.wrapper>{section}</props.wrapper> : section;
 }
