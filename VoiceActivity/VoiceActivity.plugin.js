@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.24
+ * @version 1.8.25
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.24",
+		version: "1.8.25",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -273,24 +273,14 @@ function buildPlugin([BasePlugin, Library]) {
 			name: "MemberListItem",
 			defaultExport: false
 		});
-		const UserPopoutBody = expectModule({
-			filter: byStrings("hideNote", "canDM"),
-			name: "UserPopoutBody",
-			defaultExport: false
-		});
-		const UserProfile = expectModule({
-			filter: (m) => m?.Overlay,
-			name: "UserProfile",
-			defaultExport: true
-		});
-		const NewUserPanelBody = expectModule({
+		const UserPanelBody = expectModule({
 			filter: byStrings("PANEL", "SimplifiedProfilePanelBody"),
-			name: "NewUserPanelBody",
+			name: "UserPanelBody",
 			defaultExport: false
 		});
-		const NewUserPopoutBody = expectModule({
-			filter: byStrings(".BITE_SIZE", ".PROFILE_POPOUT"),
-			name: "NewUserPopoutBody",
+		const UserPopoutBody = expectModule({
+			filter: byStrings("BiteSizeProfileBody", "BITE_SIZE_PROFILE_POPOUT"),
+			name: "UserPopoutBody",
 			defaultExport: false
 		});
 		const PrivateChannelContainer = expectModule({
@@ -362,7 +352,6 @@ function buildPlugin([BasePlugin, Library]) {
 			"partyMembers",
 			"partyMemberOverflow"
 		]);
-		const overlay = getClasses("Overlay Class", ["overlay", "profilePanel"]).overlay;
 		const Stores = {
 			UserStore: getStore("UserStore"),
 			GuildChannelStore: getStore("GuildChannelStore"),
@@ -957,9 +946,7 @@ function buildPlugin([BasePlugin, Library]) {
 				height: "18",
 				color: "currentColor"
 			}))))));
-			return props.wrapper ? BdApi.React.createElement(props.wrapper, {
-				className: overlay
-			}, section) : section;
+			return props.wrapper ? BdApi.React.createElement(props.wrapper, null, section) : section;
 		}
 	
 		// components/SettingsPanel.tsx
@@ -1027,57 +1014,24 @@ function buildPlugin([BasePlugin, Library]) {
 				betterdiscord.DOM.addStyle(styles() + `${children}:empty { margin-left: 0; } ${children} { display: flex; gap: 8px; }`);
 				Strings.subscribe();
 				this.patchPeopleListItem();
-				this.patchUserPopout();
 				this.patchMemberListItem();
 				this.patchUserPanel();
-				this.patchNewUserPanel();
-				this.patchNewUserPopout();
+				this.patchUserPopout();
 				this.patchPrivateChannel();
 				this.patchGuildIcon();
 				this.patchChannelContextMenu();
 				this.patchGuildContextMenu();
 			}
-			patchUserPopout() {
-				const activitySectionFilter = (section) => section?.props?.hasOwnProperty("activity");
-				betterdiscord.Patcher.after(UserPopoutBody, "Z", (_, [props], ret) => {
-					const popoutSections = betterdiscord.Utils.findInTree(ret, (i) => Array.isArray(i) && i.some(activitySectionFilter), {
-						walkable: ["props", "children"]
-					});
-					const activitySectionIndex = popoutSections.findIndex(activitySectionFilter);
-					popoutSections.splice(activitySectionIndex, 0, BdApi.React.createElement(VoiceProfileSection, {
-						userId: props.user.id
-					}));
-				});
-			}
 			patchUserPanel() {
-				if (!UserProfile)
-					return;
-				const { Overlay } = UserProfile;
-				betterdiscord.Patcher.after(UserProfile, "render", (_, [props], ret) => {
-					const profileInner = betterdiscord.Utils.findInTree(ret, (i) => i.profileType, { walkable: ["props", "children"] });
-					if (profileInner.profileType !== "PANEL")
-						return ret;
-					const sections = betterdiscord.Utils.findInTree(profileInner.children, (i) => Array.isArray(i.children), {
-						walkable: ["props", "children"]
-					}).children;
-					if (sections[0].props.profileType)
-						return ret;
-					sections.splice(2, 0, BdApi.React.createElement(VoiceProfileSection, {
-						userId: props.user.id,
-						wrapper: Overlay
-					}));
-				});
-			}
-			patchNewUserPanel() {
-				betterdiscord.Patcher.after(NewUserPanelBody, "Z", (_, [props], ret) => {
+				betterdiscord.Patcher.after(UserPanelBody, "Z", (_, [props], ret) => {
 					ret.props.children.splice(1, 0, BdApi.React.createElement(VoiceProfileSection, {
 						userId: props.user.id,
 						new: true
 					}));
 				});
 			}
-			patchNewUserPopout() {
-				betterdiscord.Patcher.after(NewUserPopoutBody, "Z", (_, [props], ret) => {
+			patchUserPopout() {
+				betterdiscord.Patcher.after(UserPopoutBody, "Z", (_, [props], ret) => {
 					ret.props.children.splice(5, 0, BdApi.React.createElement(VoiceProfileSection, {
 						userId: props.user.id,
 						new: true
