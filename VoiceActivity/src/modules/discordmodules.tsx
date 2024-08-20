@@ -20,13 +20,13 @@ export const MemberListItem: any = expectModule({
 
 export const UserPanelBody: any = expectModule({
 	filter: byStrings("PANEL", "SimplifiedProfilePanelBody"),
-	name: "NewUserPanelBody",
+	name: "UserPanelBody",
 	defaultExport: false,
 });
 
 export const UserPopoutBody: any = expectModule({
-	filter: byStrings(".BITE_SIZE", ".PROFILE_POPOUT"),
-	name: "NewUserPopoutBody",
+	filter: byStrings("BiteSizeProfileBody", "BITE_SIZE_PROFILE_POPOUT"),
+	name: "UserPopoutBody",
 	defaultExport: false,
 });
 
