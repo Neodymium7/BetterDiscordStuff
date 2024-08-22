@@ -1,7 +1,7 @@
 /**
  * @name ActivityToggle
  * @author Neodymium
- * @version 1.2.14
+ * @version 1.2.15
  * @description Adds a button to quickly toggle Activity Status.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  * @invite fRbsqH87Av
@@ -94,24 +94,9 @@ function getSelectors(name, classes) {
 		return obj;
 	}, {});
 }
-function bySourceStrings(...strings) {
-	return (_e, _m, i) => {
-		const moduleSource = betterdiscord.Webpack.modules[i].toString();
-		let match = true;
-		for (const string of strings) {
-			if (!moduleSource.includes(string)) {
-				match = false;
-				break;
-			}
-		}
-		return match;
-	};
-}
 function getIcon(name, searchString) {
 	return expectModule({
-		filter: (e, m, i) => {
-			return bySourceStrings(searchString)(e, m, i) && typeof e == "function";
-		},
+		filter: betterdiscord.Webpack.Filters.byStrings(searchString),
 		name,
 		fallback: (_props) => null,
 		searchExports: true

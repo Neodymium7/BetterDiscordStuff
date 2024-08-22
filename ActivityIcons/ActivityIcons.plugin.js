@@ -1,7 +1,7 @@
 /**
  * @name ActivityIcons
  * @author Neodymium
- * @version 1.4.5
+ * @version 1.4.6
  * @description Improves the default icons next to statuses
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.4.5",
+		version: "1.4.6",
 		description: "Improves the default icons next to statuses",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed after latest Discord update."
+				"Improved loading times when fetching Icons."
 			]
 		}
 	]
@@ -140,24 +140,9 @@ function buildPlugin([BasePlugin, Library]) {
 				return obj;
 			}, {});
 		}
-		function bySourceStrings(...strings) {
-			return (_e, _m, i) => {
-				const moduleSource = betterdiscord.Webpack.modules[i].toString();
-				let match = true;
-				for (const string of strings) {
-					if (!moduleSource.includes(string)) {
-						match = false;
-						break;
-					}
-				}
-				return match;
-			};
-		}
 		function getIcon(name, searchString) {
 			return expectModule({
-				filter: (e, m, i) => {
-					return bySourceStrings(searchString)(e, m, i) && typeof e == "function";
-				},
+				filter: betterdiscord.Webpack.Filters.byStrings(searchString),
 				name,
 				fallback: (_props) => null,
 				searchExports: true
