@@ -1,7 +1,7 @@
 /**
  * @name ActivityIcons
  * @author Neodymium
- * @version 1.4.7
+ * @version 1.4.8
  * @description Improves the default icons next to statuses
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.4.7",
+		version: "1.4.8",
 		description: "Improves the default icons next to statuses",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js"
@@ -142,7 +142,7 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 		function getIcon(name, searchString) {
 			return expectModule({
-				filter: (m) => betterdiscord.Webpack.Filters.byStrings(searchString) && typeof m == "function",
+				filter: (m) => betterdiscord.Webpack.Filters.byStrings(searchString)(m) && typeof m == "function",
 				name,
 				fallback: (_props) => null,
 				searchExports: true
