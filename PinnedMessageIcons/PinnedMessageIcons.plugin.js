@@ -9,14 +9,11 @@
  */
 
 const { DOM, Patcher, Webpack } = new BdApi("PinnedMessageIcons");
-const { getModule } = Webpack;
+const { getModule, Filters } = Webpack;
 
 const pinPath = "M19.38 11.38a3 3 0 0 0 4.24 0l.03-.03a.5.5 0 0 0 0-.7L13.35.35a.5.5"
 
-const Pin = getModule((e, _m, i) => {
-    const moduleSource = Webpack.modules[i].toString();
-    return moduleSource.includes(pinPath) && typeof e === "function"
-}, { searchExports: true });
+const Pin = getModule(Filters.byStrings(pinPath), { searchExports: true });
 
 const Message = getModule((m) => m.Z?.toString?.().includes("childrenRepliedMessage"));
 
