@@ -183,7 +183,7 @@ export function bySourceStrings(...strings: string[]) {
  */
 export function getIcon(name: string, searchString: string): (props: IconProps) => JSX.Element {
 	return expectModule<any>({
-		filter: (m) => Webpack.Filters.byStrings(searchString) && typeof m == "function",
+		filter: (m) => Webpack.Filters.byStrings(searchString)(m) && typeof m == "function",
 		name,
 		fallback: (_props: IconProps) => null,
 		searchExports: true,
