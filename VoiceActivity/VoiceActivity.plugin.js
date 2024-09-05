@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.28
+ * @version 1.8.29
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.28",
+		version: "1.8.29",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Improved loading times when fetching Icons."
+				"Fixed patching user popout."
 			]
 		}
 	]
@@ -259,12 +259,12 @@ function buildPlugin([BasePlugin, Library]) {
 			defaultExport: false
 		});
 		const UserPanelBody = expectModule({
-			filter: byStrings("PANEL", "SimplifiedProfilePanelBody"),
+			filter: byStrings("PANEL", "UserProfilePanelBody"),
 			name: "UserPanelBody",
 			defaultExport: false
 		});
 		const UserPopoutBody = expectModule({
-			filter: byStrings("BiteSizeProfileBody", "BITE_SIZE_PROFILE_POPOUT"),
+			filter: byStrings("UserProfilePopoutBody", "BITE_SIZE_PROFILE_POPOUT"),
 			name: "UserPopoutBody",
 			defaultExport: false
 		});
