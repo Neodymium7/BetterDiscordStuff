@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.3.5
+ * @version 1.3.6
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.3.5",
+		version: "1.3.6",
 		description: "Opens the user's popout when clicking on a name in the typing area.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed after latest Discord update"
+				"Fixed rendering wrong popout component."
 			]
 		}
 	]
@@ -144,7 +144,7 @@ function buildPlugin([BasePlugin, Library]) {
 			fatal: true
 		});
 		const UserPopout = expectModule({
-			filter: (m) => m.toString?.().includes('"Unexpected missing user"'),
+			filter: (m) => m.toString?.().includes("UserProfilePopoutWrapper"),
 			name: "UserPopout",
 			fallback: (_props) => BdApi.React.createElement(ErrorPopout, {
 				message: "Error: User Popout module not found"
