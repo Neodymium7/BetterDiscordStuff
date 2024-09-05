@@ -18,7 +18,7 @@ export const TypingUsersContainer: any = expectModule({
 });
 
 export const UserPopout = expectModule({
-	filter: (m) => m.toString?.().includes('"Unexpected missing user"'),
+	filter: (m) => m.toString?.().includes("UserProfilePopoutWrapper"),
 	name: "UserPopout",
 	fallback: (_props: any) => <ErrorPopout message="Error: User Popout module not found" />,
 });
