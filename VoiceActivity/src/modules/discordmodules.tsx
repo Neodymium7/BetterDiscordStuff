@@ -25,7 +25,7 @@ export const UserPanelBody: any = expectModule({
 });
 
 export const UserPopoutBody: any = expectModule({
-	filter: byStrings("UserProfilePopoutBody", "BITE_SIZE_PROFILE_POPOUT"),
+	filter: byStrings("pronouns", "BITE_SIZE_PROFILE_POPOUT"),
 	name: "UserPopoutBody",
 	defaultExport: false,
 });
