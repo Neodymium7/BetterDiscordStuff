@@ -19,7 +19,7 @@ export const MemberListItem: any = expectModule({
 });
 
 export const UserPanelBody: any = expectModule({
-	filter: byStrings("PANEL", "UserProfilePanelBody"),
+	filter: byStrings("PANEL", "USER_POPOUT_ABOUT_ME"),
 	name: "UserPanelBody",
 	defaultExport: false,
 });
