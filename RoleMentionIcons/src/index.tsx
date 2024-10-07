@@ -13,7 +13,9 @@ export default class RoleMentionIcons extends BasePlugin {
 	}
 
 	onStart() {
-		DOM.addStyle(".role-mention-icon { position: relative; top: 2px; margin-left: 4px; }");
+		DOM.addStyle(
+			`.role-mention-icon { position: relative; height: 1em; width: 1em; margin-left: 4px; } .${roleMention} { display: inline-flex; align-items: center; }`
+		);
 		Strings.subscribe();
 
 		const elements = Array.from(document.getElementsByClassName(roleMention));
