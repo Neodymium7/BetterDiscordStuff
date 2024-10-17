@@ -21,7 +21,7 @@ export default class ActivityIcons extends BasePlugin {
 	}
 
 	patchActivityStatus() {
-		Patcher.after(ActivityStatus, "Z", (_, [props]: [any], ret) => {
+		Patcher.after(ActivityStatus, "ZP", (_, [props]: [any], ret) => {
 			if (!ret) return;
 
 			const defaultIconIndex = ret.props.children.findIndex((element) =>
