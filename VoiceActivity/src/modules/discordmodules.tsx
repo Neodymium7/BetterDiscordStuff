@@ -19,7 +19,7 @@ export const MemberListItem: any = expectModule({
 });
 
 export const UserPanelBody: any = expectModule({
-	filter: byStrings("PANEL", "USER_POPOUT_ABOUT_ME"),
+	filter: byStrings("PANEL", "UserProfilePanelBody"),
 	name: "UserPanelBody",
 	defaultExport: false,
 });
@@ -91,7 +91,7 @@ export const Icons = {
 	People: getIcon("People", "M14.5 8a3 3 0 1 0-2.7-4.3c-.2.4.06.86.44 1.12a5 5 0 0 1 2.14 "),
 	Speaker: getIcon("Speaker", "M12 3a1 1 0 0 0-1-1h-.06a1 1 0 0 0-.74.32L5.92 7H3a1 1"),
 	Muted: getIcon("Muted", "m2.7 22.7 20-20a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4"),
-	Deafened: getIcon("Deafened", "M22.7 2.7a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4"),
+	Deafened: getIcon("Deafened", "M22.7 2.7a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4 1.4l20-20ZM17.06"),
 	Video: getIcon("Video", "M4 4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h11a3 3"),
 	Stage: getIcon("Stage", "M19.61 18.25a1.08 1.08 0 0 1-.07-1.33 9 9 0 1 0-15.07"),
 };

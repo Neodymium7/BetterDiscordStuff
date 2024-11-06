@@ -1,7 +1,7 @@
 {
 	"name": "ActivityIcons",
 	"author": "Neodymium",
-	"version": "1.4.9",
+	"version": "1.4.10",
 	"description": "Improves the default icons next to statuses",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
 	"invite": "fRbsqH87Av",
@@ -13,7 +13,7 @@
 			{
 				"title": "Fixed",
 				"type": "fixed",
-				"items": ["Fixed displaying activity icons."]
+				"items": ["Fixed plugin not working after Discord's string changes."]
 			}
 		]
 	}

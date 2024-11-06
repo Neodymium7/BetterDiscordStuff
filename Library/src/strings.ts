@@ -30,7 +30,7 @@ interface StringsManager {
 type Strings<T extends LocalesObject, D extends keyof T> = Override<StringsManager, Readonly<T[D]>>;
 
 const Dispatcher = /* @__PURE__ */ Webpack.getModule(/* @__PURE__ */ Webpack.Filters.byKeys("dispatch", "subscribe"));
-const LocaleManager = /* @__PURE__ */ Webpack.getModule((m) => m.Messages?.CLOSE);
+const LocaleStore = /* @__PURE__ */ Webpack.getModule((m) => m._dispatchToken && m.getName() === "LocaleStore");
 
 /**
  * Creates a `Strings` object with the given locales object.
@@ -42,16 +42,16 @@ export function createStrings<T extends LocalesObject, D extends keyof T>(locale
 	let strings: T[D] = locales[defaultLocale];
 
 	const setLocale = () => {
-		strings = locales[LocaleManager.getLocale()] || locales[defaultLocale];
+		strings = locales[LocaleStore.locale] || locales[defaultLocale];
 	};
 
 	const stringsManager: StringsManager = {
 		subscribe() {
 			setLocale();
-			Dispatcher.subscribe("I18N_LOAD_SUCCESS", setLocale);
+			LocaleStore.addChangeListener(setLocale);
 		},
 		unsubscribe() {
-			Dispatcher.unsubscribe("I18N_LOAD_SUCCESS", setLocale);
+			LocaleStore.removeChangeListener(setLocale);
 		},
 	};
 
