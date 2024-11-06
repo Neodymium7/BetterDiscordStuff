@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.8.32
+ * @version 1.8.33
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.8.32",
+		version: "1.8.33",
 		description: "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/VoiceActivity/VoiceActivity.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed patching user popout."
+				"Fixed plugin not working after Discord's string changes."
 			]
 		}
 	]
@@ -140,20 +140,19 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// @lib/strings.ts
-		const Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byKeys("dispatch", "subscribe"));
-		const LocaleManager = betterdiscord.Webpack.getModule((m) => m.Messages?.CLOSE);
+		const LocaleStore = betterdiscord.Webpack.getModule((m) => m._dispatchToken && m.getName() === "LocaleStore");
 		function createStrings(locales, defaultLocale) {
 			let strings = locales[defaultLocale];
 			const setLocale = () => {
-				strings = locales[LocaleManager.getLocale()] || locales[defaultLocale];
+				strings = locales[LocaleStore.locale] || locales[defaultLocale];
 			};
 			const stringsManager = {
 				subscribe() {
 					setLocale();
-					Dispatcher.subscribe("I18N_LOAD_SUCCESS", setLocale);
+					LocaleStore.addChangeListener(setLocale);
 				},
 				unsubscribe() {
-					Dispatcher.unsubscribe("I18N_LOAD_SUCCESS", setLocale);
+					LocaleStore.removeChangeListener(setLocale);
 				}
 			};
 			for (const key in strings) {
@@ -259,7 +258,7 @@ function buildPlugin([BasePlugin, Library]) {
 			defaultExport: false
 		});
 		const UserPanelBody = expectModule({
-			filter: byStrings("PANEL", "USER_POPOUT_ABOUT_ME"),
+			filter: byStrings("PANEL", "UserProfilePanelBody"),
 			name: "UserPanelBody",
 			defaultExport: false
 		});
@@ -324,7 +323,7 @@ function buildPlugin([BasePlugin, Library]) {
 			People: getIcon("People", "M14.5 8a3 3 0 1 0-2.7-4.3c-.2.4.06.86.44 1.12a5 5 0 0 1 2.14 "),
 			Speaker: getIcon("Speaker", "M12 3a1 1 0 0 0-1-1h-.06a1 1 0 0 0-.74.32L5.92 7H3a1 1"),
 			Muted: getIcon("Muted", "m2.7 22.7 20-20a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4"),
-			Deafened: getIcon("Deafened", "M22.7 2.7a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4"),
+			Deafened: getIcon("Deafened", "M22.7 2.7a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4 1.4l20-20ZM17.06"),
 			Video: getIcon("Video", "M4 4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h11a3 3"),
 			Stage: getIcon("Stage", "M19.61 18.25a1.08 1.08 0 0 1-.07-1.33 9 9 0 1 0-15.07")
 		};
@@ -1122,6 +1121,8 @@ function buildPlugin([BasePlugin, Library]) {
 				if (!GuildIconComponent)
 					return Logger.error("Guild icon component not found");
 				betterdiscord.Patcher.before(GuildIconComponent, "type", (_, [props]) => {
+					if (!props.guild)
+						return;
 					const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState();
 					const mediaState = useStateFromStores(
 						[Stores.VoiceStateStore],

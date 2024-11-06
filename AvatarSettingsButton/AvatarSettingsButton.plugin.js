@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 2.1.4
+ * @version 2.1.5
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "2.1.4",
+		version: "2.1.5",
 		description: "Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed styles after latest Discord update."
+				"Fixed plugin not working after Discord's string changes."
 			]
 		}
 	]
@@ -244,20 +244,19 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// @lib/strings.ts
-		const Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byKeys("dispatch", "subscribe"));
-		const LocaleManager = betterdiscord.Webpack.getModule((m) => m.Messages?.CLOSE);
+		const LocaleStore = betterdiscord.Webpack.getModule((m) => m._dispatchToken && m.getName() === "LocaleStore");
 		function createStrings(locales, defaultLocale) {
 			let strings = locales[defaultLocale];
 			const setLocale = () => {
-				strings = locales[LocaleManager.getLocale()] || locales[defaultLocale];
+				strings = locales[LocaleStore.locale] || locales[defaultLocale];
 			};
 			const stringsManager = {
 				subscribe() {
 					setLocale();
-					Dispatcher.subscribe("I18N_LOAD_SUCCESS", setLocale);
+					LocaleStore.addChangeListener(setLocale);
 				},
 				unsubscribe() {
-					Dispatcher.unsubscribe("I18N_LOAD_SUCCESS", setLocale);
+					LocaleStore.removeChangeListener(setLocale);
 				}
 			};
 			for (const key in strings) {

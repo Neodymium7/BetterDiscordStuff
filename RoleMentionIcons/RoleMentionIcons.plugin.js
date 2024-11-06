@@ -1,7 +1,7 @@
 /**
  * @name RoleMentionIcons
  * @author Neodymium
- * @version 1.3.2
+ * @version 1.3.3
  * @description Displays icons next to role mentions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.3.2",
+		version: "1.3.3",
 		description: "Displays icons next to role mentions.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/RoleMentionIcons/RoleMentionIcons.plugin.js"
@@ -49,8 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed icons not appearing.",
-				"Fixed settings toggles not displaying proper state."
+				"Fixed plugin not working after Discord's string changes."
 			]
 		}
 	]
@@ -93,9 +92,6 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// @lib/utils/webpack.ts
-		function getStore(name) {
-			return betterdiscord.Webpack.getModule((m) => m._dispatchToken && m.getName() === name);
-		}
 		function expectModule(filterOrOptions, options) {
 			let filter;
 			if (typeof filterOrOptions === "function") {
@@ -131,7 +127,8 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		// modules/discordmodules.tsx
 		const {
-			Filters: { byKeys }
+			Filters: { byKeys },
+			getStore
 		} = betterdiscord.Webpack;
 		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
 			style: { color: "red" }
@@ -205,20 +202,19 @@ function buildPlugin([BasePlugin, Library]) {
 		}
 	
 		// @lib/strings.ts
-		const Dispatcher = betterdiscord.Webpack.getModule(betterdiscord.Webpack.Filters.byKeys("dispatch", "subscribe"));
-		const LocaleManager = betterdiscord.Webpack.getModule((m) => m.Messages?.CLOSE);
+		const LocaleStore = betterdiscord.Webpack.getModule((m) => m._dispatchToken && m.getName() === "LocaleStore");
 		function createStrings(locales, defaultLocale) {
 			let strings = locales[defaultLocale];
 			const setLocale = () => {
-				strings = locales[LocaleManager.getLocale()] || locales[defaultLocale];
+				strings = locales[LocaleStore.locale] || locales[defaultLocale];
 			};
 			const stringsManager = {
 				subscribe() {
 					setLocale();
-					Dispatcher.subscribe("I18N_LOAD_SUCCESS", setLocale);
+					LocaleStore.addChangeListener(setLocale);
 				},
 				unsubscribe() {
-					Dispatcher.unsubscribe("I18N_LOAD_SUCCESS", setLocale);
+					LocaleStore.removeChangeListener(setLocale);
 				}
 			};
 			for (const key in strings) {
@@ -335,7 +331,9 @@ function buildPlugin([BasePlugin, Library]) {
 				this.clearCallbacks = new Set();
 			}
 			onStart() {
-				betterdiscord.DOM.addStyle(".role-mention-icon { position: relative; top: 2px; margin-left: 4px; }");
+				betterdiscord.DOM.addStyle(
+					`.role-mention-icon { position: relative; height: 1em; width: 1em; margin-left: 4px; } .${roleMention} { display: inline-flex; align-items: center; }`
+				);
 				Strings.subscribe();
 				const elements = Array.from(document.getElementsByClassName(roleMention));
 				this.processElements(elements);
