@@ -1,7 +1,7 @@
 /**
  * @name ActivityIcons
  * @author Neodymium
- * @version 1.4.10
+ * @version 1.4.11
  * @description Improves the default icons next to statuses
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "1.4.10",
+		version: "1.4.11",
 		description: "Improves the default icons next to statuses",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/ActivityIcons/ActivityIcons.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed plugin not working after Discord's string changes."
+				"Fixed icons not displaying."
 			]
 		}
 	]
@@ -151,16 +151,15 @@ function buildPlugin([BasePlugin, Library]) {
 	
 		// modules/discordmodules.tsx
 		const {
-			Filters: { byKeys }
+			Filters: { byKeys, byStrings }
 		} = betterdiscord.Webpack;
 		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
 			style: { color: "red" }
 		}, "Error: Component not found"));
 		const ActivityStatus = expectModule({
-			filter: (m) => Object.values(m).some(
-				(v) => typeof v === "function" && v?.toString?.().includes("translateSurrogatesToInlineEmoji")
-			),
+			filter: byStrings("QuestsIcon", "hangStatusActivity"),
 			name: "ActivityStatus",
+			defaultExport: false,
 			fatal: true
 		});
 		const Icons = {
