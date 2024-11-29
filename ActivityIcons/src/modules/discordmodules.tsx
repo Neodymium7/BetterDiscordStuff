@@ -2,7 +2,7 @@ import { Webpack } from "betterdiscord";
 import { expectModule, getClasses, getSelectors, getIcon } from "@lib/utils/webpack";
 
 const {
-	Filters: { byKeys },
+	Filters: { byKeys, byStrings },
 } = Webpack;
 
 const Error = (_props) => (
@@ -12,11 +12,9 @@ const Error = (_props) => (
 );
 
 export const ActivityStatus: any = expectModule({
-	filter: (m) =>
-		Object.values(m).some(
-			(v) => typeof v === "function" && v?.toString?.().includes("translateSurrogatesToInlineEmoji")
-		),
+	filter: byStrings("QuestsIcon", "hangStatusActivity"),
 	name: "ActivityStatus",
+	defaultExport: false,
 	fatal: true,
 });
 

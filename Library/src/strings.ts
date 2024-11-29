@@ -29,7 +29,6 @@ interface StringsManager {
 
 type Strings<T extends LocalesObject, D extends keyof T> = Override<StringsManager, Readonly<T[D]>>;
 
-const Dispatcher = /* @__PURE__ */ Webpack.getModule(/* @__PURE__ */ Webpack.Filters.byKeys("dispatch", "subscribe"));
 const LocaleStore = /* @__PURE__ */ Webpack.getModule((m) => m._dispatchToken && m.getName() === "LocaleStore");
 
 /**
