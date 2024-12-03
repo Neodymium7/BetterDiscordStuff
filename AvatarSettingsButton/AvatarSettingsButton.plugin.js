@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 2.1.5
+ * @version 2.1.6
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const config = {
 				name: "Neodymium"
 			}
 		],
-		version: "2.1.5",
+		version: "2.1.6",
 		description: "Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.",
 		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
 		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
@@ -49,7 +49,7 @@ const config = {
 			title: "Fixed",
 			type: "fixed",
 			items: [
-				"Fixed plugin not working after Discord's string changes."
+				"Fixed opening blank settings page."
 			]
 		}
 	]
@@ -165,11 +165,12 @@ function buildPlugin([BasePlugin, Library]) {
 			fatal: true
 		});
 		const Sections = expectModule({
-			filter: byKeys("ACCOUNT", "ACCESSIBILITY"),
+			filter: byKeys("ACCOUNT", "CHANGE_LOG"),
 			searchExports: true,
 			name: "Sections",
-			fallback: { ACCOUNT: "Account" }
+			fallback: { ACCOUNT: "My Account" }
 		});
+		console.log(Sections);
 		const accountClasses = expectModule(byKeys("buildOverrideButton"), {
 			name: "Account Classes",
 			fatal: true
