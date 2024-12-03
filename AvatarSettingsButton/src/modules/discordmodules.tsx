@@ -42,8 +42,6 @@ export const Sections = expectModule({
 	fallback: { ACCOUNT: "My Account" },
 });
 
-console.log(Sections);
-
 export const accountClasses = expectModule<AccountClasses>(byKeys("buildOverrideButton"), {
 	name: "Account Classes",
 	fatal: true,
