@@ -36,11 +36,13 @@ export const UserSettingsWindow: any = expectModule({
 });
 
 export const Sections = expectModule({
-	filter: byKeys("ACCOUNT", "ACCESSIBILITY"),
+	filter: byKeys("ACCOUNT", "CHANGE_LOG"),
 	searchExports: true,
 	name: "Sections",
-	fallback: { ACCOUNT: "Account" },
+	fallback: { ACCOUNT: "My Account" },
 });
+
+console.log(Sections);
 
 export const accountClasses = expectModule<AccountClasses>(byKeys("buildOverrideButton"), {
 	name: "Account Classes",

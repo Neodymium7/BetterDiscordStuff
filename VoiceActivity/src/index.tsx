@@ -146,7 +146,7 @@ export default class VoiceActivity extends BasePlugin {
 		const GuildIconComponent = targetInstance?.elementType;
 		if (!GuildIconComponent) return Logger.error("Guild icon component not found");
 		Patcher.before(GuildIconComponent, "type", (_, [props]: [any]) => {
-			if (!props.guild) return;
+			if (!props?.guild) return;
 
 			const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState();
 			const mediaState = useStateFromStores([Stores.VoiceStateStore], () =>
