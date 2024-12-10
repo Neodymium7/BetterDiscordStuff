@@ -8,7 +8,7 @@ const {
 interface AccountClasses {
 	container: string;
 	avatarWrapper: string;
-	withTagAsButton: string;
+	accountProfilePopoutWrapper: string;
 }
 
 const Error = (_props) => (
@@ -42,7 +42,7 @@ export const Sections = expectModule({
 	fallback: { ACCOUNT: "My Account" },
 });
 
-export const accountClasses = expectModule<AccountClasses>(byKeys("buildOverrideButton"), {
+export const accountClasses = expectModule<AccountClasses>(byKeys("accountProfilePopoutWrapper"), {
 	name: "Account Classes",
 	fatal: true,
 });

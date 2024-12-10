@@ -48,11 +48,12 @@ export default class AvatarSettingsButton extends BasePlugin {
 
 	openSettings() {
 		UserSettingsWindow.setSection(Sections.ACCOUNT);
+		if (document.querySelector(`.${accountClasses.accountProfilePopoutWrapper}`)) this.openPopout();
 		UserSettingsWindow.open();
-		if (document.querySelector("#status-picker") || document.querySelector("#account")) this.openPopout();
 	}
 
 	openContextMenu(e: MouseEvent) {
+		if (document.querySelector(`.${accountClasses.accountProfilePopoutWrapper}`)) this.openPopout();
 		document.querySelector(settingsSelector).dispatchEvent(
 			new MouseEvent("contextmenu", {
 				bubbles: true,
@@ -60,7 +61,6 @@ export default class AvatarSettingsButton extends BasePlugin {
 				clientY: screen.height - 12,
 			})
 		);
-		if (document.querySelector("#status-picker") || document.querySelector("#account")) this.openPopout();
 	}
 
 	addListeners() {
