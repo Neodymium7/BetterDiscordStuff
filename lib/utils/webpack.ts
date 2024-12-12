@@ -73,8 +73,7 @@ export function getSelectors<T extends string>(...classes: T[]): { [key in T]: s
  * @returns The icon component.
  */
 export function getIcon(searchString: string): Icon | undefined {
-	const filter: ModuleFilter = (m) =>
-		byStrings(searchString, 'xmlns:"http://www.w3.org/2000/svg"')(m) && typeof m == "function";
+	const filter: ModuleFilter = (m) => byStrings(searchString, '"svg"')(m) && typeof m === "function";
 
 	return getModule(filter, {
 		searchExports: true,
