@@ -1,5 +1,6 @@
-import { DOM, Patcher, Utils } from "betterdiscord";
-import Plugin from "zlibrary/plugin";
+import { DOM, Patcher, Utils, Meta } from "betterdiscord";
+import { showChangelog } from "@lib";
+import { changelog } from "./manifest.json";
 import {
 	Common,
 	RelationshipStore,
@@ -22,8 +23,15 @@ const findChildComponent = async (module: any, functionName: string, filter: (i:
 
 const nameSelector = `${typingSelector} strong`;
 
-export default class TypingUsersPopouts extends Plugin {
-	onStart() {
+export default class TypingUsersPopouts {
+	meta: Meta;
+
+	constructor(meta: Meta) {
+		this.meta = meta;
+	}
+
+	start() {
+		showChangelog(changelog, this.meta);
 		DOM.addStyle(`${nameSelector} { cursor: pointer; } ${nameSelector}:hover { text-decoration: underline; }`);
 		this.patch();
 	}
@@ -66,7 +74,7 @@ export default class TypingUsersPopouts extends Plugin {
 		});
 	}
 
-	onStop() {
+	stop() {
 		DOM.removeStyle();
 		Patcher.unpatchAll();
 	}

@@ -1,18 +1,21 @@
-import { DOM } from "betterdiscord";
-import BasePlugin from "zlibrary/plugin";
+import { DOM, Meta } from "betterdiscord";
+import { showChangelog } from "@lib";
+import { changelog } from "./manifest.json";
 import SettingsPanel from "./components/SettingsPanel";
 import { GuildStore, roleMention } from "./modules/discordmodules";
 import { Settings, Strings, filter, getIconElement, getProps, peopleSVG } from "./modules/utils";
 
-export default class RoleMentionIcons extends BasePlugin {
+export default class RoleMentionIcons {
 	clearCallbacks: Set<() => void>;
+	meta: Meta;
 
-	constructor() {
-		super();
+	constructor(meta: Meta) {
+		this.meta = meta;
 		this.clearCallbacks = new Set();
 	}
 
-	onStart() {
+	start() {
+		showChangelog(changelog, this.meta);
 		DOM.addStyle(
 			`.role-mention-icon { position: relative; height: 1em; width: 1em; margin-left: 4px; } .${roleMention} { display: inline-flex; align-items: center; }`
 		);
@@ -63,7 +66,7 @@ export default class RoleMentionIcons extends BasePlugin {
 		this.clearCallbacks.clear();
 	}
 
-	onStop() {
+	stop() {
 		DOM.removeStyle();
 		Strings.unsubscribe();
 		this.clearIcons();

@@ -1,5 +1,5 @@
 import { Webpack } from "betterdiscord";
-import { expectModule, getSelectors, getClasses, getIcon } from "@lib/utils/webpack";
+import { expectModule, expectSelectors, expectClasses, expectIcon } from "@lib/utils/webpack";
 
 const {
 	Filters: { byKeys, byStrings },
@@ -87,24 +87,24 @@ export const Common = expectModule({
 });
 
 export const Icons = {
-	CallJoin: getIcon("CallJoin", "M2 7.4A5.4 5.4 0 0 1 7.4 2c.36 0 .7.22.83.55l1.93 4.64a1 1"),
-	People: getIcon("People", "M14.5 8a3 3 0 1 0-2.7-4.3c-.2.4.06.86.44 1.12a5 5 0 0 1 2.14 "),
-	Speaker: getIcon("Speaker", "M12 3a1 1 0 0 0-1-1h-.06a1 1 0 0 0-.74.32L5.92 7H3a1 1"),
-	Muted: getIcon("Muted", "m2.7 22.7 20-20a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4"),
-	Deafened: getIcon("Deafened", "M22.7 2.7a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4 1.4l20-20ZM17.06"),
-	Video: getIcon("Video", "M4 4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h11a3 3"),
-	Stage: getIcon("Stage", "M19.61 18.25a1.08 1.08 0 0 1-.07-1.33 9 9 0 1 0-15.07"),
+	CallJoin: expectIcon("CallJoin", "M2 7.4A5.4 5.4 0 0 1 7.4 2c.36 0 .7.22.83.55l1.93 4.64a1 1"),
+	People: expectIcon("People", "M14.5 8a3 3 0 1 0-2.7-4.3c-.2.4.06.86.44 1.12a5 5 0 0 1 2.14 "),
+	Speaker: expectIcon("Speaker", "M12 3a1 1 0 0 0-1-1h-.06a1 1 0 0 0-.74.32L5.92 7H3a1 1"),
+	Muted: expectIcon("Muted", "m2.7 22.7 20-20a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4"),
+	Deafened: expectIcon("Deafened", "M22.7 2.7a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4 1.4l20-20ZM17.06"),
+	Video: expectIcon("Video", "M4 4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h11a3 3"),
+	Stage: expectIcon("Stage", "M19.61 18.25a1.08 1.08 0 0 1-.07-1.33 9 9 0 1 0-15.07"),
 };
 
-export const peopleItemSelector = getSelectors("People Item Class", ["peopleListItem"]).peopleListItem;
+export const peopleItemSelector = expectSelectors("People Item Class", ["peopleListItem"]).peopleListItem;
 
-export const iconWrapperSelector = getSelectors("Icon Wrapper Class", ["wrapper", "folderEndWrapper"]).wrapper;
+export const iconWrapperSelector = expectSelectors("Icon Wrapper Class", ["wrapper", "folderEndWrapper"]).wrapper;
 
-export const children = getSelectors("Children Class", ["avatar", "children"]).children;
+export const children = expectSelectors("Children Class", ["avatar", "children"]).children;
 
-export const avatarMasked = getClasses("Masked Avatar Class", ["avatarMasked"]).avatarMasked;
+export const avatarMasked = expectClasses("Masked Avatar Class", ["avatarMasked"]).avatarMasked;
 
-export const partyMembersClasses = getClasses("Party Members Classes", [
+export const partyMembersClasses = expectClasses("Party Members Classes", [
 	"wrapper",
 	"partyMembers",
 	"partyMemberOverflow",

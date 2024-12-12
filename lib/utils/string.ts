@@ -4,7 +4,7 @@
  * @param parseObject An object containing the keys to replace and their corresponding values.
  * @returns The parsed string.
  */
-export function parseString(string: string, parseObject: Record<string, string>) {
+export function parseString(string: string, parseObject: Record<string, string>): string {
 	const delimiters = ["{{", "}}"];
 
 	for (const key in parseObject) {
@@ -19,7 +19,7 @@ export function parseString(string: string, parseObject: Record<string, string>)
  * @param parseObject An object containing the keys to replace and their corresponding React elements.
  * @returns An array of React elements from the parsed string.
  */
-export function parseStringReact(string: string, parseObject: Record<string, React.ReactNode>) {
+export function parseStringReact(string: string, parseObject: Record<string, React.ReactNode>): React.ReactNode[] {
 	const delimiters = ["{{", "}}"];
 	const splitRegex = new RegExp(`(${delimiters[0]}.+?${delimiters[1]})`, "g");
 	const itemRegex = new RegExp(delimiters[0] + "(.+)" + delimiters[1]);

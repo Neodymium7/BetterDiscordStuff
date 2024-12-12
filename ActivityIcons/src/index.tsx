@@ -1,11 +1,12 @@
-import { DOM, Patcher } from "betterdiscord";
-import BasePlugin from "zlibrary/plugin";
+import { DOM, Patcher, Meta } from "betterdiscord";
+import { showChangelog } from "@lib";
 import {
 	ActivityStatus,
 	memberSelector,
 	peopleListItemSelector,
 	privateChannelSelector,
 } from "./modules/discordmodules";
+import { changelog } from "./manifest.json";
 import { Strings, forceUpdateAll } from "./modules/utils";
 import styles from "./styles.css";
 import ActivityIcon from "./components/ActivityIcon";
@@ -13,8 +14,15 @@ import ListeningIcon from "./components/ListeningIcon";
 import SettingsPanel from "./components/SettingsPanel";
 import WatchingIcon from "./components/WatchingIcon";
 
-export default class ActivityIcons extends BasePlugin {
-	onStart() {
+export default class ActivityIcons {
+	meta: Meta;
+
+	constructor(meta: Meta) {
+		this.meta = meta;
+	}
+
+	start() {
+		showChangelog(changelog, this.meta);
 		DOM.addStyle(styles);
 		Strings.subscribe();
 		this.patchActivityStatus();
@@ -43,7 +51,7 @@ export default class ActivityIcons extends BasePlugin {
 		forceUpdateAll(privateChannelSelector);
 	}
 
-	onStop() {
+	stop() {
 		Patcher.unpatchAll();
 		DOM.removeStyle();
 		Strings.unsubscribe();

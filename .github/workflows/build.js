@@ -26,12 +26,12 @@ if (updatedPlugins.length === 0) {
 		const isValidPlugin =
 			fs.existsSync(srcPath) &&
 			fs.lstatSync(srcPath).isDirectory() &&
-			fs.existsSync(path.resolve(srcPath, "plugin.json"));
+			fs.existsSync(path.resolve(srcPath, "manifest.json"));
 		if (ignored || deprecated || !isValidPlugin) return false;
 
 		const prevPluginPath = path.join(dirName, dirName + ".plugin.js");
 
-		const updatedVersion = JSON.parse(fs.readFileSync(path.resolve(srcPath, "plugin.json"), "utf8"))?.version;
+		const updatedVersion = JSON.parse(fs.readFileSync(path.resolve(srcPath, "manifest.json"), "utf8"))?.version;
 		const prevVersion = fs.existsSync(prevPluginPath)
 			? findVersion(fs.readFileSync(prevPluginPath, "utf-8"))
 			: "none";
@@ -59,7 +59,7 @@ let message =
 	"Build plugins: " +
 	updatedPlugins
 		.map((plugin) => {
-			const version = JSON.parse(fs.readFileSync(path.resolve(plugin, "src", "plugin.json"), "utf8"))?.version;
+			const version = JSON.parse(fs.readFileSync(path.resolve(plugin, "src", "manifest.json"), "utf8"))?.version;
 			if (version) return `${plugin} v${version}`;
 			return plugin;
 		})

@@ -1,7 +1,7 @@
-import { ContextMenu, DOM, Patcher, ReactUtils, Utils } from "betterdiscord";
-import BasePlugin from "zlibrary/plugin";
+import { ContextMenu, DOM, Patcher, ReactUtils, Utils, Meta, Logger } from "betterdiscord";
 import styles from "styles";
-import { Logger } from "@lib";
+import { showChangelog } from "@lib";
+import { changelog } from "./manifest.json";
 import {
 	PrivateChannelContainer,
 	MemberListItem,
@@ -21,10 +21,16 @@ import SettingsPanel from "./components/SettingsPanel";
 
 const guildIconSelector = `div:not([data-dnd-name]) + ${iconWrapperSelector}`;
 
-export default class VoiceActivity extends BasePlugin {
+export default class VoiceActivity {
+	meta: Meta;
 	contextMenuUnpatches = new Set<() => void>();
 
-	onStart() {
+	constructor(meta: Meta) {
+		this.meta = meta;
+	}
+
+	start() {
+		showChangelog(changelog, this.meta);
 		DOM.addStyle(styles() + `${children}:empty { margin-left: 0; } ${children} { display: flex; gap: 8px; }`);
 		Strings.subscribe();
 		this.patchPeopleListItem();
@@ -219,7 +225,7 @@ export default class VoiceActivity extends BasePlugin {
 		this.contextMenuUnpatches.add(unpatch);
 	}
 
-	onStop() {
+	stop() {
 		DOM.removeStyle();
 		Patcher.unpatchAll();
 		forceUpdateAll(peopleItemSelector, (i) => i.user);
