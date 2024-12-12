@@ -1,5 +1,6 @@
-import { DOM } from "betterdiscord";
-import BasePlugin from "zlibrary/plugin";
+import { DOM, Meta } from "betterdiscord";
+import { showChangelog } from "@lib";
+import { changelog } from "./manifest.json";
 import { Sections, UserSettingsWindow, accountClasses } from "./modules/discordmodules";
 import { Settings, Strings } from "./modules/utils";
 import Tooltip from "./modules/tooltip";
@@ -7,12 +8,18 @@ import SettingsPanel from "./components/SettingsPanel";
 
 const settingsSelector = `.${accountClasses.container} button:nth-last-child(1)`;
 
-export default class AvatarSettingsButton extends BasePlugin {
+export default class AvatarSettingsButton {
+	meta: Meta;
 	target: Element = null;
 	tooltip: Tooltip = null;
 	clearListeners: () => void;
 
-	onStart() {
+	constructor(meta: Meta) {
+		this.meta = meta;
+	}
+
+	start() {
+		showChangelog(changelog, this.meta);
 		DOM.addStyle(`${settingsSelector} { display: none; } .${accountClasses.avatarWrapper} { width: 100%; }`);
 		Strings.subscribe();
 		Settings.addListener(() => {
@@ -126,7 +133,7 @@ export default class AvatarSettingsButton extends BasePlugin {
 		this.tooltip = new Tooltip(this.target as HTMLElement, tooltips[click]);
 	}
 
-	onStop() {
+	stop() {
 		DOM.removeStyle();
 		Strings.unsubscribe();
 		Settings.clearListeners();

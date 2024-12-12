@@ -4,10 +4,11 @@
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"esModuleInterop": true,
+		"skipLibCheck": true,
 		"jsx": "react-jsx",
 		"paths": {
-			"@lib": ["./Library/src"],
-			"@lib/*": ["./Library/src/*"]
+			"@lib": ["./lib"],
+			"@lib/*": ["./lib/*"]
 		}
 	}
 }

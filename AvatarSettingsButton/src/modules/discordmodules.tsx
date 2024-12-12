@@ -1,5 +1,5 @@
 import { Webpack } from "betterdiscord";
-import { expectModule, getClasses, getSelectors } from "@lib/utils/webpack";
+import { expectModule, expectClasses, expectSelectors } from "@lib/utils/webpack";
 
 const {
 	Filters: { byKeys },
@@ -42,14 +42,15 @@ export const Sections = expectModule({
 	fallback: { ACCOUNT: "My Account" },
 });
 
-export const accountClasses = expectModule<AccountClasses>(byKeys("accountProfilePopoutWrapper"), {
+export const accountClasses = expectModule<AccountClasses>({
+	filter: byKeys("accountProfilePopoutWrapper"),
 	name: "Account Classes",
 	fatal: true,
 });
 
-export const Margins = getClasses("Margins", ["marginTop20", "marginBottom8"]);
+export const Margins = expectClasses("Margins", ["marginTop20", "marginBottom8"]);
 
-export const tooltipClasses = getClasses("Tooltip Classes", [
+export const tooltipClasses = expectClasses("Tooltip Classes", [
 	"tooltip",
 	"tooltipTop",
 	"tooltipPrimary",
@@ -57,6 +58,6 @@ export const tooltipClasses = getClasses("Tooltip Classes", [
 	"tooltipContent",
 ]);
 
-export const layerContainerSelector = getSelectors("Layer Container Class", ["layerContainer"]).layerContainer;
+export const layerContainerSelector = expectSelectors("Layer Container Class", ["layerContainer"]).layerContainer;
 
-export const appSelector = getSelectors("App Class", ["appAsidePanelWrapper", "app"]).app;
+export const appSelector = expectSelectors("App Class", ["appAsidePanelWrapper", "app"]).app;

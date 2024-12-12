@@ -1,5 +1,5 @@
 import { Webpack } from "betterdiscord";
-import { expectModule, getSelectors } from "@lib/utils/webpack";
+import { expectModule, expectSelectors } from "@lib/utils/webpack";
 
 const {
 	Filters: { byStrings, byKeys },
@@ -36,7 +36,7 @@ export const loadProfile: any = expectModule<any>({
 	name: "loadProfile",
 });
 
-export const typingSelector = getSelectors("Typing Class", ["typingDots", "typing"]).typing;
+export const typingSelector = expectSelectors("Typing Class", ["typingDots", "typing"]).typing;
 
 export const UserStore = Webpack.getStore("UserStore");
 export const RelationshipStore = Webpack.getStore("RelationshipStore");

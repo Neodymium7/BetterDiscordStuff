@@ -1,5 +1,5 @@
 import { Webpack } from "betterdiscord";
-import { expectModule, getClasses } from "@lib/utils/webpack";
+import { expectModule, expectClasses } from "@lib/utils/webpack";
 
 const {
 	Filters: { byKeys },
@@ -20,6 +20,6 @@ export const Common = expectModule({
 	},
 });
 
-export const roleMention = getClasses("Role Mention Class", ["roleMention"]).roleMention.split(" ")[0];
+export const roleMention = expectClasses("Role Mention Class", ["roleMention"]).roleMention.split(" ")[0];
 
 export const GuildStore = getStore("GuildStore");
