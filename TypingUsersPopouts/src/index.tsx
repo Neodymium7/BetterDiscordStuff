@@ -11,16 +11,6 @@ import {
 	TypingUsersContainer,
 } from "./modules";
 
-const findChildComponent = async (module: any, functionName: string, filter: (i: any) => boolean) => {
-	return new Promise<any>((resolve, reject) => {
-		const unpatch = Patcher.after(module, functionName, (_, __, ret) => {
-			const found = Utils.findInTree(ret, (i) => filter(i));
-			found ? resolve(found) : reject("No item found matching filter");
-			unpatch();
-		});
-	});
-};
-
 const nameSelector = `${typingSelector} strong`;
 
 export default class TypingUsersPopouts {
@@ -36,19 +26,17 @@ export default class TypingUsersPopouts {
 		this.patch();
 	}
 
-	async patch() {
-		const TypingUsers = await findChildComponent(TypingUsersContainer, "Z", (i) => i.prototype?.render);
-
-		Patcher.after(TypingUsers.prototype, "render", (that: any, _, ret) => {
+	patch() {
+		const patchType = (props, ret) => {
 			const text = Utils.findInTree(ret, (e) => e.children?.length && e.children[0]?.type === "strong", {
 				walkable: ["props", "children"],
 			});
-			if (!text) return ret;
+			if (!text) return;
 
-			const typingUsersIds = Object.keys(that.props.typingUsers).filter(
+			const typingUsersIds = Object.keys(props.typingUsers).filter(
 				(id) => id !== UserStore.getCurrentUser().id && !RelationshipStore.isBlocked(id)
 			);
-			const channel = that.props.channel;
+			const channel = props.channel;
 			const guildId = channel.guild_id;
 
 			let i = 0;
@@ -71,6 +59,21 @@ export default class TypingUsersPopouts {
 					</Common.Popout>
 				);
 			});
+		};
+
+		let patchedType;
+
+		Patcher.after(TypingUsersContainer, "Z", (_, __, containerRet) => {
+			if (patchedType) {
+				containerRet.type = patchedType;
+				return containerRet;
+			}
+
+			patchedType = (props) => {
+				const ret = containerRet.type(props);
+				patchType(props, ret);
+				return ret;
+			};
 		});
 	}
 

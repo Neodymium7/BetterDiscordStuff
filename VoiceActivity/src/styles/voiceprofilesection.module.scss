@@ -1,74 +1,54 @@
-.section,
-.newSection {
-	position: relative;
-}
-
 .section {
-	padding-top: 12px;
-}
-
-.newSection {
+	position: relative;
 	padding: 8px;
-	border-radius: 8px;
+	border-radius: var(--radius-xs);
 	background: var(--bg-mod-faint);
 }
 
-:global(.theme-light.custom-profile-theme) .newSection {
+.panelSection {
+	padding: 12px;
+	border-radius: var(--radius-sm);
+}
+
+:global(.theme-light.custom-profile-theme) .section {
 	background: rgb(var(--bg-overlay-color) / 0.4);
 }
 
-:global(.theme-dark.custom-profile-theme) .newSection {
+:global(.theme-dark.custom-profile-theme) .section {
 	background: rgb(var(--bg-overlay-color) / var(--bg-overlay-opacity-5));
 }
 
 .header {
 	margin-bottom: 8px;
+	display: flex;
+	justify-content: space-between;
+	gap: 4px;
+}
+
+.headerText {
 	color: var(--header-primary);
 	font-size: 12px;
 	line-height: 16px;
-}
-
-.section .header {
-	font-family: var(--font-display);
-	font-weight: 700;
-	text-transform: uppercase;
-}
-
-.newSection .header {
 	font-family: var(--font-primary);
-	font-weight: 600;
+	font-weight: 500;
 }
 
 .body {
 	display: flex;
 	flex-direction: row;
+	gap: 8px;
 }
 
-.section .text {
-	margin: auto 10px;
-	color: var(--text-normal);
-	font-size: 14px;
-	line-height: 18px;
-	overflow: hidden;
-
-	& > div,
-	& > h3 {
-		overflow: hidden;
-		white-space: nowrap;
-		text-overflow: ellipsis;
-	}
-
-	& > h3 {
-		font-family: var(--font-normal);
-		font-weight: 600;
-	}
+.details {
+	display: flex;
+	flex-direction: row;
+	align-self: center;
+	justify-content: space-between;
+	width: 100%;
 }
 
-.newSection .text {
+.text {
 	color: var(--text-normal);
-	margin-bottom: -1px;
-	margin-left: 10px;
-	flex: 1 1 auto;
 
 	& > div,
 	& > h3 {
@@ -81,13 +61,14 @@
 		font-size: 14px;
 		line-height: 18px;
 		font-weight: 600;
-		font-family: var(--font-primary);
+		font-family: var(--font-display);
 	}
 
 	& > div {
 		font-size: 12px;
 		line-height: 16px;
 		font-weight: 400;
+		font-family: var(--font-primary);
 	}
 }
 
@@ -102,7 +83,7 @@
 
 	& > div[aria-label] {
 		width: 32px;
-		margin-left: 8px;
+		margin-right: 8px;
 	}
 }
 
@@ -153,8 +134,8 @@
 	cursor: not-allowed;
 }
 
-.partyMembers {
-	position: absolute;
-	top: 8px;
-	right: 8px;
-}
+// .partyMembers {
+// 	position: absolute;
+// 	top: 8px;
+// 	right: 8px;
+// }

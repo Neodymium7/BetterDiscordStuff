@@ -1,33 +1,29 @@
 import { Components, ContextMenu } from "betterdiscord";
-import {
-	ChannelActions,
-	Icons,
-	Stores,
-	transitionTo,
-	useStateFromStores,
-	PartyMembers,
-} from "../modules/discordmodules";
-import { Settings, Strings, groupDMName, canViewChannel } from "../modules/utils";
+import { ChannelActions, Icons, Stores, transitionTo, PartyMembers, MoreIcon } from "../modules/discordmodules";
+import { Settings, Strings, groupDMName, canViewChannel, useUserVoiceState } from "../modules/utils";
 import styles from "../styles/voiceprofilesection.module.scss";
 import GuildImage from "./GuildImage";
 
 interface VoiceProfileSectionProps {
 	userId: string;
 	wrapper?: React.FunctionComponent<React.PropsWithChildren>;
-	new?: boolean;
+	panel?: boolean;
 }
 
 const { ChannelStore, GuildStore, UserStore, VoiceStateStore, SelectedChannelStore } = Stores;
 
 export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
-	const { showProfileSection, ignoreEnabled, ignoredChannels, ignoredGuilds } = Settings.useSettingsState();
-
-	const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
-	const currentUserVoiceState = useStateFromStores([VoiceStateStore], () =>
-		VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
+	const settingsState = Settings.useSettingsState(
+		"showProfileSection",
+		"ignoreEnabled",
+		"ignoredChannels",
+		"ignoredGuilds"
 	);
 
-	if (!showProfileSection) return null;
+	const voiceState = useUserVoiceState(props.userId);
+	const currentUserVoiceState = useUserVoiceState(UserStore.getCurrentUser()?.id);
+
+	if (!settingsState.showProfileSection) return null;
 
 	if (!voiceState) return null;
 	const channel = ChannelStore.getChannel(voiceState.channelId);
@@ -35,7 +31,9 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 	const guild = GuildStore.getGuild(channel.guild_id);
 	if (guild && !canViewChannel(channel)) return null;
 
-	if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
+	const ignored =
+		settingsState.ignoredChannels.includes(channel.id) || settingsState.ignoredGuilds.includes(guild?.id);
+	if (settingsState.ignoreEnabled && ignored) return null;
 
 	const members = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id)).map((id) =>
 		UserStore.getUser(id)
@@ -53,62 +51,65 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 	const isCurrentUser = props.userId === UserStore.getCurrentUser().id;
 
 	if (guild) {
-		headerText = Strings.HEADER;
+		headerText = Strings.get("HEADER");
 		text = [<h3>{guild.name}</h3>, <div>{channel.name}</div>];
-		viewButton = Strings.VIEW;
-		joinButton = inCurrentChannel ? Strings.JOIN_DISABLED : Strings.JOIN;
+		viewButton = Strings.get("VIEW");
+		joinButton = inCurrentChannel ? Strings.get("JOIN_DISABLED") : Strings.get("JOIN");
 		Icon = Icons.Speaker;
 		channelPath = `/channels/${guild.id}/${channel.id}`;
 	} else {
-		headerText = Strings.HEADER_VOICE;
+		headerText = Strings.get("HEADER_VOICE");
 		text = <h3>{channel.name}</h3>;
-		viewButton = Strings.VIEW_CALL;
-		joinButton = inCurrentChannel ? Strings.JOIN_DISABLED_CALL : Strings.JOIN_CALL;
+		viewButton = Strings.get("VIEW_CALL");
+		joinButton = inCurrentChannel ? Strings.get("JOIN_DISABLED_CALL") : Strings.get("JOIN_CALL");
 		Icon = Icons.CallJoin;
 		channelPath = `/channels/@me/${channel.id}`;
 	}
+
 	switch (channel.type) {
 		case 1:
-			headerText = Strings.HEADER_PRIVATE;
+			headerText = Strings.get("HEADER_PRIVATE");
 			break;
 		case 3:
-			headerText = Strings.HEADER_GROUP;
+			headerText = Strings.get("HEADER_GROUP");
 			text = [
 				<h3>{channel.name || groupDMName(channel.recipients)}</h3>,
 				<div>
 					{`${channel.recipients.length + 1} ${
-						channel.recipients.length === 0 ? Strings.MEMBER : Strings.MEMBERS
+						channel.recipients.length === 0 ? Strings.get("MEMBER") : Strings.get("MEMBERS")
 					}`}
 				</div>,
 			];
 			break;
 		case 13:
-			headerText = Strings.HEADER_STAGE;
+			headerText = Strings.get("HEADER_STAGE");
 			Icon = Icons.Stage;
 	}
 
 	const section = (
-		<div className={props.new ? styles.newSection : styles.section}>
-			<h3 className={styles.header}>{headerText}</h3>
+		<div className={props.panel ? `${styles.section} ${styles.panelSection}` : styles.section}>
+			<div className={styles.header}>
+				<h3 className={styles.headerText}>{headerText}</h3>
+				<MoreIcon user={UserStore.getUser(props.userId)} />
+			</div>
 			{!(channel.type === 1) && (
 				<div className={styles.body}>
 					<GuildImage guild={guild} channel={channel} channelPath={channelPath} />
-					<div className={styles.text}>{text}</div>
-					<div className={styles.partyMembers}>
-						<PartyMembers members={members} guildId={guild?.id} partySize={{ totalSize: members.length }} />
+					<div className={styles.details}>
+						<div className={styles.text}>{text}</div>
+						<PartyMembers
+							channelId={channel.id}
+							guildId={guild?.id}
+							users={members}
+							disableUserPopout
+							maxUsers={3}
+							overflowCountVariant="text-xs/normal"
+							size="SIZE_16"
+						/>
 					</div>
 				</div>
 			)}
 			<div className={styles.buttonWrapper}>
-				<button
-					className={styles.button}
-					disabled={channelSelected}
-					onClick={() => {
-						if (channelPath) transitionTo(channelPath);
-					}}
-				>
-					{viewButton}
-				</button>
 				{!isCurrentUser && (
 					<Components.Tooltip text={joinButton} position="top">
 						{(props: any) => (
@@ -132,7 +133,7 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 											e,
 											ContextMenu.buildMenu([
 												{
-													label: Strings.JOIN_VIDEO,
+													label: Strings.get("JOIN_VIDEO"),
 													id: "voice-activity-join-with-video",
 													action: () => {
 														if (channel.id)
@@ -149,6 +150,15 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 						)}
 					</Components.Tooltip>
 				)}
+				<button
+					className={styles.button}
+					disabled={channelSelected}
+					onClick={() => {
+						if (channelPath) transitionTo(channelPath);
+					}}
+				>
+					{viewButton}
+				</button>
 			</div>
 		</div>
 	);

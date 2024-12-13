@@ -31,6 +31,11 @@ const getImageLink = (guild: any, channel: any) => {
 export default function GuildImage(props: GuildImageProps) {
 	const image = getImageLink(props.guild, props.channel);
 
+	const onClick = () => {
+		if (props.guild) GuildActions?.transitionToGuildSync(props.guild.id);
+		else if (props.channelPath) transitionTo(props.channelPath);
+	};
+
 	if (image) {
 		return (
 			<img
@@ -39,20 +44,14 @@ export default function GuildImage(props: GuildImageProps) {
 				width="48"
 				height="48"
 				style={{ borderRadius: "16px", cursor: "pointer" }}
-				onClick={() => {
-					if (props.guild) GuildActions?.transitionToGuildSync(props.guild.id);
-					else if (props.channelPath) transitionTo(props.channelPath);
-				}}
+				onClick={onClick}
 			/>
 		);
 	} else {
 		return (
 			<div
 				className={styles.defaultIcon}
-				onClick={() => {
-					if (props.guild) GuildActions?.transitionToGuildSync(props.guild.id);
-					else if (props.channelPath) transitionTo(props.channelPath);
-				}}
+				onClick={onClick}
 				style={{ fontSize: `${getIconFontSize(props.guild ? props.guild.name : props.channel.name)}px` }}
 			>
 				{getAcronym(props.guild ? props.guild.name : props.guild.id)}

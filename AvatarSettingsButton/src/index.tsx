@@ -13,6 +13,7 @@ export default class AvatarSettingsButton {
 	target: Element = null;
 	tooltip: Tooltip = null;
 	clearListeners: () => void;
+	lastContextMenuTimestamp: number;
 
 	constructor(meta: Meta) {
 		this.meta = meta;
@@ -81,7 +82,7 @@ export default class AvatarSettingsButton {
 			this.openPopout.bind(this),
 		];
 
-		const clickAction = actions[Settings.click];
+		const clickAction = actions[Settings.get("click")];
 		const click = (e: MouseEvent) => {
 			if (e.isTrusted) {
 				e.preventDefault();
@@ -91,13 +92,19 @@ export default class AvatarSettingsButton {
 			}
 		};
 
-		const contextmenuAction = actions[Settings.contextmenu];
+		const contextmenuAction = actions[Settings.get("contextmenu")];
 		const contextmenu = (e: MouseEvent) => {
+			// Prevent double contextmenu events (not sure why it's happening)
+			if (e.timeStamp === this.lastContextMenuTimestamp) {
+				return;
+			}
+			this.lastContextMenuTimestamp = e.timeStamp;
+
 			contextmenuAction(e);
 			this.tooltip?.forceHide();
 		};
 
-		const middleclickAction = actions[Settings.middleclick];
+		const middleclickAction = actions[Settings.get("middleclick")];
 		const middleclick = (e: MouseEvent) => {
 			if (e.button === 1) {
 				middleclickAction(e);
@@ -120,15 +127,15 @@ export default class AvatarSettingsButton {
 		if (!this.target) return;
 		this.tooltip?.remove();
 		this.tooltip = null;
-		if (!Settings.showTooltip) return;
+		if (!Settings.get("showTooltip")) return;
 
-		const click = Settings.click;
+		const click = Settings.get("click");
 		if (click === 0) return;
 		const tooltips = [
 			"",
-			Strings.TOOLTIP_USER_SETTINGS,
-			Strings.TOOLTIP_SETTINGS_SHORTCUT,
-			Strings.TOOLTIP_SET_STATUS,
+			Strings.get("TOOLTIP_USER_SETTINGS"),
+			Strings.get("TOOLTIP_SETTINGS_SHORTCUT"),
+			Strings.get("TOOLTIP_SET_STATUS"),
 		];
 		this.tooltip = new Tooltip(this.target as HTMLElement, tooltips[click]);
 	}

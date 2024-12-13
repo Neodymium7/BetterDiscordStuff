@@ -1,7 +1,5 @@
 import { Webpack } from "betterdiscord";
 
-type Override<T, U> = Omit<T, keyof U> & U;
-
 // prettier-ignore
 /**
  * A locale available in Discord.
@@ -15,54 +13,50 @@ type LocalesObject = {
 	[code in LocaleCode]?: Record<string, string>;
 };
 
-interface StringsManager {
+const LocaleStore = /* @__PURE__ */ Webpack.getStore("LocaleStore");
+
+export class StringsManager<T extends LocalesObject, D extends keyof T> {
+	private locales: T;
+	private defaultLocale: D;
+	private strings: T[D];
+
+	/**
+	 * Creates a `StringsManager` object with the given locales object.
+	 * @param locales An object containing the strings for each locale.
+	 * @param defaultLocale The code of the locale to use as a fallback when strings for Discord's selected locale are not defined.
+	 * @returns A `StringsManager` object.
+	 */
+	constructor(locales: T, defaultLocale: D) {
+		this.locales = locales;
+		this.defaultLocale = defaultLocale;
+		this.strings = locales[defaultLocale];
+	}
+
+	private setLocale = () => {
+		this.strings = this.locales[LocaleStore.locale] || this.locales[this.defaultLocale];
+	};
+
 	/**
 	 * Subscribes to Discord's locale changes. Should be run on plugin start.
 	 */
-	subscribe(): void;
+	subscribe() {
+		this.setLocale();
+		LocaleStore.addReactChangeListener(this.setLocale);
+	}
 
 	/**
 	 * Unsubscribes from Discord's locale changes. Should be run on plugin stop.
 	 */
-	unsubscribe(): void;
-}
-
-type Strings<T extends LocalesObject, D extends keyof T> = Override<StringsManager, Readonly<T[D]>>;
-
-const LocaleStore = /* @__PURE__ */ Webpack.getModule((m) => m._dispatchToken && m.getName() === "LocaleStore");
-
-/**
- * Creates a `Strings` object with the given locales object.
- * @param locales An object containing the strings for each locale.
- * @param defaultLocale The code of the locale to use as a fallback when strings for Discord's selected locale are not defined.
- * @returns A `Strings` object.
- */
-export function createStrings<T extends LocalesObject, D extends keyof T>(locales: T, defaultLocale: D) {
-	let strings: T[D] = locales[defaultLocale];
-
-	const setLocale = () => {
-		strings = locales[LocaleStore.locale] || locales[defaultLocale];
-	};
-
-	const stringsManager: StringsManager = {
-		subscribe() {
-			setLocale();
-			LocaleStore.addChangeListener(setLocale);
-		},
-		unsubscribe() {
-			LocaleStore.removeChangeListener(setLocale);
-		},
-	};
-
-	for (const key in strings) {
-		Object.defineProperty(stringsManager, key, {
-			get() {
-				return strings[key] || locales[defaultLocale][key];
-			},
-			enumerable: true,
-			configurable: false,
-		});
+	unsubscribe() {
+		LocaleStore.removeReactChangeListener(this.setLocale);
 	}
 
-	return stringsManager as unknown as Strings<T, D>;
+	/**
+	 * Gets the string for the corresponding key in Discord's currently selected locale.
+	 * @param key The string key.
+	 * @returns A localized string.
+	 */
+	get(key: keyof T[D]) {
+		return this.strings[key] || this.locales[this.defaultLocale][key];
+	}
 }

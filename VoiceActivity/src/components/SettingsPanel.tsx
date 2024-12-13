@@ -17,8 +17,43 @@ type SettingsInfo = {
 	};
 };
 
+const settings: SettingsInfo = {
+	showProfileSection: {
+		name: Strings.get("SETTINGS_PROFILE"),
+		note: Strings.get("SETTINGS_PROFILE_NOTE"),
+	},
+	showMemberListIcons: {
+		name: Strings.get("SETTINGS_ICONS"),
+		note: Strings.get("SETTINGS_ICONS_NOTE"),
+	},
+	showDMListIcons: {
+		name: Strings.get("SETTINGS_DM_ICONS"),
+		note: Strings.get("SETTINGS_DM_ICONS_NOTE"),
+	},
+	showPeopleListIcons: {
+		name: Strings.get("SETTINGS_PEOPLE_ICONS"),
+		note: Strings.get("SETTINGS_PEOPLE_ICONS_NOTE"),
+	},
+	showGuildIcons: {
+		name: Strings.get("SETTINGS_GUILD_ICONS"),
+		note: Strings.get("SETTINGS_GUILD_ICONS_NOTE"),
+	},
+	currentChannelColor: {
+		name: Strings.get("SETTINGS_COLOR"),
+		note: Strings.get("SETTINGS_COLOR_NOTE"),
+	},
+	showStatusIcons: {
+		name: Strings.get("SETTINGS_STATUS"),
+		note: Strings.get("SETTINGS_STATUS_NOTE"),
+	},
+	ignoreEnabled: {
+		name: Strings.get("SETTINGS_IGNORE"),
+		note: Strings.get("SETTINGS_IGNORE_NOTE"),
+	},
+};
+
 const SettingsSwitchItem = (props: SwitchItemProps) => {
-	const value = Settings.useSettingsState()[props.setting];
+	const value = Settings.useSettingsState(props.setting)[props.setting];
 
 	return (
 		<Common.FormSwitch
@@ -26,48 +61,13 @@ const SettingsSwitchItem = (props: SwitchItemProps) => {
 			note={props.note}
 			value={value}
 			onChange={(v: typeof value) => {
-				Settings[props.setting] = v;
+				Settings.set(props.setting, v);
 			}}
 		/>
 	);
 };
 
 export default function SettingsPanel() {
-	const settings: SettingsInfo = {
-		showProfileSection: {
-			name: Strings.SETTINGS_PROFILE,
-			note: Strings.SETTINGS_PROFILE_NOTE,
-		},
-		showMemberListIcons: {
-			name: Strings.SETTINGS_ICONS,
-			note: Strings.SETTINGS_ICONS_NOTE,
-		},
-		showDMListIcons: {
-			name: Strings.SETTINGS_DM_ICONS,
-			note: Strings.SETTINGS_DM_ICONS_NOTE,
-		},
-		showPeopleListIcons: {
-			name: Strings.SETTINGS_PEOPLE_ICONS,
-			note: Strings.SETTINGS_PEOPLE_ICONS_NOTE,
-		},
-		showGuildIcons: {
-			name: Strings.SETTINGS_GUILD_ICONS,
-			note: Strings.SETTINGS_GUILD_ICONS_NOTE,
-		},
-		currentChannelColor: {
-			name: Strings.SETTINGS_COLOR,
-			note: Strings.SETTINGS_COLOR_NOTE,
-		},
-		showStatusIcons: {
-			name: Strings.SETTINGS_STATUS,
-			note: Strings.SETTINGS_STATUS_NOTE,
-		},
-		ignoreEnabled: {
-			name: Strings.SETTINGS_IGNORE,
-			note: Strings.SETTINGS_IGNORE_NOTE,
-		},
-	};
-
 	return (
 		<>
 			{Object.keys(settings).map((key: SwitchSetting) => {

@@ -1,14 +1,16 @@
 import { Components } from "betterdiscord";
 import { Icons } from "../modules/discordmodules";
-import { Settings } from "../modules/utils";
+import { isBot, Settings } from "../modules/utils";
 
 interface WatchingIconProps {
 	activities: any[];
 }
 
 export default function WatchingIcon(props: WatchingIconProps) {
-	const { watchingIcons } = Settings.useSettingsState();
+	const { watchingIcons } = Settings.useSettingsState("watchingIcons");
 	if (!watchingIcons) return null;
+
+	if (isBot(props.activities)) return null;
 
 	const activity = props.activities.filter((activity) => activity.type === 3)[0];
 	if (!activity) return null;

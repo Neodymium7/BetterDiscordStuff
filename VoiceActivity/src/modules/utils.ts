@@ -1,11 +1,11 @@
 import { Patcher, ReactUtils, Utils } from "betterdiscord";
-import { createSettings, createStrings } from "@lib";
-import { Stores, Permissions } from "./discordmodules";
+import { SettingsManager, StringsManager } from "@lib";
+import { Stores, Permissions, useStateFromStores } from "./discordmodules";
 import locales from "../locales.json";
 
 const { UserStore, GuildChannelStore, VoiceStateStore, ChannelStore, PermissionStore } = Stores;
 
-export const Settings = createSettings({
+export const Settings = new SettingsManager({
 	showProfileSection: true,
 	showMemberListIcons: true,
 	showDMListIcons: true,
@@ -18,7 +18,7 @@ export const Settings = createSettings({
 	ignoredGuilds: [],
 });
 
-export const Strings = createStrings(locales, "en-US");
+export const Strings = new StringsManager(locales, "en-US");
 
 export const canViewChannel = (channel: any): boolean => {
 	return PermissionStore.can(Permissions.VIEW_CHANNEL, channel);
@@ -94,4 +94,8 @@ export function waitForElement(selector: string) {
 		});
 		observer.observe(document, { childList: true, subtree: true });
 	});
+}
+
+export function useUserVoiceState(userId: string) {
+	return useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(userId));
 }

@@ -25,11 +25,16 @@ export default class RoleMentionIcons {
 		this.processElements(elements);
 	}
 
-	observer({ addedNodes }) {
+	observer({ addedNodes, removedNodes }) {
 		for (const node of addedNodes) {
 			if (node.nodeType === Node.TEXT_NODE) continue;
 			const elements = Array.from(node.getElementsByClassName(roleMention));
 			this.processElements(elements);
+		}
+
+		for (const node of removedNodes) {
+			if (node.nodeType === Node.TEXT_NODE) continue;
+			if (node.querySelector(".role-mention-icon")) this.clearCallbacks.clear();
 		}
 	}
 
@@ -47,8 +52,8 @@ export default class RoleMentionIcons {
 				role = filter(GuildStore.getRoles(props.guildId), (r) => r.id === props.roleId);
 				role = role[Object.keys(role)[0]];
 			}
-			if ((Settings.everyone || !isEveryone) && (Settings.here || !isHere)) {
-				if (role?.icon && Settings.showRoleIcons) {
+			if ((Settings.get("everyone") || !isEveryone) && (Settings.get("here") || !isHere)) {
+				if (role?.icon && Settings.get("showRoleIcons")) {
 					const icon = getIconElement(role.id, role.icon);
 					element.appendChild(icon);
 					this.clearCallbacks.add(() => icon.remove());

@@ -7,6 +7,8 @@ type Changelog = {
 }[];
 
 export function showChangelog(changes: Changelog, meta: Meta) {
+	if (!changes || changes.length == 0) return;
+
 	const changelogVersion = Data.load("changelogVersion");
 
 	if (meta.version === changelogVersion) return;

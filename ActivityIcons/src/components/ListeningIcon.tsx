@@ -1,6 +1,6 @@
 import { Components } from "betterdiscord";
 import { Icons } from "../modules/discordmodules";
-import { Settings, Strings } from "../modules/utils";
+import { isBot, Settings, Strings } from "../modules/utils";
 import { parseString } from "@lib/utils/string";
 
 interface ListeningIconProps {
@@ -8,8 +8,10 @@ interface ListeningIconProps {
 }
 
 export default function ListeningIcon(props: ListeningIconProps) {
-	const { listeningIcons } = Settings.useSettingsState();
+	const { listeningIcons } = Settings.useSettingsState("listeningIcons");
 	if (!listeningIcons) return null;
+
+	if (isBot(props.activities)) return null;
 
 	const activity = props.activities.filter((activity) => activity.type === 2)[0];
 	if (!activity) return null;
@@ -21,7 +23,7 @@ export default function ListeningIcon(props: ListeningIconProps) {
 					<div style={{ fontWeight: "600" }}>{activity.details}</div>
 					{activity.state && (
 						<div style={{ fontWeight: "400" }}>
-							{parseString(Strings.LISTENING_TOOLTIP_ARTIST, {
+							{parseString(Strings.get("LISTENING_TOOLTIP_ARTIST"), {
 								NAME: activity.state.replace(/;/g, ","),
 							})}
 						</div>

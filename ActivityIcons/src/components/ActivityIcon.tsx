@@ -1,27 +1,24 @@
 import { Components } from "betterdiscord";
 import { Icons } from "../modules/discordmodules";
-import { Settings, Strings } from "../modules/utils";
+import { Settings, Strings, isBot } from "../modules/utils";
 import { Component as Playstation } from "../assets/playstation.svg";
 import { Component as Xbox } from "../assets/xbox.svg";
 import { parseStringReact } from "@lib/utils/string";
-
-const botActivityKeys = ["created_at", "id", "name", "type", "url"];
 
 interface ActivityIconProps {
 	activities: any[];
 }
 
 export default function ActivityIcon(props: ActivityIconProps) {
-	const { normalActivityIcons, richPresenceIcons, platformIcons } = Settings.useSettingsState();
+	const { normalActivityIcons, richPresenceIcons, platformIcons } = Settings.useSettingsState(
+		"normalActivityIcons",
+		"richPresenceIcons",
+		"platformIcons"
+	);
 
 	if (!normalActivityIcons && !richPresenceIcons && !platformIcons) return null;
 
-	const isBot =
-		props.activities.length === 1 &&
-		props.activities[0].type === 0 &&
-		Object.keys(props.activities[0]).every((value, i) => value === botActivityKeys[i]);
-
-	if (isBot || props.activities.length === 0) return null;
+	if (isBot(props.activities) || props.activities.length === 0) return null;
 
 	const normalActivities = props.activities.filter((activity) => activity.type === 0);
 
@@ -40,18 +37,18 @@ export default function ActivityIcon(props: ActivityIconProps) {
 	if (normalActivities.length === 1 && hasCustomStatus) {
 		tooltip = <strong>{normalActivities[0].name}</strong>;
 	} else if (normalActivities.length === 2) {
-		tooltip = parseStringReact(Strings.ACTIVITY_TOOLTIP_LENGTH_2, {
+		tooltip = parseStringReact(Strings.get("ACTIVITY_TOOLTIP_LENGTH_2"), {
 			ACTIVITY1: <strong>{normalActivities[0].name}</strong>,
 			ACTIVITY2: <strong>{normalActivities[1].name}</strong>,
 		});
 	} else if (normalActivities.length === 3) {
-		tooltip = parseStringReact(Strings.ACTIVITY_TOOLTIP_LENGTH_3, {
+		tooltip = parseStringReact(Strings.get("ACTIVITY_TOOLTIP_LENGTH_3"), {
 			ACTIVITY1: <strong>{normalActivities[0].name}</strong>,
 			ACTIVITY2: <strong>{normalActivities[1].name}</strong>,
 			ACTIVITY3: <strong>{normalActivities[2].name}</strong>,
 		});
 	} else if (normalActivities.length > 3) {
-		tooltip = parseStringReact(Strings.ACTIVITY_TOOLTIP_LENGTH_MANY, {
+		tooltip = parseStringReact(Strings.get("ACTIVITY_TOOLTIP_LENGTH_MANY"), {
 			ACTIVITY1: <strong>{normalActivities[0].name}</strong>,
 			ACTIVITY2: <strong>{normalActivities[1].name}</strong>,
 			COUNT: normalActivities.length - 2,

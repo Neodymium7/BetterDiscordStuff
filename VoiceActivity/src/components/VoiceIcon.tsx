@@ -1,5 +1,5 @@
-import { Settings, Strings, groupDMName, canViewChannel } from "../modules/utils";
-import { Common, Icons, Stores, transitionTo, useStateFromStores } from "../modules/discordmodules";
+import { Settings, Strings, groupDMName, canViewChannel, useUserVoiceState } from "../modules/utils";
+import { Common, Icons, Stores, transitionTo } from "../modules/discordmodules";
 import styles from "../styles/voiceicon.module.scss";
 
 interface VoiceIconProps {
@@ -7,35 +7,35 @@ interface VoiceIconProps {
 	context: string;
 }
 
-const { ChannelStore, GuildStore, UserStore, VoiceStateStore } = Stores;
+const { ChannelStore, GuildStore, UserStore } = Stores;
 
 export default function VoiceIcon(props: VoiceIconProps) {
-	const {
-		showMemberListIcons,
-		showDMListIcons,
-		showPeopleListIcons,
-		ignoreEnabled,
-		ignoredChannels,
-		ignoredGuilds,
-		currentChannelColor,
-		showStatusIcons,
-	} = Settings.useSettingsState();
-
-	const voiceState = useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(props.userId));
-	const currentUserVoiceState = useStateFromStores([VoiceStateStore], () =>
-		VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser()?.id)
+	const settingsState = Settings.useSettingsState(
+		"showMemberListIcons",
+		"showDMListIcons",
+		"showPeopleListIcons",
+		"ignoreEnabled",
+		"ignoredChannels",
+		"ignoredGuilds",
+		"currentChannelColor",
+		"showStatusIcons"
 	);
 
-	if (props.context === "memberlist" && !showMemberListIcons) return null;
-	if (props.context === "dmlist" && !showDMListIcons) return null;
-	if (props.context === "peoplelist" && !showPeopleListIcons) return null;
+	const voiceState = useUserVoiceState(props.userId);
+	const currentUserVoiceState = useUserVoiceState(UserStore.getCurrentUser()?.id);
+
+	if (props.context === "memberlist" && !settingsState.showMemberListIcons) return null;
+	if (props.context === "dmlist" && !settingsState.showDMListIcons) return null;
+	if (props.context === "peoplelist" && !settingsState.showPeopleListIcons) return null;
 	if (!voiceState) return null;
 	const channel = ChannelStore.getChannel(voiceState.channelId);
 	if (!channel) return null;
 	const guild = GuildStore.getGuild(channel.guild_id);
 	if (guild && !canViewChannel(channel)) return null;
 
-	if (ignoreEnabled && (ignoredChannels.includes(channel.id) || ignoredGuilds.includes(guild?.id))) return null;
+	const ignored =
+		settingsState.ignoredChannels.includes(channel.id) || settingsState.ignoredGuilds.includes(guild?.id);
+	if (settingsState.ignoreEnabled && ignored) return null;
 
 	let text: string;
 	let subtext: string;
@@ -43,7 +43,7 @@ export default function VoiceIcon(props: VoiceIconProps) {
 	let channelPath: string;
 	let className = styles.icon;
 
-	if (channel.id === currentUserVoiceState?.channelId && currentChannelColor)
+	if (channel.id === currentUserVoiceState?.channelId && settingsState.currentChannelColor)
 		className = `${styles.icon} ${styles.iconCurrentCall}`;
 	if (voiceState.selfStream) className = styles.iconLive;
 
@@ -54,18 +54,19 @@ export default function VoiceIcon(props: VoiceIconProps) {
 		channelPath = `/channels/${guild.id}/${channel.id}`;
 	} else {
 		text = channel.name;
-		subtext = Strings.VOICE_CALL;
+		subtext = Strings.get("VOICE_CALL");
 		TooltipIcon = Icons.CallJoin;
 		channelPath = `/channels/@me/${channel.id}`;
 	}
+
 	switch (channel.type) {
 		case 1:
 			text = UserStore.getUser(channel.recipients[0]).username;
-			subtext = Strings.PRIVATE_CALL;
+			subtext = Strings.get("PRIVATE_CALL");
 			break;
 		case 3:
 			text = channel.name || groupDMName(channel.recipients);
-			subtext = Strings.GROUP_CALL;
+			subtext = Strings.get("GROUP_CALL");
 			TooltipIcon = Icons.People;
 			break;
 		case 13:
@@ -73,9 +74,9 @@ export default function VoiceIcon(props: VoiceIconProps) {
 	}
 
 	let Icon = Icons.Speaker;
-	if (showStatusIcons && (voiceState.selfDeaf || voiceState.deaf)) Icon = Icons.Deafened;
-	else if (showStatusIcons && (voiceState.selfMute || voiceState.mute)) Icon = Icons.Muted;
-	else if (showStatusIcons && voiceState.selfVideo) Icon = Icons.Video;
+	if (settingsState.showStatusIcons && (voiceState.selfDeaf || voiceState.deaf)) Icon = Icons.Deafened;
+	else if (settingsState.showStatusIcons && (voiceState.selfMute || voiceState.mute)) Icon = Icons.Muted;
+	else if (settingsState.showStatusIcons && voiceState.selfVideo) Icon = Icons.Video;
 
 	return (
 		<div
@@ -110,7 +111,7 @@ export default function VoiceIcon(props: VoiceIconProps) {
 						{!voiceState.selfStream ? (
 							<Icon size="14" width="14" height="14" color="currentColor" />
 						) : (
-							Strings.LIVE
+							Strings.get("LIVE")
 						)}
 					</div>
 				)}

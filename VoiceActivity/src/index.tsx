@@ -45,13 +45,13 @@ export default class VoiceActivity {
 
 	patchUserPanel() {
 		Patcher.after(UserPanelBody, "Z", (_, [props]: [any], ret) => {
-			ret.props.children.splice(1, 0, <VoiceProfileSection userId={props.user.id} new />);
+			ret.props.children.splice(1, 0, <VoiceProfileSection userId={props.user.id} panel />);
 		});
 	}
 
 	patchUserPopout() {
 		Patcher.after(UserPopoutBody, "Z", (_, [props]: [any], ret) => {
-			ret.props.children.splice(5, 0, <VoiceProfileSection userId={props.user.id} new />);
+			ret.props.children.splice(5, 0, <VoiceProfileSection userId={props.user.id} />);
 		});
 	}
 
@@ -154,7 +154,11 @@ export default class VoiceActivity {
 		Patcher.before(GuildIconComponent, "type", (_, [props]: [any]) => {
 			if (!props?.guild) return;
 
-			const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState();
+			const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState(
+				"showGuildIcons",
+				"ignoredGuilds",
+				"ignoredChannels"
+			);
 			const mediaState = useStateFromStores([Stores.VoiceStateStore], () =>
 				getGuildMediaState(props.guild.id, ignoredChannels)
 			);
@@ -170,23 +174,23 @@ export default class VoiceActivity {
 
 	patchChannelContextMenu() {
 		const unpatch = ContextMenu.patch("channel-context", (ret, props) => {
-			if (!Settings.ignoreEnabled) return ret;
+			if (!Settings.get("ignoreEnabled")) return ret;
 			if (props.channel.type !== 2 && props.channel.type !== 13) return ret;
 
-			const { ignoredChannels } = Settings.useSettingsState();
+			const { ignoredChannels } = Settings.useSettingsState("ignoredChannels");
 			const ignored = ignoredChannels.includes(props.channel.id);
 			const menuItem = ContextMenu.buildItem({
 				type: "toggle",
-				label: Strings.CONTEXT_IGNORE,
+				label: Strings.get("CONTEXT_IGNORE"),
 				id: "voiceactivity-ignore",
 				checked: ignored,
 				action: () => {
 					if (ignored) {
 						const newIgnoredChannels = ignoredChannels.filter((id) => id !== props.channel.id);
-						Settings.ignoredChannels = newIgnoredChannels;
+						Settings.set("ignoredChannels", newIgnoredChannels);
 					} else {
 						const newIgnoredChannels = [...ignoredChannels, props.channel.id];
-						Settings.ignoredChannels = newIgnoredChannels;
+						Settings.set("ignoredChannels", newIgnoredChannels);
 					}
 				},
 			});
@@ -199,22 +203,22 @@ export default class VoiceActivity {
 
 	patchGuildContextMenu() {
 		const unpatch = ContextMenu.patch("guild-context", (ret, props) => {
-			if (!Settings.ignoreEnabled) return ret;
+			if (!Settings.get("ignoreEnabled")) return ret;
 
-			const { ignoredGuilds } = Settings.useSettingsState();
+			const { ignoredGuilds } = Settings.useSettingsState("ignoredGuilds");
 			const ignored = ignoredGuilds.includes(props.guild.id);
 			const menuItem = ContextMenu.buildItem({
 				type: "toggle",
-				label: Strings.CONTEXT_IGNORE,
+				label: Strings.get("CONTEXT_IGNORE"),
 				id: "voiceactivity-ignore",
 				checked: ignored,
 				action: () => {
 					if (ignored) {
 						const newIgnoredGuilds = ignoredGuilds.filter((id) => id !== props.guild.id);
-						Settings.ignoredGuilds = newIgnoredGuilds;
+						Settings.set("ignoredGuilds", newIgnoredGuilds);
 					} else {
 						const newIgnoredGuilds = [...ignoredGuilds, props.guild.id];
-						Settings.ignoredGuilds = newIgnoredGuilds;
+						Settings.set("ignoredGuilds", newIgnoredGuilds);
 					}
 				},
 			});

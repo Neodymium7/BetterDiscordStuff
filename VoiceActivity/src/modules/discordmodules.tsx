@@ -19,7 +19,7 @@ export const MemberListItem: any = expectModule({
 });
 
 export const UserPanelBody: any = expectModule({
-	filter: byStrings("PANEL", "UserProfilePanelBody"),
+	filter: byStrings("PANEL", "getUserProfile"),
 	name: "UserPanelBody",
 	defaultExport: false,
 });
@@ -37,8 +37,14 @@ export const PrivateChannelContainer: any = expectModule({
 });
 
 export const PartyMembers: any = expectModule({
-	filter: byStrings("partyMembers", "knownSize"),
+	filter: byStrings("overflowCountClassName"),
 	name: "PartyMembers",
+	fallback: (_props) => null,
+});
+
+export const MoreIcon: any = expectModule({
+	filter: byStrings("MoreHorizontalIcon", "contextMenu"),
+	name: "MoreIcon",
 	fallback: (_props) => null,
 });
 
@@ -103,12 +109,6 @@ export const iconWrapperSelector = expectSelectors("Icon Wrapper Class", ["wrapp
 export const children = expectSelectors("Children Class", ["avatar", "children"]).children;
 
 export const avatarMasked = expectClasses("Masked Avatar Class", ["avatarMasked"]).avatarMasked;
-
-export const partyMembersClasses = expectClasses("Party Members Classes", [
-	"wrapper",
-	"partyMembers",
-	"partyMemberOverflow",
-]);
 
 export const Stores = {
 	UserStore: getStore("UserStore"),
