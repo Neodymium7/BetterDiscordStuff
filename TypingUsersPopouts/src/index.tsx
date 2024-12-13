@@ -69,11 +69,15 @@ export default class TypingUsersPopouts {
 				return containerRet;
 			}
 
+			const original = containerRet.type;
+
 			patchedType = (props) => {
-				const ret = containerRet.type(props);
+				const ret = original(props);
 				patchType(props, ret);
 				return ret;
 			};
+
+			containerRet.type = patchedType;
 		});
 	}
 
