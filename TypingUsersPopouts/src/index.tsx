@@ -50,7 +50,9 @@ export default class TypingUsersPopouts {
 						align="left"
 						position="top"
 						key={user.id}
-						renderPopout={() => <UserPopout userId={user.id} guildId={guildId} channelId={channel.id} />}
+						renderPopout={(props) => (
+							<UserPopout {...props} userId={user.id} guildId={guildId} channelId={channel.id} />
+						)}
 						preload={() =>
 							loadProfile(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId: channel.id })
 						}

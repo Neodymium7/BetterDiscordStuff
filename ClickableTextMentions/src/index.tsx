@@ -13,38 +13,35 @@ const onClick = (e: React.MouseEvent) => {
 	e.preventDefault();
 };
 
+function PopoutWrapper({ id, guildId, channelId, children }) {
+	// Disable default click action
+	children.props.onClick = onClick;
+
+	const user = UserStore.getUser(id);
+
+	return (
+		<Popout
+			align="left"
+			position="top"
+			key={user.id}
+			renderPopout={(props) => <UserPopout {...props} userId={user.id} guildId={guildId} channelId={channelId} />}
+			preload={() => loadProfile(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId })}
+		>
+			{(props) => <span {...props}>{children}</span>}
+		</Popout>
+	);
+}
+
 export default class ClickableTextMentions {
 	start() {
 		if (!Module) return;
 
 		Patcher.after(Module, key, (_, [props]: [any], ret) => {
-			const { guildId, channelId } = props;
-			const user = UserStore.getUser(props.id);
-
 			const original = ret.props.children;
 
 			ret.props.children = (childrenProps) => {
-				const childrenRet = original(childrenProps);
-				const mention = childrenRet.props.children;
-				const text = mention.props.children;
-
-				// Disable default click action and give interactive style
-				mention.props.onClick = onClick;
-
-				mention.props.children = (
-					<Popout
-						align="left"
-						position="top"
-						key={user.id}
-						renderPopout={() => <UserPopout userId={user.id} guildId={guildId} channelId={channelId} />}
-						preload={() => loadProfile(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId })}
-					>
-						{(props) => <span {...props}>{text}</span>}
-					</Popout>
-				);
-
-				// Remove tooltip component, w/ wrapper for plugin compatibility
-				return <>{mention}</>;
+				const mention = original(childrenProps).props.children;
+				return <PopoutWrapper {...props}>{mention}</PopoutWrapper>;
 			};
 		});
 	}

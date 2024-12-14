@@ -1,10 +1,5 @@
 import { Webpack, Logger, SearchOptions, ModuleFilter } from "betterdiscord";
 
-const {
-	getModule,
-	Filters: { byStrings, byKeys },
-} = Webpack;
-
 interface IconProps {
 	width?: string;
 	height?: string;
@@ -48,7 +43,7 @@ type ExpectOptionsWithFilter<T> = ExpectOptions<T> &
  * @returns An object of classes.
  */
 export function getClasses<T extends string>(...classes: T[]): { [key in T]: string } | undefined {
-	return getModule((m) => byKeys(...classes)(m) && typeof m[classes[0]] == "string");
+	return Webpack.getModule((m) => Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
 }
 
 /**
@@ -73,9 +68,9 @@ export function getSelectors<T extends string>(...classes: T[]): { [key in T]: s
  * @returns The icon component.
  */
 export function getIcon(searchString: string): Icon | undefined {
-	const filter: ModuleFilter = (m) => byStrings(searchString, '"svg"')(m) && typeof m === "function";
+	const filter: ModuleFilter = (m) => Webpack.Filters.byStrings(searchString, '"svg"')(m) && typeof m === "function";
 
-	return getModule(filter, {
+	return Webpack.getModule(filter, {
 		searchExports: true,
 	});
 }
@@ -99,7 +94,7 @@ export function expect<T>(object: T, options: ExpectOptions<T>): T | undefined {
  * @returns The found module or the fallback if the module cannot be found.
  */
 export function expectModule<T>(options: ExpectOptionsWithFilter<T>) {
-	return expect<T>(getModule(options.filter, options), options);
+	return expect<T>(Webpack.getModule(options.filter, options), options);
 }
 
 /**

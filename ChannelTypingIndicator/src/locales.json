@@ -1,0 +1,8 @@
+{
+	"en-US": {
+		"TYPING_LENGTH_1": "{{USER}} is typing...",
+		"TYPING_LENGTH_2": "{{USER1}} and {{USER2}} are typing...",
+		"TYPING_LENGTH_3": "{{USER1}}, {{USER2}}, and {{USER3}} are typing...",
+		"TYPING_LENGTH_MANY": "Several people are typing..."
+	}
+}
