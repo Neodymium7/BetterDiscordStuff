@@ -1,5 +1,6 @@
-import { DOM, Patcher, Webpack, Logger, UI, Data } from "betterdiscord";
+import { DOM, Patcher, Webpack, Logger, UI, Data, Meta } from "betterdiscord";
 import { getSelectors, getIcon } from "@lib/utils/webpack";
+import { Updater } from "@lib/updater";
 
 const { getModule } = Webpack;
 
@@ -13,8 +14,15 @@ if (!messageSelectors) Logger.error("Message selectors icon not found.");
 
 export default class PinnedMessageIcons {
 	settings: { backgroundEnabled: boolean };
+	meta: Meta;
+
+	constructor(meta: Meta) {
+		this.meta = meta;
+	}
 
 	start() {
+		Updater.checkForUpdates(this.meta);
+
 		if (!Message) return;
 
 		this.settings = Data.load("settings");
@@ -67,6 +75,7 @@ export default class PinnedMessageIcons {
 	stop() {
 		Patcher.unpatchAll();
 		DOM.removeStyle();
+		Updater.closeNotice();
 	}
 
 	getSettingsPanel() {

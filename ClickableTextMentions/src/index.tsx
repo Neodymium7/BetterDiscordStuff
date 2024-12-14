@@ -1,5 +1,6 @@
-import { Patcher, Webpack, Logger } from "betterdiscord";
+import { Patcher, Webpack, Logger, Meta } from "betterdiscord";
 import { Popout, loadProfile, UserPopout, UserStore } from "./modules";
+import { Updater } from "@lib/updater";
 
 const {
 	getWithKey,
@@ -33,7 +34,18 @@ function PopoutWrapper({ id, guildId, channelId, children }) {
 }
 
 export default class ClickableTextMentions {
+	meta: Meta;
+
+	constructor(meta: Meta) {
+		this.meta = meta;
+	}
+
 	start() {
+		Updater.checkForUpdates(this.meta);
+		this.patch();
+	}
+
+	patch() {
 		if (!Module) return;
 
 		Patcher.after(Module, key, (_, [props]: [any], ret) => {
@@ -48,5 +60,6 @@ export default class ClickableTextMentions {
 
 	stop() {
 		Patcher.unpatchAll();
+		Updater.closeNotice();
 	}
 }

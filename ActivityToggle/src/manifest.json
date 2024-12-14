@@ -1,7 +1,7 @@
 {
 	"name": "ActivityToggle",
 	"author": "Neodymium",
-	"version": "1.2.15",
+	"version": "1.2.16",
 	"description": "Adds a button to quickly toggle Activity Status.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js",
 	"invite": "fRbsqH87Av"

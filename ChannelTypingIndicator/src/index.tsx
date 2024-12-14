@@ -1,10 +1,18 @@
-import { DOM, Patcher, Utils } from "betterdiscord";
+import { DOM, Meta, Patcher, Utils } from "betterdiscord";
 import { Channel, Thread } from "./modules/discordmodules";
 import { TypingIndicator } from "./TypingIndicator";
 import { Strings } from "./modules/utils";
+import { Updater } from "@lib/updater";
 
 export default class ChannelTypingIndicator {
+	meta: Meta;
+
+	constructor(meta: Meta) {
+		this.meta = meta;
+	}
+
 	start() {
+		Updater.checkForUpdates(this.meta);
 		Strings.subscribe();
 		DOM.addStyle(".channelTypingIndicator { margin-left: 8px; display: flex; align-items: center; }");
 		this.patchChannel();
@@ -33,5 +41,6 @@ export default class ChannelTypingIndicator {
 		Strings.unsubscribe();
 		DOM.removeStyle();
 		Patcher.unpatchAll();
+		Updater.closeNotice();
 	}
 }

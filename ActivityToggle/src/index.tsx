@@ -1,13 +1,23 @@
-import { DOM, Patcher, ReactUtils, Utils } from "betterdiscord";
+import { DOM, Meta, Patcher, ReactUtils, Utils } from "betterdiscord";
 import { AccountSelectors } from "./modules";
 import ActivityToggleButton from "./components/ActivityToggleButton";
+import { Updater } from "@lib/updater";
 
 export default class ActivityToggle {
 	forceUpdate?: () => void;
+	meta: Meta;
 
-	async start() {
+	constructor(meta: Meta) {
+		this.meta = meta;
+	}
+
+	start() {
+		Updater.checkForUpdates(this.meta);
 		DOM.addStyle(`${AccountSelectors.avatarWrapper} { min-width: 70px; }`);
+		this.patch();
+	}
 
+	patch() {
 		const owner: any = ReactUtils.getOwnerInstance(document.querySelector(AccountSelectors.container));
 		const Account = owner._reactInternals.type;
 		this.forceUpdate = owner.forceUpdate.bind(owner);
@@ -29,5 +39,6 @@ export default class ActivityToggle {
 		DOM.removeStyle();
 		Patcher.unpatchAll();
 		this.forceUpdate?.();
+		Updater.closeNotice();
 	}
 }
