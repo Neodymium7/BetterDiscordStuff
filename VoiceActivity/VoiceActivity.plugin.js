@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.9.0
+ * @version 1.9.1
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -184,18 +184,10 @@ function showChangelog(changes, meta) {
 // manifest.json
 const changelog = [
 	{
-		title: "Improved",
-		type: "improved",
-		items: [
-			"VoiceActivity no longer depends on ZeresPluginLibrary for functionality!",
-			"Updated appearance to more closely match Discord's current popout styling."
-		]
-	},
-	{
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed user DM panel section not displaying."
+			"Updated patching methods for improved plugin compatibility."
 		]
 	}
 ];
@@ -231,15 +223,6 @@ Contact the plugin developer to inform them of this error.`;
 }
 function expectModule(options) {
 	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
-}
-function expectClasses(name, classes) {
-	return expect(getClasses(...classes), {
-		name,
-		fallback: classes.reduce((obj, key) => {
-			obj[key] = "unknown-class";
-			return obj;
-		}, {})
-	});
 }
 function expectSelectors(name, classes) {
 	return expect(getSelectors(...classes), {
@@ -278,10 +261,18 @@ const UserPopoutBody = expectModule({
 	name: "UserPopoutBody",
 	defaultExport: false
 });
-const PrivateChannelContainer = expectModule({
-	filter: (m) => m.render?.toString().includes(".component", "innerRef"),
-	name: "PrivateChannelContainer",
-	searchExports: true
+const PrivateChannel = expectModule({
+	filter: byStrings("PrivateChannel", "getTypingUsers"),
+	name: "PrivateChannel",
+	defaultExport: false
+});
+const GuildIcon = expectModule({
+	filter: (m) => m?.type && byStrings("guild", "mediaState")(m.type),
+	name: "GuildIcon"
+});
+const PeopleListItem = expectModule({
+	filter: (m) => m?.prototype?.render && byStrings("this.peopleListItemRef")(m),
+	name: "PeopleListItem"
 });
 const PartyMembers = expectModule({
 	filter: byStrings("overflowCountClassName"),
@@ -339,10 +330,8 @@ const Icons = {
 	Video: expectIcon("Video", "M4 4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h11a3 3"),
 	Stage: expectIcon("Stage", "M19.61 18.25a1.08 1.08 0 0 1-.07-1.33 9 9 0 1 0-15.07")
 };
-const peopleItemSelector = expectSelectors("People Item Class", ["peopleListItem"]).peopleListItem;
 const iconWrapperSelector = expectSelectors("Icon Wrapper Class", ["wrapper", "folderEndWrapper"]).wrapper;
 const children = expectSelectors("Children Class", ["avatar", "children"]).children;
-expectClasses("Masked Avatar Class", ["avatarMasked"]).avatarMasked;
 const Stores = {
 	UserStore: getStore("UserStore"),
 	GuildChannelStore: getStore("GuildChannelStore"),
@@ -588,18 +577,6 @@ function groupDMName(members) {
 	}
 	return "Unnamed";
 }
-function forceUpdateAll(selector, propsFilter = (_) => true) {
-	const elements = document.querySelectorAll(selector);
-	for (const element of elements) {
-		const instance = betterdiscord.ReactUtils.getInternalInstance(element);
-		const stateNode = betterdiscord.Utils.findInTree(
-			instance,
-			(n) => n && n.stateNode && n.stateNode.forceUpdate && propsFilter(n.stateNode.props),
-			{ walkable: ["return"] }
-		).stateNode;
-		stateNode.forceUpdate();
-	}
-}
 function forceRerender(element) {
 	const ownerInstance = betterdiscord.ReactUtils.getOwnerInstance(element);
 	const cancel = betterdiscord.Patcher.instead(ownerInstance, "render", () => {
@@ -607,20 +584,6 @@ function forceRerender(element) {
 		return null;
 	});
 	ownerInstance.forceUpdate(() => ownerInstance.forceUpdate());
-}
-function waitForElement(selector) {
-	return new Promise((resolve) => {
-		if (document.querySelector(selector)) {
-			return resolve();
-		}
-		const observer = new MutationObserver(() => {
-			if (document.querySelector(selector)) {
-				resolve();
-				observer.disconnect();
-			}
-		});
-		observer.observe(document, { childList: true, subtree: true });
-	});
 }
 function useUserVoiceState(userId) {
 	return useStateFromStores([VoiceStateStore$1], () => VoiceStateStore$1.getVoiceStateForUser(userId));
@@ -1236,31 +1199,18 @@ class VoiceActivity {
 	patchMemberListItem() {
 		betterdiscord.Patcher.after(MemberListItem, "Z", (_, [props], ret) => {
 			if (!props.user) return ret;
-			const patch = (element) => {
+			const children2 = ret.props.children;
+			ret.props.children = (childrenProps) => {
+				const childrenRet = children2(childrenProps);
 				const icon = BdApi.React.createElement(VoiceIcon, { userId: props.user.id, context: "memberlist" });
-				Array.isArray(element.props.children) ? element.props.children.unshift(icon) : element.props.children = [icon];
+				Array.isArray(childrenRet.props.children) ? childrenRet.props.children.unshift(icon) : childrenRet.props.children = [icon];
+				return childrenRet;
 			};
-			if (ret.props.avatar) {
-				patch(ret);
-			} else {
-				const children2 = ret.props.children;
-				ret.props.children = (childrenProps) => {
-					const childrenRet = children2(childrenProps);
-					patch(childrenRet);
-					return childrenRet;
-				};
-			}
 		});
 	}
 	patchPrivateChannel() {
-		betterdiscord.Patcher.after(PrivateChannelContainer, "render", (_, [props], ret) => {
-			if (!props.className) return ret;
-			if (typeof props.to !== "string") return ret;
-			const split = props.to.split("/");
-			const channelId = split[split.length - 1];
-			const channel = Stores.ChannelStore.getChannel(channelId);
-			if (channel.type !== 1) return ret;
-			const userId = channel.recipients[0];
+		const patchType = (props, ret) => {
+			if (props.channel.type !== 1) return ret;
 			const children2 = ret.props.children;
 			ret.props.children = (childrenProps) => {
 				const childrenRet = children2(childrenProps);
@@ -1269,22 +1219,27 @@ class VoiceActivity {
 				});
 				privateChannel.children = [
 					privateChannel.children,
-					BdApi.React.createElement("div", { className: modules_df1df857.iconContainer }, BdApi.React.createElement(VoiceIcon, { userId, context: "dmlist" }))
+					BdApi.React.createElement("div", { className: modules_df1df857.iconContainer }, BdApi.React.createElement(VoiceIcon, { userId: props.user.id, context: "dmlist" }))
 				];
 				return childrenRet;
 			};
+		};
+		let patchedType;
+		betterdiscord.Patcher.after(PrivateChannel, "ZP", (_, __, containerRet) => {
+			if (patchedType) {
+				containerRet.type = patchedType;
+				return containerRet;
+			}
+			const original = containerRet.type;
+			patchedType = (props) => {
+				const ret = original(props);
+				patchType(props, ret);
+				return ret;
+			};
+			containerRet.type = patchedType;
 		});
 	}
-	async patchPeopleListItem() {
-		await waitForElement(peopleItemSelector);
-		const element = document.querySelector(peopleItemSelector);
-		const targetInstance = betterdiscord.Utils.findInTree(
-			betterdiscord.ReactUtils.getInternalInstance(element),
-			(n) => n?.elementType?.prototype?.componentWillEnter,
-			{ walkable: ["return"] }
-		);
-		const PeopleListItem = targetInstance?.elementType;
-		if (!PeopleListItem) return betterdiscord.Logger.error("PeopleListItem component not found");
+	patchPeopleListItem() {
 		betterdiscord.Patcher.after(PeopleListItem.prototype, "render", (that, _, ret) => {
 			if (!that.props.user) return;
 			const children2 = ret.props.children;
@@ -1298,19 +1253,9 @@ class VoiceActivity {
 				return childrenRet;
 			};
 		});
-		forceUpdateAll(peopleItemSelector, (i) => i.user);
 	}
 	patchGuildIcon() {
-		const element = document.querySelector(guildIconSelector);
-		if (!element) return betterdiscord.Logger.error("Guild icon element not found");
-		const targetInstance = betterdiscord.Utils.findInTree(
-			betterdiscord.ReactUtils.getInternalInstance(element),
-			(n) => n?.elementType?.type && n.pendingProps?.mediaState,
-			{ walkable: ["return"] }
-		);
-		const GuildIconComponent = targetInstance?.elementType;
-		if (!GuildIconComponent) return betterdiscord.Logger.error("Guild icon component not found");
-		betterdiscord.Patcher.before(GuildIconComponent, "type", (_, [props]) => {
+		betterdiscord.Patcher.before(GuildIcon, "type", (_, [props]) => {
 			if (!props?.guild) return;
 			const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState(
 				"showGuildIcons",
@@ -1327,7 +1272,7 @@ class VoiceActivity {
 				props.mediaState = { ...props.mediaState, ...{ audio: false, video: false, screenshare: false } };
 			}
 		});
-		forceRerender(element);
+		forceRerender(document.querySelector(guildIconSelector));
 	}
 	patchChannelContextMenu() {
 		const unpatch = betterdiscord.ContextMenu.patch("channel-context", (ret, props) => {
@@ -1381,7 +1326,6 @@ class VoiceActivity {
 	stop() {
 		betterdiscord.DOM.removeStyle();
 		betterdiscord.Patcher.unpatchAll();
-		forceUpdateAll(peopleItemSelector, (i) => i.user);
 		forceRerender(document.querySelector(guildIconSelector));
 		this.contextMenuUnpatches.forEach((unpatch) => unpatch());
 		this.contextMenuUnpatches.clear();
