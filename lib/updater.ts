@@ -1,6 +1,9 @@
 import { Meta, Net, Logger, UI, Plugins, DOM } from "betterdiscord";
 import { writeFileSync } from "fs";
 import { join } from "path";
+import { getClasses } from "./utils/webpack";
+
+const hoverClass = getClasses("anchorUnderlineOnHover")?.anchorUnderlineOnHover || "";
 
 const findVersion = (pluginContents: string) => {
 	const lines = pluginContents.split("\n");
@@ -14,32 +17,18 @@ const updatePlugin = (name: string, newContents: string) => {
 };
 
 const showUpdateNotice = (name: string, version: string, newContents: string) => {
-	const noticeElement = document.createElement("span");
+	const noticeElementHTML = `<span><a href="https://github.com/Neodymium7/BetterDiscordStuff/blob/main/${name}/${name}.plugin.js" target="_blank" class="${hoverClass}" style="color: #fff; font-weight: 700;">${name} v${version}</a> is available</span>`;
+	const noticeElement = DOM.parseHTML(noticeElementHTML) as HTMLElement;
+	UI.createTooltip(noticeElement.firstChild as HTMLElement, "View Source", { side: "bottom" });
 
-	const linkElementStyle = "color: #fff; font-weight: 700;";
-	const linkElementHTML = `<a href="https://github.com/Neodymium7/BetterDiscordStuff/blob/main/${name}/${name}.plugin.js" target="_blank" style="${linkElementStyle}">${name} v${version}</a>`;
-	const linkElement = DOM.parseHTML(linkElementHTML) as HTMLElement;
-	const setStyle = (style) => linkElement.setAttribute("style", style);
-	linkElement.addEventListener("mouseenter", () => setStyle(linkElementStyle + " text-decoration: underline;"));
-	linkElement.addEventListener("mouseleave", () => setStyle(linkElementStyle));
-	UI.createTooltip(linkElement, "View Source", { side: "bottom" });
-	noticeElement.appendChild(linkElement);
-
-	noticeElement.appendChild(document.createTextNode(" is available"));
-
-	const closeNotice = UI.showNotice(noticeElement, {
+	return UI.showNotice(noticeElement, {
 		buttons: [
 			{
 				label: "Update",
-				onClick: () => {
-					updatePlugin(name, newContents);
-					closeNotice();
-				},
+				onClick: () => updatePlugin(name, newContents),
 			},
 		],
 	});
-
-	return closeNotice;
 };
 
 export const Updater = {
@@ -56,7 +45,7 @@ export const Updater = {
 		const text = await res.text();
 		const version = findVersion(text);
 
-		if (version <= meta.version) return;
+		if (version === meta.version) return;
 
 		this.closeUpdateNotice = showUpdateNotice(meta.name, version, text);
 	},

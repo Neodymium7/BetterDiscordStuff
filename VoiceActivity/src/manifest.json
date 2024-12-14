@@ -1,23 +1,15 @@
 {
 	"name": "VoiceActivity",
 	"author": "Neodymium",
-	"version": "1.9.0",
+	"version": "1.9.1",
 	"description": "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 	"invite": "fRbsqH87Av",
 	"changelog": [
 		{
-			"title": "Improved",
-			"type": "improved",
-			"items": [
-				"VoiceActivity no longer depends on ZeresPluginLibrary for functionality!",
-				"Updated appearance to more closely match Discord's current popout styling."
-			]
-		},
-		{
 			"title": "Fixed",
 			"type": "fixed",
-			"items": ["Fixed user DM panel section not displaying."]
+			"items": ["Updated patching methods for improved plugin compatibility."]
 		}
 	]
 }

@@ -1,5 +1,5 @@
 import { Webpack } from "betterdiscord";
-import { expectModule, expectSelectors, expectClasses, expectIcon } from "@lib/utils/webpack";
+import { expectModule, expectSelectors, expectIcon } from "@lib/utils/webpack";
 
 const {
 	Filters: { byKeys, byStrings },
@@ -30,10 +30,20 @@ export const UserPopoutBody: any = expectModule({
 	defaultExport: false,
 });
 
-export const PrivateChannelContainer: any = expectModule({
-	filter: (m) => m.render?.toString().includes(".component", "innerRef"),
-	name: "PrivateChannelContainer",
-	searchExports: true,
+export const PrivateChannel: any = expectModule({
+	filter: byStrings("PrivateChannel", "getTypingUsers"),
+	name: "PrivateChannel",
+	defaultExport: false,
+});
+
+export const GuildIcon: any = expectModule({
+	filter: (m) => m?.type && byStrings("guild", "mediaState")(m.type),
+	name: "GuildIcon",
+});
+
+export const PeopleListItem: any = expectModule({
+	filter: (m) => m?.prototype?.render && byStrings("this.peopleListItemRef")(m),
+	name: "PeopleListItem",
 });
 
 export const PartyMembers: any = expectModule({
@@ -102,13 +112,9 @@ export const Icons = {
 	Stage: expectIcon("Stage", "M19.61 18.25a1.08 1.08 0 0 1-.07-1.33 9 9 0 1 0-15.07"),
 };
 
-export const peopleItemSelector = expectSelectors("People Item Class", ["peopleListItem"]).peopleListItem;
-
 export const iconWrapperSelector = expectSelectors("Icon Wrapper Class", ["wrapper", "folderEndWrapper"]).wrapper;
 
 export const children = expectSelectors("Children Class", ["avatar", "children"]).children;
-
-export const avatarMasked = expectClasses("Masked Avatar Class", ["avatarMasked"]).avatarMasked;
 
 export const Stores = {
 	UserStore: getStore("UserStore"),

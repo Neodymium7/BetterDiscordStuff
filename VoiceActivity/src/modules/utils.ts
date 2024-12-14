@@ -1,4 +1,4 @@
-import { Patcher, ReactUtils, Utils } from "betterdiscord";
+import { Patcher, ReactUtils } from "betterdiscord";
 import { SettingsManager, StringsManager } from "@lib";
 import { Stores, Permissions, useStateFromStores } from "./discordmodules";
 import locales from "../locales.json";
@@ -58,19 +58,6 @@ export function groupDMName(members: any[]): string {
 	return "Unnamed";
 }
 
-export function forceUpdateAll(selector: string, propsFilter = (_) => true) {
-	const elements: NodeListOf<HTMLElement> = document.querySelectorAll(selector);
-	for (const element of elements) {
-		const instance = ReactUtils.getInternalInstance(element);
-		const stateNode = Utils.findInTree(
-			instance,
-			(n) => n && n.stateNode && n.stateNode.forceUpdate && propsFilter(n.stateNode.props),
-			{ walkable: ["return"] }
-		).stateNode;
-		stateNode.forceUpdate();
-	}
-}
-
 export function forceRerender(element: HTMLElement) {
 	const ownerInstance = ReactUtils.getOwnerInstance(element);
 	const cancel = Patcher.instead(ownerInstance, "render", () => {
@@ -78,22 +65,6 @@ export function forceRerender(element: HTMLElement) {
 		return null;
 	});
 	ownerInstance.forceUpdate(() => ownerInstance.forceUpdate());
-}
-
-export function waitForElement(selector: string) {
-	return new Promise<void>((resolve) => {
-		if (document.querySelector(selector)) {
-			return resolve();
-		}
-
-		const observer = new MutationObserver(() => {
-			if (document.querySelector(selector)) {
-				resolve();
-				observer.disconnect();
-			}
-		});
-		observer.observe(document, { childList: true, subtree: true });
-	});
 }
 
 export function useUserVoiceState(userId: string) {
