@@ -1,7 +1,7 @@
 /**
  * @name ClickableTextMentions
  * @author Neodymium
- * @version 1.0.0
+ * @version 1.0.1
  * @description Makes mentions in the message text area clickable.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ClickableTextMentions/ClickableTextMentions.plugin.js
  * @invite fRbsqH87Av
@@ -36,10 +36,6 @@
 const betterdiscord = new BdApi("ClickableTextMentions");
 
 // @lib/utils/webpack.ts
-const {
-	getModule,
-	Filters: { byStrings: byStrings$2, byKeys: byKeys$1 }
-} = betterdiscord.Webpack;
 function expect(object, options) {
 	if (object) return object;
 	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
@@ -52,7 +48,7 @@ Contact the plugin developer to inform them of this error.`;
 	return options.fallback;
 }
 function expectModule(options) {
-	return expect(getModule(options.filter, options), options);
+	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
 }
 
 // modules.tsx
@@ -88,30 +84,29 @@ if (!Module) betterdiscord.Logger.error("Text area mention module not found.");
 const onClick = (e) => {
 	e.preventDefault();
 };
+function PopoutWrapper({ id, guildId, channelId, children }) {
+	children.props.onClick = onClick;
+	const user = UserStore.getUser(id);
+	return BdApi.React.createElement(
+		Popout,
+		{
+			align: "left",
+			position: "top",
+			key: user.id,
+			renderPopout: (props) => BdApi.React.createElement(UserPopout, { ...props, userId: user.id, guildId, channelId }),
+			preload: () => loadProfile(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId })
+		},
+		(props) => BdApi.React.createElement("span", { ...props }, children)
+	);
+}
 class ClickableTextMentions {
 	start() {
 		if (!Module) return;
 		betterdiscord.Patcher.after(Module, key, (_, [props], ret) => {
-			const { guildId, channelId } = props;
-			const user = UserStore.getUser(props.id);
 			const original = ret.props.children;
 			ret.props.children = (childrenProps) => {
-				const childrenRet = original(childrenProps);
-				const mention = childrenRet.props.children;
-				const text = mention.props.children;
-				mention.props.onClick = onClick;
-				mention.props.children = BdApi.React.createElement(
-					Popout,
-					{
-						align: "left",
-						position: "top",
-						key: user.id,
-						renderPopout: () => BdApi.React.createElement(UserPopout, { userId: user.id, guildId, channelId }),
-						preload: () => loadProfile(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId })
-					},
-					(props2) => BdApi.React.createElement("span", { ...props2 }, text)
-				);
-				return BdApi.React.createElement(BdApi.React.Fragment, null, mention);
+				const mention = original(childrenProps).props.children;
+				return BdApi.React.createElement(PopoutWrapper, { ...props }, mention);
 			};
 		});
 	}
