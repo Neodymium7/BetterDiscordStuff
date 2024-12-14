@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.3.6
+ * @version 1.4.0
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @invite fRbsqH87Av
@@ -31,204 +31,168 @@
 
 @else@*/
 
-const config = {
-	info: {
-		name: "TypingUsersPopouts",
-		authors: [
-			{
-				name: "Neodymium"
-			}
-		],
-		version: "1.3.6",
-		description: "Opens the user's popout when clicking on a name in the typing area.",
-		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js",
-		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js"
-	},
-	changelog: [
-		{
-			title: "Fixed",
-			type: "fixed",
-			items: [
-				"Fixed rendering wrong popout component."
-			]
-		}
-	]
-};
+'use strict';
 
-if (!global.ZeresPluginLibrary) {
-	BdApi.UI.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
-		confirmText: "Download Now",
-		cancelText: "Cancel",
-		onConfirm: () => {
-			require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
-				if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
-				await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
-			});
-		}
+const betterdiscord = new BdApi("TypingUsersPopouts");
+
+// @lib/changelog.ts
+function showChangelog(changes, meta) {
+	if (!changes || changes.length == 0) return;
+	const changelogVersion = betterdiscord.Data.load("changelogVersion");
+	if (meta.version === changelogVersion) return;
+	betterdiscord.UI.showChangelogModal({
+		title: meta.name,
+		subtitle: meta.version,
+		changes
+	});
+	betterdiscord.Data.save("changelogVersion", meta.version);
+}
+
+// manifest.json
+const changelog = [
+	{
+		title: "Improved",
+		type: "improved",
+		items: [
+			"TypingUsersPopouts no longer depends on ZeresPluginLibrary for functionality!"
+		]
+	},
+	{
+		title: "Fixed",
+		type: "fixed",
+		items: [
+			"Fixed opening popout."
+		]
+	}
+];
+
+// @lib/utils/webpack.ts
+function getClasses(...classes) {
+	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
+}
+function getSelectors(...classes) {
+	const module = getClasses(...classes);
+	if (!module) return void 0;
+	return Object.keys(module).reduce((obj, key) => {
+		obj[key] = "." + module[key].replaceAll(" ", ".");
+		return obj;
+	}, {});
+}
+function expect(object, options) {
+	if (object) return object;
+	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
+	const errorMessage = `Module ${options.name} not found.${fallbackMessage}
+
+Contact the plugin developer to inform them of this error.`;
+	betterdiscord.Logger.error(errorMessage);
+	options.onError?.();
+	if (options.fatal) throw new Error(errorMessage);
+	return options.fallback;
+}
+function expectModule(options) {
+	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
+}
+function expectSelectors(name, classes) {
+	return expect(getSelectors(...classes), {
+		name,
+		fallback: classes.reduce((obj, key) => {
+			obj[key] = null;
+			return obj;
+		}, {})
 	});
 }
 
-function buildPlugin([BasePlugin, Library]) {
-	const Plugin = (function (betterdiscord, Plugin) {
-		'use strict';
-	
-		// meta
-		const name = "TypingUsersPopouts";
-	
-		// @lib/logger.ts
-		class Logger {
-			static _log(type, message) {
-				console[type](`%c[${name}]`, "color: #3a71c1; font-weight: 700;", message);
-			}
-			static log(message) {
-				this._log("log", message);
-			}
-			static warn(message) {
-				this._log("warn", message);
-			}
-			static error(message) {
-				this._log("error", message);
-			}
-		}
-	
-		// @lib/utils/webpack.ts
-		function expectModule(filterOrOptions, options) {
-			let filter;
-			if (typeof filterOrOptions === "function") {
-				filter = filterOrOptions;
-			} else {
-				filter = filterOrOptions.filter;
-				options = filterOrOptions;
-			}
-			const found = betterdiscord.Webpack.getModule(filter, options);
-			if (found)
-				return found;
-			const name = options.name ? `'${options.name}'` : `query with filter '${filter.toString()}'`;
-			const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
-			const errorMessage = `Module ${name} not found.${fallbackMessage}
-	
-	Contact the plugin developer to inform them of this error.`;
-			Logger.error(errorMessage);
-			options.onError?.();
-			if (options.fatal)
-				throw new Error(errorMessage);
-			return options.fallback;
-		}
-		function getSelectors(name, classes) {
-			const module = expectModule({
-				filter: betterdiscord.Webpack.Filters.byProps(...classes),
-				name,
-				fallback: {}
+// modules.tsx
+const {
+	Filters: { byStrings, byKeys }
+} = betterdiscord.Webpack;
+const ErrorPopout = (props) => BdApi.React.createElement("div", { style: { backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" } }, props.message);
+const TypingUsersContainer = expectModule({
+	filter: (m) => m.Z?.toString?.().includes("typingUsers:"),
+	name: "TypingUsersContainer",
+	fatal: true
+});
+const UserPopout = expectModule({
+	filter: (m) => m.toString?.().includes("UserProfilePopoutWrapper"),
+	name: "UserPopout",
+	fallback: (_props) => BdApi.React.createElement(ErrorPopout, { message: "Error: User Popout module not found" })
+});
+const Common = expectModule({
+	filter: byKeys("Popout"),
+	name: "Common",
+	fallback: {
+		Popout: (props) => props.children()
+	}
+});
+const loadProfile = expectModule({
+	filter: byStrings("preloadUserBanner"),
+	name: "loadProfile"
+});
+const typingSelector = expectSelectors("Typing Class", ["typingDots", "typing"]).typing;
+const UserStore = betterdiscord.Webpack.getStore("UserStore");
+const RelationshipStore = betterdiscord.Webpack.getStore("RelationshipStore");
+
+// index.tsx
+const nameSelector = `${typingSelector} strong`;
+class TypingUsersPopouts {
+	meta;
+	constructor(meta) {
+		this.meta = meta;
+	}
+	start() {
+		showChangelog(changelog, this.meta);
+		betterdiscord.DOM.addStyle(`${nameSelector} { cursor: pointer; } ${nameSelector}:hover { text-decoration: underline; }`);
+		this.patch();
+	}
+	patch() {
+		const patchType = (props, ret) => {
+			const text = betterdiscord.Utils.findInTree(ret, (e) => e.children?.length && e.children[0]?.type === "strong", {
+				walkable: ["props", "children"]
 			});
-			if (Object.keys(module).length === 0)
-				return classes.reduce((obj, key) => {
-					obj[key] = null;
-					return obj;
-				}, {});
-			return Object.keys(module).reduce((obj, key) => {
-				obj[key] = `.${module[key].replaceAll(" ", ".")}`;
-				return obj;
-			}, {});
-		}
-	
-		// modules.tsx
-		const {
-			Filters: { byStrings, byKeys }
-		} = betterdiscord.Webpack;
-		const ErrorPopout = (props) => BdApi.React.createElement("div", {
-			style: { backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" }
-		}, props.message);
-		const TypingUsersContainer = expectModule({
-			filter: (m) => m.Z?.toString?.().includes("typingUsers:"),
-			name: "TypingUsersContainer",
-			fatal: true
-		});
-		const UserPopout = expectModule({
-			filter: (m) => m.toString?.().includes("UserProfilePopoutWrapper"),
-			name: "UserPopout",
-			fallback: (_props) => BdApi.React.createElement(ErrorPopout, {
-				message: "Error: User Popout module not found"
-			})
-		});
-		const Common = expectModule({
-			filter: byKeys("Popout"),
-			name: "Common",
-			fallback: {
-				Popout: (props) => props.children()
-			}
-		});
-		const loadProfile = expectModule({
-			filter: byStrings("preloadUserBanner"),
-			name: "loadProfile"
-		});
-		const typingSelector = getSelectors("Typing Class", ["typingDots", "typing"]).typing;
-		const UserStore = betterdiscord.Webpack.getStore("UserStore");
-		const RelationshipStore = betterdiscord.Webpack.getStore("RelationshipStore");
-	
-		// index.tsx
-		const findChildComponent = async (module, functionName, filter) => {
-			return new Promise((resolve, reject) => {
-				const unpatch = betterdiscord.Patcher.after(module, functionName, (_, __, ret) => {
-					const found = betterdiscord.Utils.findInTree(ret, (i) => filter(i));
-					found ? resolve(found) : reject("No item found matching filter");
-					unpatch();
-				});
+			if (!text) return;
+			const typingUsersIds = Object.keys(props.typingUsers).filter(
+				(id) => id !== UserStore.getCurrentUser().id && !RelationshipStore.isBlocked(id)
+			);
+			const channel = props.channel;
+			const guildId = channel.guild_id;
+			let i = 0;
+			text.children = text.children.map((e) => {
+				if (e.type !== "strong") return e;
+				const user = UserStore.getUser(typingUsersIds[i++]);
+				return BdApi.React.createElement(
+					Common.Popout,
+					{
+						align: "left",
+						position: "top",
+						key: user.id,
+						renderPopout: (props2) => BdApi.React.createElement(UserPopout, { ...props2, userId: user.id, guildId, channelId: channel.id }),
+						preload: () => loadProfile(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId: channel.id })
+					},
+					(props2) => BdApi.React.createElement("strong", { ...props2, ...e.props })
+				);
 			});
 		};
-		const nameSelector = `${typingSelector} strong`;
-		class TypingUsersPopouts extends Plugin {
-			onStart() {
-				betterdiscord.DOM.addStyle(`${nameSelector} { cursor: pointer; } ${nameSelector}:hover { text-decoration: underline; }`);
-				this.patch();
+		let patchedType;
+		betterdiscord.Patcher.after(TypingUsersContainer, "Z", (_, __, containerRet) => {
+			if (patchedType) {
+				containerRet.type = patchedType;
+				return containerRet;
 			}
-			async patch() {
-				const TypingUsers = await findChildComponent(TypingUsersContainer, "Z", (i) => i.prototype?.render);
-				betterdiscord.Patcher.after(TypingUsers.prototype, "render", (that, _, ret) => {
-					const text = betterdiscord.Utils.findInTree(ret, (e) => e.children?.length && e.children[0]?.type === "strong", {
-						walkable: ["props", "children"]
-					});
-					if (!text)
-						return ret;
-					const typingUsersIds = Object.keys(that.props.typingUsers).filter(
-						(id) => id !== UserStore.getCurrentUser().id && !RelationshipStore.isBlocked(id)
-					);
-					const channel = that.props.channel;
-					const guildId = channel.guild_id;
-					let i = 0;
-					text.children = text.children.map((e) => {
-						if (e.type !== "strong")
-							return e;
-						const user = UserStore.getUser(typingUsersIds[i++]);
-						return BdApi.React.createElement(Common.Popout, {
-							align: "left",
-							position: "top",
-							key: user.id,
-							renderPopout: () => BdApi.React.createElement(UserPopout, {
-								userId: user.id,
-								guildId,
-								channelId: channel.id
-							}),
-							preload: () => loadProfile(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId: channel.id })
-						}, (props) => BdApi.React.createElement("strong", {
-							...props,
-							...e.props
-						}));
-					});
-				});
-			}
-			onStop() {
-				betterdiscord.DOM.removeStyle();
-				betterdiscord.Patcher.unpatchAll();
-			}
-		}
-	
-		return TypingUsersPopouts;
-	
-	})(new BdApi("TypingUsersPopouts"), BasePlugin);
-
-	return Plugin;
+			const original = containerRet.type;
+			patchedType = (props) => {
+				const ret = original(props);
+				patchType(props, ret);
+				return ret;
+			};
+			containerRet.type = patchedType;
+		});
+	}
+	stop() {
+		betterdiscord.DOM.removeStyle();
+		betterdiscord.Patcher.unpatchAll();
+	}
 }
 
-module.exports = global.ZeresPluginLibrary ? buildPlugin(global.ZeresPluginLibrary.buildPlugin(config)) : class { start() {}; stop() {} };
+module.exports = TypingUsersPopouts;
 
 /*@end@*/

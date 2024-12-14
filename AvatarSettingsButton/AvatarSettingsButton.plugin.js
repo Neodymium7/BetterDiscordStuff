@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 2.1.6
+ * @version 2.2.0
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
@@ -31,570 +31,570 @@
 
 @else@*/
 
-const config = {
-	info: {
-		name: "AvatarSettingsButton",
-		authors: [
-			{
-				name: "Neodymium"
-			}
-		],
-		version: "2.1.6",
-		description: "Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.",
-		github: "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
-		github_raw: "https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js"
-	},
-	changelog: [
-		{
-			title: "Fixed",
-			type: "fixed",
-			items: [
-				"Fixed opening blank settings page."
-			]
-		}
-	]
-};
+'use strict';
 
-if (!global.ZeresPluginLibrary) {
-	BdApi.UI.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
-		confirmText: "Download Now",
-		cancelText: "Cancel",
-		onConfirm: () => {
-			require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
-				if (error) return require("electron").shell.openExternal("https://betterdiscord.app/Download?id=9");
-				await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
-			});
-		}
-	});
-}
+const betterdiscord = new BdApi("AvatarSettingsButton");
+const react = BdApi.React;
 
-function buildPlugin([BasePlugin, Library]) {
-	const Plugin = (function (betterdiscord, BasePlugin, react) {
-		'use strict';
-	
-		// meta
-		const name = "AvatarSettingsButton";
-	
-		// @lib/logger.ts
-		class Logger {
-			static _log(type, message) {
-				console[type](`%c[${name}]`, "color: #3a71c1; font-weight: 700;", message);
-			}
-			static log(message) {
-				this._log("log", message);
-			}
-			static warn(message) {
-				this._log("warn", message);
-			}
-			static error(message) {
-				this._log("error", message);
-			}
+// @lib/settings.ts
+class SettingsManager {
+	settings = betterdiscord.Data.load("settings");
+	listeners = new Set();
+	/**
+	 * Creates a new `SettingsManager` object with the given default settings.
+	 * @param defaultSettings An object containing the default settings.
+	 * @returns A `SettingsManager` object.
+	 */
+	constructor(defaultSettings) {
+		if (!this.settings) {
+			betterdiscord.Data.save("settings", defaultSettings);
+			this.settings = defaultSettings;
+			return;
 		}
-	
-		// @lib/utils/webpack.ts
-		function expectModule(filterOrOptions, options) {
-			let filter;
-			if (typeof filterOrOptions === "function") {
-				filter = filterOrOptions;
-			} else {
-				filter = filterOrOptions.filter;
-				options = filterOrOptions;
-			}
-			const found = betterdiscord.Webpack.getModule(filter, options);
-			if (found)
-				return found;
-			const name = options.name ? `'${options.name}'` : `query with filter '${filter.toString()}'`;
-			const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
-			const errorMessage = `Module ${name} not found.${fallbackMessage}
-	
-	Contact the plugin developer to inform them of this error.`;
-			Logger.error(errorMessage);
-			options.onError?.();
-			if (options.fatal)
-				throw new Error(errorMessage);
-			return options.fallback;
-		}
-		function getClasses(name, classes) {
-			return expectModule({
-				filter: betterdiscord.Webpack.Filters.byProps(...classes),
-				name,
-				fallback: classes.reduce((obj, key) => {
-					obj[key] = "unknown-class";
-					return obj;
-				}, {})
-			});
-		}
-		function getSelectors(name, classes) {
-			const module = expectModule({
-				filter: betterdiscord.Webpack.Filters.byProps(...classes),
-				name,
-				fallback: {}
-			});
-			if (Object.keys(module).length === 0)
-				return classes.reduce((obj, key) => {
-					obj[key] = null;
-					return obj;
-				}, {});
-			return Object.keys(module).reduce((obj, key) => {
-				obj[key] = `.${module[key].replaceAll(" ", ".")}`;
-				return obj;
-			}, {});
-		}
-	
-		// modules/discordmodules.tsx
-		const {
-			Filters: { byKeys }
-		} = betterdiscord.Webpack;
-		const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", {
-			style: { color: "red" }
-		}, "Error: Component not found"));
-		const Common = expectModule({
-			filter: byKeys("FormSwitch", "RadioGroup", "FormItem", "FormText", "FormDivider"),
-			name: "Common",
-			fallback: {
-				FormSwitch: Error$1,
-				RadioGroup: Error$1,
-				FormItem: Error$1,
-				FormText: Error$1,
-				FormDivider: Error$1
-			}
-		});
-		const UserSettingsWindow = expectModule({
-			filter: byKeys("saveAccountChanges"),
-			name: "UserSettingsWindow",
-			fatal: true
-		});
-		const Sections = expectModule({
-			filter: byKeys("ACCOUNT", "CHANGE_LOG"),
-			searchExports: true,
-			name: "Sections",
-			fallback: { ACCOUNT: "My Account" }
-		});
-		console.log(Sections);
-		const accountClasses = expectModule(byKeys("buildOverrideButton"), {
-			name: "Account Classes",
-			fatal: true
-		});
-		const Margins = getClasses("Margins", ["marginTop20", "marginBottom8"]);
-		const tooltipClasses = getClasses("Tooltip Classes", [
-			"tooltip",
-			"tooltipTop",
-			"tooltipPrimary",
-			"tooltipPointer",
-			"tooltipContent"
-		]);
-		const layerContainerSelector = getSelectors("Layer Container Class", ["layerContainer"]).layerContainer;
-		const appSelector = getSelectors("App Class", ["appAsidePanelWrapper", "app"]).app;
-	
-		// @lib/settings.ts
-		function createSettings(defaultSettings) {
-			let settings = betterdiscord.Data.load("settings");
-			const listeners = new Set();
-			if (!settings) {
-				betterdiscord.Data.save("settings", defaultSettings);
-				settings = defaultSettings;
-			}
-			if (Object.keys(settings) !== Object.keys(defaultSettings)) {
-				settings = { ...defaultSettings, ...settings };
-			}
+		if (Object.keys(this.settings) !== Object.keys(defaultSettings)) {
+			this.settings = { ...defaultSettings, ...this.settings };
 			let changed = false;
-			for (const key in settings) {
+			for (const key in this.settings) {
 				if (!(key in defaultSettings)) {
-					delete settings[key];
+					delete this.settings[key];
 					changed = true;
 				}
 			}
-			if (changed)
-				betterdiscord.Data.save("settings", settings);
-			const settingsManager = {
-				addListener(listener) {
-					listeners.add(listener);
-					return () => {
-						listeners.delete(listener);
-					};
-				},
-				clearListeners() {
-					listeners.clear();
-				},
-				useSettingsState() {
-					const [state, setState] = react.useState(settings);
-					react.useEffect(() => {
-						return settingsManager.addListener((key, value) => {
-							setState((state2) => ({ ...state2, [key]: value }));
-						});
-					}, []);
-					return state;
-				}
-			};
-			for (const key in settings) {
-				Object.defineProperty(settingsManager, key, {
-					get() {
-						return settings[key];
-					},
-					set(value) {
-						settings[key] = value;
-						betterdiscord.Data.save("settings", settings);
-						for (const listener of listeners)
-							listener(key, value);
-					},
-					enumerable: true,
-					configurable: false
-				});
-			}
-			return settingsManager;
+			if (changed) betterdiscord.Data.save("settings", this.settings);
 		}
-	
-		// @lib/strings.ts
-		const LocaleStore = betterdiscord.Webpack.getModule((m) => m._dispatchToken && m.getName() === "LocaleStore");
-		function createStrings(locales, defaultLocale) {
-			let strings = locales[defaultLocale];
-			const setLocale = () => {
-				strings = locales[LocaleStore.locale] || locales[defaultLocale];
-			};
-			const stringsManager = {
-				subscribe() {
-					setLocale();
-					LocaleStore.addChangeListener(setLocale);
+	}
+	/**
+	 * Adds a listener that runs when a setting is changed.
+	 * @param listener A callback to run when a setting is changed. Takes two optional parameters: the key of the setting, and its new value.
+	 * @returns A function to remove the listener.
+	 */
+	addListener(listener) {
+		this.listeners.add(listener);
+		return () => {
+			this.listeners.delete(listener);
+		};
+	}
+	/**
+	 * Removes all listeners. Used for cleanup from {@link addListener}. Should be run at plugin stop if any listeners were added and not removed.
+	 */
+	clearListeners() {
+		this.listeners.clear();
+	}
+	/**
+	 * A React hook that gets a the settings object as a stateful variable.
+	 * @param keys Settings keys to include in the state object.
+	 * @returns The settings object as a stateful value.
+	 */
+	useSettingsState(...keys) {
+		let initialState = this.settings;
+		if (keys.length) initialState = Object.fromEntries(keys.map((key) => [key, initialState[key]]));
+		const [state, setState] = react.useState(initialState);
+		react.useEffect(() => {
+			return this.addListener((key, value) => {
+				if (!keys.length || keys.includes(key)) setState((state2) => ({ ...state2, [key]: value }));
+			});
+		}, []);
+		return state;
+	}
+	/**
+	 * Gets the value of a setting.
+	 * @param key The setting key.
+	 * @returns The setting's current value.
+	 */
+	get(key) {
+		return this.settings[key];
+	}
+	/**
+	 * Sets the value of a setting.
+	 * @param key The setting key.
+	 * @param value The new setting value.
+	 */
+	set(key, value) {
+		this.settings[key] = value;
+		betterdiscord.Data.save("settings", this.settings);
+		for (const listener of this.listeners) listener(key, value);
+	}
+}
+
+// @lib/strings.ts
+const LocaleStore = betterdiscord.Webpack.getStore("LocaleStore");
+class StringsManager {
+	locales;
+	defaultLocale;
+	strings;
+	/**
+	 * Creates a `StringsManager` object with the given locales object.
+	 * @param locales An object containing the strings for each locale.
+	 * @param defaultLocale The code of the locale to use as a fallback when strings for Discord's selected locale are not defined.
+	 * @returns A `StringsManager` object.
+	 */
+	constructor(locales, defaultLocale) {
+		this.locales = locales;
+		this.defaultLocale = defaultLocale;
+		this.strings = locales[defaultLocale];
+	}
+	setLocale = () => {
+		this.strings = this.locales[LocaleStore.locale] || this.locales[this.defaultLocale];
+	};
+	/**
+	 * Subscribes to Discord's locale changes. Should be run on plugin start.
+	 */
+	subscribe() {
+		this.setLocale();
+		LocaleStore.addReactChangeListener(this.setLocale);
+	}
+	/**
+	 * Unsubscribes from Discord's locale changes. Should be run on plugin stop.
+	 */
+	unsubscribe() {
+		LocaleStore.removeReactChangeListener(this.setLocale);
+	}
+	/**
+	 * Gets the string for the corresponding key in Discord's currently selected locale.
+	 * @param key The string key.
+	 * @returns A localized string.
+	 */
+	get(key) {
+		return this.strings[key] || this.locales[this.defaultLocale][key];
+	}
+}
+
+// @lib/changelog.ts
+function showChangelog(changes, meta) {
+	if (!changes || changes.length == 0) return;
+	const changelogVersion = betterdiscord.Data.load("changelogVersion");
+	if (meta.version === changelogVersion) return;
+	betterdiscord.UI.showChangelogModal({
+		title: meta.name,
+		subtitle: meta.version,
+		changes
+	});
+	betterdiscord.Data.save("changelogVersion", meta.version);
+}
+
+// manifest.json
+const changelog = [
+	{
+		title: "Improved",
+		type: "improved",
+		items: [
+			"AvatarSettingsButton no longer depends on ZeresPluginLibrary for functionality!"
+		]
+	},
+	{
+		title: "Fixed",
+		type: "fixed",
+		items: [
+			"Fixed right click action activating twice (for whatever reason...)."
+		]
+	}
+];
+
+// @lib/utils/webpack.ts
+function getClasses(...classes) {
+	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
+}
+function getSelectors(...classes) {
+	const module = getClasses(...classes);
+	if (!module) return void 0;
+	return Object.keys(module).reduce((obj, key) => {
+		obj[key] = "." + module[key].replaceAll(" ", ".");
+		return obj;
+	}, {});
+}
+function expect(object, options) {
+	if (object) return object;
+	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
+	const errorMessage = `Module ${options.name} not found.${fallbackMessage}
+
+Contact the plugin developer to inform them of this error.`;
+	betterdiscord.Logger.error(errorMessage);
+	options.onError?.();
+	if (options.fatal) throw new Error(errorMessage);
+	return options.fallback;
+}
+function expectModule(options) {
+	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
+}
+function expectClasses(name, classes) {
+	return expect(getClasses(...classes), {
+		name,
+		fallback: classes.reduce((obj, key) => {
+			obj[key] = "unknown-class";
+			return obj;
+		}, {})
+	});
+}
+function expectSelectors(name, classes) {
+	return expect(getSelectors(...classes), {
+		name,
+		fallback: classes.reduce((obj, key) => {
+			obj[key] = null;
+			return obj;
+		}, {})
+	});
+}
+
+// modules/discordmodules.tsx
+const {
+	Filters: { byKeys }
+} = betterdiscord.Webpack;
+const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", { style: { color: "red" } }, "Error: Component not found"));
+const Common = expectModule({
+	filter: byKeys("FormSwitch", "RadioGroup", "FormItem", "FormText", "FormDivider"),
+	name: "Common",
+	fallback: {
+		FormSwitch: Error$1,
+		RadioGroup: Error$1,
+		FormItem: Error$1,
+		FormText: Error$1,
+		FormDivider: Error$1
+	}
+});
+const UserSettingsWindow = expectModule({
+	filter: byKeys("saveAccountChanges"),
+	name: "UserSettingsWindow",
+	fatal: true
+});
+const Sections = expectModule({
+	filter: byKeys("ACCOUNT", "CHANGE_LOG"),
+	searchExports: true,
+	name: "Sections",
+	fallback: { ACCOUNT: "My Account" }
+});
+const accountClasses = expectModule({
+	filter: byKeys("accountProfilePopoutWrapper"),
+	name: "Account Classes",
+	fatal: true
+});
+const Margins = expectClasses("Margins", ["marginTop20", "marginBottom8"]);
+const tooltipClasses = expectClasses("Tooltip Classes", [
+	"tooltip",
+	"tooltipTop",
+	"tooltipPrimary",
+	"tooltipPointer",
+	"tooltipContent"
+]);
+const layerContainerSelector = expectSelectors("Layer Container Class", ["layerContainer"]).layerContainer;
+const appSelector = expectSelectors("App Class", ["appAsidePanelWrapper", "app"]).app;
+
+// locales.json
+const el = {
+	TOOLTIP_USER_SETTINGS: "Ρυθμίσεις Χρήστη",
+	TOOLTIP_SETTINGS_SHORTCUT: "Συντομεύσεις Ρυθμίσεων",
+	TOOLTIP_SET_STATUS: "Ορισμός Κατάστασης",
+	DEFAULT: "Προεπιλογή",
+	SETTINGS_CLICK: "Με αριστερό πάτημα του ποντικιού",
+	SETTINGS_CLICK_NOTE: "Τι ανοίγει όταν πατήσετε στο εικονίδιο του χρήστη. Να ΘΥΜΑΣΤΕ ότι αν δεν οριστεί κάτι να ανοίγει τις ρυθμίσεις, μπορείτε να χρησιμοποιήσετε την συντόμευση «Ctrl + ,».",
+	SETTINGS_RIGHT_CLICK: "Με δεξί πάτημα του ποντικιού",
+	SETTINGS_RIGHT_CLICK_NOTE: "Τι ανοίγει όταν πατάτε με το δεξιό πλήκτρο του ποντικιού στο εικονίδιο του χρήστη.",
+	SETTINGS_MIDDLE_CLICK: "Με μεσσαίο πάτημα του ποντικιού",
+	SETTINGS_MIDDLE_CLICK_NOTE: "Τι ανοίγει όταν πατάτε με το μεσσαίο πλήκτρο του ποντικιού στο εικονίδιο του χρήστη.",
+	SETTINGS_OPTIONS_OPEN_SETTINGS: "Ρυθμίσεις",
+	SETTINGS_OPTIONS_CONTEXT_MENU: "Μενού Περιεχομένου Ρυθμίσεων",
+	SETTINGS_OPTIONS_STATUS_PICKER: "Επιλογέας Κατάστασης",
+	SETTINGS_OPTIONS_NOTHING: "Τίποτα",
+	SETTINGS_TOOLTIP: "Επεξηγηση",
+	SETTINGS_TOOLTIP_NOTE: "Εμφάνιση επεξήγησης όταν μεταβαίνει ο δείκτης του ποντικιού πάνω από το εικονίδιο του χρήστη."
+};
+const fr = {
+	TOOLTIP_USER_SETTINGS: "Paramètres utilisateur",
+	TOOLTIP_SETTINGS_SHORTCUT: "Raccourcis de Paramètres",
+	TOOLTIP_SET_STATUS: "Définir le status",
+	DEFAULT: "Par défaut",
+	SETTINGS_CLICK: "Clic",
+	SETTINGS_CLICK_NOTE: "Ce qui s'ouvre en cliquant sur l'avatar utilisateur. RAPPEL Si rien n'est défini pour ouvrir les paramètres, vous pouvez utiliser le raccourcis Ctrl + ,.",
+	SETTINGS_RIGHT_CLICK: "Clic Droit",
+	SETTINGS_RIGHT_CLICK_NOTE: "Ce qui s'ouvre en cliquant droit sur l'avatar utilisateur.",
+	SETTINGS_MIDDLE_CLICK: "Clic Molette",
+	SETTINGS_MIDDLE_CLICK_NOTE: "Ce qui s'ouvre en cliquant sur la molette sur l'avatar utilisateur.",
+	SETTINGS_OPTIONS_OPEN_SETTINGS: "Paramètres",
+	SETTINGS_OPTIONS_CONTEXT_MENU: "Menu Contextuel des Paramètres",
+	SETTINGS_OPTIONS_STATUS_PICKER: "Sélecteur de status",
+	SETTINGS_OPTIONS_NOTHING: "Rien",
+	SETTINGS_TOOLTIP: "Info-bulle",
+	SETTINGS_TOOLTIP_NOTE: "Affiche une info-bulle en passant au-dessus de l'avatar utilisateur."
+};
+const locales = {
+	"en-US": {
+	TOOLTIP_USER_SETTINGS: "User Settings",
+	TOOLTIP_SETTINGS_SHORTCUT: "Settings Shortcuts",
+	TOOLTIP_SET_STATUS: "Set Status",
+	DEFAULT: "Default",
+	SETTINGS_CLICK: "Click",
+	SETTINGS_CLICK_NOTE: "What opens when clicking on the user avatar. REMEMBER If nothing is bound to open settings, you can use the Ctrl + , shortcut.",
+	SETTINGS_RIGHT_CLICK: "Right Click",
+	SETTINGS_RIGHT_CLICK_NOTE: "What opens when right clicking on the user avatar.",
+	SETTINGS_MIDDLE_CLICK: "Middle Click",
+	SETTINGS_MIDDLE_CLICK_NOTE: "What opens when middle clicking on the user avatar.",
+	SETTINGS_OPTIONS_OPEN_SETTINGS: "Settings",
+	SETTINGS_OPTIONS_CONTEXT_MENU: "Settings Context Menu",
+	SETTINGS_OPTIONS_STATUS_PICKER: "Status Picker",
+	SETTINGS_OPTIONS_NOTHING: "Nothing",
+	SETTINGS_TOOLTIP: "Tooltip",
+	SETTINGS_TOOLTIP_NOTE: "Show tooltip when hovering over user avatar."
+},
+	el: el,
+	fr: fr
+};
+
+// modules/utils.ts
+const Settings = new SettingsManager({
+	showTooltip: true,
+	click: 1,
+	contextmenu: 3,
+	middleclick: 2
+});
+const Strings = new StringsManager(locales, "en-US");
+
+// modules/tooltip.ts
+class Tooltip {
+	target;
+	tooltip;
+	layerContainer;
+	ref;
+	clearListeners;
+	constructor(target, text) {
+		this.target = target;
+		this.layerContainer = document.querySelector(`${appSelector} ~ ${layerContainerSelector}`);
+		const pointer = document.createElement("div");
+		pointer.className = tooltipClasses.tooltipPointer;
+		pointer.style.left = "calc(50% + 0px)";
+		const content = document.createElement("div");
+		content.className = tooltipClasses.tooltipContent;
+		content.innerHTML = text;
+		this.tooltip = document.createElement("div", {});
+		this.tooltip.style.position = "fixed";
+		this.tooltip.style.opacity = "0";
+		this.tooltip.style.transform = "scale(0.95)";
+		this.tooltip.style.transition = "opacity 0.1s, transform 0.1s";
+		this.tooltip.className = `${tooltipClasses.tooltip} ${tooltipClasses.tooltipTop} ${tooltipClasses.tooltipPrimary}`;
+		this.tooltip.appendChild(pointer);
+		this.tooltip.appendChild(content);
+		const show = () => this.show();
+		const hide = () => this.hide();
+		this.target.addEventListener("mouseenter", show);
+		this.target.addEventListener("mouseleave", hide);
+		this.clearListeners = () => {
+			this.target.removeEventListener("mouseenter", show);
+			this.target.removeEventListener("mouseleave", hide);
+		};
+	}
+	show() {
+		this.ref = this.tooltip.cloneNode(true);
+		this.layerContainer.appendChild(this.ref);
+		const targetRect = this.target.getBoundingClientRect();
+		const tooltipRect = this.ref.getBoundingClientRect();
+		this.ref.style.top = `${targetRect.top - tooltipRect.height - 8}px`;
+		this.ref.style.left = `${targetRect.left + targetRect.width / 2 - tooltipRect.width / 2}px`;
+		this.ref.style.opacity = "1";
+		this.ref.style.transform = "none";
+	}
+	hide() {
+		const ref = this.ref;
+		ref.style.opacity = "0";
+		ref.style.transform = "scale(0.95)";
+		setTimeout(() => ref?.remove(), 100);
+	}
+	forceHide() {
+		this.ref?.remove();
+	}
+	remove() {
+		this.clearListeners();
+		this.forceHide();
+	}
+}
+
+// components/SettingsPanel.tsx
+const { RadioGroup, FormItem, FormText, FormDivider, FormSwitch } = Common;
+function SettingsPanel() {
+	const settings = Settings.useSettingsState();
+	return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(FormItem, { title: Strings.get("SETTINGS_CLICK") }, BdApi.React.createElement(FormText, { className: Margins.marginBottom8, type: "description" }, Strings.get("SETTINGS_CLICK_NOTE")), BdApi.React.createElement(
+		RadioGroup,
+		{
+			options: [
+				{
+					name: `${Strings.get("SETTINGS_OPTIONS_OPEN_SETTINGS")} (${Strings.get("DEFAULT")})`,
+					value: 1
 				},
-				unsubscribe() {
-					LocaleStore.removeChangeListener(setLocale);
-				}
-			};
-			for (const key in strings) {
-				Object.defineProperty(stringsManager, key, {
-					get() {
-						return strings[key] || locales[defaultLocale][key];
-					},
-					enumerable: true,
-					configurable: false
-				});
-			}
-			return stringsManager;
+				{ name: Strings.get("SETTINGS_OPTIONS_CONTEXT_MENU"), value: 2 },
+				{ name: Strings.get("SETTINGS_OPTIONS_STATUS_PICKER"), value: 3 },
+				{ name: Strings.get("SETTINGS_OPTIONS_NOTHING"), value: 0 }
+			],
+			onChange: ({ value }) => Settings.set("click", value),
+			value: settings.click
 		}
-	
-		// locales.json
-		const el = {
-			TOOLTIP_USER_SETTINGS: "Ρυθμίσεις Χρήστη",
-			TOOLTIP_SETTINGS_SHORTCUT: "Συντομεύσεις Ρυθμίσεων",
-			TOOLTIP_SET_STATUS: "Ορισμός Κατάστασης",
-			DEFAULT: "Προεπιλογή",
-			SETTINGS_CLICK: "Με αριστερό πάτημα του ποντικιού",
-			SETTINGS_CLICK_NOTE: "Τι ανοίγει όταν πατήσετε στο εικονίδιο του χρήστη. Να ΘΥΜΑΣΤΕ ότι αν δεν οριστεί κάτι να ανοίγει τις ρυθμίσεις, μπορείτε να χρησιμοποιήσετε την συντόμευση «Ctrl + ,».",
-			SETTINGS_RIGHT_CLICK: "Με δεξί πάτημα του ποντικιού",
-			SETTINGS_RIGHT_CLICK_NOTE: "Τι ανοίγει όταν πατάτε με το δεξιό πλήκτρο του ποντικιού στο εικονίδιο του χρήστη.",
-			SETTINGS_MIDDLE_CLICK: "Με μεσσαίο πάτημα του ποντικιού",
-			SETTINGS_MIDDLE_CLICK_NOTE: "Τι ανοίγει όταν πατάτε με το μεσσαίο πλήκτρο του ποντικιού στο εικονίδιο του χρήστη.",
-			SETTINGS_OPTIONS_OPEN_SETTINGS: "Ρυθμίσεις",
-			SETTINGS_OPTIONS_CONTEXT_MENU: "Μενού Περιεχομένου Ρυθμίσεων",
-			SETTINGS_OPTIONS_STATUS_PICKER: "Επιλογέας Κατάστασης",
-			SETTINGS_OPTIONS_NOTHING: "Τίποτα",
-			SETTINGS_TOOLTIP: "Επεξηγηση",
-			SETTINGS_TOOLTIP_NOTE: "Εμφάνιση επεξήγησης όταν μεταβαίνει ο δείκτης του ποντικιού πάνω από το εικονίδιο του χρήστη."
-		};
-		const fr = {
-			TOOLTIP_USER_SETTINGS: "Paramètres utilisateur",
-			TOOLTIP_SETTINGS_SHORTCUT: "Raccourcis de Paramètres",
-			TOOLTIP_SET_STATUS: "Définir le status",
-			DEFAULT: "Par défaut",
-			SETTINGS_CLICK: "Clic",
-			SETTINGS_CLICK_NOTE: "Ce qui s'ouvre en cliquant sur l'avatar utilisateur. RAPPEL Si rien n'est défini pour ouvrir les paramètres, vous pouvez utiliser le raccourcis Ctrl + ,.",
-			SETTINGS_RIGHT_CLICK: "Clic Droit",
-			SETTINGS_RIGHT_CLICK_NOTE: "Ce qui s'ouvre en cliquant droit sur l'avatar utilisateur.",
-			SETTINGS_MIDDLE_CLICK: "Clic Molette",
-			SETTINGS_MIDDLE_CLICK_NOTE: "Ce qui s'ouvre en cliquant sur la molette sur l'avatar utilisateur.",
-			SETTINGS_OPTIONS_OPEN_SETTINGS: "Paramètres",
-			SETTINGS_OPTIONS_CONTEXT_MENU: "Menu Contextuel des Paramètres",
-			SETTINGS_OPTIONS_STATUS_PICKER: "Sélecteur de status",
-			SETTINGS_OPTIONS_NOTHING: "Rien",
-			SETTINGS_TOOLTIP: "Info-bulle",
-			SETTINGS_TOOLTIP_NOTE: "Affiche une info-bulle en passant au-dessus de l'avatar utilisateur."
-		};
-		const locales = {
-			"en-US": {
-			TOOLTIP_USER_SETTINGS: "User Settings",
-			TOOLTIP_SETTINGS_SHORTCUT: "Settings Shortcuts",
-			TOOLTIP_SET_STATUS: "Set Status",
-			DEFAULT: "Default",
-			SETTINGS_CLICK: "Click",
-			SETTINGS_CLICK_NOTE: "What opens when clicking on the user avatar. REMEMBER If nothing is bound to open settings, you can use the Ctrl + , shortcut.",
-			SETTINGS_RIGHT_CLICK: "Right Click",
-			SETTINGS_RIGHT_CLICK_NOTE: "What opens when right clicking on the user avatar.",
-			SETTINGS_MIDDLE_CLICK: "Middle Click",
-			SETTINGS_MIDDLE_CLICK_NOTE: "What opens when middle clicking on the user avatar.",
-			SETTINGS_OPTIONS_OPEN_SETTINGS: "Settings",
-			SETTINGS_OPTIONS_CONTEXT_MENU: "Settings Context Menu",
-			SETTINGS_OPTIONS_STATUS_PICKER: "Status Picker",
-			SETTINGS_OPTIONS_NOTHING: "Nothing",
-			SETTINGS_TOOLTIP: "Tooltip",
-			SETTINGS_TOOLTIP_NOTE: "Show tooltip when hovering over user avatar."
-		},
-			el: el,
-			fr: fr
-		};
-	
-		// modules/utils.ts
-		const Settings = createSettings({
-			showTooltip: true,
-			click: 1,
-			contextmenu: 3,
-			middleclick: 2
+	), BdApi.React.createElement(FormDivider, { className: Margins.marginTop20 })), BdApi.React.createElement(FormItem, { title: Strings.get("SETTINGS_RIGHT_CLICK"), className: Margins.marginTop20 }, BdApi.React.createElement(FormText, { className: Margins.marginBottom8, type: "description" }, Strings.get("SETTINGS_RIGHT_CLICK_NOTE")), BdApi.React.createElement(
+		RadioGroup,
+		{
+			options: [
+				{ name: Strings.get("SETTINGS_OPTIONS_OPEN_SETTINGS"), value: 1 },
+				{ name: Strings.get("SETTINGS_OPTIONS_CONTEXT_MENU"), value: 2 },
+				{
+					name: `${Strings.get("SETTINGS_OPTIONS_STATUS_PICKER")} (${Strings.get("DEFAULT")})`,
+					value: 3
+				},
+				{ name: Strings.get("SETTINGS_OPTIONS_NOTHING"), value: 0 }
+			],
+			onChange: ({ value }) => Settings.set("contextmenu", value),
+			value: settings.contextmenu
+		}
+	), BdApi.React.createElement(FormDivider, { className: Margins.marginTop20 })), BdApi.React.createElement(FormItem, { title: Strings.get("SETTINGS_MIDDLE_CLICK"), className: Margins.marginTop20 }, BdApi.React.createElement(FormText, { className: Margins.marginBottom8, type: "description" }, Strings.get("SETTINGS_MIDDLE_CLICK_NOTE")), BdApi.React.createElement(
+		RadioGroup,
+		{
+			options: [
+				{ name: Strings.get("SETTINGS_OPTIONS_OPEN_SETTINGS"), value: 1 },
+				{
+					name: `${Strings.get("SETTINGS_OPTIONS_CONTEXT_MENU")} (${Strings.get("DEFAULT")})`,
+					value: 2
+				},
+				{ name: Strings.get("SETTINGS_OPTIONS_STATUS_PICKER"), value: 3 },
+				{ name: Strings.get("SETTINGS_OPTIONS_NOTHING"), value: 0 }
+			],
+			onChange: ({ value }) => Settings.set("middleclick", value),
+			value: settings.middleclick
+		}
+	), BdApi.React.createElement(FormDivider, { className: Margins.marginTop20 })), BdApi.React.createElement(
+		FormSwitch,
+		{
+			className: Margins.marginTop20,
+			children: Strings.get("SETTINGS_TOOLTIP"),
+			note: Strings.get("SETTINGS_TOOLTIP_NOTE"),
+			onChange: (v) => Settings.set("showTooltip", v),
+			value: settings.showTooltip,
+			hideBorder: true
+		}
+	));
+}
+
+// index.tsx
+const settingsSelector = `.${accountClasses.container} button:nth-last-child(1)`;
+class AvatarSettingsButton {
+	meta;
+	target = null;
+	tooltip = null;
+	clearListeners;
+	lastContextMenuTimestamp;
+	constructor(meta) {
+		this.meta = meta;
+	}
+	start() {
+		showChangelog(changelog, this.meta);
+		betterdiscord.DOM.addStyle(`${settingsSelector} { display: none; } .${accountClasses.avatarWrapper} { width: 100%; }`);
+		Strings.subscribe();
+		Settings.addListener(() => {
+			this.addListeners();
+			this.addTooltip();
 		});
-		const Strings = createStrings(locales, "en-US");
-	
-		// modules/tooltip.ts
-		class Tooltip {
-			target;
-			tooltip;
-			layerContainer;
-			ref;
-			clearListeners;
-			constructor(target, text) {
-				this.target = target;
-				this.layerContainer = document.querySelector(`${appSelector} ~ ${layerContainerSelector}`);
-				const pointer = document.createElement("div");
-				pointer.className = tooltipClasses.tooltipPointer;
-				pointer.style.left = "calc(50% + 0px)";
-				const content = document.createElement("div");
-				content.className = tooltipClasses.tooltipContent;
-				content.innerHTML = text;
-				this.tooltip = document.createElement("div", {});
-				this.tooltip.style.position = "fixed";
-				this.tooltip.style.opacity = "0";
-				this.tooltip.style.transform = "scale(0.95)";
-				this.tooltip.style.transition = "opacity 0.1s, transform 0.1s";
-				this.tooltip.className = `${tooltipClasses.tooltip} ${tooltipClasses.tooltipTop} ${tooltipClasses.tooltipPrimary}`;
-				this.tooltip.appendChild(pointer);
-				this.tooltip.appendChild(content);
-				const show = () => this.show();
-				const hide = () => this.hide();
-				this.target.addEventListener("mouseenter", show);
-				this.target.addEventListener("mouseleave", hide);
-				this.clearListeners = () => {
-					this.target.removeEventListener("mouseenter", show);
-					this.target.removeEventListener("mouseleave", hide);
-				};
-			}
-			show() {
-				this.ref = this.tooltip.cloneNode(true);
-				this.layerContainer.appendChild(this.ref);
-				const targetRect = this.target.getBoundingClientRect();
-				const tooltipRect = this.ref.getBoundingClientRect();
-				this.ref.style.top = `${targetRect.top - tooltipRect.height - 8}px`;
-				this.ref.style.left = `${targetRect.left + targetRect.width / 2 - tooltipRect.width / 2}px`;
-				this.ref.style.opacity = "1";
-				this.ref.style.transform = "none";
-			}
-			hide() {
-				const ref = this.ref;
-				ref.style.opacity = "0";
-				ref.style.transform = "scale(0.95)";
-				setTimeout(() => ref?.remove(), 100);
-			}
-			forceHide() {
-				this.ref?.remove();
-			}
-			remove() {
-				this.clearListeners();
-				this.forceHide();
-			}
-		}
-	
-		// components/SettingsPanel.tsx
-		const { RadioGroup, FormItem, FormText, FormDivider, FormSwitch } = Common;
-		function SettingsPanel() {
-			const settings = Settings.useSettingsState();
-			return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(FormItem, {
-				title: Strings.SETTINGS_CLICK
-			}, BdApi.React.createElement(FormText, {
-				className: Margins.marginBottom8,
-				type: "description"
-			}, Strings.SETTINGS_CLICK_NOTE), BdApi.React.createElement(RadioGroup, {
-				options: [
-					{ name: `${Strings.SETTINGS_OPTIONS_OPEN_SETTINGS} (${Strings.DEFAULT})`, value: 1 },
-					{ name: Strings.SETTINGS_OPTIONS_CONTEXT_MENU, value: 2 },
-					{ name: Strings.SETTINGS_OPTIONS_STATUS_PICKER, value: 3 },
-					{ name: Strings.SETTINGS_OPTIONS_NOTHING, value: 0 }
-				],
-				onChange: ({ value }) => Settings.click = value,
-				value: settings.click
-			}), BdApi.React.createElement(FormDivider, {
-				className: Margins.marginTop20
-			})), BdApi.React.createElement(FormItem, {
-				title: Strings.SETTINGS_RIGHT_CLICK,
-				className: Margins.marginTop20
-			}, BdApi.React.createElement(FormText, {
-				className: Margins.marginBottom8,
-				type: "description"
-			}, Strings.SETTINGS_RIGHT_CLICK_NOTE), BdApi.React.createElement(RadioGroup, {
-				options: [
-					{ name: Strings.SETTINGS_OPTIONS_OPEN_SETTINGS, value: 1 },
-					{ name: Strings.SETTINGS_OPTIONS_CONTEXT_MENU, value: 2 },
-					{ name: `${Strings.SETTINGS_OPTIONS_STATUS_PICKER} (${Strings.DEFAULT})`, value: 3 },
-					{ name: Strings.SETTINGS_OPTIONS_NOTHING, value: 0 }
-				],
-				onChange: ({ value }) => Settings.contextmenu = value,
-				value: settings.contextmenu
-			}), BdApi.React.createElement(FormDivider, {
-				className: Margins.marginTop20
-			})), BdApi.React.createElement(FormItem, {
-				title: Strings.SETTINGS_MIDDLE_CLICK,
-				className: Margins.marginTop20
-			}, BdApi.React.createElement(FormText, {
-				className: Margins.marginBottom8,
-				type: "description"
-			}, Strings.SETTINGS_MIDDLE_CLICK_NOTE), BdApi.React.createElement(RadioGroup, {
-				options: [
-					{ name: Strings.SETTINGS_OPTIONS_OPEN_SETTINGS, value: 1 },
-					{ name: `${Strings.SETTINGS_OPTIONS_CONTEXT_MENU} (${Strings.DEFAULT})`, value: 2 },
-					{ name: Strings.SETTINGS_OPTIONS_STATUS_PICKER, value: 3 },
-					{ name: Strings.SETTINGS_OPTIONS_NOTHING, value: 0 }
-				],
-				onChange: ({ value }) => Settings.middleclick = value,
-				value: settings.middleclick
-			}), BdApi.React.createElement(FormDivider, {
-				className: Margins.marginTop20
-			})), BdApi.React.createElement(FormSwitch, {
-				className: Margins.marginTop20,
-				children: Strings.SETTINGS_TOOLTIP,
-				note: Strings.SETTINGS_TOOLTIP_NOTE,
-				onChange: (v) => Settings.showTooltip = v,
-				value: settings.showTooltip,
-				hideBorder: true
-			}));
-		}
-	
-		// index.tsx
-		const settingsSelector = `.${accountClasses.container} button:nth-last-child(1)`;
-		class AvatarSettingsButton extends BasePlugin {
-			target = null;
-			tooltip = null;
-			clearListeners;
-			onStart() {
-				betterdiscord.DOM.addStyle(`${settingsSelector} { display: none; } .${accountClasses.avatarWrapper} { width: 100%; }`);
-				Strings.subscribe();
-				Settings.addListener(() => {
-					this.addListeners();
-					this.addTooltip();
-				});
-				this.target = document.querySelector("." + accountClasses.avatarWrapper);
+		this.target = document.querySelector("." + accountClasses.avatarWrapper);
+		this.addListeners();
+		this.addTooltip();
+	}
+	observer({ addedNodes }) {
+		for (const node of addedNodes) {
+			if (node.nodeType === Node.TEXT_NODE) continue;
+			const avatarWrapper = node.querySelector(`.${accountClasses.avatarWrapper}`);
+			if (avatarWrapper) {
+				this.target = avatarWrapper;
 				this.addListeners();
 				this.addTooltip();
 			}
-			observer({ addedNodes }) {
-				for (const node of addedNodes) {
-					if (node.nodeType === Node.TEXT_NODE)
-						continue;
-					const avatarWrapper = node.querySelector(`.${accountClasses.avatarWrapper}`);
-					if (avatarWrapper) {
-						this.target = avatarWrapper;
-						this.addListeners();
-						this.addTooltip();
-					}
-				}
-			}
-			openPopout() {
-				this.target.dispatchEvent(
-					new MouseEvent("click", {
-						bubbles: true
-					})
-				);
-			}
-			openSettings() {
-				UserSettingsWindow.setSection(Sections.ACCOUNT);
-				UserSettingsWindow.open();
-				if (document.querySelector("#status-picker") || document.querySelector("#account"))
-					this.openPopout();
-			}
-			openContextMenu(e) {
-				document.querySelector(settingsSelector).dispatchEvent(
-					new MouseEvent("contextmenu", {
-						bubbles: true,
-						clientX: e.clientX,
-						clientY: screen.height - 12
-					})
-				);
-				if (document.querySelector("#status-picker") || document.querySelector("#account"))
-					this.openPopout();
-			}
-			addListeners() {
-				if (!this.target)
-					return;
-				this.clearListeners?.();
-				const actions = [
-					null,
-					this.openSettings.bind(this),
-					this.openContextMenu.bind(this),
-					this.openPopout.bind(this)
-				];
-				const clickAction = actions[Settings.click];
-				const click = (e) => {
-					if (e.isTrusted) {
-						e.preventDefault();
-						e.stopPropagation();
-						clickAction(e);
-						this.tooltip?.forceHide();
-					}
-				};
-				const contextmenuAction = actions[Settings.contextmenu];
-				const contextmenu = (e) => {
-					contextmenuAction(e);
-					this.tooltip?.forceHide();
-				};
-				const middleclickAction = actions[Settings.middleclick];
-				const middleclick = (e) => {
-					if (e.button === 1) {
-						middleclickAction(e);
-						this.tooltip?.forceHide();
-					}
-				};
-				this.target.addEventListener("click", click);
-				this.target.addEventListener("contextmenu", contextmenu);
-				this.target.addEventListener("mousedown", middleclick);
-				this.clearListeners = () => {
-					this.target.removeEventListener("click", click);
-					this.target.removeEventListener("contextmenu", contextmenu);
-					this.target.removeEventListener("mousedown", middleclick);
-				};
-			}
-			addTooltip() {
-				if (!this.target)
-					return;
-				this.tooltip?.remove();
-				this.tooltip = null;
-				if (!Settings.showTooltip)
-					return;
-				const click = Settings.click;
-				if (click === 0)
-					return;
-				const tooltips = [
-					"",
-					Strings.TOOLTIP_USER_SETTINGS,
-					Strings.TOOLTIP_SETTINGS_SHORTCUT,
-					Strings.TOOLTIP_SET_STATUS
-				];
-				this.tooltip = new Tooltip(this.target, tooltips[click]);
-			}
-			onStop() {
-				betterdiscord.DOM.removeStyle();
-				Strings.unsubscribe();
-				Settings.clearListeners();
-				this.clearListeners?.();
-				this.tooltip?.remove();
-				this.target = null;
-				this.tooltip = null;
-			}
-			getSettingsPanel() {
-				return BdApi.React.createElement(SettingsPanel, null);
-			}
 		}
-	
-		return AvatarSettingsButton;
-	
-	})(new BdApi("AvatarSettingsButton"), BasePlugin, BdApi.React);
-
-	return Plugin;
+	}
+	openPopout() {
+		this.target.dispatchEvent(
+			new MouseEvent("click", {
+				bubbles: true
+			})
+		);
+	}
+	openSettings() {
+		UserSettingsWindow.setSection(Sections.ACCOUNT);
+		if (document.querySelector(`.${accountClasses.accountProfilePopoutWrapper}`)) this.openPopout();
+		UserSettingsWindow.open();
+	}
+	openContextMenu(e) {
+		if (document.querySelector(`.${accountClasses.accountProfilePopoutWrapper}`)) this.openPopout();
+		document.querySelector(settingsSelector).dispatchEvent(
+			new MouseEvent("contextmenu", {
+				bubbles: true,
+				clientX: e.clientX,
+				clientY: screen.height - 12
+			})
+		);
+	}
+	addListeners() {
+		if (!this.target) return;
+		this.clearListeners?.();
+		const actions = [
+			null,
+			this.openSettings.bind(this),
+			this.openContextMenu.bind(this),
+			this.openPopout.bind(this)
+		];
+		const clickAction = actions[Settings.get("click")];
+		const click = (e) => {
+			if (e.isTrusted) {
+				e.preventDefault();
+				e.stopPropagation();
+				clickAction(e);
+				this.tooltip?.forceHide();
+			}
+		};
+		const contextmenuAction = actions[Settings.get("contextmenu")];
+		const contextmenu = (e) => {
+			if (e.timeStamp === this.lastContextMenuTimestamp) {
+				return;
+			}
+			this.lastContextMenuTimestamp = e.timeStamp;
+			contextmenuAction(e);
+			this.tooltip?.forceHide();
+		};
+		const middleclickAction = actions[Settings.get("middleclick")];
+		const middleclick = (e) => {
+			if (e.button === 1) {
+				middleclickAction(e);
+				this.tooltip?.forceHide();
+			}
+		};
+		this.target.addEventListener("click", click);
+		this.target.addEventListener("contextmenu", contextmenu);
+		this.target.addEventListener("mousedown", middleclick);
+		this.clearListeners = () => {
+			this.target.removeEventListener("click", click);
+			this.target.removeEventListener("contextmenu", contextmenu);
+			this.target.removeEventListener("mousedown", middleclick);
+		};
+	}
+	addTooltip() {
+		if (!this.target) return;
+		this.tooltip?.remove();
+		this.tooltip = null;
+		if (!Settings.get("showTooltip")) return;
+		const click = Settings.get("click");
+		if (click === 0) return;
+		const tooltips = [
+			"",
+			Strings.get("TOOLTIP_USER_SETTINGS"),
+			Strings.get("TOOLTIP_SETTINGS_SHORTCUT"),
+			Strings.get("TOOLTIP_SET_STATUS")
+		];
+		this.tooltip = new Tooltip(this.target, tooltips[click]);
+	}
+	stop() {
+		betterdiscord.DOM.removeStyle();
+		Strings.unsubscribe();
+		Settings.clearListeners();
+		this.clearListeners?.();
+		this.tooltip?.remove();
+		this.target = null;
+		this.tooltip = null;
+	}
+	getSettingsPanel() {
+		return BdApi.React.createElement(SettingsPanel, null);
+	}
 }
 
-module.exports = global.ZeresPluginLibrary ? buildPlugin(global.ZeresPluginLibrary.buildPlugin(config)) : class { start() {}; stop() {} };
+module.exports = AvatarSettingsButton;
 
 /*@end@*/
