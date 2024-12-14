@@ -1,7 +1,7 @@
 /**
  * @name ChannelTypingIndicator
  * @author Neodymium
- * @version 1.0.0
+ * @version 1.0.1
  * @description Adds an indicator to server channels when users are typing.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ChannelTypingIndicator/ChannelTypingIndicator.plugin.js
  * @invite fRbsqH87Av
@@ -34,6 +34,8 @@
 'use strict';
 
 const betterdiscord = new BdApi("ChannelTypingIndicator");
+const fs = require('fs');
+const path = require('path');
 
 // @lib/utils/webpack.ts
 function expect(object, options) {
@@ -185,9 +187,66 @@ function TypingIndicator({ channelId, guildId }) {
 	return BdApi.React.createElement(betterdiscord.Components.Tooltip, { text: tooltip, position: "top" }, (props) => BdApi.React.createElement("div", { ...props, className: "channelTypingIndicator" }, BdApi.React.createElement(TypingDots, { dotRadius: 3.5, themed: true })));
 }
 
+// @lib/updater.tsx
+const findVersion = (pluginContents) => {
+	const lines = pluginContents.split("\n");
+	const versionLine = lines.find((line) => line.includes("@version"));
+	return versionLine.split(/\s+/).pop();
+};
+const updatePlugin = (name, newContents) => {
+	const path$1 = path.join(betterdiscord.Plugins.folder, name + ".plugin.js");
+	fs.writeFileSync(path$1, newContents);
+};
+const showUpdateNotice = (name, version, newContents) => {
+	const noticeElement = document.createElement("span");
+	const linkElementStyle = "color: #fff; font-weight: 700;";
+	const linkElementHTML = `<a href="https://github.com/Neodymium7/BetterDiscordStuff/blob/main/${name}/${name}.plugin.js" target="_blank" style="${linkElementStyle}">${name} v${version}</a>`;
+	const linkElement = betterdiscord.DOM.parseHTML(linkElementHTML);
+	const setStyle = (style) => linkElement.setAttribute("style", style);
+	linkElement.addEventListener("mouseenter", () => setStyle(linkElementStyle + " text-decoration: underline;"));
+	linkElement.addEventListener("mouseleave", () => setStyle(linkElementStyle));
+	betterdiscord.UI.createTooltip(linkElement, "View Source", { side: "bottom" });
+	noticeElement.appendChild(linkElement);
+	noticeElement.appendChild(document.createTextNode(" is available"));
+	const closeNotice = betterdiscord.UI.showNotice(noticeElement, {
+		buttons: [
+			{
+				label: "Update",
+				onClick: () => {
+					updatePlugin(name, newContents);
+					closeNotice();
+				}
+			}
+		]
+	});
+	return closeNotice;
+};
+const Updater = {
+	async checkForUpdates(meta) {
+		const url = `https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/${meta.name}/${meta.name}.plugin.js`;
+		const res = await betterdiscord.Net.fetch(url);
+		if (!res.ok) {
+			betterdiscord.Logger.error(`Failed to check for updates: ${res.status} - ${res.statusText}`);
+			return;
+		}
+		const text = await res.text();
+		const version = findVersion(text);
+		if (version <= meta.version) return;
+		this.closeUpdateNotice = showUpdateNotice(meta.name, version, text);
+	},
+	closeNotice() {
+		if (this.closeUpdateNotice) this.closeUpdateNotice();
+	}
+};
+
 // index.tsx
 class ChannelTypingIndicator {
+	meta;
+	constructor(meta) {
+		this.meta = meta;
+	}
 	start() {
+		Updater.checkForUpdates(this.meta);
 		Strings.subscribe();
 		betterdiscord.DOM.addStyle(".channelTypingIndicator { margin-left: 8px; display: flex; align-items: center; }");
 		this.patchChannel();
@@ -213,6 +272,7 @@ class ChannelTypingIndicator {
 		Strings.unsubscribe();
 		betterdiscord.DOM.removeStyle();
 		betterdiscord.Patcher.unpatchAll();
+		Updater.closeNotice();
 	}
 }
 

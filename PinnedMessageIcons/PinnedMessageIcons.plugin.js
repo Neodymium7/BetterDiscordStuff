@@ -1,7 +1,7 @@
 /**
  * @name PinnedMessageIcons
  * @author Neodymium
- * @version 2.0.0
+ * @version 2.0.1
  * @description Displays an icon on and optionally adds a background to pinned messages.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/PinnedMessageIcons/PinnedMessageIcons.plugin.js
  * @invite fRbsqH87Av
@@ -34,14 +34,12 @@
 'use strict';
 
 const betterdiscord = new BdApi("PinnedMessageIcons");
+const fs = require('fs');
+const path = require('path');
 
 // @lib/utils/webpack.ts
-const {
-	getModule: getModule$1,
-	Filters: { byStrings, byKeys }
-} = betterdiscord.Webpack;
 function getClasses(...classes) {
-	return getModule$1((m) => byKeys(...classes)(m) && typeof m[classes[0]] == "string");
+	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
 }
 function getSelectors(...classes) {
 	const module = getClasses(...classes);
@@ -52,11 +50,63 @@ function getSelectors(...classes) {
 	}, {});
 }
 function getIcon(searchString) {
-	const filter = (m) => byStrings(searchString, '"svg"')(m) && typeof m === "function";
-	return getModule$1(filter, {
+	const filter = (m) => betterdiscord.Webpack.Filters.byStrings(searchString, '"svg"')(m) && typeof m === "function";
+	return betterdiscord.Webpack.getModule(filter, {
 		searchExports: true
 	});
 }
+
+// @lib/updater.tsx
+const findVersion = (pluginContents) => {
+	const lines = pluginContents.split("\n");
+	const versionLine = lines.find((line) => line.includes("@version"));
+	return versionLine.split(/\s+/).pop();
+};
+const updatePlugin = (name, newContents) => {
+	const path$1 = path.join(betterdiscord.Plugins.folder, name + ".plugin.js");
+	fs.writeFileSync(path$1, newContents);
+};
+const showUpdateNotice = (name, version, newContents) => {
+	const noticeElement = document.createElement("span");
+	const linkElementStyle = "color: #fff; font-weight: 700;";
+	const linkElementHTML = `<a href="https://github.com/Neodymium7/BetterDiscordStuff/blob/main/${name}/${name}.plugin.js" target="_blank" style="${linkElementStyle}">${name} v${version}</a>`;
+	const linkElement = betterdiscord.DOM.parseHTML(linkElementHTML);
+	const setStyle = (style) => linkElement.setAttribute("style", style);
+	linkElement.addEventListener("mouseenter", () => setStyle(linkElementStyle + " text-decoration: underline;"));
+	linkElement.addEventListener("mouseleave", () => setStyle(linkElementStyle));
+	betterdiscord.UI.createTooltip(linkElement, "View Source", { side: "bottom" });
+	noticeElement.appendChild(linkElement);
+	noticeElement.appendChild(document.createTextNode(" is available"));
+	const closeNotice = betterdiscord.UI.showNotice(noticeElement, {
+		buttons: [
+			{
+				label: "Update",
+				onClick: () => {
+					updatePlugin(name, newContents);
+					closeNotice();
+				}
+			}
+		]
+	});
+	return closeNotice;
+};
+const Updater = {
+	async checkForUpdates(meta) {
+		const url = `https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/${meta.name}/${meta.name}.plugin.js`;
+		const res = await betterdiscord.Net.fetch(url);
+		if (!res.ok) {
+			betterdiscord.Logger.error(`Failed to check for updates: ${res.status} - ${res.statusText}`);
+			return;
+		}
+		const text = await res.text();
+		const version = findVersion(text);
+		if (version <= meta.version) return;
+		this.closeUpdateNotice = showUpdateNotice(meta.name, version, text);
+	},
+	closeNotice() {
+		if (this.closeUpdateNotice) this.closeUpdateNotice();
+	}
+};
 
 // index.tsx
 const { getModule } = betterdiscord.Webpack;
@@ -68,7 +118,12 @@ if (!Pin) betterdiscord.Logger.error("Pin icon not found.");
 if (!messageSelectors) betterdiscord.Logger.error("Message selectors icon not found.");
 class PinnedMessageIcons {
 	settings;
+	meta;
+	constructor(meta) {
+		this.meta = meta;
+	}
 	start() {
+		Updater.checkForUpdates(this.meta);
 		if (!Message) return;
 		this.settings = betterdiscord.Data.load("settings");
 		if (!this.settings) {
@@ -112,6 +167,7 @@ class PinnedMessageIcons {
 	stop() {
 		betterdiscord.Patcher.unpatchAll();
 		betterdiscord.DOM.removeStyle();
+		Updater.closeNotice();
 	}
 	getSettingsPanel() {
 		return betterdiscord.UI.buildSettingsPanel({

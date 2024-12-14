@@ -1,7 +1,7 @@
 /**
  * @name ClickableTextMentions
  * @author Neodymium
- * @version 1.0.1
+ * @version 1.0.2
  * @description Makes mentions in the message text area clickable.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ClickableTextMentions/ClickableTextMentions.plugin.js
  * @invite fRbsqH87Av
@@ -34,6 +34,8 @@
 'use strict';
 
 const betterdiscord = new BdApi("ClickableTextMentions");
+const fs = require('fs');
+const path = require('path');
 
 // @lib/utils/webpack.ts
 function expect(object, options) {
@@ -74,6 +76,58 @@ const loadProfile = expectModule({
 });
 const UserStore = betterdiscord.Webpack.getStore("UserStore");
 
+// @lib/updater.tsx
+const findVersion = (pluginContents) => {
+	const lines = pluginContents.split("\n");
+	const versionLine = lines.find((line) => line.includes("@version"));
+	return versionLine.split(/\s+/).pop();
+};
+const updatePlugin = (name, newContents) => {
+	const path$1 = path.join(betterdiscord.Plugins.folder, name + ".plugin.js");
+	fs.writeFileSync(path$1, newContents);
+};
+const showUpdateNotice = (name, version, newContents) => {
+	const noticeElement = document.createElement("span");
+	const linkElementStyle = "color: #fff; font-weight: 700;";
+	const linkElementHTML = `<a href="https://github.com/Neodymium7/BetterDiscordStuff/blob/main/${name}/${name}.plugin.js" target="_blank" style="${linkElementStyle}">${name} v${version}</a>`;
+	const linkElement = betterdiscord.DOM.parseHTML(linkElementHTML);
+	const setStyle = (style) => linkElement.setAttribute("style", style);
+	linkElement.addEventListener("mouseenter", () => setStyle(linkElementStyle + " text-decoration: underline;"));
+	linkElement.addEventListener("mouseleave", () => setStyle(linkElementStyle));
+	betterdiscord.UI.createTooltip(linkElement, "View Source", { side: "bottom" });
+	noticeElement.appendChild(linkElement);
+	noticeElement.appendChild(document.createTextNode(" is available"));
+	const closeNotice = betterdiscord.UI.showNotice(noticeElement, {
+		buttons: [
+			{
+				label: "Update",
+				onClick: () => {
+					updatePlugin(name, newContents);
+					closeNotice();
+				}
+			}
+		]
+	});
+	return closeNotice;
+};
+const Updater = {
+	async checkForUpdates(meta) {
+		const url = `https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/${meta.name}/${meta.name}.plugin.js`;
+		const res = await betterdiscord.Net.fetch(url);
+		if (!res.ok) {
+			betterdiscord.Logger.error(`Failed to check for updates: ${res.status} - ${res.statusText}`);
+			return;
+		}
+		const text = await res.text();
+		const version = findVersion(text);
+		if (version <= meta.version) return;
+		this.closeUpdateNotice = showUpdateNotice(meta.name, version, text);
+	},
+	closeNotice() {
+		if (this.closeUpdateNotice) this.closeUpdateNotice();
+	}
+};
+
 // index.tsx
 const {
 	getWithKey,
@@ -100,7 +154,15 @@ function PopoutWrapper({ id, guildId, channelId, children }) {
 	);
 }
 class ClickableTextMentions {
+	meta;
+	constructor(meta) {
+		this.meta = meta;
+	}
 	start() {
+		Updater.checkForUpdates(this.meta);
+		this.patch();
+	}
+	patch() {
 		if (!Module) return;
 		betterdiscord.Patcher.after(Module, key, (_, [props], ret) => {
 			const original = ret.props.children;
@@ -112,6 +174,7 @@ class ClickableTextMentions {
 	}
 	stop() {
 		betterdiscord.Patcher.unpatchAll();
+		Updater.closeNotice();
 	}
 }
 
