@@ -1,7 +1,7 @@
 /**
  * @name ChannelTypingIndicator
  * @author Neodymium
- * @version 1.0.1
+ * @version 1.0.2
  * @description Adds an indicator to server channels when users are typing.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ChannelTypingIndicator/ChannelTypingIndicator.plugin.js
  * @invite fRbsqH87Av
@@ -38,6 +38,9 @@ const fs = require('fs');
 const path = require('path');
 
 // @lib/utils/webpack.ts
+function getClasses(...classes) {
+	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
+}
 function expect(object, options) {
 	if (object) return object;
 	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
@@ -168,7 +171,7 @@ function TypingIndicator({ channelId, guildId }) {
 	if (typingUsersIds.length > 3) {
 		tooltip = Strings.get("TYPING_LENGTH_MANY");
 	} else {
-		const typingUsersElements = typingUsersIds.map((id) => BdApi.React.createElement("strong", null, getDisplayName(id, guildId)));
+		const typingUsersElements = typingUsersIds.map((id) => BdApi.React.createElement("strong", { style: { fontWeight: 700 } }, getDisplayName(id, guildId)));
 		if (typingUsersElements.length == 1) {
 			tooltip = parseStringReact(Strings.get("TYPING_LENGTH_1"), { USER: typingUsersElements[0] });
 		} else if (typingUsersElements.length == 2) {
@@ -187,7 +190,8 @@ function TypingIndicator({ channelId, guildId }) {
 	return BdApi.React.createElement(betterdiscord.Components.Tooltip, { text: tooltip, position: "top" }, (props) => BdApi.React.createElement("div", { ...props, className: "channelTypingIndicator" }, BdApi.React.createElement(TypingDots, { dotRadius: 3.5, themed: true })));
 }
 
-// @lib/updater.tsx
+// @lib/updater.ts
+const hoverClass = getClasses("anchorUnderlineOnHover")?.anchorUnderlineOnHover || "";
 const findVersion = (pluginContents) => {
 	const lines = pluginContents.split("\n");
 	const versionLine = lines.find((line) => line.includes("@version"));
@@ -198,28 +202,17 @@ const updatePlugin = (name, newContents) => {
 	fs.writeFileSync(path$1, newContents);
 };
 const showUpdateNotice = (name, version, newContents) => {
-	const noticeElement = document.createElement("span");
-	const linkElementStyle = "color: #fff; font-weight: 700;";
-	const linkElementHTML = `<a href="https://github.com/Neodymium7/BetterDiscordStuff/blob/main/${name}/${name}.plugin.js" target="_blank" style="${linkElementStyle}">${name} v${version}</a>`;
-	const linkElement = betterdiscord.DOM.parseHTML(linkElementHTML);
-	const setStyle = (style) => linkElement.setAttribute("style", style);
-	linkElement.addEventListener("mouseenter", () => setStyle(linkElementStyle + " text-decoration: underline;"));
-	linkElement.addEventListener("mouseleave", () => setStyle(linkElementStyle));
-	betterdiscord.UI.createTooltip(linkElement, "View Source", { side: "bottom" });
-	noticeElement.appendChild(linkElement);
-	noticeElement.appendChild(document.createTextNode(" is available"));
-	const closeNotice = betterdiscord.UI.showNotice(noticeElement, {
+	const noticeElementHTML = `<span><a href="https://github.com/Neodymium7/BetterDiscordStuff/blob/main/${name}/${name}.plugin.js" target="_blank" class="${hoverClass}" style="color: #fff; font-weight: 700;">${name} v${version}</a> is available</span>`;
+	const noticeElement = betterdiscord.DOM.parseHTML(noticeElementHTML);
+	betterdiscord.UI.createTooltip(noticeElement.firstChild, "View Source", { side: "bottom" });
+	return betterdiscord.UI.showNotice(noticeElement, {
 		buttons: [
 			{
 				label: "Update",
-				onClick: () => {
-					updatePlugin(name, newContents);
-					closeNotice();
-				}
+				onClick: () => updatePlugin(name, newContents)
 			}
 		]
 	});
-	return closeNotice;
 };
 const Updater = {
 	async checkForUpdates(meta) {
@@ -231,7 +224,7 @@ const Updater = {
 		}
 		const text = await res.text();
 		const version = findVersion(text);
-		if (version <= meta.version) return;
+		if (version === meta.version) return;
 		this.closeUpdateNotice = showUpdateNotice(meta.name, version, text);
 	},
 	closeNotice() {
