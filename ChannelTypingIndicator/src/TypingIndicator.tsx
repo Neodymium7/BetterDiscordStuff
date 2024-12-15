@@ -17,7 +17,9 @@ export function TypingIndicator({ channelId, guildId }) {
 	if (typingUsersIds.length > 3) {
 		tooltip = Strings.get("TYPING_LENGTH_MANY");
 	} else {
-		const typingUsersElements = typingUsersIds.map((id) => <strong>{getDisplayName(id, guildId)}</strong>);
+		const typingUsersElements = typingUsersIds.map((id) => (
+			<strong style={{ fontWeight: 700 }}>{getDisplayName(id, guildId)}</strong>
+		));
 
 		if (typingUsersElements.length == 1) {
 			tooltip = parseStringReact(Strings.get("TYPING_LENGTH_1"), { USER: typingUsersElements[0] });
