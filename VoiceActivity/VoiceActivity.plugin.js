@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.9.1
+ * @version 1.9.2
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -187,7 +187,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Updated patching methods for improved plugin compatibility."
+			"Fixed DMs disappearing when enabled with PlatformIndicators."
 		]
 	}
 ];
@@ -1210,9 +1210,11 @@ class VoiceActivity {
 	}
 	patchPrivateChannel() {
 		const patchType = (props, ret) => {
-			if (props.channel.type !== 1) return ret;
-			const children2 = ret.props.children;
-			ret.props.children = (childrenProps) => {
+			if (props.channel.type !== 1) return;
+			let target = ret;
+			if (typeof target.props.children != "function") target = ret.props.children;
+			const children2 = target.props.children;
+			target.props.children = (childrenProps) => {
 				const childrenRet = children2(childrenProps);
 				const privateChannel = betterdiscord.Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
 					walkable: ["children", "props"]
