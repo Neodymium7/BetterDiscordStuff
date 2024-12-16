@@ -77,10 +77,14 @@ export default class VoiceActivity {
 
 	patchPrivateChannel() {
 		const patchType = (props, ret) => {
-			if (props.channel.type !== 1) return ret;
+			if (props.channel.type !== 1) return;
 
-			const children = ret.props.children;
-			ret.props.children = (childrenProps) => {
+			// Plugin compatibility fix
+			let target = ret;
+			if (typeof target.props.children != "function") target = ret.props.children;
+
+			const children = target.props.children;
+			target.props.children = (childrenProps) => {
 				const childrenRet = children(childrenProps);
 
 				const privateChannel = Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
