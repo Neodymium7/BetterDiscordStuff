@@ -115,4 +115,4 @@ type Settings<S extends SettingsManager<any>> = S extends SettingsManager<infer 
  * type StringSetting = SettingsKey<typeof Settings, string>; // "foo"
  * ```
  */
-export type SettingsKey<S extends SettingsManager<any>, T = any, U = Settings<S>> = KeysOfType<U, T>;
+export type SettingsKey<S extends SettingsManager<any>, T = any> = KeysOfType<Settings<S>, T>;

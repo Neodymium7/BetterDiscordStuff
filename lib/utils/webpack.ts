@@ -1,4 +1,5 @@
 import { Webpack, Logger, SearchOptions, ModuleFilter } from "betterdiscord";
+import React from "react";
 
 interface IconProps {
 	width?: string;
@@ -8,7 +9,7 @@ interface IconProps {
 	color?: string;
 }
 
-type Icon = (props: IconProps) => JSX.Element;
+type Icon = (props: IconProps) => React.ReactNode;
 
 /**
  * Options for the `expect` function.
@@ -22,6 +23,14 @@ type ExpectOptions<T> = {
 	fatal?: boolean;
 	fallback?: T;
 	onError?: () => void;
+};
+
+type ExpectOptionsFallback<T> = ExpectOptions<T> & {
+	fallback: T;
+};
+
+type ExpectOptionsFatal<T> = ExpectOptions<T> & {
+	fatal: true;
 };
 
 /**
@@ -75,6 +84,9 @@ export function getIcon(searchString: string): Icon | undefined {
 	});
 }
 
+export function expect<T>(object: T, options: ExpectOptionsFallback<T>): NonNullable<T>;
+export function expect<T>(object: T, options: ExpectOptionsFatal<T>): NonNullable<T>;
+export function expect<T>(object: T, options: ExpectOptions<T>): T | undefined;
 export function expect<T>(object: T, options: ExpectOptions<T>): T | undefined {
 	if (object) return object;
 
@@ -122,10 +134,6 @@ export function expectClasses<T extends string>(name: string, classes: T[]) {
 export function expectSelectors<T extends string>(name: string, classes: T[]) {
 	return expect(getSelectors(...classes), {
 		name,
-		fallback: classes.reduce((obj, key) => {
-			obj[key] = null;
-			return obj;
-		}, {} as { [key in T]: string }),
 	});
 }
 
@@ -138,7 +146,7 @@ export function expectSelectors<T extends string>(name: string, classes: T[]) {
 export function expectIcon(name: string, searchString: string) {
 	return expect(getIcon(searchString), {
 		name,
-		fallback: (_props: IconProps) => null as unknown as JSX.Element,
+		fallback: (_props: IconProps) => null,
 	});
 }
 
