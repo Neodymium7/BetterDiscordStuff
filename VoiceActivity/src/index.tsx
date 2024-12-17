@@ -79,7 +79,7 @@ export default class VoiceActivity {
 		const patchType = (props, ret) => {
 			if (props.channel.type !== 1) return;
 
-			// Plugin compatibility fix
+			// Plugin compatibility fix (PlatformIndicators)
 			let target = ret;
 			if (typeof target.props.children != "function") target = ret.props.children;
 
@@ -104,12 +104,15 @@ export default class VoiceActivity {
 		let patchedType;
 
 		Patcher.after(PrivateChannel, "ZP", (_, __, containerRet) => {
+			// Compatibility fix (ChannelsPreview)
+			let target = containerRet.children || containerRet;
+
 			if (patchedType) {
-				containerRet.type = patchedType;
+				target.type = patchedType;
 				return containerRet;
 			}
 
-			const original = containerRet.type;
+			const original = target.type;
 
 			patchedType = (props) => {
 				const ret = original(props);
@@ -117,7 +120,7 @@ export default class VoiceActivity {
 				return ret;
 			};
 
-			containerRet.type = patchedType;
+			target.type = patchedType;
 		});
 	}
 
