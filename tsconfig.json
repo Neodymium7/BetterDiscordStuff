@@ -4,7 +4,6 @@
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"esModuleInterop": true,
-		"skipLibCheck": true,
 		"jsx": "react-jsx",
 		"paths": {
 			"@lib": ["./lib"],
