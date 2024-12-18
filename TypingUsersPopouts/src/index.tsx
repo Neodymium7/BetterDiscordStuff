@@ -1,19 +1,14 @@
-import { DOM, Patcher, Utils, Meta } from "betterdiscord";
+import { DOM, Patcher, Utils, Meta, Plugin, Changes } from "betterdiscord";
 import { showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
-import {
-	Common,
-	RelationshipStore,
-	UserPopout,
-	UserStore,
-	loadProfile,
-	typingSelector,
-	TypingUsersContainer,
-} from "./modules";
+import { typingSelector, TypingUsersContainer } from "./modules";
+import { RelationshipStore, UserStore } from "@discord/stores";
+import { Common, UserPopout } from "@discord/components";
+import { loadProfile } from "@discord/modules";
 
 const nameSelector = `${typingSelector} strong`;
 
-export default class TypingUsersPopouts {
+export default class TypingUsersPopouts implements Plugin {
 	meta: Meta;
 
 	constructor(meta: Meta) {
@@ -21,13 +16,15 @@ export default class TypingUsersPopouts {
 	}
 
 	start() {
-		showChangelog(changelog, this.meta);
+		showChangelog(changelog as Changes[], this.meta);
 		DOM.addStyle(`${nameSelector} { cursor: pointer; } ${nameSelector}:hover { text-decoration: underline; }`);
 		this.patch();
 	}
 
 	patch() {
-		const patchType = (props, ret) => {
+		if (!TypingUsersContainer) return;
+
+		const patchType = (props: any, ret: any) => {
 			const text = Utils.findInTree(ret, (e) => e.children?.length && e.children[0]?.type === "strong", {
 				walkable: ["props", "children"],
 			});
@@ -40,7 +37,7 @@ export default class TypingUsersPopouts {
 			const guildId = channel.guild_id;
 
 			let i = 0;
-			text.children = text.children.map((e) => {
+			text.children = text.children.map((e: React.ReactElement) => {
 				if (e.type !== "strong") return e;
 
 				const user = UserStore.getUser(typingUsersIds[i++]);
@@ -50,28 +47,29 @@ export default class TypingUsersPopouts {
 						align="left"
 						position="top"
 						key={user.id}
-						renderPopout={(props) => (
+						renderPopout={(props: any) => (
 							<UserPopout {...props} userId={user.id} guildId={guildId} channelId={channel.id} />
 						)}
 						preload={() =>
-							loadProfile(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId: channel.id })
+							loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId: channel.id })
 						}
 					>
-						{(props) => <strong {...props} {...e.props} />}
+						{(props: any) => <strong {...props} {...e.props} />}
 					</Common.Popout>
 				);
 			});
 		};
 
-		let patchedType;
+		let patchedType: ((props: any) => React.ReactNode) | undefined;
 
-		Patcher.after(TypingUsersContainer, "Z", (_, __, containerRet) => {
+		const [module, key] = TypingUsersContainer;
+		Patcher.after(module, key, (_, __, containerRet) => {
 			if (patchedType) {
 				containerRet.type = patchedType;
 				return containerRet;
 			}
 
-			const original = containerRet.type;
+			const original = containerRet.type as React.FunctionComponent<any>;
 
 			patchedType = (props) => {
 				const ret = original(props);

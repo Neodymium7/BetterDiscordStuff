@@ -4,6 +4,7 @@ module.exports = defineConfig((plugin, dev) => ({
 	input: `${plugin}/src`,
 	output: dev ? `${plugin}/dist` : `${plugin}`,
 	importAliases: {
-		"@lib/*": `lib/*`,
+		"@lib/*": `common/lib/*`,
+		"@discord/*": `common/discord/*`,
 	},
 }));

@@ -1,9 +1,9 @@
 import { Components } from "betterdiscord";
-import { Icons } from "../modules/discordmodules";
 import { Settings, Strings, isBot } from "../modules/utils";
 import { Component as Playstation } from "../assets/playstation.svg";
 import { Component as Xbox } from "../assets/xbox.svg";
 import { parseStringReact } from "@lib/utils/string";
+import { Activity, RichActivity } from "@discord/icons";
 
 interface ActivityIconProps {
 	activities: any[];
@@ -55,10 +55,10 @@ export default function ActivityIcon(props: ActivityIconProps) {
 		});
 	}
 
-	let icon = <Icons.Activity color="currentColor" size="13" width="13" height="13" />;
+	let icon = <Activity color="currentColor" size="13" width="13" height="13" />;
 	if (platformIcons && onPS) icon = <Playstation color="currentColor" size="13" width="13" height="13" />;
 	if (platformIcons && onXbox) icon = <Xbox color="currentColor" size="13" width="13" height="13" />;
-	if (richPresenceIcons && hasRP) icon = <Icons.RichActivity color="currentColor" size="16" width="16" height="16" />;
+	if (richPresenceIcons && hasRP) icon = <RichActivity color="currentColor" size="16" width="16" height="16" />;
 
 	return tooltip ? (
 		<Components.Tooltip text={tooltip} position="top">

@@ -1,4 +1,4 @@
-import { Common } from "../modules/discordmodules";
+import { Common } from "@discord/components";
 import { Settings, Strings } from "../modules/utils";
 
 export default function SettingsPanel() {

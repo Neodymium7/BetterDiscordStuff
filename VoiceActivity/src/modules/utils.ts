@@ -1,9 +1,15 @@
-import { Patcher, ReactUtils } from "betterdiscord";
+import { Logger, Patcher, ReactUtils } from "betterdiscord";
 import { SettingsManager, StringsManager } from "@lib";
-import { Stores, Permissions, useStateFromStores } from "./discordmodules";
+import { Permissions } from "./discordmodules";
 import locales from "../locales.json";
-
-const { UserStore, GuildChannelStore, VoiceStateStore, ChannelStore, PermissionStore } = Stores;
+import {
+	ChannelStore,
+	GuildChannelStore,
+	PermissionStore,
+	UserStore,
+	useStateFromStores,
+	VoiceStateStore,
+} from "@discord/stores";
 
 export const Settings = new SettingsManager({
 	showProfileSection: true,
@@ -14,8 +20,8 @@ export const Settings = new SettingsManager({
 	currentChannelColor: true,
 	showStatusIcons: true,
 	ignoreEnabled: false,
-	ignoredChannels: [],
-	ignoredGuilds: [],
+	ignoredChannels: [] as string[],
+	ignoredGuilds: [] as string[],
 });
 
 export const Strings = new StringsManager(locales, "en-US");
@@ -58,8 +64,10 @@ export function groupDMName(members: any[]): string {
 	return "Unnamed";
 }
 
-export function forceRerender(element: HTMLElement) {
+export function forceRerender(element: HTMLElement | null) {
+	if (!element) return Logger.error("Force rerender failed: target element not found");
 	const ownerInstance = ReactUtils.getOwnerInstance(element);
+	if (!ownerInstance) return Logger.error("Force rerender failed: ownerInstance component not found");
 	const cancel = Patcher.instead(ownerInstance, "render", () => {
 		cancel();
 		return null;

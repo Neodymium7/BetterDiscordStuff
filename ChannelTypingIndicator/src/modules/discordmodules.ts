@@ -1,36 +1,20 @@
 import { Webpack } from "betterdiscord";
-import { expectModule } from "@lib/utils/webpack";
+import { expectModule, expectWithKey } from "@lib/utils/webpack";
+import { AnyComponent, AnyMemo, EmptyComponent } from "@lib/utils/react";
 
-const {
-	Filters: { byStrings },
-} = Webpack;
-
-export const Channel: any = expectModule({
-	filter: byStrings("UNREAD_LESS_IMPORTANT"),
+export const Channel = expectWithKey<AnyComponent>({
+	filter: Webpack.Filters.byStrings("UNREAD_LESS_IMPORTANT"),
 	name: "TypingUsersContainer",
-	defaultExport: false,
 });
 
-export const Thread: any = expectModule({
-	filter: (m) => m?.type && byStrings("thread:", "GUILD_CHANNEL_LIST")(m.type),
+export const Thread = expectModule<AnyMemo>({
+	filter: (m) => m?.type && Webpack.Filters.byStrings("thread:", "GUILD_CHANNEL_LIST")(m.type),
 	name: "Thread",
 });
 
-export const TypingDots: any = expectModule({
+export const TypingDots = expectModule({
 	filter: (m) => m?.type?.render?.toString().includes("dotRadius"),
 	name: "TypingDots",
 	searchExports: true,
-	fatal: true,
+	fallback: EmptyComponent,
 });
-
-export const useStateFromStores: any = expectModule({
-	filter: byStrings("useStateFromStores"),
-	name: "Flux",
-	searchExports: true,
-	fatal: true,
-});
-
-export const UserStore = Webpack.getStore("UserStore");
-export const GuildMemberStore = Webpack.getStore("GuildMemberStore");
-export const RelationshipStore = Webpack.getStore("RelationshipStore");
-export const TypingStore = Webpack.getStore("TypingStore");

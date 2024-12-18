@@ -1,6 +1,6 @@
 import { Components } from "betterdiscord";
-import { Icons } from "../modules/discordmodules";
 import { isBot, Settings } from "../modules/utils";
+import { Screen } from "@discord/icons";
 
 interface WatchingIconProps {
 	activities: any[];
@@ -19,7 +19,7 @@ export default function WatchingIcon(props: WatchingIconProps) {
 		<Components.Tooltip text={<strong>{activity.name}</strong>}>
 			{(props) => (
 				<div {...props} className="activity-icon">
-					<Icons.Screen color="currentColor" size="13" width="13" height="13" />
+					<Screen color="currentColor" size="13" width="13" height="13" />
 				</div>
 			)}
 		</Components.Tooltip>

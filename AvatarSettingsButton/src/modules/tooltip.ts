@@ -4,12 +4,12 @@ export default class Tooltip {
 	private target: HTMLElement;
 	private tooltip: HTMLElement;
 	private layerContainer: HTMLElement;
-	private ref: HTMLElement;
+	private ref: HTMLElement | null = null;
 	private clearListeners: () => void;
 
 	constructor(target: HTMLElement, text: string) {
 		this.target = target;
-		this.layerContainer = document.querySelector(`${appSelector} ~ ${layerContainerSelector}`);
+		this.layerContainer = document.querySelector(`${appSelector} ~ ${layerContainerSelector}`)!;
 
 		const pointer = document.createElement("div");
 		pointer.className = tooltipClasses.tooltipPointer;
@@ -55,6 +55,7 @@ export default class Tooltip {
 
 	hide() {
 		const ref = this.ref;
+		if (!ref) return;
 		ref.style.opacity = "0";
 		ref.style.transform = "scale(0.95)";
 		setTimeout(() => ref?.remove(), 100);

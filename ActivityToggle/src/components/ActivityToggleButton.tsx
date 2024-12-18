@@ -1,6 +1,8 @@
 import { ContextMenu, UI } from "betterdiscord";
-import { Activity, PanelButton, Sections, Settings, UserSettingsWindow, playSound, ShowCurrentGame } from "../modules";
+import { PanelButton, playSound, ShowCurrentGame } from "../modules";
 import ActivityDisabledIcon from "./ActivityDisabledIcon";
+import { Activity, Settings } from "@discord/icons";
+import { SettingsSections, UserSettingsWindow } from "@discord/modules";
 
 export default function ActivityToggleButton() {
 	const activityEnabled = ShowCurrentGame.useSetting();
@@ -14,7 +16,7 @@ export default function ActivityToggleButton() {
 					return UI.alert("Error", "Could not update setting. See the console for more information.");
 				}
 				ShowCurrentGame.updateSetting(!activityEnabled);
-				playSound(activityEnabled ? "activity_user_left" : "activity_user_join", 0.4);
+				playSound?.(activityEnabled ? "activity_user_left" : "activity_user_join", 0.4);
 			}}
 			onContextMenu={(e: React.MouseEvent) => {
 				ContextMenu.open(
@@ -30,7 +32,7 @@ export default function ActivityToggleButton() {
 										"Could not open settings window. See the console for more information."
 									);
 								}
-								UserSettingsWindow.setSection(Sections.ACTIVITY_PRIVACY);
+								UserSettingsWindow.setSection(SettingsSections.ACTIVITY_PRIVACY);
 								UserSettingsWindow.open();
 							},
 						},
