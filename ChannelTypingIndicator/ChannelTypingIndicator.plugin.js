@@ -1,7 +1,7 @@
 /**
  * @name ChannelTypingIndicator
  * @author Neodymium
- * @version 1.0.2
+ * @version 1.0.3
  * @description Adds an indicator to server channels when users are typing.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ChannelTypingIndicator/ChannelTypingIndicator.plugin.js
  * @invite fRbsqH87Av
@@ -44,9 +44,7 @@ function getClasses(...classes) {
 function expect(object, options) {
 	if (object) return object;
 	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
-	const errorMessage = `Module ${options.name} not found.${fallbackMessage}
-
-Contact the plugin developer to inform them of this error.`;
+	const errorMessage = `Module ${options.name} not found.${fallbackMessage}\n\nContact the plugin developer to inform them of this error.`;
 	betterdiscord.Logger.error(errorMessage);
 	options.onError?.();
 	if (options.fatal) throw new Error(errorMessage);
@@ -55,36 +53,35 @@ Contact the plugin developer to inform them of this error.`;
 function expectModule(options) {
 	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
 }
+function expectWithKey(options) {
+	const [module, key] = betterdiscord.Webpack.getWithKey(options.filter, options);
+	if (module) return [module, key];
+	const fallback = expect(module, options);
+	if (fallback) {
+		const key2 = "__key";
+		return [{ [key2]: fallback }, key2];
+	}
+	return void 0;
+}
+
+// @lib/utils/react.tsx
+const EmptyComponent = (props) => null;
 
 // modules/discordmodules.ts
-const {
-	Filters: { byStrings }
-} = betterdiscord.Webpack;
-const Channel = expectModule({
-	filter: byStrings("UNREAD_LESS_IMPORTANT"),
-	name: "TypingUsersContainer",
-	defaultExport: false
+const Channel = expectWithKey({
+	filter: betterdiscord.Webpack.Filters.byStrings("UNREAD_LESS_IMPORTANT"),
+	name: "TypingUsersContainer"
 });
 const Thread = expectModule({
-	filter: (m) => m?.type && byStrings("thread:", "GUILD_CHANNEL_LIST")(m.type),
+	filter: (m) => m?.type && betterdiscord.Webpack.Filters.byStrings("thread:", "GUILD_CHANNEL_LIST")(m.type),
 	name: "Thread"
 });
 const TypingDots = expectModule({
 	filter: (m) => m?.type?.render?.toString().includes("dotRadius"),
 	name: "TypingDots",
 	searchExports: true,
-	fatal: true
+	fallback: EmptyComponent
 });
-const useStateFromStores = expectModule({
-	filter: byStrings("useStateFromStores"),
-	name: "Flux",
-	searchExports: true,
-	fatal: true
-});
-const UserStore = betterdiscord.Webpack.getStore("UserStore");
-const GuildMemberStore = betterdiscord.Webpack.getStore("GuildMemberStore");
-const RelationshipStore = betterdiscord.Webpack.getStore("RelationshipStore");
-const TypingStore = betterdiscord.Webpack.getStore("TypingStore");
 
 // @lib/strings.ts
 const LocaleStore = betterdiscord.Webpack.getStore("LocaleStore");
@@ -92,12 +89,6 @@ class StringsManager {
 	locales;
 	defaultLocale;
 	strings;
-	/**
-	 * Creates a `StringsManager` object with the given locales object.
-	 * @param locales An object containing the strings for each locale.
-	 * @param defaultLocale The code of the locale to use as a fallback when strings for Discord's selected locale are not defined.
-	 * @returns A `StringsManager` object.
-	 */
 	constructor(locales, defaultLocale) {
 		this.locales = locales;
 		this.defaultLocale = defaultLocale;
@@ -106,24 +97,13 @@ class StringsManager {
 	setLocale = () => {
 		this.strings = this.locales[LocaleStore.locale] || this.locales[this.defaultLocale];
 	};
-	/**
-	 * Subscribes to Discord's locale changes. Should be run on plugin start.
-	 */
 	subscribe() {
 		this.setLocale();
 		LocaleStore.addReactChangeListener(this.setLocale);
 	}
-	/**
-	 * Unsubscribes from Discord's locale changes. Should be run on plugin stop.
-	 */
 	unsubscribe() {
 		LocaleStore.removeReactChangeListener(this.setLocale);
 	}
-	/**
-	 * Gets the string for the corresponding key in Discord's currently selected locale.
-	 * @param key The string key.
-	 * @returns A localized string.
-	 */
 	get(key) {
 		return this.strings[key] || this.locales[this.defaultLocale][key];
 	}
@@ -139,12 +119,27 @@ const locales = {
 }
 };
 
+// @discord/stores.ts
+const UserStore = betterdiscord.Webpack.getStore("UserStore");
+const GuildMemberStore = betterdiscord.Webpack.getStore("GuildMemberStore");
+const RelationshipStore = betterdiscord.Webpack.getStore("RelationshipStore");
+const TypingStore = betterdiscord.Webpack.getStore("TypingStore");
+const useStateFromStores = expectModule({
+	filter: betterdiscord.Webpack.Filters.byStrings("useStateFromStores"),
+	name: "Flux",
+	fallback(stores, callback) {
+		return callback();
+	},
+	searchExports: true
+});
+
 // modules/utils.ts
 const Strings = new StringsManager(locales, "en-US");
 const getDisplayName = (userId, guildId) => {
 	const { nick } = GuildMemberStore.getMember(guildId, userId);
 	if (nick) return nick;
-	return UserStore.getUser(userId).globalName;
+	const user = UserStore.getUser(userId);
+	return user.globalName || user.username;
 };
 
 // @lib/utils/string.ts
@@ -215,6 +210,7 @@ const showUpdateNotice = (name, version, newContents) => {
 	});
 };
 const Updater = {
+	closeUpdateNotice: void 0,
 	async checkForUpdates(meta) {
 		const url = `https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/${meta.name}/${meta.name}.plugin.js`;
 		const res = await betterdiscord.Net.fetch(url);
@@ -246,7 +242,9 @@ class ChannelTypingIndicator {
 		this.patchThread();
 	}
 	patchChannel() {
-		betterdiscord.Patcher.after(Channel, "Z", (_, [props], ret) => {
+		if (!Channel) return;
+		const [module, key] = Channel;
+		betterdiscord.Patcher.after(module, key, (_, [props], ret) => {
 			const target = betterdiscord.Utils.findInTree(ret, (x) => x?.className?.includes("linkTop"), {
 				walkable: ["props", "children"]
 			});
@@ -254,6 +252,7 @@ class ChannelTypingIndicator {
 		});
 	}
 	patchThread() {
+		if (!Thread) return;
 		betterdiscord.Patcher.after(Thread, "type", (_, [props], ret) => {
 			const target = betterdiscord.Utils.findInTree(ret, (x) => x?.className?.includes("linkTop"), {
 				walkable: ["props", "children"]
