@@ -32,7 +32,7 @@ export default function ListeningIcon(props: ListeningIconProps) {
 			}
 			position="top"
 		>
-			{(props) => (
+			{(props: any) => (
 				<div {...props} className="activity-icon">
 					<Headset color="currentColor" size="13" width="13" height="13" />
 				</div>

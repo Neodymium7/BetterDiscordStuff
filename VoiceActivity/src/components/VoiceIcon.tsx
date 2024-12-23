@@ -107,7 +107,7 @@ export default function VoiceIcon(props: VoiceIconProps): React.ReactNode {
 					</div>
 				}
 			>
-				{(props) => (
+				{(props: any) => (
 					<div {...props}>
 						{!voiceState.selfStream ? (
 							<Icon size="14" width="14" height="14" color="currentColor" />

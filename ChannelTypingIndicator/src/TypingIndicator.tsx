@@ -45,7 +45,7 @@ export function TypingIndicator({ channelId, guildId }: TypingIndicatorProps) {
 
 	return (
 		<Components.Tooltip text={tooltip} position="top">
-			{(props) => (
+			{(props: any) => (
 				<div {...props} className="channelTypingIndicator">
 					<TypingDots dotRadius={3.5} themed />
 				</div>
