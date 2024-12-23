@@ -1,14 +1,20 @@
-import { Meta, Net, Logger, UI, Plugins, DOM } from "betterdiscord";
+import { Meta, Net, Logger, UI, Plugins, DOM, CloseNotice } from "betterdiscord";
 import { writeFileSync } from "fs";
 import { join } from "path";
 import { getClasses } from "./utils/webpack";
 
+interface Updater {
+	closeUpdateNotice: CloseNotice | undefined;
+	checkForUpdates(meta: Meta): void;
+	closeNotice(): void;
+}
+
 const hoverClass = getClasses("anchorUnderlineOnHover")?.anchorUnderlineOnHover || "";
 
-const findVersion = (pluginContents: string) => {
+const findVersion = (pluginContents: string): string => {
 	const lines = pluginContents.split("\n");
-	const versionLine = lines.find((line) => line.includes("@version"));
-	return versionLine.split(/\s+/).pop();
+	const versionLine = lines.find((line) => line.includes("@version"))!;
+	return versionLine.split(/\s+/).pop()!;
 };
 
 const updatePlugin = (name: string, newContents: string) => {
@@ -31,7 +37,9 @@ const showUpdateNotice = (name: string, version: string, newContents: string) =>
 	});
 };
 
-export const Updater = {
+export const Updater: Updater = {
+	closeUpdateNotice: undefined,
+
 	async checkForUpdates(meta: Meta) {
 		const url = `https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/${meta.name}/${meta.name}.plugin.js`;
 

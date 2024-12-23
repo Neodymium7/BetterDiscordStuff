@@ -1,6 +1,6 @@
 import { SettingsKey } from "@lib";
-import { Common } from "../modules/discordmodules";
 import { Settings, Strings } from "../modules/utils";
+import { Common } from "@discord/components";
 
 type SwitchSetting = SettingsKey<typeof Settings, boolean>;
 
@@ -52,7 +52,7 @@ const settings: SettingsInfo = {
 	},
 };
 
-const SettingsSwitchItem = (props: SwitchItemProps) => {
+const SettingsSwitchItem: React.FunctionComponent<SwitchItemProps> = (props) => {
 	const value = Settings.useSettingsState(props.setting)[props.setting];
 
 	return (
@@ -70,7 +70,7 @@ const SettingsSwitchItem = (props: SwitchItemProps) => {
 export default function SettingsPanel() {
 	return (
 		<>
-			{Object.keys(settings).map((key: SwitchSetting) => {
+			{(Object.keys(settings) as SwitchSetting[]).map((key) => {
 				const { name, note } = settings[key];
 				return <SettingsSwitchItem setting={key} name={name} note={note} />;
 			})}

@@ -1,13 +1,11 @@
-import { ContextMenu, DOM, Patcher, Utils, Meta } from "betterdiscord";
+import { ContextMenu, DOM, Patcher, Utils, Meta, Plugin, Changes } from "betterdiscord";
 import styles from "styles";
 import { showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
 import {
 	MemberListItem,
-	Stores,
 	children,
 	iconWrapperSelector,
-	useStateFromStores,
 	UserPanelBody,
 	UserPopoutBody,
 	PrivateChannel,
@@ -19,10 +17,11 @@ import iconStyles from "./styles/voiceicon.module.scss";
 import VoiceIcon from "./components/VoiceIcon";
 import VoiceProfileSection from "./components/VoiceProfileSection";
 import SettingsPanel from "./components/SettingsPanel";
+import { useStateFromStores, VoiceStateStore } from "@discord/stores";
 
 const guildIconSelector = `div:not([data-dnd-name]) + ${iconWrapperSelector}`;
 
-export default class VoiceActivity {
+export default class VoiceActivity implements Plugin {
 	meta: Meta;
 	contextMenuUnpatches = new Set<() => void>();
 
@@ -31,7 +30,7 @@ export default class VoiceActivity {
 	}
 
 	start() {
-		showChangelog(changelog, this.meta);
+		showChangelog(changelog as Changes[], this.meta);
 		DOM.addStyle(styles() + `${children}:empty { margin-left: 0; } ${children} { display: flex; gap: 8px; }`);
 		Strings.subscribe();
 		this.patchPeopleListItem();
@@ -45,23 +44,29 @@ export default class VoiceActivity {
 	}
 
 	patchUserPanel() {
-		Patcher.after(UserPanelBody, "Z", (_, [props]: [any], ret) => {
+		if (!UserPanelBody) return;
+		const [module, key] = UserPanelBody;
+		Patcher.after(module, key, (_, [props], ret) => {
 			ret.props.children.splice(1, 0, <VoiceProfileSection userId={props.user.id} panel />);
 		});
 	}
 
 	patchUserPopout() {
-		Patcher.after(UserPopoutBody, "Z", (_, [props]: [any], ret) => {
+		if (!UserPopoutBody) return;
+		const [module, key] = UserPopoutBody;
+		Patcher.after(module, key, (_, [props], ret) => {
 			ret.props.children.splice(5, 0, <VoiceProfileSection userId={props.user.id} />);
 		});
 	}
 
 	patchMemberListItem() {
-		Patcher.after(MemberListItem, "Z", (_, [props]: [any], ret) => {
+		if (!MemberListItem) return;
+		const [module, key] = MemberListItem;
+		Patcher.after(module, key, (_, [props], ret) => {
 			if (!props.user) return ret;
 			const children = ret.props.children;
 
-			ret.props.children = (childrenProps) => {
+			ret.props.children = (childrenProps: any) => {
 				const childrenRet = children(childrenProps);
 
 				const icon = <VoiceIcon userId={props.user.id} context="memberlist" />;
@@ -76,7 +81,8 @@ export default class VoiceActivity {
 	}
 
 	patchPrivateChannel() {
-		const patchType = (props, ret) => {
+		if (!PrivateChannel) return;
+		const patchType = (props: any, ret: any) => {
 			if (props.channel.type !== 1) return;
 
 			// Plugin compatibility fix (PlatformIndicators)
@@ -84,7 +90,7 @@ export default class VoiceActivity {
 			if (typeof target.props.children != "function") target = ret.props.children;
 
 			const children = target.props.children;
-			target.props.children = (childrenProps) => {
+			target.props.children = (childrenProps: any) => {
 				const childrenRet = children(childrenProps);
 
 				const privateChannel = Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
@@ -101,18 +107,19 @@ export default class VoiceActivity {
 			};
 		};
 
-		let patchedType;
+		let patchedType: ((props: any) => React.ReactNode) | undefined;
 
-		Patcher.after(PrivateChannel, "ZP", (_, __, containerRet) => {
+		const [module, key] = PrivateChannel;
+		Patcher.after(module, key, (_, __, containerRet) => {
 			// Compatibility fix (ChannelsPreview)
-			let target = containerRet.children || containerRet;
+			let target: React.ReactElement = (containerRet as any).children || containerRet;
 
 			if (patchedType) {
 				target.type = patchedType;
 				return containerRet;
 			}
 
-			const original = target.type;
+			const original = target.type as React.FunctionComponent<any>;
 
 			patchedType = (props) => {
 				const ret = original(props);
@@ -125,6 +132,7 @@ export default class VoiceActivity {
 	}
 
 	patchPeopleListItem() {
+		if (!PeopleListItem) return;
 		Patcher.after(PeopleListItem.prototype, "render", (that: any, _, ret) => {
 			if (!that.props.user) return;
 
@@ -147,7 +155,9 @@ export default class VoiceActivity {
 	}
 
 	patchGuildIcon() {
-		Patcher.before(GuildIcon, "type", (_, [props]: [any]) => {
+		if (!GuildIcon) return;
+
+		Patcher.before(GuildIcon, "type", (_, [props]) => {
 			if (!props?.guild) return;
 
 			const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState(
@@ -155,7 +165,7 @@ export default class VoiceActivity {
 				"ignoredGuilds",
 				"ignoredChannels"
 			);
-			const mediaState = useStateFromStores([Stores.VoiceStateStore], () =>
+			const mediaState = useStateFromStores([VoiceStateStore], () =>
 				getGuildMediaState(props.guild.id, ignoredChannels)
 			);
 

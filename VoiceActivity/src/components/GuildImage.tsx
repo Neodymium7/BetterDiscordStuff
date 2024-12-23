@@ -1,6 +1,7 @@
-import { GuildActions, getAcronym, transitionTo } from "../modules/discordmodules";
+import { getAcronym } from "../modules/discordmodules";
 import styles from "../styles/guildimage.module.scss";
 import defaultGroupIcon from "../assets/default_group_icon.png";
+import { GuildActions, transitionTo } from "@discord/modules";
 
 interface GuildImageProps {
 	guild: any;
@@ -17,7 +18,7 @@ const getIconFontSize = (name: string) => {
 };
 
 const getImageLink = (guild: any, channel: any) => {
-	let image: string;
+	let image = "";
 	if (guild && guild.icon) {
 		image = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=96`;
 	} else if (channel.icon) {
@@ -33,7 +34,7 @@ export default function GuildImage(props: GuildImageProps) {
 
 	const onClick = () => {
 		if (props.guild) GuildActions?.transitionToGuildSync(props.guild.id);
-		else if (props.channelPath) transitionTo(props.channelPath);
+		else if (props.channelPath) transitionTo?.(props.channelPath);
 	};
 
 	if (image) {

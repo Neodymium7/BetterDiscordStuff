@@ -12,7 +12,7 @@ export const Settings = new SettingsManager({
 
 export const Strings = new StringsManager(locales, "en-US");
 
-export function forceUpdateAll(selector: string, propsFilter = (_) => true) {
+export function forceUpdateAll(selector: string, propsFilter = (_: any) => true) {
 	const elements: NodeListOf<HTMLElement> = document.querySelectorAll(selector);
 	for (const element of elements) {
 		const instance = ReactUtils.getInternalInstance(element);

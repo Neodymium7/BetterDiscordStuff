@@ -1,15 +1,16 @@
+import { ChannelStore, GuildStore, UserStore } from "@discord/stores";
 import { Settings, Strings, groupDMName, canViewChannel, useUserVoiceState } from "../modules/utils";
-import { Common, Icons, Stores, transitionTo } from "../modules/discordmodules";
 import styles from "../styles/voiceicon.module.scss";
+import { CallJoin, Deafened, Muted, People, Speaker, Stage, Video } from "@discord/icons";
+import { Components } from "betterdiscord";
+import { transitionTo } from "@discord/modules";
 
 interface VoiceIconProps {
 	userId: string;
 	context: string;
 }
 
-const { ChannelStore, GuildStore, UserStore } = Stores;
-
-export default function VoiceIcon(props: VoiceIconProps) {
+export default function VoiceIcon(props: VoiceIconProps): React.ReactNode {
 	const settingsState = Settings.useSettingsState(
 		"showMemberListIcons",
 		"showDMListIcons",
@@ -50,12 +51,12 @@ export default function VoiceIcon(props: VoiceIconProps) {
 	if (guild) {
 		text = guild.name;
 		subtext = channel.name;
-		TooltipIcon = Icons.Speaker;
+		TooltipIcon = Speaker;
 		channelPath = `/channels/${guild.id}/${channel.id}`;
 	} else {
 		text = channel.name;
 		subtext = Strings.get("VOICE_CALL");
-		TooltipIcon = Icons.CallJoin;
+		TooltipIcon = CallJoin;
 		channelPath = `/channels/@me/${channel.id}`;
 	}
 
@@ -67,16 +68,16 @@ export default function VoiceIcon(props: VoiceIconProps) {
 		case 3:
 			text = channel.name || groupDMName(channel.recipients);
 			subtext = Strings.get("GROUP_CALL");
-			TooltipIcon = Icons.People;
+			TooltipIcon = People;
 			break;
 		case 13:
-			TooltipIcon = Icons.Stage;
+			TooltipIcon = Stage;
 	}
 
-	let Icon = Icons.Speaker;
-	if (settingsState.showStatusIcons && (voiceState.selfDeaf || voiceState.deaf)) Icon = Icons.Deafened;
-	else if (settingsState.showStatusIcons && (voiceState.selfMute || voiceState.mute)) Icon = Icons.Muted;
-	else if (settingsState.showStatusIcons && voiceState.selfVideo) Icon = Icons.Video;
+	let Icon = Speaker;
+	if (settingsState.showStatusIcons && (voiceState.selfDeaf || voiceState.deaf)) Icon = Deafened;
+	else if (settingsState.showStatusIcons && (voiceState.selfMute || voiceState.mute)) Icon = Muted;
+	else if (settingsState.showStatusIcons && voiceState.selfVideo) Icon = Video;
 
 	return (
 		<div
@@ -84,10 +85,10 @@ export default function VoiceIcon(props: VoiceIconProps) {
 			onClick={(e) => {
 				e.stopPropagation();
 				e.preventDefault();
-				if (channelPath) transitionTo(channelPath);
+				if (channelPath) transitionTo?.(channelPath);
 			}}
 		>
-			<Common.Tooltip
+			<Components.Tooltip
 				text={
 					<div className={styles.tooltip}>
 						<div className={styles.header} style={{ fontWeight: "600" }}>
@@ -115,7 +116,7 @@ export default function VoiceIcon(props: VoiceIconProps) {
 						)}
 					</div>
 				)}
-			</Common.Tooltip>
+			</Components.Tooltip>
 		</div>
 	);
 }

@@ -13,9 +13,17 @@ type LocalesObject = {
 	[code in LocaleCode]?: Record<string, string>;
 };
 
-const LocaleStore = /* @__PURE__ */ Webpack.getStore("LocaleStore");
+type ChangeListener = () => void;
 
-export class StringsManager<T extends LocalesObject, D extends keyof T> {
+interface LocaleStore {
+	locale: LocaleCode;
+	addReactChangeListener: (l: ChangeListener) => void;
+	removeReactChangeListener: (l: ChangeListener) => void;
+}
+
+const LocaleStore: LocaleStore = /* @__PURE__ */ Webpack.getStore("LocaleStore");
+
+export class StringsManager<T extends LocalesObject, D extends keyof T, S = T[D]> {
 	private locales: T;
 	private defaultLocale: D;
 	private strings: T[D];
@@ -33,7 +41,7 @@ export class StringsManager<T extends LocalesObject, D extends keyof T> {
 	}
 
 	private setLocale = () => {
-		this.strings = this.locales[LocaleStore.locale] || this.locales[this.defaultLocale];
+		this.strings = (this.locales[LocaleStore.locale] as T[D]) || this.locales[this.defaultLocale];
 	};
 
 	/**

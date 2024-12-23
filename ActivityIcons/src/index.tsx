@@ -1,4 +1,4 @@
-import { DOM, Patcher, Meta } from "betterdiscord";
+import { DOM, Patcher, Meta, Plugin, Changes } from "betterdiscord";
 import { showChangelog } from "@lib";
 import {
 	ActivityStatus,
@@ -14,7 +14,7 @@ import ListeningIcon from "./components/ListeningIcon";
 import SettingsPanel from "./components/SettingsPanel";
 import WatchingIcon from "./components/WatchingIcon";
 
-export default class ActivityIcons {
+export default class ActivityIcons implements Plugin {
 	meta: Meta;
 
 	constructor(meta: Meta) {
@@ -22,17 +22,19 @@ export default class ActivityIcons {
 	}
 
 	start() {
-		showChangelog(changelog, this.meta);
+		showChangelog(changelog as Changes[], this.meta);
 		DOM.addStyle(styles);
 		Strings.subscribe();
 		this.patchActivityStatus();
 	}
 
 	patchActivityStatus() {
-		Patcher.after(ActivityStatus, "ZP", (_, [props]: [any], ret) => {
+		if (!ActivityStatus) return;
+		const [module, key] = ActivityStatus;
+		Patcher.after(module, key, (_, [props], ret) => {
 			if (!ret) return;
 
-			const defaultIconIndex = ret.props.children.findIndex((element) =>
+			const defaultIconIndex = ret.props.children.findIndex((element: any) =>
 				element?.props?.className?.startsWith("icon")
 			);
 
@@ -46,18 +48,20 @@ export default class ActivityIcons {
 				<ListeningIcon activities={props.activities} />
 			);
 		});
-		forceUpdateAll(memberSelector, (i) => i.user);
-		forceUpdateAll(peopleListItemSelector, (i) => i.user);
-		forceUpdateAll(privateChannelSelector);
+		this.forceUpdateComponents();
+	}
+
+	forceUpdateComponents() {
+		if (memberSelector) forceUpdateAll(memberSelector, (i) => i.user);
+		if (peopleListItemSelector) forceUpdateAll(peopleListItemSelector, (i) => i.user);
+		if (privateChannelSelector) forceUpdateAll(privateChannelSelector);
 	}
 
 	stop() {
 		Patcher.unpatchAll();
 		DOM.removeStyle();
 		Strings.unsubscribe();
-		forceUpdateAll(memberSelector, (i) => i.user);
-		forceUpdateAll(peopleListItemSelector, (i) => i.user);
-		forceUpdateAll(privateChannelSelector);
+		this.forceUpdateComponents();
 	}
 
 	getSettingsPanel() {

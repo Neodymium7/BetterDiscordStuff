@@ -1,39 +1,51 @@
-import { Patcher, Webpack, Logger, Meta } from "betterdiscord";
-import { Popout, loadProfile, UserPopout, UserStore } from "./modules";
+import { Patcher, Webpack, Logger, Meta, Plugin } from "betterdiscord";
 import { Updater } from "@lib/updater";
+import { AnyComponent } from "@lib/utils/react";
+import { UserStore } from "@discord/stores";
+import { Common, UserPopout } from "@discord/components";
+import { loadProfile } from "@discord/modules";
 
 const {
 	getWithKey,
 	Filters: { byStrings },
 } = Webpack;
 
-const [Module, key] = getWithKey(byStrings(".hidePersonalInformation", "#", "<@", ".discriminator"));
+const [Module, key] = getWithKey<AnyComponent>(byStrings(".hidePersonalInformation", "#", "<@", ".discriminator"));
 if (!Module) Logger.error("Text area mention module not found.");
 
 const onClick = (e: React.MouseEvent) => {
 	e.preventDefault();
 };
 
-function PopoutWrapper({ id, guildId, channelId, children }) {
+interface PopoutWrapperProps {
+	id: string;
+	guildId: string;
+	channelId: string;
+	children: React.ReactElement;
+}
+
+function PopoutWrapper({ id, guildId, channelId, children }: PopoutWrapperProps) {
 	// Disable default click action
 	children.props.onClick = onClick;
 
 	const user = UserStore.getUser(id);
 
 	return (
-		<Popout
+		<Common.Popout
 			align="left"
 			position="top"
 			key={user.id}
-			renderPopout={(props) => <UserPopout {...props} userId={user.id} guildId={guildId} channelId={channelId} />}
-			preload={() => loadProfile(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId })}
+			renderPopout={(props: any) => (
+				<UserPopout {...props} userId={user.id} guildId={guildId} channelId={channelId} />
+			)}
+			preload={() => loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId })}
 		>
-			{(props) => <span {...props}>{children}</span>}
-		</Popout>
+			{(props: any) => <span {...props}>{children}</span>}
+		</Common.Popout>
 	);
 }
 
-export default class ClickableTextMentions {
+export default class ClickableTextMentions implements Plugin {
 	meta: Meta;
 
 	constructor(meta: Meta) {
@@ -51,7 +63,7 @@ export default class ClickableTextMentions {
 		Patcher.after(Module, key, (_, [props]: [any], ret) => {
 			const original = ret.props.children;
 
-			ret.props.children = (childrenProps) => {
+			ret.props.children = (childrenProps: any) => {
 				const mention = original(childrenProps).props.children;
 				return <PopoutWrapper {...props}>{mention}</PopoutWrapper>;
 			};

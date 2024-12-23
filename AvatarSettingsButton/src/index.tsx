@@ -1,26 +1,27 @@
-import { DOM, Meta } from "betterdiscord";
+import { Changes, DOM, Meta, Plugin } from "betterdiscord";
 import { showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
-import { Sections, UserSettingsWindow, accountClasses } from "./modules/discordmodules";
+import { accountClasses } from "./modules/discordmodules";
 import { Settings, Strings } from "./modules/utils";
 import Tooltip from "./modules/tooltip";
 import SettingsPanel from "./components/SettingsPanel";
+import { UserSettingsWindow, SettingsSections } from "@discord/modules";
 
 const settingsSelector = `.${accountClasses.container} button:nth-last-child(1)`;
 
-export default class AvatarSettingsButton {
+export default class AvatarSettingsButton implements Plugin {
 	meta: Meta;
-	target: Element = null;
-	tooltip: Tooltip = null;
-	clearListeners: () => void;
-	lastContextMenuTimestamp: number;
+	target: HTMLElement | null = null;
+	tooltip: Tooltip | null = null;
+	clearListeners?: () => void;
+	lastContextMenuTimestamp?: number;
 
 	constructor(meta: Meta) {
 		this.meta = meta;
 	}
 
 	start() {
-		showChangelog(changelog, this.meta);
+		showChangelog(changelog as Changes[], this.meta);
 		DOM.addStyle(`${settingsSelector} { display: none; } .${accountClasses.avatarWrapper} { width: 100%; }`);
 		Strings.subscribe();
 		Settings.addListener(() => {
@@ -33,12 +34,13 @@ export default class AvatarSettingsButton {
 		this.addTooltip();
 	}
 
-	observer({ addedNodes }) {
+	observer({ addedNodes }: MutationRecord) {
 		for (const node of addedNodes) {
 			if (node.nodeType === Node.TEXT_NODE) continue;
+			if (!(node instanceof HTMLElement)) continue;
 
 			const avatarWrapper = node.querySelector(`.${accountClasses.avatarWrapper}`);
-			if (avatarWrapper) {
+			if (avatarWrapper instanceof HTMLElement) {
 				this.target = avatarWrapper;
 				this.addListeners();
 				this.addTooltip();
@@ -47,7 +49,7 @@ export default class AvatarSettingsButton {
 	}
 
 	openPopout() {
-		this.target.dispatchEvent(
+		this.target?.dispatchEvent(
 			new MouseEvent("click", {
 				bubbles: true,
 			})
@@ -55,14 +57,14 @@ export default class AvatarSettingsButton {
 	}
 
 	openSettings() {
-		UserSettingsWindow.setSection(Sections.ACCOUNT);
+		UserSettingsWindow?.setSection(SettingsSections.ACCOUNT);
 		if (document.querySelector(`.${accountClasses.accountProfilePopoutWrapper}`)) this.openPopout();
-		UserSettingsWindow.open();
+		UserSettingsWindow?.open();
 	}
 
 	openContextMenu(e: MouseEvent) {
 		if (document.querySelector(`.${accountClasses.accountProfilePopoutWrapper}`)) this.openPopout();
-		document.querySelector(settingsSelector).dispatchEvent(
+		document.querySelector(settingsSelector)?.dispatchEvent(
 			new MouseEvent("contextmenu", {
 				bubbles: true,
 				clientX: e.clientX,
@@ -87,7 +89,7 @@ export default class AvatarSettingsButton {
 			if (e.isTrusted) {
 				e.preventDefault();
 				e.stopPropagation();
-				clickAction(e);
+				clickAction?.(e);
 				this.tooltip?.forceHide();
 			}
 		};
@@ -100,14 +102,14 @@ export default class AvatarSettingsButton {
 			}
 			this.lastContextMenuTimestamp = e.timeStamp;
 
-			contextmenuAction(e);
+			contextmenuAction?.(e);
 			this.tooltip?.forceHide();
 		};
 
 		const middleclickAction = actions[Settings.get("middleclick")];
 		const middleclick = (e: MouseEvent) => {
 			if (e.button === 1) {
-				middleclickAction(e);
+				middleclickAction?.(e);
 				this.tooltip?.forceHide();
 			}
 		};
@@ -117,9 +119,9 @@ export default class AvatarSettingsButton {
 		this.target.addEventListener("mousedown", middleclick);
 
 		this.clearListeners = () => {
-			this.target.removeEventListener("click", click);
-			this.target.removeEventListener("contextmenu", contextmenu);
-			this.target.removeEventListener("mousedown", middleclick);
+			this.target?.removeEventListener("click", click);
+			this.target?.removeEventListener("contextmenu", contextmenu);
+			this.target?.removeEventListener("mousedown", middleclick);
 		};
 	}
 

@@ -1,4 +1,5 @@
-import { Webpack, Logger, SearchOptions, ModuleFilter } from "betterdiscord";
+import { Webpack, Logger, ModuleFilter, ModuleQuery, ModuleKey, WithKeyResult } from "betterdiscord";
+import React from "react";
 
 interface IconProps {
 	width?: string;
@@ -8,34 +9,7 @@ interface IconProps {
 	color?: string;
 }
 
-type Icon = (props: IconProps) => JSX.Element;
-
-/**
- * Options for the `expect` function.
- * - `name`: The name of the module (for error logging)
- * - `fatal`: Whether or not to stop plugin execution when the module is not found
- * - `fallback`: A fallback value to use when the module is not found
- * - `onError`: A callback function that is run when the module is not found
- */
-type ExpectOptions<T> = {
-	name: string;
-	fatal?: boolean;
-	fallback?: T;
-	onError?: () => void;
-};
-
-/**
- * Options for the `expectModule` function. Takes all options for a normal `getModule` query as well as:
- * - `filter`: A function to use to filter modules.
- * - `name`: The name of the module (for error logging)
- * - `fatal`: Whether or not to stop plugin execution when the module is not found
- * - `fallback`: A fallback value to use when the module is not found
- * - `onError`: A callback function that is run when the module is not found
- */
-type ExpectOptionsWithFilter<T> = ExpectOptions<T> &
-	SearchOptions<boolean> & {
-		filter: ModuleFilter;
-	};
+type Icon = React.FunctionComponent<IconProps>;
 
 /**
  * Gets a module of classes using desired classes.
@@ -75,6 +49,48 @@ export function getIcon(searchString: string): Icon | undefined {
 	});
 }
 
+/**
+ * Options for the `expect` function.
+ * - `name`: The name of the module (for error logging)
+ * - `fatal`: Whether or not to stop plugin execution when the module is not found
+ * - `fallback`: A fallback value to use when the module is not found
+ * - `onError`: A callback function that is run when the module is not found
+ */
+type ExpectOptions<T> = {
+	name: string;
+	fatal?: boolean;
+	fallback?: NonNullable<T>;
+	onError?: () => void;
+};
+
+type ExpectOptionsFallback<T> = ExpectOptions<T> & {
+	fallback: NonNullable<T>;
+};
+type ExpectOptionsFatal<T> = ExpectOptions<T> & {
+	fatal: true;
+};
+type ExpectOptionsNotNull<T> = ExpectOptionsFallback<T> | ExpectOptionsFatal<T>;
+
+/**
+ * Options for the `expectModule` function. Takes all options for a normal `getModule` query as well as:
+ * - `filter`: A function to use to filter modules.
+ * - `name`: The name of the module (for error logging)
+ * - `fatal`: Whether or not to stop plugin execution when the module is not found
+ * - `fallback`: A fallback value to use when the module is not found
+ * - `onError`: A callback function that is run when the module is not found
+ */
+type ExpectModuleOptions<T> = ExpectOptions<T> & ModuleQuery;
+
+type ExpectModuleOptionsFallback<T> = ExpectModuleOptions<T> & {
+	fallback: NonNullable<T>;
+};
+type ExpectModuleOptionsFatal<T> = ExpectModuleOptions<T> & {
+	fatal: true;
+};
+type ExpectModuleOptionsNotNull<T> = ExpectModuleOptionsFallback<T> | ExpectModuleOptionsFatal<T>;
+
+export function expect<T>(object: T, options: ExpectOptionsNotNull<T>): NonNullable<T>;
+export function expect<T>(object: T, options: ExpectOptions<T>): T | undefined;
 export function expect<T>(object: T, options: ExpectOptions<T>): T | undefined {
 	if (object) return object;
 
@@ -85,7 +101,7 @@ export function expect<T>(object: T, options: ExpectOptions<T>): T | undefined {
 	options.onError?.();
 	if (options.fatal) throw new Error(errorMessage);
 
-	return options.fallback!;
+	return options.fallback;
 }
 
 /**
@@ -93,8 +109,25 @@ export function expect<T>(object: T, options: ExpectOptions<T>): T | undefined {
  * @param options Options for the module search and error handling, including a filter.
  * @returns The found module or the fallback if the module cannot be found.
  */
-export function expectModule<T>(options: ExpectOptionsWithFilter<T>) {
-	return expect<T>(Webpack.getModule(options.filter, options), options);
+export function expectModule<T>(options: ExpectModuleOptionsNotNull<T>): T;
+export function expectModule<T>(options: ExpectModuleOptions<T>): T | undefined;
+export function expectModule<T>(options: ExpectModuleOptions<T>): T | undefined {
+	return expect(Webpack.getModule(options.filter, options), options);
+}
+
+export function expectWithKey<T>(options: ExpectModuleOptionsNotNull<T>): WithKeyResult<T>;
+export function expectWithKey<T>(options: ExpectModuleOptions<T>): WithKeyResult<T> | undefined;
+export function expectWithKey<T>(options: ExpectModuleOptions<T>): WithKeyResult<T> | undefined {
+	const [module, key] = Webpack.getWithKey<T>(options.filter, options);
+	if (module) return [module, key];
+
+	const fallback = expect(module, options);
+	if (fallback) {
+		const key = "__key" as ModuleKey;
+		return [{ [key]: fallback }, key];
+	}
+
+	return undefined;
 }
 
 /**
@@ -122,10 +155,6 @@ export function expectClasses<T extends string>(name: string, classes: T[]) {
 export function expectSelectors<T extends string>(name: string, classes: T[]) {
 	return expect(getSelectors(...classes), {
 		name,
-		fallback: classes.reduce((obj, key) => {
-			obj[key] = null;
-			return obj;
-		}, {} as { [key in T]: string }),
 	});
 }
 
@@ -138,7 +167,7 @@ export function expectSelectors<T extends string>(name: string, classes: T[]) {
 export function expectIcon(name: string, searchString: string) {
 	return expect(getIcon(searchString), {
 		name,
-		fallback: (_props: IconProps) => null as unknown as JSX.Element,
+		fallback: (_props: IconProps) => null,
 	});
 }
 
@@ -149,6 +178,10 @@ export function expectIcon(name: string, searchString: string) {
  */
 export function byId(id: string): ModuleFilter {
 	return (_e, _m, i) => i === id;
+}
+
+export function byType(type: string): ModuleFilter {
+	return (e) => typeof e === type;
 }
 
 /**

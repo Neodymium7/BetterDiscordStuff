@@ -1,7 +1,7 @@
 import { Components } from "betterdiscord";
-import { Icons } from "../modules/discordmodules";
 import { isBot, Settings, Strings } from "../modules/utils";
 import { parseString } from "@lib/utils/string";
+import { Headset } from "@discord/icons";
 
 interface ListeningIconProps {
 	activities: any[];
@@ -32,9 +32,9 @@ export default function ListeningIcon(props: ListeningIconProps) {
 			}
 			position="top"
 		>
-			{(props) => (
+			{(props: any) => (
 				<div {...props} className="activity-icon">
-					<Icons.Headset color="currentColor" size="13" width="13" height="13" />
+					<Headset color="currentColor" size="13" width="13" height="13" />
 				</div>
 			)}
 		</Components.Tooltip>

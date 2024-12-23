@@ -1,9 +1,15 @@
 import { Components } from "betterdiscord";
-import { RelationshipStore, TypingDots, TypingStore, UserStore, useStateFromStores } from "./modules/discordmodules";
+import { TypingDots } from "./modules/discordmodules";
 import { getDisplayName, Strings } from "./modules/utils";
 import { parseStringReact } from "@lib/utils/string";
+import { RelationshipStore, TypingStore, UserStore, useStateFromStores } from "@discord/stores";
 
-export function TypingIndicator({ channelId, guildId }) {
+interface TypingIndicatorProps {
+	channelId: string;
+	guildId: string;
+}
+
+export function TypingIndicator({ channelId, guildId }: TypingIndicatorProps) {
 	const typingUsersState = useStateFromStores([TypingStore], () => TypingStore.getTypingUsers(channelId));
 
 	const typingUsersIds = Object.keys(typingUsersState).filter(
@@ -39,7 +45,7 @@ export function TypingIndicator({ channelId, guildId }) {
 
 	return (
 		<Components.Tooltip text={tooltip} position="top">
-			{(props) => (
+			{(props: any) => (
 				<div {...props} className="channelTypingIndicator">
 					<TypingDots dotRadius={3.5} themed />
 				</div>

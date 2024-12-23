@@ -1,12 +1,6 @@
-import { Data, UI, Meta } from "betterdiscord";
+import { Data, UI, Meta, Changes } from "betterdiscord";
 
-type Changelog = {
-	title: string;
-	type?: string;
-	items: string[];
-}[];
-
-export function showChangelog(changes: Changelog, meta: Meta) {
+export function showChangelog(changes: Changes[], meta: Meta) {
 	if (!changes || changes.length == 0) return;
 
 	const changelogVersion = Data.load("changelogVersion");

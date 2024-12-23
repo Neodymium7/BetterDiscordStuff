@@ -1,13 +1,17 @@
 {
 	"compilerOptions": {
 		"target": "es2022",
+		"noImplicitAny": true,
+		"strict": true,
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"esModuleInterop": true,
 		"jsx": "react-jsx",
 		"paths": {
-			"@lib": ["./lib"],
-			"@lib/*": ["./lib/*"]
+			"@lib": ["./common/lib"],
+			"@lib/*": ["./common/lib/*"],
+			"@discord": ["./common/discord"],
+			"@discord/*": ["./common/discord/*"]
 		}
 	}
 }

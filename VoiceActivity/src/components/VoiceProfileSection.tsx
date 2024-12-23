@@ -1,16 +1,17 @@
 import { Components, ContextMenu } from "betterdiscord";
-import { ChannelActions, Icons, Stores, transitionTo, PartyMembers, MoreIcon } from "../modules/discordmodules";
+import { PartyMembers, MoreIcon } from "../modules/discordmodules";
 import { Settings, Strings, groupDMName, canViewChannel, useUserVoiceState } from "../modules/utils";
 import styles from "../styles/voiceprofilesection.module.scss";
 import GuildImage from "./GuildImage";
+import { ChannelStore, GuildStore, SelectedChannelStore, UserStore, VoiceStateStore } from "@discord/stores";
+import { CallJoin, Speaker, Stage } from "@discord/icons";
+import { ChannelActions, transitionTo } from "@discord/modules";
 
 interface VoiceProfileSectionProps {
 	userId: string;
 	wrapper?: React.FunctionComponent<React.PropsWithChildren>;
 	panel?: boolean;
 }
-
-const { ChannelStore, GuildStore, UserStore, VoiceStateStore, SelectedChannelStore } = Stores;
 
 export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 	const settingsState = Settings.useSettingsState(
@@ -55,14 +56,14 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 		text = [<h3>{guild.name}</h3>, <div>{channel.name}</div>];
 		viewButton = Strings.get("VIEW");
 		joinButton = inCurrentChannel ? Strings.get("JOIN_DISABLED") : Strings.get("JOIN");
-		Icon = Icons.Speaker;
+		Icon = Speaker;
 		channelPath = `/channels/${guild.id}/${channel.id}`;
 	} else {
 		headerText = Strings.get("HEADER_VOICE");
 		text = <h3>{channel.name}</h3>;
 		viewButton = Strings.get("VIEW_CALL");
 		joinButton = inCurrentChannel ? Strings.get("JOIN_DISABLED_CALL") : Strings.get("JOIN_CALL");
-		Icon = Icons.CallJoin;
+		Icon = CallJoin;
 		channelPath = `/channels/@me/${channel.id}`;
 	}
 
@@ -83,7 +84,7 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 			break;
 		case 13:
 			headerText = Strings.get("HEADER_STAGE");
-			Icon = Icons.Stage;
+			Icon = Stage;
 	}
 
 	const section = (
@@ -154,7 +155,7 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 					className={styles.button}
 					disabled={channelSelected}
 					onClick={() => {
-						if (channelPath) transitionTo(channelPath);
+						if (channelPath) transitionTo?.(channelPath);
 					}}
 				>
 					{viewButton}

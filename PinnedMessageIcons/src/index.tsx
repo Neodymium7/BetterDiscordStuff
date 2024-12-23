@@ -1,19 +1,17 @@
-import { DOM, Patcher, Webpack, Logger, UI, Data, Meta } from "betterdiscord";
+import { DOM, Patcher, Webpack, Logger, UI, Data, Meta, Plugin } from "betterdiscord";
 import { getSelectors, getIcon } from "@lib/utils/webpack";
 import { Updater } from "@lib/updater";
-
-const { getModule } = Webpack;
+import { AnyComponent } from "@lib/utils/react";
 
 const Pin = getIcon("M19.38 11.38a3 3 0 0 0 4.24 0l.03-.03a.5.5 0 0 0 0-.7L13.35.35a.5.5");
-const Message = getModule((m) => m.Z?.toString?.().includes("childrenRepliedMessage"));
+const Message = Webpack.getWithKey<AnyComponent>(Webpack.Filters.byStrings("childrenRepliedMessage", "focusProps"));
 const messageSelectors = getSelectors("message", "mentioned", "replying");
 
-if (!Message) Logger.error("Message module not found");
 if (!Pin) Logger.error("Pin icon not found.");
 if (!messageSelectors) Logger.error("Message selectors icon not found.");
 
-export default class PinnedMessageIcons {
-	settings: { backgroundEnabled: boolean };
+export default class PinnedMessageIcons implements Plugin {
+	settings!: { backgroundEnabled: boolean };
 	meta: Meta;
 
 	constructor(meta: Meta) {
@@ -22,8 +20,6 @@ export default class PinnedMessageIcons {
 
 	start() {
 		Updater.checkForUpdates(this.meta);
-
-		if (!Message) return;
 
 		this.settings = Data.load("settings");
 		if (!this.settings) {
@@ -36,7 +32,10 @@ export default class PinnedMessageIcons {
 	}
 
 	patch() {
-		Patcher.after(Message, "Z", (_, [props]: [any], ret) => {
+		const [module, key] = Message;
+		if (!module) return Logger.error("Message module not found");
+
+		Patcher.after(module, key, (_, [props], ret) => {
 			if (!props.childrenMessageContent.props.message) return ret;
 
 			const isPinned = props.childrenMessageContent.props.message.pinned;
@@ -89,8 +88,8 @@ export default class PinnedMessageIcons {
 					value: this.settings.backgroundEnabled,
 				},
 			],
-			onChange: (_, id, value) => {
-				this.settings[id] = value;
+			onChange: (_, _id, value) => {
+				this.settings.backgroundEnabled = value;
 				DOM.removeStyle();
 				this.addStyle();
 				Data.save("settings", this.settings);

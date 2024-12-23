@@ -1,9 +1,9 @@
-import { DOM, Meta, Patcher, ReactUtils, Utils } from "betterdiscord";
+import { DOM, Meta, Patcher, Plugin, ReactUtils, Utils } from "betterdiscord";
 import { AccountSelectors } from "./modules";
 import ActivityToggleButton from "./components/ActivityToggleButton";
 import { Updater } from "@lib/updater";
 
-export default class ActivityToggle {
+export default class ActivityToggle implements Plugin {
 	forceUpdate?: () => void;
 	meta: Meta;
 
@@ -13,18 +13,23 @@ export default class ActivityToggle {
 
 	start() {
 		Updater.checkForUpdates(this.meta);
-		DOM.addStyle(`${AccountSelectors.avatarWrapper} { min-width: 70px; }`);
+		if (AccountSelectors) DOM.addStyle(`${AccountSelectors.avatarWrapper} { min-width: 70px; }`);
 		this.patch();
 	}
 
 	patch() {
-		const owner: any = ReactUtils.getOwnerInstance(document.querySelector(AccountSelectors.container));
+		if (!AccountSelectors) return;
+		const element = document.querySelector(AccountSelectors.container);
+		if (!element) return;
+		const owner: any = ReactUtils.getOwnerInstance(element as HTMLElement);
+		if (!owner) return;
 		const Account = owner._reactInternals.type;
 		this.forceUpdate = owner.forceUpdate.bind(owner);
 
-		Patcher.after(Account.prototype, "render", (_that, [_props], ret) => {
-			const buttonContainerFilter = (i) =>
-				Array.isArray(i?.props?.children) && i.props.children.some((e) => e?.props?.hasOwnProperty("selfMute"));
+		Patcher.after(Account.prototype, "render", (_that, _args, ret) => {
+			const buttonContainerFilter = (i: any) =>
+				Array.isArray(i?.props?.children) &&
+				i.props.children.some((e: any) => e?.props?.hasOwnProperty("selfMute"));
 
 			const buttonContainer = Utils.findInTree(ret.props.children, buttonContainerFilter, {
 				walkable: ["children", "props"],
@@ -32,7 +37,7 @@ export default class ActivityToggle {
 			buttonContainer.props.children.unshift(<ActivityToggleButton />);
 		});
 
-		this.forceUpdate();
+		this.forceUpdate?.();
 	}
 
 	stop() {
