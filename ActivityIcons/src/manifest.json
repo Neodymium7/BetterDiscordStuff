@@ -1,15 +1,15 @@
 {
 	"name": "ActivityIcons",
 	"author": "Neodymium",
-	"version": "1.5.0",
+	"version": "1.5.1",
 	"description": "Improves the default icons next to statuses",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
 	"invite": "fRbsqH87Av",
 	"changelog": [
 		{
-			"title": "Improved",
-			"type": "improved",
-			"items": ["ActivityIcons no longer depends on ZeresPluginLibrary for functionality!"]
+			"title": "Fixed",
+			"type": "fixed",
+			"items": ["Fixed icons not displaying."]
 		}
 	]
 }
