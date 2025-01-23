@@ -1,7 +1,7 @@
 /**
  * @name ActivityIcons
  * @author Neodymium
- * @version 1.5.0
+ * @version 1.5.1
  * @description Improves the default icons next to statuses
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @invite fRbsqH87Av
@@ -40,11 +40,6 @@ const react = BdApi.React;
 class SettingsManager {
 	settings = betterdiscord.Data.load("settings");
 	listeners = new Set();
-	/**
-	 * Creates a new `SettingsManager` object with the given default settings.
-	 * @param defaultSettings An object containing the default settings.
-	 * @returns A `SettingsManager` object.
-	 */
 	constructor(defaultSettings) {
 		if (!this.settings) {
 			betterdiscord.Data.save("settings", defaultSettings);
@@ -63,28 +58,15 @@ class SettingsManager {
 			if (changed) betterdiscord.Data.save("settings", this.settings);
 		}
 	}
-	/**
-	 * Adds a listener that runs when a setting is changed.
-	 * @param listener A callback to run when a setting is changed. Takes two optional parameters: the key of the setting, and its new value.
-	 * @returns A function to remove the listener.
-	 */
 	addListener(listener) {
 		this.listeners.add(listener);
 		return () => {
 			this.listeners.delete(listener);
 		};
 	}
-	/**
-	 * Removes all listeners. Used for cleanup from {@link addListener}. Should be run at plugin stop if any listeners were added and not removed.
-	 */
 	clearListeners() {
 		this.listeners.clear();
 	}
-	/**
-	 * A React hook that gets a the settings object as a stateful variable.
-	 * @param keys Settings keys to include in the state object.
-	 * @returns The settings object as a stateful value.
-	 */
 	useSettingsState(...keys) {
 		let initialState = this.settings;
 		if (keys.length) initialState = Object.fromEntries(keys.map((key) => [key, initialState[key]]));
@@ -96,19 +78,9 @@ class SettingsManager {
 		}, []);
 		return state;
 	}
-	/**
-	 * Gets the value of a setting.
-	 * @param key The setting key.
-	 * @returns The setting's current value.
-	 */
 	get(key) {
 		return this.settings[key];
 	}
-	/**
-	 * Sets the value of a setting.
-	 * @param key The setting key.
-	 * @param value The new setting value.
-	 */
 	set(key, value) {
 		this.settings[key] = value;
 		betterdiscord.Data.save("settings", this.settings);
@@ -122,12 +94,6 @@ class StringsManager {
 	locales;
 	defaultLocale;
 	strings;
-	/**
-	 * Creates a `StringsManager` object with the given locales object.
-	 * @param locales An object containing the strings for each locale.
-	 * @param defaultLocale The code of the locale to use as a fallback when strings for Discord's selected locale are not defined.
-	 * @returns A `StringsManager` object.
-	 */
 	constructor(locales, defaultLocale) {
 		this.locales = locales;
 		this.defaultLocale = defaultLocale;
@@ -136,24 +102,13 @@ class StringsManager {
 	setLocale = () => {
 		this.strings = this.locales[LocaleStore.locale] || this.locales[this.defaultLocale];
 	};
-	/**
-	 * Subscribes to Discord's locale changes. Should be run on plugin start.
-	 */
 	subscribe() {
 		this.setLocale();
 		LocaleStore.addReactChangeListener(this.setLocale);
 	}
-	/**
-	 * Unsubscribes from Discord's locale changes. Should be run on plugin stop.
-	 */
 	unsubscribe() {
 		LocaleStore.removeReactChangeListener(this.setLocale);
 	}
-	/**
-	 * Gets the string for the corresponding key in Discord's currently selected locale.
-	 * @param key The string key.
-	 * @returns A localized string.
-	 */
 	get(key) {
 		return this.strings[key] || this.locales[this.defaultLocale][key];
 	}
@@ -193,9 +148,7 @@ function getIcon(searchString) {
 function expect(object, options) {
 	if (object) return object;
 	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
-	const errorMessage = `Module ${options.name} not found.${fallbackMessage}
-
-Contact the plugin developer to inform them of this error.`;
+	const errorMessage = `Module ${options.name} not found.${fallbackMessage}\n\nContact the plugin developer to inform them of this error.`;
 	betterdiscord.Logger.error(errorMessage);
 	options.onError?.();
 	if (options.fatal) throw new Error(errorMessage);
@@ -203,6 +156,16 @@ Contact the plugin developer to inform them of this error.`;
 }
 function expectModule(options) {
 	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
+}
+function expectWithKey(options) {
+	const [module, key] = betterdiscord.Webpack.getWithKey(options.filter, options);
+	if (module) return [module, key];
+	const fallback = expect(module, options);
+	if (fallback) {
+		const key2 = "__key";
+		return [{ [key2]: fallback }, key2];
+	}
+	return void 0;
 }
 function expectClasses(name, classes) {
 	return expect(getClasses(...classes), {
@@ -215,11 +178,7 @@ function expectClasses(name, classes) {
 }
 function expectSelectors(name, classes) {
 	return expect(getSelectors(...classes), {
-		name,
-		fallback: classes.reduce((obj, key) => {
-			obj[key] = null;
-			return obj;
-		}, {})
+		name
 	});
 }
 function expectIcon(name, searchString) {
@@ -230,44 +189,22 @@ function expectIcon(name, searchString) {
 }
 
 // modules/discordmodules.tsx
-const {
-	Filters: { byKeys, byStrings }
-} = betterdiscord.Webpack;
-const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", { style: { color: "red" } }, "Error: Component not found"));
-const ActivityStatus = expectModule({
-	filter: byStrings("QuestsIcon", "hangStatusActivity"),
-	name: "ActivityStatus",
-	defaultExport: false,
-	fatal: true
-});
-const Icons = {
-	Activity: expectIcon(
-		"Activity",
-		"M20.97 4.06c0 .18.08.35.24.43.55.28.9.82 1.04 1.42.3 1.24.75 3.7.75 7.09v4.91a3.09"
-	),
-	RichActivity: expectIcon("RichActivity", "M6,7 L2,7 L2,6 L6,6 L6,7 Z M8,5 L2,5 L2,4 L8,4"),
-	Headset: expectIcon("Headset", "M12 3a9 9 0 0 0-8.95 10h1.87a5 5 0 0 1 4.1 2.13l1.37 1.97a3.1 3.1 0 0"),
-	Screen: expectIcon("Screen", "M5 2a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3H5ZM13.5 20a.5.5")
-};
-const Common = expectModule({
-	filter: byKeys("FormSwitch"),
-	name: "Common",
-	fallback: {
-		FormSwitch: Error$1
-	}
+const ActivityStatus = expectWithKey({
+	filter: betterdiscord.Webpack.Filters.byStrings("QuestsIcon", "hangStatusActivity"),
+	name: "ActivityStatus"
 });
 expectClasses("Margins", ["marginBottom8"]);
-const peopleListItemSelector = expectSelectors("People List Classes", ["peopleListItem"]).peopleListItem;
-const memberSelector = expectSelectors("Member Class", ["memberInner", "member"]).member;
-const privateChannelSelector = expectSelectors("Private Channel Classes", ["favoriteIcon", "channel"]).channel;
+const peopleListItemSelector = expectSelectors("People List Classes", ["peopleListItem"])?.peopleListItem;
+const memberSelector = expectSelectors("Member Class", ["memberInner", "member"])?.member;
+const privateChannelSelector = expectSelectors("Private Channel Classes", ["favoriteIcon", "channel"])?.channel;
 
 // manifest.json
 const changelog = [
 	{
-		title: "Improved",
-		type: "improved",
+		title: "Fixed",
+		type: "fixed",
 		items: [
-			"ActivityIcons no longer depends on ZeresPluginLibrary for functionality!"
+			"Fixed icons not displaying."
 		]
 	}
 ];
@@ -353,17 +290,14 @@ const css = `
 	align-items: center;
 	justify-content: center;
 }
-
 .rich-activity-icon {
 	margin-left: 2px;
 	margin-right: -2px;
 }
-
 .activity-icon > div {
 	width: inherit;
 	height: inherit;
-}
-`;
+}`;
 
 // assets/playstation.svg
 const SvgPlaystation = (props) => BdApi.React.createElement("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", ...props }, BdApi.React.createElement("path", { d: "M23.669 17.155c-.464.586-1.602 1.004-1.602 1.004l-8.459 3.038v-2.24l6.226-2.219c.706-.253.815-.61.24-.798-.573-.189-1.61-.135-2.318.12l-4.148 1.46v-2.325l.24-.081s1.198-.424 2.884-.611c1.685-.186 3.749.025 5.369.64 1.826.576 2.031 1.427 1.568 2.012Zm-9.255-3.815V7.61c0-.673-.124-1.293-.756-1.468-.483-.155-.783.294-.783.966v14.35l-3.87-1.228V3.12c1.645.305 4.042 1.028 5.331 1.462 3.277 1.125 4.389 2.526 4.389 5.681 0 3.076-1.899 4.242-4.311 3.077Zm-12.51 5.382C.028 18.194-.284 17.094.571 16.461c.79-.585 2.132-1.025 2.132-1.025l5.549-1.974v2.25L4.26 17.14c-.706.253-.814.611-.241.8.574.187 1.612.134 2.318-.12l1.916-.695v2.012c-.122.022-.257.043-.382.064a12.556 12.556 0 0 1-5.968-.48Z", fill: "currentColor" }));
@@ -390,6 +324,24 @@ function parseStringReact(string, parseObject) {
 		return parseObject[key] ?? part;
 	});
 }
+
+// @discord/icons.tsx
+const Activity = expectIcon(
+	"Activity",
+	"M20.97 4.06c0 .18.08.35.24.43.55.28.9.82 1.04 1.42.3 1.24.75 3.7.75 7.09v4.91a3.09"
+);
+const RichActivity = expectIcon(
+	"RichActivity",
+	"M6,7 L2,7 L2,6 L6,6 L6,7 Z M8,5 L2,5 L2,4 L8,4"
+);
+const Headset = expectIcon(
+	"Headset",
+	"M12 3a9 9 0 0 0-8.95 10h1.87a5 5 0 0 1 4.1 2.13l1.37 1.97a3.1 3.1 0 0"
+);
+const Screen = expectIcon(
+	"Screen",
+	"M5 2a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3H5ZM13.5 20a.5.5"
+);
 
 // components/ActivityIcon.tsx
 function ActivityIcon(props) {
@@ -430,10 +382,10 @@ function ActivityIcon(props) {
 			COUNT: normalActivities.length - 2
 		});
 	}
-	let icon = BdApi.React.createElement(Icons.Activity, { color: "currentColor", size: "13", width: "13", height: "13" });
+	let icon = BdApi.React.createElement(Activity, { color: "currentColor", size: "13", width: "13", height: "13" });
 	if (platformIcons && onPS) icon = BdApi.React.createElement(SvgPlaystation, { color: "currentColor", size: "13", width: "13", height: "13" });
 	if (platformIcons && onXbox) icon = BdApi.React.createElement(SvgXbox, { color: "currentColor", size: "13", width: "13", height: "13" });
-	if (richPresenceIcons && hasRP) icon = BdApi.React.createElement(Icons.RichActivity, { color: "currentColor", size: "16", width: "16", height: "16" });
+	if (richPresenceIcons && hasRP) icon = BdApi.React.createElement(RichActivity, { color: "currentColor", size: "16", width: "16", height: "16" });
 	return tooltip ? BdApi.React.createElement(betterdiscord.Components.Tooltip, { text: tooltip, position: "top" }, (props2) => BdApi.React.createElement("div", { ...props2, className: hasRP ? "activity-icon rich-activity-icon" : "activity-icon" }, icon)) : BdApi.React.createElement("div", { className: hasRP ? "activity-icon rich-activity-icon" : "activity-icon" }, icon);
 }
 
@@ -452,9 +404,29 @@ function ListeningIcon(props) {
 			}))),
 			position: "top"
 		},
-		(props2) => BdApi.React.createElement("div", { ...props2, className: "activity-icon" }, BdApi.React.createElement(Icons.Headset, { color: "currentColor", size: "13", width: "13", height: "13" }))
+		(props2) => BdApi.React.createElement("div", { ...props2, className: "activity-icon" }, BdApi.React.createElement(Headset, { color: "currentColor", size: "13", width: "13", height: "13" }))
 	);
 }
+
+// @lib/utils/react.tsx
+const EmptyComponent = (props) => null;
+const EmptyWrapperComponent = (props) => BdApi.React.createElement("div", { ...props });
+
+// @discord/components.tsx
+const Common = expectModule({
+	filter: betterdiscord.Webpack.Filters.byKeys("Popout", "Avatar", "FormSwitch", "Tooltip"),
+	name: "Common",
+	fallback: {
+		Popout: EmptyWrapperComponent,
+		Avatar: EmptyComponent,
+		FormSwitch: EmptyComponent,
+		Tooltip: EmptyWrapperComponent,
+		RadioGroup: EmptyComponent,
+		FormItem: EmptyComponent,
+		FormText: EmptyComponent,
+		FormDivider: EmptyComponent
+	}
+});
 
 // components/SettingsPanel.tsx
 function SettingsPanel() {
@@ -519,7 +491,7 @@ function WatchingIcon(props) {
 	if (isBot(props.activities)) return null;
 	const activity = props.activities.filter((activity2) => activity2.type === 3)[0];
 	if (!activity) return null;
-	return BdApi.React.createElement(betterdiscord.Components.Tooltip, { text: BdApi.React.createElement("strong", null, activity.name) }, (props2) => BdApi.React.createElement("div", { ...props2, className: "activity-icon" }, BdApi.React.createElement(Icons.Screen, { color: "currentColor", size: "13", width: "13", height: "13" })));
+	return BdApi.React.createElement(betterdiscord.Components.Tooltip, { text: BdApi.React.createElement("strong", null, activity.name) }, (props2) => BdApi.React.createElement("div", { ...props2, className: "activity-icon" }, BdApi.React.createElement(Screen, { color: "currentColor", size: "13", width: "13", height: "13" })));
 }
 
 // index.tsx
@@ -535,7 +507,9 @@ class ActivityIcons {
 		this.patchActivityStatus();
 	}
 	patchActivityStatus() {
-		betterdiscord.Patcher.after(ActivityStatus, "ZP", (_, [props], ret) => {
+		if (!ActivityStatus) return;
+		const [module, key] = ActivityStatus;
+		betterdiscord.Patcher.after(module, key, (_, [props], ret) => {
 			if (!ret) return;
 			const defaultIconIndex = ret.props.children.findIndex(
 				(element) => element?.props?.className?.startsWith("icon")
@@ -549,17 +523,18 @@ class ActivityIcons {
 				BdApi.React.createElement(ListeningIcon, { activities: props.activities })
 			);
 		});
-		forceUpdateAll(memberSelector, (i) => i.user);
-		forceUpdateAll(peopleListItemSelector, (i) => i.user);
-		forceUpdateAll(privateChannelSelector);
+		this.forceUpdateComponents();
+	}
+	forceUpdateComponents() {
+		if (memberSelector) forceUpdateAll(memberSelector, (i) => i.user);
+		if (peopleListItemSelector) forceUpdateAll(peopleListItemSelector, (i) => i.user);
+		if (privateChannelSelector) forceUpdateAll(privateChannelSelector);
 	}
 	stop() {
 		betterdiscord.Patcher.unpatchAll();
 		betterdiscord.DOM.removeStyle();
 		Strings.unsubscribe();
-		forceUpdateAll(memberSelector, (i) => i.user);
-		forceUpdateAll(peopleListItemSelector, (i) => i.user);
-		forceUpdateAll(privateChannelSelector);
+		this.forceUpdateComponents();
 	}
 	getSettingsPanel() {
 		return BdApi.React.createElement(SettingsPanel, null);
