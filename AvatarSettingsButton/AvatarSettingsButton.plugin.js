@@ -342,13 +342,12 @@ const RadioItem = (props) => {
 		{
 			name: props.name,
 			options: props.options,
-			onChange: ({ value: value2 }) => Settings.set(props.setting, value2),
+			onChange: (v) => Settings.set(props.setting, v),
 			value
 		}
 	));
 };
 function SettingsPanel() {
-	Settings.useSettingsState();
 	return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(
 		RadioItem,
 		{
