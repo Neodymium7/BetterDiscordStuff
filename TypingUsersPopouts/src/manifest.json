@@ -1,16 +1,11 @@
 {
 	"name": "TypingUsersPopouts",
 	"author": "Neodymium",
-	"version": "1.4.0",
+	"version": "1.4.1",
 	"description": "Opens the user's popout when clicking on a name in the typing area.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js",
 	"invite": "fRbsqH87Av",
 	"changelog": [
-		{
-			"title": "Improved",
-			"type": "improved",
-			"items": ["TypingUsersPopouts no longer depends on ZeresPluginLibrary for functionality!"]
-		},
 		{
 			"title": "Fixed",
 			"type": "fixed",

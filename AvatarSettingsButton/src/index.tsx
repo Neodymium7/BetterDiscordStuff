@@ -7,7 +7,7 @@ import Tooltip from "./modules/tooltip";
 import SettingsPanel from "./components/SettingsPanel";
 import { UserSettingsWindow, SettingsSections } from "@discord/modules";
 
-const settingsSelector = `.${accountClasses.container} button:nth-last-child(1)`;
+const settingsSelector = `.${accountClasses.container} > div > button:nth-last-child(1)`;
 
 export default class AvatarSettingsButton implements Plugin {
 	meta: Meta;

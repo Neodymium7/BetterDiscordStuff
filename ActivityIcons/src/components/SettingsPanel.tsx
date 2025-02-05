@@ -1,50 +1,58 @@
-import { Common } from "@discord/components";
+import { SettingsKey } from "@lib";
 import { Settings, Strings } from "../modules/utils";
+import { Components } from "betterdiscord";
 
-export default function SettingsPanel() {
-	const settingsState = Settings.useSettingsState();
+type SwitchSetting = SettingsKey<typeof Settings, boolean>;
+
+interface SwitchItemProps {
+	setting: SwitchSetting;
+	name: string;
+	note: string;
+}
+
+const SwitchItem: React.FunctionComponent<SwitchItemProps> = (props) => {
+	const value = Settings.useSettingsState(props.setting)[props.setting];
 
 	return (
+		<Components.SettingItem id={props.setting} name={props.name} note={props.note} inline>
+			<Components.SwitchInput
+				id={props.setting}
+				value={value}
+				onChange={(v: typeof value) => {
+					Settings.set(props.setting, v);
+				}}
+			/>
+		</Components.SettingItem>
+	);
+};
+
+export default function SettingsPanel() {
+	return (
 		<>
-			<Common.FormSwitch
-				children={Strings.get("SETTINGS_NORMAL_ACTIVITY")}
+			<SwitchItem
+				name={Strings.get("SETTINGS_NORMAL_ACTIVITY")}
 				note={Strings.get("SETTINGS_NORMAL_ACTIVITY_NOTE")}
-				value={settingsState.normalActivityIcons}
-				onChange={(v: boolean) => {
-					Settings.set("normalActivityIcons", v);
-				}}
+				setting={"normalActivityIcons"}
 			/>
-			<Common.FormSwitch
-				children={Strings.get("SETTINGS_RICH_PRESENCE")}
+			<SwitchItem
+				name={Strings.get("SETTINGS_RICH_PRESENCE")}
 				note={Strings.get("SETTINGS_RICH_PRESENCE_NOTE")}
-				value={settingsState.richPresenceIcons}
-				onChange={(v: boolean) => {
-					Settings.set("richPresenceIcons", v);
-				}}
+				setting={"richPresenceIcons"}
 			/>
-			<Common.FormSwitch
-				children={Strings.get("SETTINGS_PLATFORM")}
+			<SwitchItem
+				name={Strings.get("SETTINGS_PLATFORM")}
 				note={Strings.get("SETTINGS_PLATFORM_NOTE")}
-				value={settingsState.platformIcons}
-				onChange={(v: boolean) => {
-					Settings.set("platformIcons", v);
-				}}
+				setting={"platformIcons"}
 			/>
-			<Common.FormSwitch
-				children={Strings.get("SETTINGS_LISTENING")}
+			<SwitchItem
+				name={Strings.get("SETTINGS_LISTENING")}
 				note={Strings.get("SETTINGS_LISTENING_NOTE")}
-				value={settingsState.listeningIcons}
-				onChange={(v: boolean) => {
-					Settings.set("listeningIcons", v);
-				}}
+				setting={"listeningIcons"}
 			/>
-			<Common.FormSwitch
-				children={Strings.get("SETTINGS_WATCHING")}
+			<SwitchItem
+				name={Strings.get("SETTINGS_WATCHING")}
 				note={Strings.get("SETTINGS_WATCHING_NOTE")}
-				value={settingsState.watchingIcons}
-				onChange={(v: boolean) => {
-					Settings.set("watchingIcons", v);
-				}}
+				setting={"watchingIcons"}
 			/>
 		</>
 	);

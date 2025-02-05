@@ -1,20 +1,15 @@
 {
 	"name": "AvatarSettingsButton",
 	"author": "Neodymium",
-	"version": "2.2.0",
+	"version": "2.2.1",
 	"description": "Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js",
 	"invite": "fRbsqH87Av",
 	"changelog": [
 		{
-			"title": "Improved",
-			"type": "improved",
-			"items": ["AvatarSettingsButton no longer depends on ZeresPluginLibrary for functionality!"]
-		},
-		{
 			"title": "Fixed",
 			"type": "fixed",
-			"items": ["Fixed right click action activating twice (for whatever reason...)."]
+			"items": ["Fixed settings not rendering."]
 		}
 	]
 }

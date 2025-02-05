@@ -1,13 +1,11 @@
 import { Webpack } from "betterdiscord";
-import { expectClasses, expectSelectors, expectWithKey } from "@lib/utils/webpack";
+import { expectSelectors, expectWithKey } from "@lib/utils/webpack";
 import { AnyComponent } from "@lib/utils/react";
 
 export const ActivityStatus = expectWithKey<AnyComponent>({
-	filter: Webpack.Filters.byStrings("QuestsIcon", "hangStatusActivity"),
+	filter: Webpack.Filters.byStrings("questsIcon", "CUSTOM_STATUS"),
 	name: "ActivityStatus",
 });
-
-export const marginClasses = expectClasses("Margins", ["marginBottom8"]);
 
 export const peopleListItemSelector = expectSelectors("People List Classes", ["peopleListItem"])?.peopleListItem;
 

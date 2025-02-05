@@ -69,11 +69,13 @@ export default class VoiceActivity implements Plugin {
 			ret.props.children = (childrenProps: any) => {
 				const childrenRet = children(childrenProps);
 
+				const target = childrenRet.props.children;
+
 				const icon = <VoiceIcon userId={props.user.id} context="memberlist" />;
 
-				Array.isArray(childrenRet.props.children)
-					? childrenRet.props.children.unshift(icon)
-					: (childrenRet.props.children = [icon]);
+				Array.isArray(target.props.children)
+					? target.props.children.unshift(icon)
+					: (target.props.children = [icon]);
 
 				return childrenRet;
 			};

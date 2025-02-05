@@ -40,7 +40,7 @@ export const PartyMembers = expectModule({
 });
 
 export const MoreIcon = expectModule({
-	filter: Webpack.Filters.byStrings("MoreHorizontalIcon", "contextMenu"),
+	filter: Webpack.Filters.byStrings(".contextMenu", "intl.string("),
 	name: "MoreIcon",
 	fallback: EmptyComponent,
 });

@@ -3,7 +3,7 @@ import { showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
 import { typingSelector, TypingUsersContainer } from "./modules";
 import { RelationshipStore, UserStore } from "@discord/stores";
-import { Common, UserPopout } from "@discord/components";
+import { Popout, UserPopout } from "@discord/components";
 import { loadProfile } from "@discord/modules";
 
 const nameSelector = `${typingSelector} strong`;
@@ -43,7 +43,7 @@ export default class TypingUsersPopouts implements Plugin {
 				const user = UserStore.getUser(typingUsersIds[i++]);
 
 				return (
-					<Common.Popout
+					<Popout
 						align="left"
 						position="top"
 						key={user.id}
@@ -55,7 +55,7 @@ export default class TypingUsersPopouts implements Plugin {
 						}
 					>
 						{(props: any) => <strong {...props} {...e.props} />}
-					</Common.Popout>
+					</Popout>
 				);
 			});
 		};

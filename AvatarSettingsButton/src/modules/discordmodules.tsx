@@ -6,8 +6,6 @@ export const accountClasses = expectClasses("Account Classes", [
 	"avatarWrapper",
 ]);
 
-export const marginClasses = expectClasses("Margin Classes", ["marginTop20", "marginBottom8"]);
-
 export const tooltipClasses = expectClasses("Tooltip Classes", [
 	"tooltip",
 	"tooltipTop",

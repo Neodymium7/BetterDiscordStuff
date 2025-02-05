@@ -1,20 +1,11 @@
-import { EmptyComponent, EmptyWrapperComponent, ErrorPopout } from "@lib/utils/react";
+import { EmptyWrapperComponent, ErrorPopout } from "@lib/utils/react";
 import { expectModule } from "@lib/utils/webpack";
-import { Webpack } from "betterdiscord";
 
-export const Common = /* @__PURE__ */ expectModule({
-	filter: /* @__PURE__ */ Webpack.Filters.byKeys("Popout", "Avatar", "FormSwitch", "Tooltip"),
-	name: "Common",
-	fallback: {
-		Popout: EmptyWrapperComponent,
-		Avatar: EmptyComponent,
-		FormSwitch: EmptyComponent,
-		Tooltip: EmptyWrapperComponent,
-		RadioGroup: EmptyComponent,
-		FormItem: EmptyComponent,
-		FormText: EmptyComponent,
-		FormDivider: EmptyComponent,
-	},
+export const Popout = /* @__PURE__ */ expectModule({
+	filter: (m) => m.defaultProps && m.Animation?.TRANSLATE,
+	name: "Popout",
+	fallback: EmptyWrapperComponent,
+	searchExports: true,
 });
 
 export const UserPopout = /* @__PURE__ */ expectModule({

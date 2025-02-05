@@ -2,7 +2,7 @@ import { Patcher, Webpack, Logger, Meta, Plugin } from "betterdiscord";
 import { Updater } from "@lib/updater";
 import { AnyComponent } from "@lib/utils/react";
 import { UserStore } from "@discord/stores";
-import { Common, UserPopout } from "@discord/components";
+import { Popout, UserPopout } from "@discord/components";
 import { loadProfile } from "@discord/modules";
 
 const {
@@ -31,7 +31,7 @@ function PopoutWrapper({ id, guildId, channelId, children }: PopoutWrapperProps)
 	const user = UserStore.getUser(id);
 
 	return (
-		<Common.Popout
+		<Popout
 			align="left"
 			position="top"
 			key={user.id}
@@ -41,7 +41,7 @@ function PopoutWrapper({ id, guildId, channelId, children }: PopoutWrapperProps)
 			preload={() => loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId })}
 		>
 			{(props: any) => <span {...props}>{children}</span>}
-		</Common.Popout>
+		</Popout>
 	);
 }
 

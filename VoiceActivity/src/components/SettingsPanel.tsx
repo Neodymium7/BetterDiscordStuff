@@ -1,6 +1,6 @@
 import { SettingsKey } from "@lib";
 import { Settings, Strings } from "../modules/utils";
-import { Common } from "@discord/components";
+import { Components } from "betterdiscord";
 
 type SwitchSetting = SettingsKey<typeof Settings, boolean>;
 
@@ -52,18 +52,19 @@ const settings: SettingsInfo = {
 	},
 };
 
-const SettingsSwitchItem: React.FunctionComponent<SwitchItemProps> = (props) => {
+const SwitchItem: React.FunctionComponent<SwitchItemProps> = (props) => {
 	const value = Settings.useSettingsState(props.setting)[props.setting];
 
 	return (
-		<Common.FormSwitch
-			children={props.name}
-			note={props.note}
-			value={value}
-			onChange={(v: typeof value) => {
-				Settings.set(props.setting, v);
-			}}
-		/>
+		<Components.SettingItem id={props.setting} name={props.name} note={props.note} inline>
+			<Components.SwitchInput
+				id={props.setting}
+				value={value}
+				onChange={(v: typeof value) => {
+					Settings.set(props.setting, v);
+				}}
+			/>
+		</Components.SettingItem>
 	);
 };
 
@@ -72,7 +73,7 @@ export default function SettingsPanel() {
 		<>
 			{(Object.keys(settings) as SwitchSetting[]).map((key) => {
 				const { name, note } = settings[key];
-				return <SettingsSwitchItem setting={key} name={name} note={note} />;
+				return <SwitchItem setting={key} name={name} note={note} />;
 			})}
 		</>
 	);
