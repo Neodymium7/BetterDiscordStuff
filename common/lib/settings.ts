@@ -147,7 +147,7 @@ export function buildSettingsPanel<S extends SettingsManager<any>>(settingsManag
 	}
 
 	return UI.buildSettingsPanel({
-		settings: settings as SettingsPanelSetting,
+		settings: settings as SettingsPanelSetting[],
 		onChange: (_, id, value) => settingsManager.set(id, value),
 	});
 }
