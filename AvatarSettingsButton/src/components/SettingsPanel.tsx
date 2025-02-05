@@ -42,7 +42,7 @@ const RadioItem: React.FunctionComponent<RadioItemProps> = (props) => {
 			<Components.RadioInput
 				name={props.name}
 				options={props.options}
-				onChange={({ value }: { value: number }) => Settings.set(props.setting, value)}
+				onChange={(v: typeof value) => Settings.set(props.setting, v)}
 				value={value}
 			/>
 		</Components.SettingItem>
@@ -50,8 +50,6 @@ const RadioItem: React.FunctionComponent<RadioItemProps> = (props) => {
 };
 
 export default function SettingsPanel() {
-	const settings = Settings.useSettingsState();
-
 	return (
 		<>
 			<RadioItem
