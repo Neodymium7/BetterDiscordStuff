@@ -1,7 +1,7 @@
 /**
  * @name ClickableTextMentions
  * @author Neodymium
- * @version 1.0.2
+ * @version 1.0.3
  * @description Makes mentions in the message text area clickable.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ClickableTextMentions/ClickableTextMentions.plugin.js
  * @invite fRbsqH87Av
@@ -38,12 +38,13 @@ const fs = require('fs');
 const path = require('path');
 
 // @lib/utils/webpack.ts
+function getClasses(...classes) {
+	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
+}
 function expect(object, options) {
 	if (object) return object;
 	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
-	const errorMessage = `Module ${options.name} not found.${fallbackMessage}
-
-Contact the plugin developer to inform them of this error.`;
+	const errorMessage = `Module ${options.name} not found.${fallbackMessage}\n\nContact the plugin developer to inform them of this error.`;
 	betterdiscord.Logger.error(errorMessage);
 	options.onError?.();
 	if (options.fatal) throw new Error(errorMessage);
@@ -52,31 +53,12 @@ Contact the plugin developer to inform them of this error.`;
 function expectModule(options) {
 	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
 }
+function byType(type) {
+	return (e) => typeof e === type;
+}
 
-// modules.tsx
-const {
-	Filters: { byStrings: byStrings$1, byKeys }
-} = betterdiscord.Webpack;
-const ErrorPopout = (props) => BdApi.React.createElement("div", { style: { backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" } }, props.message);
-const UserPopout = expectModule({
-	filter: (m) => m.toString?.().includes("UserProfilePopoutWrapper"),
-	name: "UserPopout",
-	fallback: (_props) => BdApi.React.createElement(ErrorPopout, { message: "Error: User Popout module not found" })
-});
-const Popout = expectModule({
-	filter: byKeys("Popout"),
-	name: "Common",
-	fallback: {
-		Popout: (props) => props.children()
-	}
-}).Popout;
-const loadProfile = expectModule({
-	filter: byStrings$1("preloadUserBanner"),
-	name: "loadProfile"
-});
-const UserStore = betterdiscord.Webpack.getStore("UserStore");
-
-// @lib/updater.tsx
+// @lib/updater.ts
+const hoverClass = getClasses("anchorUnderlineOnHover")?.anchorUnderlineOnHover || "";
 const findVersion = (pluginContents) => {
 	const lines = pluginContents.split("\n");
 	const versionLine = lines.find((line) => line.includes("@version"));
@@ -87,30 +69,20 @@ const updatePlugin = (name, newContents) => {
 	fs.writeFileSync(path$1, newContents);
 };
 const showUpdateNotice = (name, version, newContents) => {
-	const noticeElement = document.createElement("span");
-	const linkElementStyle = "color: #fff; font-weight: 700;";
-	const linkElementHTML = `<a href="https://github.com/Neodymium7/BetterDiscordStuff/blob/main/${name}/${name}.plugin.js" target="_blank" style="${linkElementStyle}">${name} v${version}</a>`;
-	const linkElement = betterdiscord.DOM.parseHTML(linkElementHTML);
-	const setStyle = (style) => linkElement.setAttribute("style", style);
-	linkElement.addEventListener("mouseenter", () => setStyle(linkElementStyle + " text-decoration: underline;"));
-	linkElement.addEventListener("mouseleave", () => setStyle(linkElementStyle));
-	betterdiscord.UI.createTooltip(linkElement, "View Source", { side: "bottom" });
-	noticeElement.appendChild(linkElement);
-	noticeElement.appendChild(document.createTextNode(" is available"));
-	const closeNotice = betterdiscord.UI.showNotice(noticeElement, {
+	const noticeElementHTML = `<span><a href="https://github.com/Neodymium7/BetterDiscordStuff/blob/main/${name}/${name}.plugin.js" target="_blank" class="${hoverClass}" style="color: #fff; font-weight: 700;">${name} v${version}</a> is available</span>`;
+	const noticeElement = betterdiscord.DOM.parseHTML(noticeElementHTML);
+	betterdiscord.UI.createTooltip(noticeElement.firstChild, "View Source", { side: "bottom" });
+	return betterdiscord.UI.showNotice(noticeElement, {
 		buttons: [
 			{
 				label: "Update",
-				onClick: () => {
-					updatePlugin(name, newContents);
-					closeNotice();
-				}
+				onClick: () => updatePlugin(name, newContents)
 			}
 		]
 	});
-	return closeNotice;
 };
 const Updater = {
+	closeUpdateNotice: void 0,
 	async checkForUpdates(meta) {
 		const url = `https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/${meta.name}/${meta.name}.plugin.js`;
 		const res = await betterdiscord.Net.fetch(url);
@@ -120,13 +92,42 @@ const Updater = {
 		}
 		const text = await res.text();
 		const version = findVersion(text);
-		if (version <= meta.version) return;
+		if (version === meta.version) return;
 		this.closeUpdateNotice = showUpdateNotice(meta.name, version, text);
 	},
 	closeNotice() {
 		if (this.closeUpdateNotice) this.closeUpdateNotice();
 	}
 };
+
+// @discord/stores.ts
+const UserStore = betterdiscord.Webpack.getStore("UserStore");
+
+// @lib/utils/react.tsx
+const EmptyWrapperComponent = (props) => BdApi.React.createElement("span", { ...props });
+const ErrorPopout = (props) => BdApi.React.createElement("div", { style: { backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" } }, "Error: Popout component not found");
+
+// @discord/components.tsx
+const Popout = expectModule({
+	filter: (m) => m.defaultProps && m.Animation?.TRANSLATE,
+	name: "Popout",
+	fallback: EmptyWrapperComponent,
+	searchExports: true
+});
+const UserPopout = expectModule({
+	filter: (m) => m.toString?.().includes("UserProfilePopoutWrapper"),
+	name: "UserPopout",
+	fallback: ErrorPopout
+});
+
+// @discord/modules.ts
+const loadProfile = expectModule({
+	filter: betterdiscord.Webpack.Filters.combine(
+		betterdiscord.Webpack.Filters.byStrings("preloadUserBanner"),
+		byType("function")
+	),
+	name: "loadProfile"
+});
 
 // index.tsx
 const {
@@ -148,7 +149,7 @@ function PopoutWrapper({ id, guildId, channelId, children }) {
 			position: "top",
 			key: user.id,
 			renderPopout: (props) => BdApi.React.createElement(UserPopout, { ...props, userId: user.id, guildId, channelId }),
-			preload: () => loadProfile(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId })
+			preload: () => loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId })
 		},
 		(props) => BdApi.React.createElement("span", { ...props }, children)
 	);

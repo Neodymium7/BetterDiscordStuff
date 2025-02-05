@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 2.2.0
+ * @version 2.2.1
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
@@ -40,11 +40,6 @@ const react = BdApi.React;
 class SettingsManager {
 	settings = betterdiscord.Data.load("settings");
 	listeners = new Set();
-	/**
-	 * Creates a new `SettingsManager` object with the given default settings.
-	 * @param defaultSettings An object containing the default settings.
-	 * @returns A `SettingsManager` object.
-	 */
 	constructor(defaultSettings) {
 		if (!this.settings) {
 			betterdiscord.Data.save("settings", defaultSettings);
@@ -63,28 +58,15 @@ class SettingsManager {
 			if (changed) betterdiscord.Data.save("settings", this.settings);
 		}
 	}
-	/**
-	 * Adds a listener that runs when a setting is changed.
-	 * @param listener A callback to run when a setting is changed. Takes two optional parameters: the key of the setting, and its new value.
-	 * @returns A function to remove the listener.
-	 */
 	addListener(listener) {
 		this.listeners.add(listener);
 		return () => {
 			this.listeners.delete(listener);
 		};
 	}
-	/**
-	 * Removes all listeners. Used for cleanup from {@link addListener}. Should be run at plugin stop if any listeners were added and not removed.
-	 */
 	clearListeners() {
 		this.listeners.clear();
 	}
-	/**
-	 * A React hook that gets a the settings object as a stateful variable.
-	 * @param keys Settings keys to include in the state object.
-	 * @returns The settings object as a stateful value.
-	 */
 	useSettingsState(...keys) {
 		let initialState = this.settings;
 		if (keys.length) initialState = Object.fromEntries(keys.map((key) => [key, initialState[key]]));
@@ -96,19 +78,9 @@ class SettingsManager {
 		}, []);
 		return state;
 	}
-	/**
-	 * Gets the value of a setting.
-	 * @param key The setting key.
-	 * @returns The setting's current value.
-	 */
 	get(key) {
 		return this.settings[key];
 	}
-	/**
-	 * Sets the value of a setting.
-	 * @param key The setting key.
-	 * @param value The new setting value.
-	 */
 	set(key, value) {
 		this.settings[key] = value;
 		betterdiscord.Data.save("settings", this.settings);
@@ -122,12 +94,6 @@ class StringsManager {
 	locales;
 	defaultLocale;
 	strings;
-	/**
-	 * Creates a `StringsManager` object with the given locales object.
-	 * @param locales An object containing the strings for each locale.
-	 * @param defaultLocale The code of the locale to use as a fallback when strings for Discord's selected locale are not defined.
-	 * @returns A `StringsManager` object.
-	 */
 	constructor(locales, defaultLocale) {
 		this.locales = locales;
 		this.defaultLocale = defaultLocale;
@@ -136,24 +102,13 @@ class StringsManager {
 	setLocale = () => {
 		this.strings = this.locales[LocaleStore.locale] || this.locales[this.defaultLocale];
 	};
-	/**
-	 * Subscribes to Discord's locale changes. Should be run on plugin start.
-	 */
 	subscribe() {
 		this.setLocale();
 		LocaleStore.addReactChangeListener(this.setLocale);
 	}
-	/**
-	 * Unsubscribes from Discord's locale changes. Should be run on plugin stop.
-	 */
 	unsubscribe() {
 		LocaleStore.removeReactChangeListener(this.setLocale);
 	}
-	/**
-	 * Gets the string for the corresponding key in Discord's currently selected locale.
-	 * @param key The string key.
-	 * @returns A localized string.
-	 */
 	get(key) {
 		return this.strings[key] || this.locales[this.defaultLocale][key];
 	}
@@ -175,17 +130,10 @@ function showChangelog(changes, meta) {
 // manifest.json
 const changelog = [
 	{
-		title: "Improved",
-		type: "improved",
-		items: [
-			"AvatarSettingsButton no longer depends on ZeresPluginLibrary for functionality!"
-		]
-	},
-	{
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed right click action activating twice (for whatever reason...)."
+			"Fixed settings not rendering."
 		]
 	}
 ];
@@ -205,9 +153,7 @@ function getSelectors(...classes) {
 function expect(object, options) {
 	if (object) return object;
 	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
-	const errorMessage = `Module ${options.name} not found.${fallbackMessage}
-
-Contact the plugin developer to inform them of this error.`;
+	const errorMessage = `Module ${options.name} not found.${fallbackMessage}\n\nContact the plugin developer to inform them of this error.`;
 	betterdiscord.Logger.error(errorMessage);
 	options.onError?.();
 	if (options.fatal) throw new Error(errorMessage);
@@ -227,47 +173,16 @@ function expectClasses(name, classes) {
 }
 function expectSelectors(name, classes) {
 	return expect(getSelectors(...classes), {
-		name,
-		fallback: classes.reduce((obj, key) => {
-			obj[key] = null;
-			return obj;
-		}, {})
+		name
 	});
 }
 
 // modules/discordmodules.tsx
-const {
-	Filters: { byKeys }
-} = betterdiscord.Webpack;
-const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", { style: { color: "red" } }, "Error: Component not found"));
-const Common = expectModule({
-	filter: byKeys("FormSwitch", "RadioGroup", "FormItem", "FormText", "FormDivider"),
-	name: "Common",
-	fallback: {
-		FormSwitch: Error$1,
-		RadioGroup: Error$1,
-		FormItem: Error$1,
-		FormText: Error$1,
-		FormDivider: Error$1
-	}
-});
-const UserSettingsWindow = expectModule({
-	filter: byKeys("saveAccountChanges"),
-	name: "UserSettingsWindow",
-	fatal: true
-});
-const Sections = expectModule({
-	filter: byKeys("ACCOUNT", "CHANGE_LOG"),
-	searchExports: true,
-	name: "Sections",
-	fallback: { ACCOUNT: "My Account" }
-});
-const accountClasses = expectModule({
-	filter: byKeys("accountProfilePopoutWrapper"),
-	name: "Account Classes",
-	fatal: true
-});
-const Margins = expectClasses("Margins", ["marginTop20", "marginBottom8"]);
+const accountClasses = expectClasses("Account Classes", [
+	"accountProfilePopoutWrapper",
+	"container",
+	"avatarWrapper"
+]);
 const tooltipClasses = expectClasses("Tooltip Classes", [
 	"tooltip",
 	"tooltipTop",
@@ -275,8 +190,8 @@ const tooltipClasses = expectClasses("Tooltip Classes", [
 	"tooltipPointer",
 	"tooltipContent"
 ]);
-const layerContainerSelector = expectSelectors("Layer Container Class", ["layerContainer"]).layerContainer;
-const appSelector = expectSelectors("App Class", ["appAsidePanelWrapper", "app"]).app;
+const layerContainerSelector = expectSelectors("Layer Container Class", ["layerContainer"])?.layerContainer;
+const appSelector = expectSelectors("App Class", ["appAsidePanelWrapper", "app"])?.app;
 
 // locales.json
 const el = {
@@ -352,7 +267,7 @@ class Tooltip {
 	target;
 	tooltip;
 	layerContainer;
-	ref;
+	ref = null;
 	clearListeners;
 	constructor(target, text) {
 		this.target = target;
@@ -392,6 +307,7 @@ class Tooltip {
 	}
 	hide() {
 		const ref = this.ref;
+		if (!ref) return;
 		ref.style.opacity = "0";
 		ref.style.transform = "scale(0.95)";
 		setTimeout(() => ref?.remove(), 100);
@@ -406,12 +322,39 @@ class Tooltip {
 }
 
 // components/SettingsPanel.tsx
-const { RadioGroup, FormItem, FormText, FormDivider, FormSwitch } = Common;
-function SettingsPanel() {
-	const settings = Settings.useSettingsState();
-	return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(FormItem, { title: Strings.get("SETTINGS_CLICK") }, BdApi.React.createElement(FormText, { className: Margins.marginBottom8, type: "description" }, Strings.get("SETTINGS_CLICK_NOTE")), BdApi.React.createElement(
-		RadioGroup,
+const SwitchItem = (props) => {
+	const value = Settings.useSettingsState(props.setting)[props.setting];
+	return BdApi.React.createElement(betterdiscord.Components.SettingItem, { id: props.setting, name: props.name, note: props.note, inline: true }, BdApi.React.createElement(
+		betterdiscord.Components.SwitchInput,
 		{
+			id: props.setting,
+			value,
+			onChange: (v) => {
+				Settings.set(props.setting, v);
+			}
+		}
+	));
+};
+const RadioItem = (props) => {
+	const value = Settings.useSettingsState(props.setting)[props.setting];
+	return BdApi.React.createElement(betterdiscord.Components.SettingItem, { name: props.name, note: props.note, id: props.setting }, BdApi.React.createElement(
+		betterdiscord.Components.RadioInput,
+		{
+			name: props.name,
+			options: props.options,
+			onChange: ({ value: value2 }) => Settings.set(props.setting, value2),
+			value
+		}
+	));
+};
+function SettingsPanel() {
+	Settings.useSettingsState();
+	return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(
+		RadioItem,
+		{
+			name: Strings.get("SETTINGS_CLICK"),
+			note: Strings.get("SETTINGS_CLICK_NOTE"),
+			setting: "click",
 			options: [
 				{
 					name: `${Strings.get("SETTINGS_OPTIONS_OPEN_SETTINGS")} (${Strings.get("DEFAULT")})`,
@@ -420,13 +363,14 @@ function SettingsPanel() {
 				{ name: Strings.get("SETTINGS_OPTIONS_CONTEXT_MENU"), value: 2 },
 				{ name: Strings.get("SETTINGS_OPTIONS_STATUS_PICKER"), value: 3 },
 				{ name: Strings.get("SETTINGS_OPTIONS_NOTHING"), value: 0 }
-			],
-			onChange: ({ value }) => Settings.set("click", value),
-			value: settings.click
+			]
 		}
-	), BdApi.React.createElement(FormDivider, { className: Margins.marginTop20 })), BdApi.React.createElement(FormItem, { title: Strings.get("SETTINGS_RIGHT_CLICK"), className: Margins.marginTop20 }, BdApi.React.createElement(FormText, { className: Margins.marginBottom8, type: "description" }, Strings.get("SETTINGS_RIGHT_CLICK_NOTE")), BdApi.React.createElement(
-		RadioGroup,
+	), BdApi.React.createElement(
+		RadioItem,
 		{
+			name: Strings.get("SETTINGS_RIGHT_CLICK"),
+			note: Strings.get("SETTINGS_RIGHT_CLICK_NOTE"),
+			setting: "contextmenu",
 			options: [
 				{ name: Strings.get("SETTINGS_OPTIONS_OPEN_SETTINGS"), value: 1 },
 				{ name: Strings.get("SETTINGS_OPTIONS_CONTEXT_MENU"), value: 2 },
@@ -435,13 +379,14 @@ function SettingsPanel() {
 					value: 3
 				},
 				{ name: Strings.get("SETTINGS_OPTIONS_NOTHING"), value: 0 }
-			],
-			onChange: ({ value }) => Settings.set("contextmenu", value),
-			value: settings.contextmenu
+			]
 		}
-	), BdApi.React.createElement(FormDivider, { className: Margins.marginTop20 })), BdApi.React.createElement(FormItem, { title: Strings.get("SETTINGS_MIDDLE_CLICK"), className: Margins.marginTop20 }, BdApi.React.createElement(FormText, { className: Margins.marginBottom8, type: "description" }, Strings.get("SETTINGS_MIDDLE_CLICK_NOTE")), BdApi.React.createElement(
-		RadioGroup,
+	), BdApi.React.createElement(
+		RadioItem,
 		{
+			name: Strings.get("SETTINGS_MIDDLE_CLICK"),
+			note: Strings.get("SETTINGS_MIDDLE_CLICK_NOTE"),
+			setting: "middleclick",
 			options: [
 				{ name: Strings.get("SETTINGS_OPTIONS_OPEN_SETTINGS"), value: 1 },
 				{
@@ -450,25 +395,32 @@ function SettingsPanel() {
 				},
 				{ name: Strings.get("SETTINGS_OPTIONS_STATUS_PICKER"), value: 3 },
 				{ name: Strings.get("SETTINGS_OPTIONS_NOTHING"), value: 0 }
-			],
-			onChange: ({ value }) => Settings.set("middleclick", value),
-			value: settings.middleclick
+			]
 		}
-	), BdApi.React.createElement(FormDivider, { className: Margins.marginTop20 })), BdApi.React.createElement(
-		FormSwitch,
+	), BdApi.React.createElement(
+		SwitchItem,
 		{
-			className: Margins.marginTop20,
-			children: Strings.get("SETTINGS_TOOLTIP"),
+			name: Strings.get("SETTINGS_TOOLTIP"),
 			note: Strings.get("SETTINGS_TOOLTIP_NOTE"),
-			onChange: (v) => Settings.set("showTooltip", v),
-			value: settings.showTooltip,
-			hideBorder: true
+			setting: "showTooltip"
 		}
 	));
 }
 
+// @discord/modules.ts
+const SettingsSections = expectModule({
+	filter: betterdiscord.Webpack.Filters.byKeys("ACCOUNT", "CHANGE_LOG"),
+	searchExports: true,
+	name: "SettingsSections",
+	fallback: { ACCOUNT: "My Account", ACTIVITY_PRIVACY: "Activity Privacy" }
+});
+const UserSettingsWindow = expectModule({
+	filter: betterdiscord.Webpack.Filters.byKeys("saveAccountChanges", "setSection", "open"),
+	name: "UserSettingsWindow"
+});
+
 // index.tsx
-const settingsSelector = `.${accountClasses.container} button:nth-last-child(1)`;
+const settingsSelector = `.${accountClasses.container} > div > button:nth-last-child(1)`;
 class AvatarSettingsButton {
 	meta;
 	target = null;
@@ -493,8 +445,9 @@ class AvatarSettingsButton {
 	observer({ addedNodes }) {
 		for (const node of addedNodes) {
 			if (node.nodeType === Node.TEXT_NODE) continue;
+			if (!(node instanceof HTMLElement)) continue;
 			const avatarWrapper = node.querySelector(`.${accountClasses.avatarWrapper}`);
-			if (avatarWrapper) {
+			if (avatarWrapper instanceof HTMLElement) {
 				this.target = avatarWrapper;
 				this.addListeners();
 				this.addTooltip();
@@ -502,20 +455,20 @@ class AvatarSettingsButton {
 		}
 	}
 	openPopout() {
-		this.target.dispatchEvent(
+		this.target?.dispatchEvent(
 			new MouseEvent("click", {
 				bubbles: true
 			})
 		);
 	}
 	openSettings() {
-		UserSettingsWindow.setSection(Sections.ACCOUNT);
+		UserSettingsWindow?.setSection(SettingsSections.ACCOUNT);
 		if (document.querySelector(`.${accountClasses.accountProfilePopoutWrapper}`)) this.openPopout();
-		UserSettingsWindow.open();
+		UserSettingsWindow?.open();
 	}
 	openContextMenu(e) {
 		if (document.querySelector(`.${accountClasses.accountProfilePopoutWrapper}`)) this.openPopout();
-		document.querySelector(settingsSelector).dispatchEvent(
+		document.querySelector(settingsSelector)?.dispatchEvent(
 			new MouseEvent("contextmenu", {
 				bubbles: true,
 				clientX: e.clientX,
@@ -537,7 +490,7 @@ class AvatarSettingsButton {
 			if (e.isTrusted) {
 				e.preventDefault();
 				e.stopPropagation();
-				clickAction(e);
+				clickAction?.(e);
 				this.tooltip?.forceHide();
 			}
 		};
@@ -547,13 +500,13 @@ class AvatarSettingsButton {
 				return;
 			}
 			this.lastContextMenuTimestamp = e.timeStamp;
-			contextmenuAction(e);
+			contextmenuAction?.(e);
 			this.tooltip?.forceHide();
 		};
 		const middleclickAction = actions[Settings.get("middleclick")];
 		const middleclick = (e) => {
 			if (e.button === 1) {
-				middleclickAction(e);
+				middleclickAction?.(e);
 				this.tooltip?.forceHide();
 			}
 		};
@@ -561,9 +514,9 @@ class AvatarSettingsButton {
 		this.target.addEventListener("contextmenu", contextmenu);
 		this.target.addEventListener("mousedown", middleclick);
 		this.clearListeners = () => {
-			this.target.removeEventListener("click", click);
-			this.target.removeEventListener("contextmenu", contextmenu);
-			this.target.removeEventListener("mousedown", middleclick);
+			this.target?.removeEventListener("click", click);
+			this.target?.removeEventListener("contextmenu", contextmenu);
+			this.target?.removeEventListener("mousedown", middleclick);
 		};
 	}
 	addTooltip() {

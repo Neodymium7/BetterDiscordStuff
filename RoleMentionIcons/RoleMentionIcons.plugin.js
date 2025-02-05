@@ -1,7 +1,7 @@
 /**
  * @name RoleMentionIcons
  * @author Neodymium
- * @version 1.4.0
+ * @version 1.4.1
  * @description Displays icons next to role mentions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js
  * @invite fRbsqH87Av
@@ -40,11 +40,6 @@ const react = BdApi.React;
 class SettingsManager {
 	settings = betterdiscord.Data.load("settings");
 	listeners = new Set();
-	/**
-	 * Creates a new `SettingsManager` object with the given default settings.
-	 * @param defaultSettings An object containing the default settings.
-	 * @returns A `SettingsManager` object.
-	 */
 	constructor(defaultSettings) {
 		if (!this.settings) {
 			betterdiscord.Data.save("settings", defaultSettings);
@@ -63,28 +58,15 @@ class SettingsManager {
 			if (changed) betterdiscord.Data.save("settings", this.settings);
 		}
 	}
-	/**
-	 * Adds a listener that runs when a setting is changed.
-	 * @param listener A callback to run when a setting is changed. Takes two optional parameters: the key of the setting, and its new value.
-	 * @returns A function to remove the listener.
-	 */
 	addListener(listener) {
 		this.listeners.add(listener);
 		return () => {
 			this.listeners.delete(listener);
 		};
 	}
-	/**
-	 * Removes all listeners. Used for cleanup from {@link addListener}. Should be run at plugin stop if any listeners were added and not removed.
-	 */
 	clearListeners() {
 		this.listeners.clear();
 	}
-	/**
-	 * A React hook that gets a the settings object as a stateful variable.
-	 * @param keys Settings keys to include in the state object.
-	 * @returns The settings object as a stateful value.
-	 */
 	useSettingsState(...keys) {
 		let initialState = this.settings;
 		if (keys.length) initialState = Object.fromEntries(keys.map((key) => [key, initialState[key]]));
@@ -96,19 +78,9 @@ class SettingsManager {
 		}, []);
 		return state;
 	}
-	/**
-	 * Gets the value of a setting.
-	 * @param key The setting key.
-	 * @returns The setting's current value.
-	 */
 	get(key) {
 		return this.settings[key];
 	}
-	/**
-	 * Sets the value of a setting.
-	 * @param key The setting key.
-	 * @param value The new setting value.
-	 */
 	set(key, value) {
 		this.settings[key] = value;
 		betterdiscord.Data.save("settings", this.settings);
@@ -122,12 +94,6 @@ class StringsManager {
 	locales;
 	defaultLocale;
 	strings;
-	/**
-	 * Creates a `StringsManager` object with the given locales object.
-	 * @param locales An object containing the strings for each locale.
-	 * @param defaultLocale The code of the locale to use as a fallback when strings for Discord's selected locale are not defined.
-	 * @returns A `StringsManager` object.
-	 */
 	constructor(locales, defaultLocale) {
 		this.locales = locales;
 		this.defaultLocale = defaultLocale;
@@ -136,24 +102,13 @@ class StringsManager {
 	setLocale = () => {
 		this.strings = this.locales[LocaleStore.locale] || this.locales[this.defaultLocale];
 	};
-	/**
-	 * Subscribes to Discord's locale changes. Should be run on plugin start.
-	 */
 	subscribe() {
 		this.setLocale();
 		LocaleStore.addReactChangeListener(this.setLocale);
 	}
-	/**
-	 * Unsubscribes from Discord's locale changes. Should be run on plugin stop.
-	 */
 	unsubscribe() {
 		LocaleStore.removeReactChangeListener(this.setLocale);
 	}
-	/**
-	 * Gets the string for the corresponding key in Discord's currently selected locale.
-	 * @param key The string key.
-	 * @returns A localized string.
-	 */
 	get(key) {
 		return this.strings[key] || this.locales[this.defaultLocale][key];
 	}
@@ -175,64 +130,13 @@ function showChangelog(changes, meta) {
 // manifest.json
 const changelog = [
 	{
-		title: "Improved",
-		type: "improved",
-		items: [
-			"RoleMentionIcons no longer depends on ZeresPluginLibrary for functionality!"
-		]
-	},
-	{
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed a memory leak (oops)."
+			"Fixed settings not rendering."
 		]
 	}
 ];
-
-// @lib/utils/webpack.ts
-function getClasses(...classes) {
-	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
-}
-function expect(object, options) {
-	if (object) return object;
-	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
-	const errorMessage = `Module ${options.name} not found.${fallbackMessage}
-
-Contact the plugin developer to inform them of this error.`;
-	betterdiscord.Logger.error(errorMessage);
-	options.onError?.();
-	if (options.fatal) throw new Error(errorMessage);
-	return options.fallback;
-}
-function expectModule(options) {
-	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
-}
-function expectClasses(name, classes) {
-	return expect(getClasses(...classes), {
-		name,
-		fallback: classes.reduce((obj, key) => {
-			obj[key] = "unknown-class";
-			return obj;
-		}, {})
-	});
-}
-
-// modules/discordmodules.tsx
-const {
-	Filters: { byKeys },
-	getStore
-} = betterdiscord.Webpack;
-const Error$1 = (_props) => BdApi.React.createElement("div", null, BdApi.React.createElement("h1", { style: { color: "red" } }, "Error: Component not found"));
-const Common = expectModule({
-	filter: byKeys("FormSwitch"),
-	name: "Common",
-	fallback: {
-		FormSwitch: Error$1
-	}
-});
-const roleMention = expectClasses("Role Mention Class", ["roleMention"]).roleMention.split(" ")[0];
-const GuildStore = getStore("GuildStore");
 
 // locales.json
 const el = {
@@ -271,11 +175,9 @@ const Settings = new SettingsManager({
 	showRoleIcons: true
 });
 const Strings = new StringsManager(locales, "en-US");
-const peopleSVG = (() => {
-	const element = document.createElement("div");
-	element.innerHTML = '<svg class="role-mention-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="14" width="14"><path d="M14 8.00598C14 10.211 12.206 12.006 10 12.006C7.795 12.006 6 10.211 6 8.00598C6 5.80098 7.794 4.00598 10 4.00598C12.206 4.00598 14 5.80098 14 8.00598ZM2 19.006C2 15.473 5.29 13.006 10 13.006C14.711 13.006 18 15.473 18 19.006V20.006H2V19.006Z" fill="currentColor" /><path d="M14 8.00598C14 10.211 12.206 12.006 10 12.006C7.795 12.006 6 10.211 6 8.00598C6 5.80098 7.794 4.00598 10 4.00598C12.206 4.00598 14 5.80098 14 8.00598ZM2 19.006C2 15.473 5.29 13.006 10 13.006C14.711 13.006 18 15.473 18 19.006V20.006H2V19.006Z" fill="currentColor" /><path d="M20.0001 20.006H22.0001V19.006C22.0001 16.4433 20.2697 14.4415 17.5213 13.5352C19.0621 14.9127 20.0001 16.8059 20.0001 19.006V20.006Z" fill="currentColor" /><path d="M14.8834 11.9077C16.6657 11.5044 18.0001 9.9077 18.0001 8.00598C18.0001 5.96916 16.4693 4.28218 14.4971 4.0367C15.4322 5.09511 16.0001 6.48524 16.0001 8.00598C16.0001 9.44888 15.4889 10.7742 14.6378 11.8102C14.7203 11.8418 14.8022 11.8743 14.8834 11.9077Z" fill="currentColor" /></svg>';
-	return element.firstChild;
-})();
+const peopleSVG = betterdiscord.DOM.parseHTML(
+	'<svg class="role-mention-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="14" width="14"><path d="M14 8.00598C14 10.211 12.206 12.006 10 12.006C7.795 12.006 6 10.211 6 8.00598C6 5.80098 7.794 4.00598 10 4.00598C12.206 4.00598 14 5.80098 14 8.00598ZM2 19.006C2 15.473 5.29 13.006 10 13.006C14.711 13.006 18 15.473 18 19.006V20.006H2V19.006Z" fill="currentColor" /><path d="M14 8.00598C14 10.211 12.206 12.006 10 12.006C7.795 12.006 6 10.211 6 8.00598C6 5.80098 7.794 4.00598 10 4.00598C12.206 4.00598 14 5.80098 14 8.00598ZM2 19.006C2 15.473 5.29 13.006 10 13.006C14.711 13.006 18 15.473 18 19.006V20.006H2V19.006Z" fill="currentColor" /><path d="M20.0001 20.006H22.0001V19.006C22.0001 16.4433 20.2697 14.4415 17.5213 13.5352C19.0621 14.9127 20.0001 16.8059 20.0001 19.006V20.006Z" fill="currentColor" /><path d="M14.8834 11.9077C16.6657 11.5044 18.0001 9.9077 18.0001 8.00598C18.0001 5.96916 16.4693 4.28218 14.4971 4.0367C15.4322 5.09511 16.0001 6.48524 16.0001 8.00598C16.0001 9.44888 15.4889 10.7742 14.6378 11.8102C14.7203 11.8418 14.8022 11.8743 14.8834 11.9077Z" fill="currentColor" /></svg>'
+);
 const getIconElement = (roleId, roleIcon) => {
 	const icon = document.createElement("img");
 	icon.className = "role-mention-icon";
@@ -301,40 +203,65 @@ const getProps = (el, filter2) => {
 };
 
 // components/SettingsPanel.tsx
-function SettingsPanel() {
-	const settingsState = Settings.useSettingsState();
-	return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(
-		Common.FormSwitch,
+const SwitchItem = (props) => {
+	const value = Settings.useSettingsState(props.setting)[props.setting];
+	return BdApi.React.createElement(betterdiscord.Components.SettingItem, { id: props.setting, name: props.name, note: props.note, inline: true }, BdApi.React.createElement(
+		betterdiscord.Components.SwitchInput,
 		{
-			children: Strings.get("SETTINGS_EVERYONE"),
-			note: Strings.get("SETTINGS_EVERYONE_NOTE"),
-			value: settingsState.everyone,
+			id: props.setting,
+			value,
 			onChange: (v) => {
-				Settings.set("everyone", v);
-			}
-		}
-	), BdApi.React.createElement(
-		Common.FormSwitch,
-		{
-			children: Strings.get("SETTINGS_HERE"),
-			note: Strings.get("SETTINGS_HERE_NOTE"),
-			value: settingsState.here,
-			onChange: (v) => {
-				Settings.set("here", v);
-			}
-		}
-	), BdApi.React.createElement(
-		Common.FormSwitch,
-		{
-			children: Strings.get("SETTINGS_ROLE_ICONS"),
-			note: Strings.get("SETTINGS_ROLE_ICONS_NOTE"),
-			value: settingsState.showRoleIcons,
-			onChange: (v) => {
-				Settings.set("showRoleIcons", v);
+				Settings.set(props.setting, v);
 			}
 		}
 	));
+};
+function SettingsPanel() {
+	return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(
+		SwitchItem,
+		{
+			name: Strings.get("SETTINGS_EVERYONE"),
+			note: Strings.get("SETTINGS_EVERYONE_NOTE"),
+			setting: "everyone"
+		}
+	), BdApi.React.createElement(SwitchItem, { name: Strings.get("SETTINGS_HERE"), note: Strings.get("SETTINGS_HERE_NOTE"), setting: "here" }), BdApi.React.createElement(
+		SwitchItem,
+		{
+			name: Strings.get("SETTINGS_ROLE_ICONS"),
+			note: Strings.get("SETTINGS_ROLE_ICONS_NOTE"),
+			setting: "showRoleIcons"
+		}
+	));
 }
+
+// @lib/utils/webpack.ts
+function getClasses(...classes) {
+	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
+}
+function expect(object, options) {
+	if (object) return object;
+	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
+	const errorMessage = `Module ${options.name} not found.${fallbackMessage}\n\nContact the plugin developer to inform them of this error.`;
+	betterdiscord.Logger.error(errorMessage);
+	options.onError?.();
+	if (options.fatal) throw new Error(errorMessage);
+	return options.fallback;
+}
+function expectClasses(name, classes) {
+	return expect(getClasses(...classes), {
+		name,
+		fallback: classes.reduce((obj, key) => {
+			obj[key] = "unknown-class";
+			return obj;
+		}, {})
+	});
+}
+
+// modules/discordmodules.tsx
+const roleMention = expectClasses("Role Mention Class", ["roleMention"]).roleMention.split(" ")[0];
+
+// @discord/stores.ts
+const GuildStore = betterdiscord.Webpack.getStore("GuildStore");
 
 // index.tsx
 class RoleMentionIcons {
@@ -356,11 +283,13 @@ class RoleMentionIcons {
 	observer({ addedNodes, removedNodes }) {
 		for (const node of addedNodes) {
 			if (node.nodeType === Node.TEXT_NODE) continue;
+			if (!(node instanceof HTMLElement)) continue;
 			const elements = Array.from(node.getElementsByClassName(roleMention));
 			this.processElements(elements);
 		}
 		for (const node of removedNodes) {
 			if (node.nodeType === Node.TEXT_NODE) continue;
+			if (!(node instanceof HTMLElement)) continue;
 			if (node.querySelector(".role-mention-icon")) this.clearCallbacks.clear();
 		}
 	}

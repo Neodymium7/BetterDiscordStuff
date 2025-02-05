@@ -1,7 +1,7 @@
 /**
  * @name ActivityIcons
  * @author Neodymium
- * @version 1.5.1
+ * @version 1.5.2
  * @description Improves the default icons next to statuses
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @invite fRbsqH87Av
@@ -154,9 +154,6 @@ function expect(object, options) {
 	if (options.fatal) throw new Error(errorMessage);
 	return options.fallback;
 }
-function expectModule(options) {
-	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
-}
 function expectWithKey(options) {
 	const [module, key] = betterdiscord.Webpack.getWithKey(options.filter, options);
 	if (module) return [module, key];
@@ -166,15 +163,6 @@ function expectWithKey(options) {
 		return [{ [key2]: fallback }, key2];
 	}
 	return void 0;
-}
-function expectClasses(name, classes) {
-	return expect(getClasses(...classes), {
-		name,
-		fallback: classes.reduce((obj, key) => {
-			obj[key] = "unknown-class";
-			return obj;
-		}, {})
-	});
 }
 function expectSelectors(name, classes) {
 	return expect(getSelectors(...classes), {
@@ -190,10 +178,9 @@ function expectIcon(name, searchString) {
 
 // modules/discordmodules.tsx
 const ActivityStatus = expectWithKey({
-	filter: betterdiscord.Webpack.Filters.byStrings("QuestsIcon", "hangStatusActivity"),
+	filter: betterdiscord.Webpack.Filters.byStrings("questsIcon", "CUSTOM_STATUS"),
 	name: "ActivityStatus"
 });
-expectClasses("Margins", ["marginBottom8"]);
 const peopleListItemSelector = expectSelectors("People List Classes", ["peopleListItem"])?.peopleListItem;
 const memberSelector = expectSelectors("Member Class", ["memberInner", "member"])?.member;
 const privateChannelSelector = expectSelectors("Private Channel Classes", ["favoriteIcon", "channel"])?.channel;
@@ -408,78 +395,55 @@ function ListeningIcon(props) {
 	);
 }
 
-// @lib/utils/react.tsx
-const EmptyComponent = (props) => null;
-const EmptyWrapperComponent = (props) => BdApi.React.createElement("div", { ...props });
-
-// @discord/components.tsx
-const Common = expectModule({
-	filter: betterdiscord.Webpack.Filters.byKeys("Popout", "Avatar", "FormSwitch", "Tooltip"),
-	name: "Common",
-	fallback: {
-		Popout: EmptyWrapperComponent,
-		Avatar: EmptyComponent,
-		FormSwitch: EmptyComponent,
-		Tooltip: EmptyWrapperComponent,
-		RadioGroup: EmptyComponent,
-		FormItem: EmptyComponent,
-		FormText: EmptyComponent,
-		FormDivider: EmptyComponent
-	}
-});
-
 // components/SettingsPanel.tsx
+const SwitchItem = (props) => {
+	const value = Settings.useSettingsState(props.setting)[props.setting];
+	return BdApi.React.createElement(betterdiscord.Components.SettingItem, { id: props.setting, name: props.name, note: props.note, inline: true }, BdApi.React.createElement(
+		betterdiscord.Components.SwitchInput,
+		{
+			id: props.setting,
+			value,
+			onChange: (v) => {
+				Settings.set(props.setting, v);
+			}
+		}
+	));
+};
 function SettingsPanel() {
-	const settingsState = Settings.useSettingsState();
 	return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(
-		Common.FormSwitch,
+		SwitchItem,
 		{
-			children: Strings.get("SETTINGS_NORMAL_ACTIVITY"),
+			name: Strings.get("SETTINGS_NORMAL_ACTIVITY"),
 			note: Strings.get("SETTINGS_NORMAL_ACTIVITY_NOTE"),
-			value: settingsState.normalActivityIcons,
-			onChange: (v) => {
-				Settings.set("normalActivityIcons", v);
-			}
+			setting: "normalActivityIcons"
 		}
 	), BdApi.React.createElement(
-		Common.FormSwitch,
+		SwitchItem,
 		{
-			children: Strings.get("SETTINGS_RICH_PRESENCE"),
+			name: Strings.get("SETTINGS_RICH_PRESENCE"),
 			note: Strings.get("SETTINGS_RICH_PRESENCE_NOTE"),
-			value: settingsState.richPresenceIcons,
-			onChange: (v) => {
-				Settings.set("richPresenceIcons", v);
-			}
+			setting: "richPresenceIcons"
 		}
 	), BdApi.React.createElement(
-		Common.FormSwitch,
+		SwitchItem,
 		{
-			children: Strings.get("SETTINGS_PLATFORM"),
+			name: Strings.get("SETTINGS_PLATFORM"),
 			note: Strings.get("SETTINGS_PLATFORM_NOTE"),
-			value: settingsState.platformIcons,
-			onChange: (v) => {
-				Settings.set("platformIcons", v);
-			}
+			setting: "platformIcons"
 		}
 	), BdApi.React.createElement(
-		Common.FormSwitch,
+		SwitchItem,
 		{
-			children: Strings.get("SETTINGS_LISTENING"),
+			name: Strings.get("SETTINGS_LISTENING"),
 			note: Strings.get("SETTINGS_LISTENING_NOTE"),
-			value: settingsState.listeningIcons,
-			onChange: (v) => {
-				Settings.set("listeningIcons", v);
-			}
+			setting: "listeningIcons"
 		}
 	), BdApi.React.createElement(
-		Common.FormSwitch,
+		SwitchItem,
 		{
-			children: Strings.get("SETTINGS_WATCHING"),
+			name: Strings.get("SETTINGS_WATCHING"),
 			note: Strings.get("SETTINGS_WATCHING_NOTE"),
-			value: settingsState.watchingIcons,
-			onChange: (v) => {
-				Settings.set("watchingIcons", v);
-			}
+			setting: "watchingIcons"
 		}
 	));
 }

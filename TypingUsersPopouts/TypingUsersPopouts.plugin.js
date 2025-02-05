@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.4.0
+ * @version 1.4.1
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @invite fRbsqH87Av
@@ -51,13 +51,6 @@ function showChangelog(changes, meta) {
 // manifest.json
 const changelog = [
 	{
-		title: "Improved",
-		type: "improved",
-		items: [
-			"TypingUsersPopouts no longer depends on ZeresPluginLibrary for functionality!"
-		]
-	},
-	{
 		title: "Fixed",
 		type: "fixed",
 		items: [
@@ -81,9 +74,7 @@ function getSelectors(...classes) {
 function expect(object, options) {
 	if (object) return object;
 	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
-	const errorMessage = `Module ${options.name} not found.${fallbackMessage}
-
-Contact the plugin developer to inform them of this error.`;
+	const errorMessage = `Module ${options.name} not found.${fallbackMessage}\n\nContact the plugin developer to inform them of this error.`;
 	betterdiscord.Logger.error(errorMessage);
 	options.onError?.();
 	if (options.fatal) throw new Error(errorMessage);
@@ -92,45 +83,62 @@ Contact the plugin developer to inform them of this error.`;
 function expectModule(options) {
 	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
 }
+function expectWithKey(options) {
+	const [module, key] = betterdiscord.Webpack.getWithKey(options.filter, options);
+	if (module) return [module, key];
+	const fallback = expect(module, options);
+	if (fallback) {
+		const key2 = "__key";
+		return [{ [key2]: fallback }, key2];
+	}
+	return void 0;
+}
 function expectSelectors(name, classes) {
 	return expect(getSelectors(...classes), {
-		name,
-		fallback: classes.reduce((obj, key) => {
-			obj[key] = null;
-			return obj;
-		}, {})
+		name
 	});
+}
+function byType(type) {
+	return (e) => typeof e === type;
 }
 
 // modules.tsx
-const {
-	Filters: { byStrings, byKeys }
-} = betterdiscord.Webpack;
-const ErrorPopout = (props) => BdApi.React.createElement("div", { style: { backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" } }, props.message);
-const TypingUsersContainer = expectModule({
-	filter: (m) => m.Z?.toString?.().includes("typingUsers:"),
+const TypingUsersContainer = expectWithKey({
+	filter: betterdiscord.Webpack.Filters.byStrings("typingUsers:"),
 	name: "TypingUsersContainer",
 	fatal: true
+});
+const typingSelector = expectSelectors("Typing Class", ["typingDots", "typing"])?.typing;
+
+// @discord/stores.ts
+const UserStore = betterdiscord.Webpack.getStore("UserStore");
+const RelationshipStore = betterdiscord.Webpack.getStore("RelationshipStore");
+
+// @lib/utils/react.tsx
+const EmptyWrapperComponent = (props) => BdApi.React.createElement("span", { ...props });
+const ErrorPopout = (props) => BdApi.React.createElement("div", { style: { backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" } }, "Error: Popout component not found");
+
+// @discord/components.tsx
+const Popout = expectModule({
+	filter: (m) => m.defaultProps && m.Animation?.TRANSLATE,
+	name: "Popout",
+	fallback: EmptyWrapperComponent,
+	searchExports: true
 });
 const UserPopout = expectModule({
 	filter: (m) => m.toString?.().includes("UserProfilePopoutWrapper"),
 	name: "UserPopout",
-	fallback: (_props) => BdApi.React.createElement(ErrorPopout, { message: "Error: User Popout module not found" })
+	fallback: ErrorPopout
 });
-const Common = expectModule({
-	filter: byKeys("Popout"),
-	name: "Common",
-	fallback: {
-		Popout: (props) => props.children()
-	}
-});
+
+// @discord/modules.ts
 const loadProfile = expectModule({
-	filter: byStrings("preloadUserBanner"),
+	filter: betterdiscord.Webpack.Filters.combine(
+		betterdiscord.Webpack.Filters.byStrings("preloadUserBanner"),
+		byType("function")
+	),
 	name: "loadProfile"
 });
-const typingSelector = expectSelectors("Typing Class", ["typingDots", "typing"]).typing;
-const UserStore = betterdiscord.Webpack.getStore("UserStore");
-const RelationshipStore = betterdiscord.Webpack.getStore("RelationshipStore");
 
 // index.tsx
 const nameSelector = `${typingSelector} strong`;
@@ -145,6 +153,7 @@ class TypingUsersPopouts {
 		this.patch();
 	}
 	patch() {
+		if (!TypingUsersContainer) return;
 		const patchType = (props, ret) => {
 			const text = betterdiscord.Utils.findInTree(ret, (e) => e.children?.length && e.children[0]?.type === "strong", {
 				walkable: ["props", "children"]
@@ -160,20 +169,21 @@ class TypingUsersPopouts {
 				if (e.type !== "strong") return e;
 				const user = UserStore.getUser(typingUsersIds[i++]);
 				return BdApi.React.createElement(
-					Common.Popout,
+					Popout,
 					{
 						align: "left",
 						position: "top",
 						key: user.id,
 						renderPopout: (props2) => BdApi.React.createElement(UserPopout, { ...props2, userId: user.id, guildId, channelId: channel.id }),
-						preload: () => loadProfile(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId: channel.id })
+						preload: () => loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId: channel.id })
 					},
 					(props2) => BdApi.React.createElement("strong", { ...props2, ...e.props })
 				);
 			});
 		};
 		let patchedType;
-		betterdiscord.Patcher.after(TypingUsersContainer, "Z", (_, __, containerRet) => {
+		const [module, key] = TypingUsersContainer;
+		betterdiscord.Patcher.after(module, key, (_, __, containerRet) => {
 			if (patchedType) {
 				containerRet.type = patchedType;
 				return containerRet;
