@@ -1,5 +1,17 @@
 import { useEffect, useState } from "react";
-import { Data } from "betterdiscord";
+import {
+	ColorSetting,
+	DropdownSetting,
+	KeybindSetting,
+	NumberSetting,
+	RadioSetting,
+	SettingsPanelSetting,
+	SliderSetting,
+	SwitchSetting,
+	TextSetting,
+	Data,
+	UI,
+} from "betterdiscord";
 
 type ValueOf<T> = T[keyof T];
 
@@ -116,3 +128,26 @@ type Settings<S extends SettingsManager<any>> = S extends SettingsManager<infer 
  * ```
  */
 export type SettingsKey<S extends SettingsManager<any>, T = any> = KeysOfType<Settings<S>, T>;
+
+type PanelSettingType<T, U, S extends SettingsManager<any>> = Omit<T, "value"> & { id: SettingsKey<S, U> };
+
+type PanelSetting<S extends SettingsManager<any>> =
+	| PanelSettingType<DropdownSetting, any, S>
+	| PanelSettingType<NumberSetting, number, S>
+	| PanelSettingType<SwitchSetting, boolean, S>
+	| PanelSettingType<TextSetting, string, S>
+	| PanelSettingType<SliderSetting, number, S>
+	| PanelSettingType<RadioSetting, any, S>
+	| PanelSettingType<KeybindSetting, string[], S>
+	| PanelSettingType<ColorSetting, string | number, S>;
+
+export function buildSettingsPanel<S extends SettingsManager<any>>(settingsManager: S, settings: PanelSetting<S>[]) {
+	for (const setting of settings) {
+		(setting as any).value = settingsManager.get(setting.id);
+	}
+
+	return UI.buildSettingsPanel({
+		settings: settings as SettingsPanelSetting,
+		onChange: (_, id, value) => settingsManager.set(id, value),
+	});
+}

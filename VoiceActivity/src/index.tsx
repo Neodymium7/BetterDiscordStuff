@@ -1,6 +1,6 @@
 import { ContextMenu, DOM, Patcher, Utils, Meta, Plugin, Changes } from "betterdiscord";
 import styles from "styles";
-import { showChangelog } from "@lib";
+import { buildSettingsPanel, showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
 import {
 	MemberListItem,
@@ -16,7 +16,6 @@ import { Settings, Strings, forceRerender, getGuildMediaState } from "./modules/
 import iconStyles from "./styles/voiceicon.module.scss";
 import VoiceIcon from "./components/VoiceIcon";
 import VoiceProfileSection from "./components/VoiceProfileSection";
-import SettingsPanel from "./components/SettingsPanel";
 import { useStateFromStores, VoiceStateStore } from "@discord/stores";
 
 const guildIconSelector = `div:not([data-dnd-name]) + ${iconWrapperSelector}`;
@@ -249,6 +248,55 @@ export default class VoiceActivity implements Plugin {
 	}
 
 	getSettingsPanel() {
-		return <SettingsPanel />;
+		return buildSettingsPanel(Settings, [
+			{
+				id: "showProfileSection",
+				type: "switch",
+				name: Strings.get("SETTINGS_PROFILE"),
+				note: Strings.get("SETTINGS_PROFILE_NOTE"),
+			},
+			{
+				id: "showMemberListIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_ICONS"),
+				note: Strings.get("SETTINGS_ICONS_NOTE"),
+			},
+			{
+				id: "showDMListIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_DM_ICONS"),
+				note: Strings.get("SETTINGS_DM_ICONS_NOTE"),
+			},
+			{
+				id: "showPeopleListIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_PEOPLE_ICONS"),
+				note: Strings.get("SETTINGS_PEOPLE_ICONS_NOTE"),
+			},
+			{
+				id: "showGuildIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_GUILD_ICONS"),
+				note: Strings.get("SETTINGS_GUILD_ICONS_NOTE"),
+			},
+			{
+				id: "currentChannelColor",
+				type: "switch",
+				name: Strings.get("SETTINGS_COLOR"),
+				note: Strings.get("SETTINGS_COLOR_NOTE"),
+			},
+			{
+				id: "showStatusIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_STATUS"),
+				note: Strings.get("SETTINGS_STATUS_NOTE"),
+			},
+			{
+				id: "ignoreEnabled",
+				type: "switch",
+				name: Strings.get("SETTINGS_IGNORE"),
+				note: Strings.get("SETTINGS_IGNORE_NOTE"),
+			},
+		]);
 	}
 }

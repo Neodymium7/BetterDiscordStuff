@@ -1,10 +1,9 @@
 import { Changes, DOM, Meta, Plugin } from "betterdiscord";
-import { showChangelog } from "@lib";
+import { buildSettingsPanel, showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
 import { accountClasses } from "./modules/discordmodules";
 import { Settings, Strings } from "./modules/utils";
 import Tooltip from "./modules/tooltip";
-import SettingsPanel from "./components/SettingsPanel";
 import { UserSettingsWindow, SettingsSections } from "@discord/modules";
 
 const settingsSelector = `.${accountClasses.container} > div > button:nth-last-child(1)`;
@@ -153,6 +152,58 @@ export default class AvatarSettingsButton implements Plugin {
 	}
 
 	getSettingsPanel() {
-		return <SettingsPanel />;
+		return buildSettingsPanel(Settings, [
+			{
+				id: "click",
+				type: "radio",
+				name: Strings.get("SETTINGS_CLICK"),
+				note: Strings.get("SETTINGS_CLICK_NOTE"),
+				options: [
+					{
+						name: `${Strings.get("SETTINGS_OPTIONS_OPEN_SETTINGS")} (${Strings.get("DEFAULT")})`,
+						value: 1,
+					},
+					{ name: Strings.get("SETTINGS_OPTIONS_CONTEXT_MENU"), value: 2 },
+					{ name: Strings.get("SETTINGS_OPTIONS_STATUS_PICKER"), value: 3 },
+					{ name: Strings.get("SETTINGS_OPTIONS_NOTHING"), value: 0 },
+				],
+			},
+			{
+				id: "contextmenu",
+				type: "radio",
+				name: Strings.get("SETTINGS_RIGHT_CLICK"),
+				note: Strings.get("SETTINGS_RIGHT_CLICK_NOTE"),
+				options: [
+					{ name: Strings.get("SETTINGS_OPTIONS_OPEN_SETTINGS"), value: 1 },
+					{ name: Strings.get("SETTINGS_OPTIONS_CONTEXT_MENU"), value: 2 },
+					{
+						name: `${Strings.get("SETTINGS_OPTIONS_STATUS_PICKER")} (${Strings.get("DEFAULT")})`,
+						value: 3,
+					},
+					{ name: Strings.get("SETTINGS_OPTIONS_NOTHING"), value: 0 },
+				],
+			},
+			{
+				id: "middleclick",
+				type: "radio",
+				name: Strings.get("SETTINGS_MIDDLE_CLICK"),
+				note: Strings.get("SETTINGS_MIDDLE_CLICK_NOTE"),
+				options: [
+					{ name: Strings.get("SETTINGS_OPTIONS_OPEN_SETTINGS"), value: 1 },
+					{
+						name: `${Strings.get("SETTINGS_OPTIONS_CONTEXT_MENU")} (${Strings.get("DEFAULT")})`,
+						value: 2,
+					},
+					{ name: Strings.get("SETTINGS_OPTIONS_STATUS_PICKER"), value: 3 },
+					{ name: Strings.get("SETTINGS_OPTIONS_NOTHING"), value: 0 },
+				],
+			},
+			{
+				id: "showTooltip",
+				type: "switch",
+				name: Strings.get("SETTINGS_TOOLTIP"),
+				note: Strings.get("SETTINGS_TOOLTIP_NOTE"),
+			},
+		]);
 	}
 }

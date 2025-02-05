@@ -1,5 +1,5 @@
 import { DOM, Patcher, Meta, Plugin, Changes } from "betterdiscord";
-import { showChangelog } from "@lib";
+import { buildSettingsPanel, showChangelog } from "@lib";
 import {
 	ActivityStatus,
 	memberSelector,
@@ -7,11 +7,10 @@ import {
 	privateChannelSelector,
 } from "./modules/discordmodules";
 import { changelog } from "./manifest.json";
-import { Strings, forceUpdateAll } from "./modules/utils";
+import { Settings, Strings, forceUpdateAll } from "./modules/utils";
 import styles from "./styles.css";
 import ActivityIcon from "./components/ActivityIcon";
 import ListeningIcon from "./components/ListeningIcon";
-import SettingsPanel from "./components/SettingsPanel";
 import WatchingIcon from "./components/WatchingIcon";
 
 export default class ActivityIcons implements Plugin {
@@ -65,6 +64,37 @@ export default class ActivityIcons implements Plugin {
 	}
 
 	getSettingsPanel() {
-		return <SettingsPanel />;
+		return buildSettingsPanel(Settings, [
+			{
+				id: "normalActivityIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_NORMAL_ACTIVITY"),
+				note: Strings.get("SETTINGS_NORMAL_ACTIVITY_NOTE"),
+			},
+			{
+				id: "richPresenceIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_RICH_PRESENCE"),
+				note: Strings.get("SETTINGS_RICH_PRESENCE_NOTE"),
+			},
+			{
+				id: "platformIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_PLATFORM"),
+				note: Strings.get("SETTINGS_PLATFORM_NOTE"),
+			},
+			{
+				id: "listeningIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_LISTENING"),
+				note: Strings.get("SETTINGS_LISTENING_NOTE"),
+			},
+			{
+				id: "watchingIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_WATCHING"),
+				note: Strings.get("SETTINGS_WATCHING_NOTE"),
+			},
+		]);
 	}
 }

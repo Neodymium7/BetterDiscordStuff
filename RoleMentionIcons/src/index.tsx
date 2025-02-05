@@ -1,7 +1,6 @@
 import { DOM, Meta, Plugin, Changes } from "betterdiscord";
-import { showChangelog } from "@lib";
+import { buildSettingsPanel, showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
-import SettingsPanel from "./components/SettingsPanel";
 import { roleMention } from "./modules/discordmodules";
 import { Settings, Strings, filter, getIconElement, getProps, peopleSVG } from "./modules/utils";
 import { GuildStore } from "@discord/stores";
@@ -81,6 +80,20 @@ export default class RoleMentionIcons implements Plugin {
 	}
 
 	getSettingsPanel() {
-		return <SettingsPanel />;
+		return buildSettingsPanel(Settings, [
+			{
+				id: "everyone",
+				type: "switch",
+				name: Strings.get("SETTINGS_EVERYONE"),
+				note: Strings.get("SETTINGS_EVERYONE_NOTE"),
+			},
+			{ name: Strings.get("SETTINGS_HERE"), note: Strings.get("SETTINGS_HERE_NOTE"), id: "here", type: "switch" },
+			{
+				id: "showRoleIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_ROLE_ICONS"),
+				note: Strings.get("SETTINGS_ROLE_ICONS_NOTE"),
+			},
+		]);
 	}
 }
