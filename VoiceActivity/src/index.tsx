@@ -87,9 +87,11 @@ export default class VoiceActivity implements Plugin {
 			if (props.channel.type !== 1) return;
 
 			// Plugin compatibility fix
-			const target = Utils.findInTree(ret, (e) => typeof e?.props?.children !== "function", {
-				walkable: ["children", "props"],
-			})?.props?.children ?? ret;
+			const target =
+				Utils.findInTree(ret, (e) => typeof e?.props?.children !== "function", {
+					walkable: ["children", "props"],
+				})?.props?.children ?? ret;
+
 			const children = target.props.children;
 			target.props.children = (childrenProps: any) => {
 				const childrenRet = children(childrenProps);
