@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.9.4
+ * @version 1.9.5
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -96,6 +96,15 @@ class SettingsManager {
 		for (const listener of this.listeners) listener(key, value);
 	}
 }
+function buildSettingsPanel(settingsManager, settings) {
+	for (const setting of settings) {
+		setting.value = settingsManager.get(setting.id);
+	}
+	return betterdiscord.UI.buildSettingsPanel({
+		settings,
+		onChange: (_, id, value) => settingsManager.set(id, value)
+	});
+}
 
 // @lib/strings.ts
 const LocaleStore = betterdiscord.Webpack.getStore("LocaleStore");
@@ -142,8 +151,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed member list items disappearing.",
-			"Fixed plugin settings not rendering."
+			"Fixed compatibility with MessagePeek."
 		]
 	}
 ];
@@ -1058,61 +1066,6 @@ function VoiceProfileSection(props) {
 	return props.wrapper ? BdApi.React.createElement(props.wrapper, null, section) : section;
 }
 
-// components/SettingsPanel.tsx
-const settings = {
-	showProfileSection: {
-		name: Strings.get("SETTINGS_PROFILE"),
-		note: Strings.get("SETTINGS_PROFILE_NOTE")
-	},
-	showMemberListIcons: {
-		name: Strings.get("SETTINGS_ICONS"),
-		note: Strings.get("SETTINGS_ICONS_NOTE")
-	},
-	showDMListIcons: {
-		name: Strings.get("SETTINGS_DM_ICONS"),
-		note: Strings.get("SETTINGS_DM_ICONS_NOTE")
-	},
-	showPeopleListIcons: {
-		name: Strings.get("SETTINGS_PEOPLE_ICONS"),
-		note: Strings.get("SETTINGS_PEOPLE_ICONS_NOTE")
-	},
-	showGuildIcons: {
-		name: Strings.get("SETTINGS_GUILD_ICONS"),
-		note: Strings.get("SETTINGS_GUILD_ICONS_NOTE")
-	},
-	currentChannelColor: {
-		name: Strings.get("SETTINGS_COLOR"),
-		note: Strings.get("SETTINGS_COLOR_NOTE")
-	},
-	showStatusIcons: {
-		name: Strings.get("SETTINGS_STATUS"),
-		note: Strings.get("SETTINGS_STATUS_NOTE")
-	},
-	ignoreEnabled: {
-		name: Strings.get("SETTINGS_IGNORE"),
-		note: Strings.get("SETTINGS_IGNORE_NOTE")
-	}
-};
-const SwitchItem = (props) => {
-	const value = Settings.useSettingsState(props.setting)[props.setting];
-	return BdApi.React.createElement(betterdiscord.Components.SettingItem, { id: props.setting, name: props.name, note: props.note, inline: true }, BdApi.React.createElement(
-		betterdiscord.Components.SwitchInput,
-		{
-			id: props.setting,
-			value,
-			onChange: (v) => {
-				Settings.set(props.setting, v);
-			}
-		}
-	));
-};
-function SettingsPanel() {
-	return BdApi.React.createElement(BdApi.React.Fragment, null, Object.keys(settings).map((key) => {
-		const { name, note } = settings[key];
-		return BdApi.React.createElement(SwitchItem, { setting: key, name, note });
-	}));
-}
-
 // index.tsx
 const guildIconSelector = `div:not([data-dnd-name]) + ${iconWrapperSelector}`;
 class VoiceActivity {
@@ -1167,8 +1120,9 @@ class VoiceActivity {
 		if (!PrivateChannel) return;
 		const patchType = (props, ret) => {
 			if (props.channel.type !== 1) return;
-			let target = ret;
-			if (typeof target.props.children != "function") target = ret.props.children;
+			const target = betterdiscord.Utils.findInTree(ret, (e) => typeof e?.props?.children !== "function", {
+				walkable: ["children", "props"]
+			})?.props?.children ?? ret;
 			const children2 = target.props.children;
 			target.props.children = (childrenProps) => {
 				const childrenRet = children2(childrenProps);
@@ -1294,7 +1248,56 @@ class VoiceActivity {
 		Strings.unsubscribe();
 	}
 	getSettingsPanel() {
-		return BdApi.React.createElement(SettingsPanel, null);
+		return buildSettingsPanel(Settings, [
+			{
+				id: "showProfileSection",
+				type: "switch",
+				name: Strings.get("SETTINGS_PROFILE"),
+				note: Strings.get("SETTINGS_PROFILE_NOTE")
+			},
+			{
+				id: "showMemberListIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_ICONS"),
+				note: Strings.get("SETTINGS_ICONS_NOTE")
+			},
+			{
+				id: "showDMListIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_DM_ICONS"),
+				note: Strings.get("SETTINGS_DM_ICONS_NOTE")
+			},
+			{
+				id: "showPeopleListIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_PEOPLE_ICONS"),
+				note: Strings.get("SETTINGS_PEOPLE_ICONS_NOTE")
+			},
+			{
+				id: "showGuildIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_GUILD_ICONS"),
+				note: Strings.get("SETTINGS_GUILD_ICONS_NOTE")
+			},
+			{
+				id: "currentChannelColor",
+				type: "switch",
+				name: Strings.get("SETTINGS_COLOR"),
+				note: Strings.get("SETTINGS_COLOR_NOTE")
+			},
+			{
+				id: "showStatusIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_STATUS"),
+				note: Strings.get("SETTINGS_STATUS_NOTE")
+			},
+			{
+				id: "ignoreEnabled",
+				type: "switch",
+				name: Strings.get("SETTINGS_IGNORE"),
+				note: Strings.get("SETTINGS_IGNORE_NOTE")
+			}
+		]);
 	}
 }
 
