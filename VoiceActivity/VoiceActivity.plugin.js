@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.9.5
+ * @version 1.9.6
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -151,7 +151,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed compatibility with MessagePeek."
+			"Fixed user popout section not displaying."
 		]
 	}
 ];
@@ -224,7 +224,7 @@ const UserPanelBody = expectWithKey({
 	name: "UserPanelBody"
 });
 const UserPopoutBody = expectWithKey({
-	filter: betterdiscord.Webpack.Filters.byStrings("BITE_SIZE", '"profile"'),
+	filter: betterdiscord.Webpack.Filters.byStrings("BITE_SIZE", "UserProfilePopoutBody"),
 	name: "UserPopoutBody"
 });
 const PrivateChannel = expectWithKey({
