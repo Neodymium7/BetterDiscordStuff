@@ -13,7 +13,7 @@ export const UserPanelBody = expectWithKey<AnyComponent>({
 });
 
 export const UserPopoutBody = expectWithKey<AnyComponent>({
-	filter: Webpack.Filters.byStrings("BITE_SIZE", '"profile"'),
+	filter: Webpack.Filters.byStrings("BITE_SIZE", "UserProfilePopoutBody"),
 	name: "UserPopoutBody",
 });
 
