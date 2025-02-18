@@ -12,8 +12,7 @@ export default class AvatarSettingsButton implements Plugin {
 	meta: Meta;
 	target: HTMLElement | null = null;
 	tooltip: Tooltip | null = null;
-	clearListeners?: () => void;
-	lastContextMenuTimestamp?: number;
+	clearListener?: () => void;
 
 	constructor(meta: Meta) {
 		this.meta = meta;
@@ -24,12 +23,12 @@ export default class AvatarSettingsButton implements Plugin {
 		DOM.addStyle(`${settingsSelector} { display: none; } .${accountClasses.avatarWrapper} { width: 100%; }`);
 		Strings.subscribe();
 		Settings.addListener(() => {
-			this.addListeners();
+			this.addListener();
 			this.addTooltip();
 		});
 
 		this.target = document.querySelector("." + accountClasses.avatarWrapper);
-		this.addListeners();
+		this.addListener();
 		this.addTooltip();
 	}
 
@@ -41,7 +40,7 @@ export default class AvatarSettingsButton implements Plugin {
 			const avatarWrapper = node.querySelector(`.${accountClasses.avatarWrapper}`);
 			if (avatarWrapper instanceof HTMLElement) {
 				this.target = avatarWrapper;
-				this.addListeners();
+				this.addListener();
 				this.addTooltip();
 			}
 		}
@@ -72,9 +71,9 @@ export default class AvatarSettingsButton implements Plugin {
 		);
 	}
 
-	addListeners() {
+	addListener() {
 		if (!this.target) return;
-		this.clearListeners?.();
+		this.clearListener?.();
 
 		const actions = [
 			null,
@@ -84,43 +83,23 @@ export default class AvatarSettingsButton implements Plugin {
 		];
 
 		const clickAction = actions[Settings.get("click")];
-		const click = (e: MouseEvent) => {
-			if (e.isTrusted) {
+		const contextmenuAction = actions[Settings.get("contextmenu")];
+		const middleclickAction = actions[Settings.get("middleclick")];
+
+		const clickHandler = (e: MouseEvent) => {
+			if (e.button == 0 && e.isTrusted) {
 				e.preventDefault();
 				e.stopPropagation();
 				clickAction?.(e);
-				this.tooltip?.forceHide();
-			}
-		};
-
-		const contextmenuAction = actions[Settings.get("contextmenu")];
-		const contextmenu = (e: MouseEvent) => {
-			// Prevent double contextmenu events (not sure why it's happening)
-			if (e.timeStamp === this.lastContextMenuTimestamp) {
-				return;
-			}
-			this.lastContextMenuTimestamp = e.timeStamp;
-
-			contextmenuAction?.(e);
+			} else if (e.button == 2) contextmenuAction?.(e);
+			else if (e.button == 1) middleclickAction?.(e);
 			this.tooltip?.forceHide();
 		};
 
-		const middleclickAction = actions[Settings.get("middleclick")];
-		const middleclick = (e: MouseEvent) => {
-			if (e.button === 1) {
-				middleclickAction?.(e);
-				this.tooltip?.forceHide();
-			}
-		};
+		this.target.addEventListener("mousedown", clickHandler);
 
-		this.target.addEventListener("click", click);
-		this.target.addEventListener("contextmenu", contextmenu);
-		this.target.addEventListener("mousedown", middleclick);
-
-		this.clearListeners = () => {
-			this.target?.removeEventListener("click", click);
-			this.target?.removeEventListener("contextmenu", contextmenu);
-			this.target?.removeEventListener("mousedown", middleclick);
+		this.clearListener = () => {
+			this.target?.removeEventListener("mousedown", clickHandler);
 		};
 	}
 
@@ -145,7 +124,7 @@ export default class AvatarSettingsButton implements Plugin {
 		DOM.removeStyle();
 		Strings.unsubscribe();
 		Settings.clearListeners();
-		this.clearListeners?.();
+		this.clearListener?.();
 		this.tooltip?.remove();
 		this.target = null;
 		this.tooltip = null;
