@@ -1,7 +1,7 @@
 /**
  * @name ActivityToggle
  * @author Neodymium
- * @version 1.2.16
+ * @version 1.2.17
  * @description Adds a button to quickly toggle Activity Status.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  * @invite fRbsqH87Av
@@ -59,9 +59,7 @@ function getIcon(searchString) {
 function expect(object, options) {
 	if (object) return object;
 	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
-	const errorMessage = `Module ${options.name} not found.${fallbackMessage}
-
-Contact the plugin developer to inform them of this error.`;
+	const errorMessage = `Module ${options.name} not found.${fallbackMessage}\n\nContact the plugin developer to inform them of this error.`;
 	betterdiscord.Logger.error(errorMessage);
 	options.onError?.();
 	if (options.fatal) throw new Error(errorMessage);
@@ -72,11 +70,7 @@ function expectModule(options) {
 }
 function expectSelectors(name, classes) {
 	return expect(getSelectors(...classes), {
-		name,
-		fallback: classes.reduce((obj, key) => {
-			obj[key] = null;
-			return obj;
-		}, {})
+		name
 	});
 }
 function expectIcon(name, searchString) {
@@ -85,36 +79,29 @@ function expectIcon(name, searchString) {
 		fallback: (_props) => null
 	});
 }
+function byType(type) {
+	return (e) => typeof e === type;
+}
+
+// @lib/utils/react.tsx
+const EmptyComponent = (props) => null;
 
 // modules.ts
-const {
-	Filters: { byKeys, byStrings }
-} = betterdiscord.Webpack;
-const Sections = expectModule({
-	filter: byKeys("ACCOUNT", "ACCESSIBILITY"),
-	searchExports: true,
-	name: "Sections",
-	fallback: {
-		ACTIVITY_PRIVACY: "Activity Privacy"
-	}
-});
 const PanelButton = expectModule({
-	filter: byStrings("PANEL_BUTTON"),
+	filter: betterdiscord.Webpack.Filters.byStrings("PANEL_BUTTON"),
 	name: "PanelButton",
-	fatal: true
+	fallback: EmptyComponent
 });
-const Activity = expectIcon(
-	"Activity",
-	"M20.97 4.06c0 .18.08.35.24.43.55.28.9.82 1.04 1.42.3 1.24.75 3.7.75 7.09v4.91a3.09"
-);
-const Settings = expectIcon("Settings", "M10.56 1.1c-.46.05-.7.53-.64.98.18 1.16-.19 2.2-.98 2.53");
 const playSound = expectModule({
-	filter: byStrings("Unable to find sound for pack name:"),
+	filter: betterdiscord.Webpack.Filters.combine(
+		betterdiscord.Webpack.Filters.byStrings("Unable to find sound for pack name:"),
+		byType("function")
+	),
 	name: "playSound",
 	searchExports: true
 });
 const ShowCurrentGame = expectModule({
-	filter: (m) => Object.values(m).some((e) => e?.useSetting),
+	filter: (m) => m.G6?.useSetting,
 	name: "ShowCurrentGame",
 	fallback: {
 		G6: {
@@ -123,10 +110,6 @@ const ShowCurrentGame = expectModule({
 		}
 	}
 })?.G6;
-const UserSettingsWindow = expectModule({
-	filter: byKeys("open", "updateAccount"),
-	name: "UserSettingsWindow"
-});
 const AccountSelectors = expectSelectors("Account Classes", [
 	"avatarWrapper",
 	"accountProfilePopoutWrapper",
@@ -144,6 +127,28 @@ function ActivityDisabled(props) {
 	));
 }
 
+// @discord/icons.tsx
+const Activity = expectIcon(
+	"Activity",
+	"M20.97 4.06c0 .18.08.35.24.43.55.28.9.82 1.04 1.42.3 1.24.75 3.7.75 7.09v4.91a3.09"
+);
+const Settings = expectIcon(
+	"Settings",
+	"M10.56 1.1c-.46.05-.7.53-.64.98.18 1.16-.19 2.2-.98 2.53"
+);
+
+// @discord/modules.ts
+const SettingsSections = expectModule({
+	filter: betterdiscord.Webpack.Filters.byKeys("ACCOUNT", "CHANGE_LOG"),
+	searchExports: true,
+	name: "SettingsSections",
+	fallback: { ACCOUNT: "My Account", ACTIVITY_PRIVACY: "Activity Privacy" }
+});
+const UserSettingsWindow = expectModule({
+	filter: betterdiscord.Webpack.Filters.byKeys("saveAccountChanges", "setSection", "open"),
+	name: "UserSettingsWindow"
+});
+
 // components/ActivityToggleButton.tsx
 function ActivityToggleButton() {
 	const activityEnabled = ShowCurrentGame.useSetting();
@@ -157,7 +162,7 @@ function ActivityToggleButton() {
 					return betterdiscord.UI.alert("Error", "Could not update setting. See the console for more information.");
 				}
 				ShowCurrentGame.updateSetting(!activityEnabled);
-				playSound(activityEnabled ? "activity_user_left" : "activity_user_join", 0.4);
+				playSound?.(activityEnabled ? "activity_user_left" : "activity_user_join", 0.4);
 			},
 			onContextMenu: (e) => {
 				betterdiscord.ContextMenu.open(
@@ -173,7 +178,7 @@ function ActivityToggleButton() {
 										"Could not open settings window. See the console for more information."
 									);
 								}
-								UserSettingsWindow.setSection(Sections.ACTIVITY_PRIVACY);
+								UserSettingsWindow.setSection(SettingsSections.ACTIVITY_PRIVACY);
 								UserSettingsWindow.open();
 							}
 						}
@@ -184,7 +189,8 @@ function ActivityToggleButton() {
 	);
 }
 
-// @lib/updater.tsx
+// @lib/updater.ts
+const hoverClass = getClasses("anchorUnderlineOnHover")?.anchorUnderlineOnHover || "";
 const findVersion = (pluginContents) => {
 	const lines = pluginContents.split("\n");
 	const versionLine = lines.find((line) => line.includes("@version"));
@@ -195,30 +201,20 @@ const updatePlugin = (name, newContents) => {
 	fs.writeFileSync(path$1, newContents);
 };
 const showUpdateNotice = (name, version, newContents) => {
-	const noticeElement = document.createElement("span");
-	const linkElementStyle = "color: #fff; font-weight: 700;";
-	const linkElementHTML = `<a href="https://github.com/Neodymium7/BetterDiscordStuff/blob/main/${name}/${name}.plugin.js" target="_blank" style="${linkElementStyle}">${name} v${version}</a>`;
-	const linkElement = betterdiscord.DOM.parseHTML(linkElementHTML);
-	const setStyle = (style) => linkElement.setAttribute("style", style);
-	linkElement.addEventListener("mouseenter", () => setStyle(linkElementStyle + " text-decoration: underline;"));
-	linkElement.addEventListener("mouseleave", () => setStyle(linkElementStyle));
-	betterdiscord.UI.createTooltip(linkElement, "View Source", { side: "bottom" });
-	noticeElement.appendChild(linkElement);
-	noticeElement.appendChild(document.createTextNode(" is available"));
-	const closeNotice = betterdiscord.UI.showNotice(noticeElement, {
+	const noticeElementHTML = `<span><a href="https://github.com/Neodymium7/BetterDiscordStuff/blob/main/${name}/${name}.plugin.js" target="_blank" class="${hoverClass}" style="color: #fff; font-weight: 700;">${name} v${version}</a> is available</span>`;
+	const noticeElement = betterdiscord.DOM.parseHTML(noticeElementHTML);
+	betterdiscord.UI.createTooltip(noticeElement.firstChild, "View Source", { side: "bottom" });
+	return betterdiscord.UI.showNotice(noticeElement, {
 		buttons: [
 			{
 				label: "Update",
-				onClick: () => {
-					updatePlugin(name, newContents);
-					closeNotice();
-				}
+				onClick: () => updatePlugin(name, newContents)
 			}
 		]
 	});
-	return closeNotice;
 };
 const Updater = {
+	closeUpdateNotice: void 0,
 	async checkForUpdates(meta) {
 		const url = `https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/${meta.name}/${meta.name}.plugin.js`;
 		const res = await betterdiscord.Net.fetch(url);
@@ -228,7 +224,7 @@ const Updater = {
 		}
 		const text = await res.text();
 		const version = findVersion(text);
-		if (version <= meta.version) return;
+		if (version === meta.version) return;
 		this.closeUpdateNotice = showUpdateNotice(meta.name, version, text);
 	},
 	closeNotice() {
@@ -245,21 +241,25 @@ class ActivityToggle {
 	}
 	start() {
 		Updater.checkForUpdates(this.meta);
-		betterdiscord.DOM.addStyle(`${AccountSelectors.avatarWrapper} { min-width: 70px; }`);
+		if (AccountSelectors) betterdiscord.DOM.addStyle(`${AccountSelectors.avatarWrapper} { min-width: 70px; }`);
 		this.patch();
 	}
 	patch() {
-		const owner = betterdiscord.ReactUtils.getOwnerInstance(document.querySelector(AccountSelectors.container));
+		if (!AccountSelectors) return;
+		const element = document.querySelector(AccountSelectors.container);
+		if (!element) return;
+		const owner = betterdiscord.ReactUtils.getOwnerInstance(element);
+		if (!owner) return;
 		const Account = owner._reactInternals.type;
 		this.forceUpdate = owner.forceUpdate.bind(owner);
-		betterdiscord.Patcher.after(Account.prototype, "render", (_that, [_props], ret) => {
+		betterdiscord.Patcher.after(Account.prototype, "render", (_that, _args, ret) => {
 			const buttonContainerFilter = (i) => Array.isArray(i?.props?.children) && i.props.children.some((e) => e?.props?.hasOwnProperty("selfMute"));
 			const buttonContainer = betterdiscord.Utils.findInTree(ret.props.children, buttonContainerFilter, {
 				walkable: ["children", "props"]
 			});
 			buttonContainer.props.children.unshift(BdApi.React.createElement(ActivityToggleButton, null));
 		});
-		this.forceUpdate();
+		this.forceUpdate?.();
 	}
 	stop() {
 		betterdiscord.DOM.removeStyle();
