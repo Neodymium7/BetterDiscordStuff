@@ -19,7 +19,7 @@ export const playSound = expectModule<(sound: string, volume: number) => void>({
 });
 
 export const ShowCurrentGame = expectModule({
-	filter: (m) => Object.values(m).some((e: any) => e?.useSetting),
+	filter: (m) => m.G6?.useSetting,
 	name: "ShowCurrentGame",
 	fallback: {
 		G6: {
