@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.9.6
+ * @version 1.9.7
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -151,7 +151,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed user popout section not displaying."
+			"Fixed crashing."
 		]
 	}
 ];
@@ -246,7 +246,7 @@ const PartyMembers = expectModule({
 	fallback: EmptyComponent
 });
 const MoreIcon = expectModule({
-	filter: betterdiscord.Webpack.Filters.byStrings(".contextMenu", "intl.string("),
+	filter: betterdiscord.Webpack.Filters.byStrings(".contextMenu", "colors.INTERACTIVE_NORMAL"),
 	name: "MoreIcon",
 	fallback: EmptyComponent
 });
@@ -1109,7 +1109,9 @@ class VoiceActivity {
 			const children2 = ret.props.children;
 			ret.props.children = (childrenProps) => {
 				const childrenRet = children2(childrenProps);
-				const target = childrenRet.props.children;
+				const target = betterdiscord.Utils.findInTree(childrenRet, (x) => x.props?.avatar && x.props?.decorators, {
+					walkable: ["props", "children"]
+				});
 				const icon = BdApi.React.createElement(VoiceIcon, { userId: props.user.id, context: "memberlist" });
 				Array.isArray(target.props.children) ? target.props.children.unshift(icon) : target.props.children = [icon];
 				return childrenRet;
