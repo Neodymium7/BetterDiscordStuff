@@ -40,7 +40,7 @@ export const PartyMembers = expectModule({
 });
 
 export const MoreIcon = expectModule({
-	filter: Webpack.Filters.byStrings(".contextMenu", "intl.string("),
+	filter: Webpack.Filters.byStrings(".contextMenu", "colors.INTERACTIVE_NORMAL"),
 	name: "MoreIcon",
 	fallback: EmptyComponent,
 });

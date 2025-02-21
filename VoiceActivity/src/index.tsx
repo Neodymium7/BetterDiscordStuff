@@ -68,7 +68,9 @@ export default class VoiceActivity implements Plugin {
 			ret.props.children = (childrenProps: any) => {
 				const childrenRet = children(childrenProps);
 
-				const target = childrenRet.props.children;
+				const target = Utils.findInTree(childrenRet, (x) => x.props?.avatar && x.props?.decorators, {
+					walkable: ["props", "children"],
+				});
 
 				const icon = <VoiceIcon userId={props.user.id} context="memberlist" />;
 
