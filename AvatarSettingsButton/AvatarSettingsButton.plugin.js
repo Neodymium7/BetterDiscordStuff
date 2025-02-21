@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 2.2.1
+ * @version 2.2.2
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
@@ -87,6 +87,15 @@ class SettingsManager {
 		for (const listener of this.listeners) listener(key, value);
 	}
 }
+function buildSettingsPanel(settingsManager, settings) {
+	for (const setting of settings) {
+		setting.value = settingsManager.get(setting.id);
+	}
+	return betterdiscord.UI.buildSettingsPanel({
+		settings,
+		onChange: (_, id, value) => settingsManager.set(id, value)
+	});
+}
 
 // @lib/strings.ts
 const LocaleStore = betterdiscord.Webpack.getStore("LocaleStore");
@@ -133,7 +142,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed settings not rendering."
+			"Fixed hiding default settings button."
 		]
 	}
 ];
@@ -321,91 +330,6 @@ class Tooltip {
 	}
 }
 
-// components/SettingsPanel.tsx
-const SwitchItem = (props) => {
-	const value = Settings.useSettingsState(props.setting)[props.setting];
-	return BdApi.React.createElement(betterdiscord.Components.SettingItem, { id: props.setting, name: props.name, note: props.note, inline: true }, BdApi.React.createElement(
-		betterdiscord.Components.SwitchInput,
-		{
-			id: props.setting,
-			value,
-			onChange: (v) => {
-				Settings.set(props.setting, v);
-			}
-		}
-	));
-};
-const RadioItem = (props) => {
-	const value = Settings.useSettingsState(props.setting)[props.setting];
-	return BdApi.React.createElement(betterdiscord.Components.SettingItem, { name: props.name, note: props.note, id: props.setting }, BdApi.React.createElement(
-		betterdiscord.Components.RadioInput,
-		{
-			name: props.name,
-			options: props.options,
-			onChange: (v) => Settings.set(props.setting, v),
-			value
-		}
-	));
-};
-function SettingsPanel() {
-	return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(
-		RadioItem,
-		{
-			name: Strings.get("SETTINGS_CLICK"),
-			note: Strings.get("SETTINGS_CLICK_NOTE"),
-			setting: "click",
-			options: [
-				{
-					name: `${Strings.get("SETTINGS_OPTIONS_OPEN_SETTINGS")} (${Strings.get("DEFAULT")})`,
-					value: 1
-				},
-				{ name: Strings.get("SETTINGS_OPTIONS_CONTEXT_MENU"), value: 2 },
-				{ name: Strings.get("SETTINGS_OPTIONS_STATUS_PICKER"), value: 3 },
-				{ name: Strings.get("SETTINGS_OPTIONS_NOTHING"), value: 0 }
-			]
-		}
-	), BdApi.React.createElement(
-		RadioItem,
-		{
-			name: Strings.get("SETTINGS_RIGHT_CLICK"),
-			note: Strings.get("SETTINGS_RIGHT_CLICK_NOTE"),
-			setting: "contextmenu",
-			options: [
-				{ name: Strings.get("SETTINGS_OPTIONS_OPEN_SETTINGS"), value: 1 },
-				{ name: Strings.get("SETTINGS_OPTIONS_CONTEXT_MENU"), value: 2 },
-				{
-					name: `${Strings.get("SETTINGS_OPTIONS_STATUS_PICKER")} (${Strings.get("DEFAULT")})`,
-					value: 3
-				},
-				{ name: Strings.get("SETTINGS_OPTIONS_NOTHING"), value: 0 }
-			]
-		}
-	), BdApi.React.createElement(
-		RadioItem,
-		{
-			name: Strings.get("SETTINGS_MIDDLE_CLICK"),
-			note: Strings.get("SETTINGS_MIDDLE_CLICK_NOTE"),
-			setting: "middleclick",
-			options: [
-				{ name: Strings.get("SETTINGS_OPTIONS_OPEN_SETTINGS"), value: 1 },
-				{
-					name: `${Strings.get("SETTINGS_OPTIONS_CONTEXT_MENU")} (${Strings.get("DEFAULT")})`,
-					value: 2
-				},
-				{ name: Strings.get("SETTINGS_OPTIONS_STATUS_PICKER"), value: 3 },
-				{ name: Strings.get("SETTINGS_OPTIONS_NOTHING"), value: 0 }
-			]
-		}
-	), BdApi.React.createElement(
-		SwitchItem,
-		{
-			name: Strings.get("SETTINGS_TOOLTIP"),
-			note: Strings.get("SETTINGS_TOOLTIP_NOTE"),
-			setting: "showTooltip"
-		}
-	));
-}
-
 // @discord/modules.ts
 const SettingsSections = expectModule({
 	filter: betterdiscord.Webpack.Filters.byKeys("ACCOUNT", "CHANGE_LOG"),
@@ -419,13 +343,12 @@ const UserSettingsWindow = expectModule({
 });
 
 // index.tsx
-const settingsSelector = `.${accountClasses.container} > div > button:nth-last-child(1)`;
+const settingsSelector = `.${accountClasses.container} button:nth-last-child(1):not(:first-child)`;
 class AvatarSettingsButton {
 	meta;
 	target = null;
 	tooltip = null;
-	clearListeners;
-	lastContextMenuTimestamp;
+	clearListener;
 	constructor(meta) {
 		this.meta = meta;
 	}
@@ -434,11 +357,11 @@ class AvatarSettingsButton {
 		betterdiscord.DOM.addStyle(`${settingsSelector} { display: none; } .${accountClasses.avatarWrapper} { width: 100%; }`);
 		Strings.subscribe();
 		Settings.addListener(() => {
-			this.addListeners();
+			this.addListener();
 			this.addTooltip();
 		});
 		this.target = document.querySelector("." + accountClasses.avatarWrapper);
-		this.addListeners();
+		this.addListener();
 		this.addTooltip();
 	}
 	observer({ addedNodes }) {
@@ -448,7 +371,7 @@ class AvatarSettingsButton {
 			const avatarWrapper = node.querySelector(`.${accountClasses.avatarWrapper}`);
 			if (avatarWrapper instanceof HTMLElement) {
 				this.target = avatarWrapper;
-				this.addListeners();
+				this.addListener();
 				this.addTooltip();
 			}
 		}
@@ -475,9 +398,9 @@ class AvatarSettingsButton {
 			})
 		);
 	}
-	addListeners() {
+	addListener() {
 		if (!this.target) return;
-		this.clearListeners?.();
+		this.clearListener?.();
 		const actions = [
 			null,
 			this.openSettings.bind(this),
@@ -485,37 +408,20 @@ class AvatarSettingsButton {
 			this.openPopout.bind(this)
 		];
 		const clickAction = actions[Settings.get("click")];
-		const click = (e) => {
-			if (e.isTrusted) {
+		const contextmenuAction = actions[Settings.get("contextmenu")];
+		const middleclickAction = actions[Settings.get("middleclick")];
+		const clickHandler = (e) => {
+			if (e.button == 0 && e.isTrusted) {
 				e.preventDefault();
 				e.stopPropagation();
 				clickAction?.(e);
-				this.tooltip?.forceHide();
-			}
-		};
-		const contextmenuAction = actions[Settings.get("contextmenu")];
-		const contextmenu = (e) => {
-			if (e.timeStamp === this.lastContextMenuTimestamp) {
-				return;
-			}
-			this.lastContextMenuTimestamp = e.timeStamp;
-			contextmenuAction?.(e);
+			} else if (e.button == 2) contextmenuAction?.(e);
+			else if (e.button == 1) middleclickAction?.(e);
 			this.tooltip?.forceHide();
 		};
-		const middleclickAction = actions[Settings.get("middleclick")];
-		const middleclick = (e) => {
-			if (e.button === 1) {
-				middleclickAction?.(e);
-				this.tooltip?.forceHide();
-			}
-		};
-		this.target.addEventListener("click", click);
-		this.target.addEventListener("contextmenu", contextmenu);
-		this.target.addEventListener("mousedown", middleclick);
-		this.clearListeners = () => {
-			this.target?.removeEventListener("click", click);
-			this.target?.removeEventListener("contextmenu", contextmenu);
-			this.target?.removeEventListener("mousedown", middleclick);
+		this.target.addEventListener("mousedown", clickHandler);
+		this.clearListener = () => {
+			this.target?.removeEventListener("mousedown", clickHandler);
 		};
 	}
 	addTooltip() {
@@ -537,13 +443,65 @@ class AvatarSettingsButton {
 		betterdiscord.DOM.removeStyle();
 		Strings.unsubscribe();
 		Settings.clearListeners();
-		this.clearListeners?.();
+		this.clearListener?.();
 		this.tooltip?.remove();
 		this.target = null;
 		this.tooltip = null;
 	}
 	getSettingsPanel() {
-		return BdApi.React.createElement(SettingsPanel, null);
+		return buildSettingsPanel(Settings, [
+			{
+				id: "click",
+				type: "radio",
+				name: Strings.get("SETTINGS_CLICK"),
+				note: Strings.get("SETTINGS_CLICK_NOTE"),
+				options: [
+					{
+						name: `${Strings.get("SETTINGS_OPTIONS_OPEN_SETTINGS")} (${Strings.get("DEFAULT")})`,
+						value: 1
+					},
+					{ name: Strings.get("SETTINGS_OPTIONS_CONTEXT_MENU"), value: 2 },
+					{ name: Strings.get("SETTINGS_OPTIONS_STATUS_PICKER"), value: 3 },
+					{ name: Strings.get("SETTINGS_OPTIONS_NOTHING"), value: 0 }
+				]
+			},
+			{
+				id: "contextmenu",
+				type: "radio",
+				name: Strings.get("SETTINGS_RIGHT_CLICK"),
+				note: Strings.get("SETTINGS_RIGHT_CLICK_NOTE"),
+				options: [
+					{ name: Strings.get("SETTINGS_OPTIONS_OPEN_SETTINGS"), value: 1 },
+					{ name: Strings.get("SETTINGS_OPTIONS_CONTEXT_MENU"), value: 2 },
+					{
+						name: `${Strings.get("SETTINGS_OPTIONS_STATUS_PICKER")} (${Strings.get("DEFAULT")})`,
+						value: 3
+					},
+					{ name: Strings.get("SETTINGS_OPTIONS_NOTHING"), value: 0 }
+				]
+			},
+			{
+				id: "middleclick",
+				type: "radio",
+				name: Strings.get("SETTINGS_MIDDLE_CLICK"),
+				note: Strings.get("SETTINGS_MIDDLE_CLICK_NOTE"),
+				options: [
+					{ name: Strings.get("SETTINGS_OPTIONS_OPEN_SETTINGS"), value: 1 },
+					{
+						name: `${Strings.get("SETTINGS_OPTIONS_CONTEXT_MENU")} (${Strings.get("DEFAULT")})`,
+						value: 2
+					},
+					{ name: Strings.get("SETTINGS_OPTIONS_STATUS_PICKER"), value: 3 },
+					{ name: Strings.get("SETTINGS_OPTIONS_NOTHING"), value: 0 }
+				]
+			},
+			{
+				id: "showTooltip",
+				type: "switch",
+				name: Strings.get("SETTINGS_TOOLTIP"),
+				note: Strings.get("SETTINGS_TOOLTIP_NOTE")
+			}
+		]);
 	}
 }
 
