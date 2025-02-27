@@ -26,15 +26,24 @@ export default class ActivityToggle implements Plugin {
 		const Account = owner._reactInternals.type;
 		this.forceUpdate = owner.forceUpdate.bind(owner);
 
-		Patcher.after(Account.prototype, "render", (_that, _args, ret) => {
-			const buttonContainerFilter = (i: any) =>
-				Array.isArray(i?.props?.children) &&
-				i.props.children.some((e: any) => e?.props?.hasOwnProperty("selfMute"));
+		let buttonsType: ((props: any) => React.ReactElement) | null = null;
 
-			const buttonContainer = Utils.findInTree(ret.props.children, buttonContainerFilter, {
+		Patcher.after(Account.prototype, "render", (_that, _args, ret) => {
+			const buttonsFilter = (e: any) => e?.props?.hasOwnProperty("selfMute");
+			const containerFilter = (i: any) =>
+				Array.isArray(i?.props?.children) && i.props.children.some(buttonsFilter);
+
+			const container = Utils.findInTree(ret.props.children, containerFilter, {
 				walkable: ["children", "props"],
 			});
-			buttonContainer.props.children.unshift(<ActivityToggleButton />);
+			const buttonsIndex = container.props.children.findIndex(buttonsFilter);
+			const buttons = container.props.children[buttonsIndex];
+
+			if (!buttonsType) buttonsType = buttons.type;
+			const buttonsRet = buttonsType!(buttons.props);
+			buttonsRet.props.children.unshift(<ActivityToggleButton />);
+
+			container.props.children.splice(buttonsIndex, 1, buttonsRet);
 		});
 
 		this.forceUpdate?.();
