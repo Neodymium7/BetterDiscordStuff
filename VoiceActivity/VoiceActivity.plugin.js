@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.9.7
+ * @version 1.9.8
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -151,7 +151,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed crashing."
+			"Fixed guild icons."
 		]
 	}
 ];
@@ -233,7 +233,7 @@ const PrivateChannel = expectWithKey({
 	defaultExport: false
 });
 const GuildIcon = expectModule({
-	filter: (m) => m?.type && betterdiscord.Webpack.Filters.byStrings("guild", "mediaState")(m.type),
+	filter: (m) => m?.type && betterdiscord.Webpack.Filters.byStrings("GuildItem", "mediaState")(m.type),
 	name: "GuildIcon"
 });
 const PeopleListItem = expectModule({
