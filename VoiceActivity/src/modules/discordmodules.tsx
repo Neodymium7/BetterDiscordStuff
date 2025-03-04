@@ -24,7 +24,7 @@ export const PrivateChannel = expectWithKey<AnyComponent>({
 });
 
 export const GuildIcon = expectModule<AnyMemo>({
-	filter: (m) => m?.type && Webpack.Filters.byStrings("guild", "mediaState")(m.type),
+	filter: (m) => m?.type && Webpack.Filters.byStrings("GuildItem", "mediaState")(m.type),
 	name: "GuildIcon",
 });
 
