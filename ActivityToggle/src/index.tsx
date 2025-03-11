@@ -26,7 +26,15 @@ export default class ActivityToggle implements Plugin {
 		const Account = owner._reactInternals.type;
 		this.forceUpdate = owner.forceUpdate.bind(owner);
 
-		let buttonsType: ((props: any) => React.ReactElement) | null = null;
+		let buttonsComponent: ((props: any) => React.ReactElement) | null = null;
+
+		const Wrapper = (props: any) => {
+			if (!buttonsComponent) return null;
+
+			const buttonsRet = buttonsComponent(props);
+			buttonsRet.props.children.unshift(<ActivityToggleButton />);
+			return buttonsRet;
+		};
 
 		Patcher.after(Account.prototype, "render", (_that, _args, ret) => {
 			const buttonsFilter = (e: any) => e?.props?.hasOwnProperty("selfMute");
@@ -38,12 +46,9 @@ export default class ActivityToggle implements Plugin {
 			});
 			const buttonsIndex = container.props.children.findIndex(buttonsFilter);
 			const buttons = container.props.children[buttonsIndex];
+			if (!buttonsComponent) buttonsComponent = buttons.type;
 
-			if (!buttonsType) buttonsType = buttons.type;
-			const buttonsRet = buttonsType!(buttons.props);
-			buttonsRet.props.children.unshift(<ActivityToggleButton />);
-
-			container.props.children.splice(buttonsIndex, 1, buttonsRet);
+			container.props.children.splice(buttonsIndex, 1, <Wrapper {...buttons.props} />);
 		});
 
 		this.forceUpdate?.();
