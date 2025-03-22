@@ -4,7 +4,7 @@ import { buildSettingsPanel, showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
 import {
 	MemberListItem,
-	children,
+	memberSelectors,
 	iconWrapperSelector,
 	UserPanelBody,
 	UserPopoutBody,
@@ -30,7 +30,10 @@ export default class VoiceActivity implements Plugin {
 
 	start() {
 		showChangelog(changelog as Changes[], this.meta);
-		DOM.addStyle(styles() + `${children}:empty { margin-left: 0; } ${children} { display: flex; gap: 8px; }`);
+		DOM.addStyle(
+			styles() +
+				`${memberSelectors?.children}:empty { margin-left: 0; } ${memberSelectors?.children} { display: flex; gap: 8px; } ${memberSelectors?.layout} { width: 100%; }`
+		);
 		Strings.subscribe();
 		this.patchPeopleListItem();
 		this.patchMemberListItem();
@@ -52,9 +55,8 @@ export default class VoiceActivity implements Plugin {
 
 	patchUserPopout() {
 		if (!UserPopoutBody) return;
-		const [module, key] = UserPopoutBody;
-		Patcher.after(module, key, (_, [props], ret) => {
-			ret.props.children.splice(5, 0, <VoiceProfileSection userId={props.user.id} />);
+		Patcher.after(...UserPopoutBody, (_, [props], ret) => {
+			ret.props.children.splice(7, 0, <VoiceProfileSection userId={props.user.id} />);
 		});
 	}
 

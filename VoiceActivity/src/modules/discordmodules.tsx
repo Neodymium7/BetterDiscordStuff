@@ -63,4 +63,4 @@ export const getAcronym = expectModule({
 
 export const iconWrapperSelector = expectSelectors("Icon Wrapper Class", ["wrapper", "folderEndWrapper"])?.wrapper;
 
-export const children = expectSelectors("Children Class", ["avatar", "children"])?.children;
+export const memberSelectors = expectSelectors("Children Class", ["avatar", "children", "layout"]);
