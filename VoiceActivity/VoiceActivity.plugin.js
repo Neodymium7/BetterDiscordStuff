@@ -151,7 +151,8 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed some minor visual issues."
+			"Fixed some minor visual issues.",
+			"Fixed console errors when opening server folder context menus."
 		]
 	}
 ];
@@ -1223,6 +1224,7 @@ class VoiceActivity {
 	}
 	patchGuildContextMenu() {
 		const unpatch = betterdiscord.ContextMenu.patch("guild-context", (ret, props) => {
+			if (!props.guild) return ret;
 			if (!Settings.get("ignoreEnabled")) return ret;
 			const { ignoredGuilds } = Settings.useSettingsState("ignoredGuilds");
 			const ignored = ignoredGuilds.includes(props.guild.id);
