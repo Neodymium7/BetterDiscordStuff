@@ -1,8 +1,8 @@
 /**
  * @name ActivityIcons
  * @author Neodymium
- * @version 1.5.2
- * @description Improves the default icons next to statuses
+ * @version 1.5.3
+ * @description DEPRECATED - Improves the default icons next to statuses
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js
  * @invite fRbsqH87Av
  */
@@ -86,6 +86,15 @@ class SettingsManager {
 		betterdiscord.Data.save("settings", this.settings);
 		for (const listener of this.listeners) listener(key, value);
 	}
+}
+function buildSettingsPanel(settingsManager, settings) {
+	for (const setting of settings) {
+		setting.value = settingsManager.get(setting.id);
+	}
+	return betterdiscord.UI.buildSettingsPanel({
+		settings,
+		onChange: (_, id, value) => settingsManager.set(id, value)
+	});
 }
 
 // @lib/strings.ts
@@ -188,10 +197,11 @@ const privateChannelSelector = expectSelectors("Private Channel Classes", ["favo
 // manifest.json
 const changelog = [
 	{
-		title: "Fixed",
+		title: "Notice",
 		type: "fixed",
 		items: [
-			"Fixed icons not displaying."
+			"Since Discord has added similar functionality as a native feature, I will not be maintaining ActivityIcons any further.",
+			"The plugin will likely remain functional on older Discord versions, however it will not provide any changes on the latest versions of Discord, so it can safely be removed."
 		]
 	}
 ];
@@ -395,59 +405,6 @@ function ListeningIcon(props) {
 	);
 }
 
-// components/SettingsPanel.tsx
-const SwitchItem = (props) => {
-	const value = Settings.useSettingsState(props.setting)[props.setting];
-	return BdApi.React.createElement(betterdiscord.Components.SettingItem, { id: props.setting, name: props.name, note: props.note, inline: true }, BdApi.React.createElement(
-		betterdiscord.Components.SwitchInput,
-		{
-			id: props.setting,
-			value,
-			onChange: (v) => {
-				Settings.set(props.setting, v);
-			}
-		}
-	));
-};
-function SettingsPanel() {
-	return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(
-		SwitchItem,
-		{
-			name: Strings.get("SETTINGS_NORMAL_ACTIVITY"),
-			note: Strings.get("SETTINGS_NORMAL_ACTIVITY_NOTE"),
-			setting: "normalActivityIcons"
-		}
-	), BdApi.React.createElement(
-		SwitchItem,
-		{
-			name: Strings.get("SETTINGS_RICH_PRESENCE"),
-			note: Strings.get("SETTINGS_RICH_PRESENCE_NOTE"),
-			setting: "richPresenceIcons"
-		}
-	), BdApi.React.createElement(
-		SwitchItem,
-		{
-			name: Strings.get("SETTINGS_PLATFORM"),
-			note: Strings.get("SETTINGS_PLATFORM_NOTE"),
-			setting: "platformIcons"
-		}
-	), BdApi.React.createElement(
-		SwitchItem,
-		{
-			name: Strings.get("SETTINGS_LISTENING"),
-			note: Strings.get("SETTINGS_LISTENING_NOTE"),
-			setting: "listeningIcons"
-		}
-	), BdApi.React.createElement(
-		SwitchItem,
-		{
-			name: Strings.get("SETTINGS_WATCHING"),
-			note: Strings.get("SETTINGS_WATCHING_NOTE"),
-			setting: "watchingIcons"
-		}
-	));
-}
-
 // components/WatchingIcon.tsx
 function WatchingIcon(props) {
 	const { watchingIcons } = Settings.useSettingsState("watchingIcons");
@@ -501,7 +458,38 @@ class ActivityIcons {
 		this.forceUpdateComponents();
 	}
 	getSettingsPanel() {
-		return BdApi.React.createElement(SettingsPanel, null);
+		return buildSettingsPanel(Settings, [
+			{
+				id: "normalActivityIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_NORMAL_ACTIVITY"),
+				note: Strings.get("SETTINGS_NORMAL_ACTIVITY_NOTE")
+			},
+			{
+				id: "richPresenceIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_RICH_PRESENCE"),
+				note: Strings.get("SETTINGS_RICH_PRESENCE_NOTE")
+			},
+			{
+				id: "platformIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_PLATFORM"),
+				note: Strings.get("SETTINGS_PLATFORM_NOTE")
+			},
+			{
+				id: "listeningIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_LISTENING"),
+				note: Strings.get("SETTINGS_LISTENING_NOTE")
+			},
+			{
+				id: "watchingIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_WATCHING"),
+				note: Strings.get("SETTINGS_WATCHING_NOTE")
+			}
+		]);
 	}
 }
 
