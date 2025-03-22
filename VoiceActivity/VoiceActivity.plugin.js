@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.9.8
+ * @version 1.9.9
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -151,7 +151,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed guild icons."
+			"Fixed some minor visual issues."
 		]
 	}
 ];
@@ -265,7 +265,7 @@ const getAcronym = expectModule({
 	fallback: (name) => name
 });
 const iconWrapperSelector = expectSelectors("Icon Wrapper Class", ["wrapper", "folderEndWrapper"])?.wrapper;
-const children = expectSelectors("Children Class", ["avatar", "children"])?.children;
+const memberSelectors = expectSelectors("Children Class", ["avatar", "children", "layout"]);
 
 // locales.json
 const el = {
@@ -783,9 +783,12 @@ const css$1 = `
 	align-self: center;
 	justify-content: space-between;
 	width: 100%;
+	gap: 8px;
+	overflow: hidden;
 }
 .VoiceActivity-voiceprofilesection-text {
 	color: var(--text-normal);
+	overflow: hidden;
 }
 .VoiceActivity-voiceprofilesection-text > div, .VoiceActivity-voiceprofilesection-text > h3 {
 	overflow: hidden;
@@ -1076,7 +1079,9 @@ class VoiceActivity {
 	}
 	start() {
 		showChangelog(changelog, this.meta);
-		betterdiscord.DOM.addStyle(styles() + `${children}:empty { margin-left: 0; } ${children} { display: flex; gap: 8px; }`);
+		betterdiscord.DOM.addStyle(
+			styles() + `${memberSelectors?.children}:empty { margin-left: 0; } ${memberSelectors?.children} { display: flex; gap: 8px; } ${memberSelectors?.layout} { width: 100%; }`
+		);
 		Strings.subscribe();
 		this.patchPeopleListItem();
 		this.patchMemberListItem();
@@ -1096,9 +1101,8 @@ class VoiceActivity {
 	}
 	patchUserPopout() {
 		if (!UserPopoutBody) return;
-		const [module, key] = UserPopoutBody;
-		betterdiscord.Patcher.after(module, key, (_, [props], ret) => {
-			ret.props.children.splice(5, 0, BdApi.React.createElement(VoiceProfileSection, { userId: props.user.id }));
+		betterdiscord.Patcher.after(...UserPopoutBody, (_, [props], ret) => {
+			ret.props.children.splice(7, 0, BdApi.React.createElement(VoiceProfileSection, { userId: props.user.id }));
 		});
 	}
 	patchMemberListItem() {
@@ -1106,9 +1110,9 @@ class VoiceActivity {
 		const [module, key] = MemberListItem;
 		betterdiscord.Patcher.after(module, key, (_, [props], ret) => {
 			if (!props.user) return ret;
-			const children2 = ret.props.children;
+			const children = ret.props.children;
 			ret.props.children = (childrenProps) => {
-				const childrenRet = children2(childrenProps);
+				const childrenRet = children(childrenProps);
 				const target = betterdiscord.Utils.findInTree(childrenRet, (x) => x.props?.avatar && x.props?.decorators, {
 					walkable: ["props", "children"]
 				});
@@ -1125,9 +1129,9 @@ class VoiceActivity {
 			const target = betterdiscord.Utils.findInTree(ret, (e) => typeof e?.props?.children !== "function", {
 				walkable: ["children", "props"]
 			})?.props?.children ?? ret;
-			const children2 = target.props.children;
+			const children = target.props.children;
 			target.props.children = (childrenProps) => {
-				const childrenRet = children2(childrenProps);
+				const childrenRet = children(childrenProps);
 				const privateChannel = betterdiscord.Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
 					walkable: ["children", "props"]
 				});
@@ -1159,9 +1163,9 @@ class VoiceActivity {
 		if (!PeopleListItem) return;
 		betterdiscord.Patcher.after(PeopleListItem.prototype, "render", (that, _, ret) => {
 			if (!that.props.user) return;
-			const children2 = ret.props.children;
+			const children = ret.props.children;
 			ret.props.children = (childrenProps) => {
-				const childrenRet = children2(childrenProps);
+				const childrenRet = children(childrenProps);
 				betterdiscord.Utils.findInTree(childrenRet, (i) => Array.isArray(i), { walkable: ["props", "children"] }).splice(
 					1,
 					0,
