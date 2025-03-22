@@ -217,6 +217,7 @@ export default class VoiceActivity implements Plugin {
 
 	patchGuildContextMenu() {
 		const unpatch = ContextMenu.patch("guild-context", (ret, props) => {
+			if (!props.guild) return ret;
 			if (!Settings.get("ignoreEnabled")) return ret;
 
 			const { ignoredGuilds } = Settings.useSettingsState("ignoredGuilds");

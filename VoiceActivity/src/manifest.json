@@ -9,7 +9,10 @@
 		{
 			"title": "Fixed",
 			"type": "fixed",
-			"items": ["Fixed some minor visual issues."]
+			"items": [
+				"Fixed some minor visual issues.",
+				"Fixed console errors when opening server folder context menus."
+			]
 		}
 	]
 }
