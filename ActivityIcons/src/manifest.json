@@ -1,15 +1,18 @@
 {
 	"name": "ActivityIcons",
 	"author": "Neodymium",
-	"version": "1.5.2",
-	"description": "Improves the default icons next to statuses",
+	"version": "1.5.3",
+	"description": "DEPRECATED - Improves the default icons next to statuses",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityIcons/ActivityIcons.plugin.js",
 	"invite": "fRbsqH87Av",
 	"changelog": [
 		{
-			"title": "Fixed",
+			"title": "Notice",
 			"type": "fixed",
-			"items": ["Fixed icons not displaying."]
+			"items": [
+				"Since Discord has added similar functionality as a native feature, I will not be maintaining ActivityIcons any further.",
+				"The plugin will likely remain functional on older Discord versions, however it will not provide any changes on the latest versions of Discord, so it can safely be removed."
+			]
 		}
 	]
 }
