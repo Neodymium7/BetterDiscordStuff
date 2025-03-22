@@ -1,7 +1,7 @@
 /**
  * @name ActivityToggle
  * @author Neodymium
- * @version 1.2.19
+ * @version 1.2.20
  * @description Adds a button to quickly toggle Activity Status.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  * @invite fRbsqH87Av
@@ -260,15 +260,20 @@ class ActivityToggle {
 			return buttonsRet;
 		};
 		betterdiscord.Patcher.after(Account.prototype, "render", (_that, _args, ret) => {
-			const buttonsFilter = (e) => e?.props?.hasOwnProperty("selfMute");
-			const containerFilter = (i) => Array.isArray(i?.props?.children) && i.props.children.some(buttonsFilter);
-			const container = betterdiscord.Utils.findInTree(ret.props.children, containerFilter, {
-				walkable: ["children", "props"]
-			});
-			const buttonsIndex = container.props.children.findIndex(buttonsFilter);
-			const buttons = container.props.children[buttonsIndex];
-			if (!buttonsComponent) buttonsComponent = buttons.type;
-			container.props.children.splice(buttonsIndex, 1, BdApi.React.createElement(Wrapper, { ...buttons.props }));
+			const children = ret.props.children;
+			ret.props.children = (childrenProps) => {
+				const childrenRet = children(childrenProps);
+				const buttonsFilter = (e) => e?.props?.hasOwnProperty("selfMute");
+				const containerFilter = (i) => Array.isArray(i?.props?.children) && i.props.children.some(buttonsFilter);
+				const container = betterdiscord.Utils.findInTree(childrenRet.props.children, containerFilter, {
+					walkable: ["children", "props"]
+				});
+				const buttonsIndex = container.props.children.findIndex(buttonsFilter);
+				const buttons = container.props.children[buttonsIndex];
+				if (!buttonsComponent) buttonsComponent = buttons.type;
+				container.props.children.splice(buttonsIndex, 1, BdApi.React.createElement(Wrapper, { ...buttons.props }));
+				return childrenRet;
+			};
 		});
 		this.forceUpdate?.();
 	}
