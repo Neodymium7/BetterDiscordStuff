@@ -2,7 +2,7 @@ import { DOM, Meta, Patcher, Plugin, Utils } from "betterdiscord";
 import { Channel, Thread } from "./modules/discordmodules";
 import { TypingIndicator } from "./TypingIndicator";
 import { Strings } from "./modules/utils";
-import { Updater } from "@lib/updater";
+import { Updater } from "@lib";
 
 export default class ChannelTypingIndicator implements Plugin {
 	meta: Meta;
@@ -21,8 +21,7 @@ export default class ChannelTypingIndicator implements Plugin {
 
 	patchChannel() {
 		if (!Channel) return;
-		const [module, key] = Channel;
-		Patcher.after(module, key, (_, [props], ret) => {
+		Patcher.after(...Channel, (_, [props], ret) => {
 			const target = Utils.findInTree(ret, (x) => x?.className?.includes("linkTop"), {
 				walkable: ["props", "children"],
 			});

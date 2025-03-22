@@ -1,5 +1,5 @@
 import { Patcher, Webpack, Logger, Meta, Plugin } from "betterdiscord";
-import { Updater } from "@lib/updater";
+import { Updater } from "@lib";
 import { AnyComponent } from "@lib/utils/react";
 import { UserStore } from "@discord/stores";
 import { Popout, UserPopout } from "@discord/components";

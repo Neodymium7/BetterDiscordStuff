@@ -203,24 +203,3 @@ export function byValues(...filters: ModuleFilter[]): ModuleFilter {
 		return match;
 	};
 }
-
-/**
- * Generates a Webpack filter to get a module that contains provided strings in its source.
- * @param strings - The strings to search for.
- * @returns The generated filter.
- */
-export function bySourceStrings(...strings: string[]): ModuleFilter {
-	return (_e, _m, i) => {
-		const moduleSource: string = Webpack.modules[i!].toString();
-		let match = true;
-
-		for (const string of strings) {
-			if (!moduleSource.includes(string)) {
-				match = false;
-				break;
-			}
-		}
-
-		return match;
-	};
-}

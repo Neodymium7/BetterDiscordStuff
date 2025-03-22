@@ -1,6 +1,6 @@
 import { DOM, Patcher, Webpack, Logger, UI, Data, Meta, Plugin } from "betterdiscord";
 import { getSelectors, getIcon } from "@lib/utils/webpack";
-import { Updater } from "@lib/updater";
+import { Updater } from "@lib";
 import { AnyComponent } from "@lib/utils/react";
 
 const Pin = getIcon("M19.38 11.38a3 3 0 0 0 4.24 0l.03-.03a.5.5 0 0 0 0-.7L13.35.35a.5.5");

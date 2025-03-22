@@ -1,7 +1,7 @@
 import { DOM, Meta, Patcher, Plugin, ReactUtils, Utils } from "betterdiscord";
 import { AccountSelectors } from "./modules";
 import ActivityToggleButton from "./components/ActivityToggleButton";
-import { Updater } from "@lib/updater";
+import { Updater } from "@lib";
 
 export default class ActivityToggle implements Plugin {
 	forceUpdate?: () => void;
@@ -37,18 +37,27 @@ export default class ActivityToggle implements Plugin {
 		};
 
 		Patcher.after(Account.prototype, "render", (_that, _args, ret) => {
-			const buttonsFilter = (e: any) => e?.props?.hasOwnProperty("selfMute");
-			const containerFilter = (i: any) =>
-				Array.isArray(i?.props?.children) && i.props.children.some(buttonsFilter);
+			const children = ret.props.children;
 
-			const container = Utils.findInTree(ret.props.children, containerFilter, {
-				walkable: ["children", "props"],
-			});
-			const buttonsIndex = container.props.children.findIndex(buttonsFilter);
-			const buttons = container.props.children[buttonsIndex];
-			if (!buttonsComponent) buttonsComponent = buttons.type;
+			ret.props.children = (childrenProps: any) => {
+				const childrenRet = children(childrenProps);
 
-			container.props.children.splice(buttonsIndex, 1, <Wrapper {...buttons.props} />);
+				const buttonsFilter = (e: any) => e?.props?.hasOwnProperty("selfMute");
+				const containerFilter = (i: any) =>
+					Array.isArray(i?.props?.children) && i.props.children.some(buttonsFilter);
+
+				const container = Utils.findInTree(childrenRet.props.children, containerFilter, {
+					walkable: ["children", "props"],
+				});
+
+				const buttonsIndex = container.props.children.findIndex(buttonsFilter);
+				const buttons = container.props.children[buttonsIndex];
+				if (!buttonsComponent) buttonsComponent = buttons.type;
+
+				container.props.children.splice(buttonsIndex, 1, <Wrapper {...buttons.props} />);
+
+				return childrenRet;
+			};
 		});
 
 		this.forceUpdate?.();

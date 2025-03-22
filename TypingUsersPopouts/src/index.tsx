@@ -62,8 +62,7 @@ export default class TypingUsersPopouts implements Plugin {
 
 		let patchedType: ((props: any) => React.ReactNode) | undefined;
 
-		const [module, key] = TypingUsersContainer;
-		Patcher.after(module, key, (_, __, containerRet) => {
+		Patcher.after(...TypingUsersContainer, (_, __, containerRet) => {
 			if (patchedType) {
 				containerRet.type = patchedType;
 				return containerRet;

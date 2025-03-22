@@ -23,7 +23,7 @@ interface LocaleStore {
 
 const LocaleStore: LocaleStore = /* @__PURE__ */ Webpack.getStore("LocaleStore");
 
-export class StringsManager<T extends LocalesObject, D extends keyof T, S = T[D]> {
+export class StringsManager<T extends LocalesObject, D extends keyof T> {
 	private locales: T;
 	private defaultLocale: D;
 	private strings: T[D];
