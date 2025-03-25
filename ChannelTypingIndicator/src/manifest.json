@@ -1,7 +1,7 @@
 {
 	"name": "ChannelTypingIndicator",
 	"author": "Neodymium",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "Adds an indicator to server channels when users are typing.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ChannelTypingIndicator/ChannelTypingIndicator.plugin.js",
 	"invite": "fRbsqH87Av"

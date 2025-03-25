@@ -2,14 +2,37 @@ import { Components } from "betterdiscord";
 import { TypingDots } from "./modules/discordmodules";
 import { getDisplayName, Strings } from "./modules/utils";
 import { parseStringReact } from "@lib/utils/string";
-import { RelationshipStore, TypingStore, UserStore, useStateFromStores } from "@discord/stores";
+import {
+	JoinedThreadsStore,
+	RelationshipStore,
+	TypingStore,
+	UserGuildSettingsStore,
+	UserStore,
+	useStateFromStores,
+} from "@discord/stores";
 
 interface TypingIndicatorProps {
 	channelId: string;
 	guildId: string;
 }
 
-export function TypingIndicator({ channelId, guildId }: TypingIndicatorProps) {
+export function TextChannelTypingIndicator(props: TypingIndicatorProps) {
+	const muted = useStateFromStores([UserGuildSettingsStore], () =>
+		UserGuildSettingsStore.isChannelMuted(props.guildId, props.channelId)
+	);
+
+	if (muted) return null;
+	return <TypingIndicator {...props} />;
+}
+
+export function ThreadTypingIndicator(props: TypingIndicatorProps) {
+	const muted = useStateFromStores([JoinedThreadsStore], () => JoinedThreadsStore.isMuted(props.channelId));
+
+	if (muted) return null;
+	return <TypingIndicator {...props} />;
+}
+
+function TypingIndicator({ channelId, guildId }: TypingIndicatorProps) {
 	const typingUsersState = useStateFromStores([TypingStore], () => TypingStore.getTypingUsers(channelId));
 
 	const typingUsersIds = Object.keys(typingUsersState).filter(

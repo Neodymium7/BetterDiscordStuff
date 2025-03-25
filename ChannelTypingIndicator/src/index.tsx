@@ -1,6 +1,6 @@
 import { DOM, Meta, Patcher, Plugin, Utils } from "betterdiscord";
 import { Channel, Thread } from "./modules/discordmodules";
-import { TypingIndicator } from "./TypingIndicator";
+import { TextChannelTypingIndicator, ThreadTypingIndicator } from "./TypingIndicator";
 import { Strings } from "./modules/utils";
 import { Updater } from "@lib";
 
@@ -25,7 +25,9 @@ export default class ChannelTypingIndicator implements Plugin {
 			const target = Utils.findInTree(ret, (x) => x?.className?.includes("linkTop"), {
 				walkable: ["props", "children"],
 			});
-			target.children.push(<TypingIndicator channelId={props.channel.id} guildId={props.channel.guild_id} />);
+			target.children.push(
+				<TextChannelTypingIndicator channelId={props.channel.id} guildId={props.channel.guild_id} />
+			);
 		});
 	}
 
@@ -35,7 +37,7 @@ export default class ChannelTypingIndicator implements Plugin {
 			const target = Utils.findInTree(ret, (x) => x?.className?.includes("linkTop"), {
 				walkable: ["props", "children"],
 			});
-			target.children.push(<TypingIndicator channelId={props.thread.id} guildId={props.thread.guild_id} />);
+			target.children.push(<ThreadTypingIndicator channelId={props.thread.id} guildId={props.thread.guild_id} />);
 		});
 	}
 

@@ -11,6 +11,8 @@ export const GuildMemberStore = /* @__PURE__ */ Webpack.getStore<any>("GuildMemb
 export const PermissionStore = /* @__PURE__ */ Webpack.getStore<any>("PermissionStore");
 export const RelationshipStore = /* @__PURE__ */ Webpack.getStore<any>("RelationshipStore");
 export const TypingStore = /* @__PURE__ */ Webpack.getStore<any>("TypingStore");
+export const UserGuildSettingsStore = /* @__PURE__ */ Webpack.getStore<any>("UserGuildSettingsStore");
+export const JoinedThreadsStore = /* @__PURE__ */ Webpack.getStore<any>("JoinedThreadsStore");
 
 export const useStateFromStores = /* @__PURE__ */ expectModule({
 	filter: /* @__PURE__ */ Webpack.Filters.byStrings("useStateFromStores"),
