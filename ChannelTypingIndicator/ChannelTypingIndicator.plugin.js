@@ -1,7 +1,7 @@
 /**
  * @name ChannelTypingIndicator
  * @author Neodymium
- * @version 1.0.3
+ * @version 1.0.4
  * @description Adds an indicator to server channels when users are typing.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ChannelTypingIndicator/ChannelTypingIndicator.plugin.js
  * @invite fRbsqH87Av
@@ -109,82 +109,6 @@ class StringsManager {
 	}
 }
 
-// locales.json
-const locales = {
-	"en-US": {
-	TYPING_LENGTH_1: "{{USER}} is typing...",
-	TYPING_LENGTH_2: "{{USER1}} and {{USER2}} are typing...",
-	TYPING_LENGTH_3: "{{USER1}}, {{USER2}}, and {{USER3}} are typing...",
-	TYPING_LENGTH_MANY: "Several people are typing..."
-}
-};
-
-// @discord/stores.ts
-const UserStore = betterdiscord.Webpack.getStore("UserStore");
-const GuildMemberStore = betterdiscord.Webpack.getStore("GuildMemberStore");
-const RelationshipStore = betterdiscord.Webpack.getStore("RelationshipStore");
-const TypingStore = betterdiscord.Webpack.getStore("TypingStore");
-const useStateFromStores = expectModule({
-	filter: betterdiscord.Webpack.Filters.byStrings("useStateFromStores"),
-	name: "Flux",
-	fallback(stores, callback) {
-		return callback();
-	},
-	searchExports: true
-});
-
-// modules/utils.ts
-const Strings = new StringsManager(locales, "en-US");
-const getDisplayName = (userId, guildId) => {
-	const { nick } = GuildMemberStore.getMember(guildId, userId);
-	if (nick) return nick;
-	const user = UserStore.getUser(userId);
-	return user.globalName || user.username;
-};
-
-// @lib/utils/string.ts
-function parseStringReact(string, parseObject) {
-	const delimiters = ["{{", "}}"];
-	const splitRegex = new RegExp(`(${delimiters[0]}.+?${delimiters[1]})`, "g");
-	const itemRegex = new RegExp(delimiters[0] + "(.+)" + delimiters[1]);
-	const parts = string.split(splitRegex).filter(Boolean);
-	return parts.map((part) => {
-		if (!itemRegex.test(part)) return part;
-		const key = part.replace(itemRegex, "$1");
-		return parseObject[key] ?? part;
-	});
-}
-
-// TypingIndicator.tsx
-function TypingIndicator({ channelId, guildId }) {
-	const typingUsersState = useStateFromStores([TypingStore], () => TypingStore.getTypingUsers(channelId));
-	const typingUsersIds = Object.keys(typingUsersState).filter(
-		(id) => id !== UserStore.getCurrentUser().id && !RelationshipStore.isBlocked(id)
-	);
-	if (!typingUsersIds.length) return null;
-	let tooltip;
-	if (typingUsersIds.length > 3) {
-		tooltip = Strings.get("TYPING_LENGTH_MANY");
-	} else {
-		const typingUsersElements = typingUsersIds.map((id) => BdApi.React.createElement("strong", { style: { fontWeight: 700 } }, getDisplayName(id, guildId)));
-		if (typingUsersElements.length == 1) {
-			tooltip = parseStringReact(Strings.get("TYPING_LENGTH_1"), { USER: typingUsersElements[0] });
-		} else if (typingUsersElements.length == 2) {
-			tooltip = parseStringReact(Strings.get("TYPING_LENGTH_2"), {
-				USER1: typingUsersElements[0],
-				USER2: typingUsersElements[1]
-			});
-		} else {
-			tooltip = parseStringReact(Strings.get("TYPING_LENGTH_3"), {
-				USER1: typingUsersElements[0],
-				USER2: typingUsersElements[1],
-				USER3: typingUsersElements[2]
-			});
-		}
-	}
-	return BdApi.React.createElement(betterdiscord.Components.Tooltip, { text: tooltip, position: "top" }, (props) => BdApi.React.createElement("div", { ...props, className: "channelTypingIndicator" }, BdApi.React.createElement(TypingDots, { dotRadius: 3.5, themed: true })));
-}
-
 // @lib/updater.ts
 const hoverClass = getClasses("anchorUnderlineOnHover")?.anchorUnderlineOnHover || "";
 const findVersion = (pluginContents) => {
@@ -228,6 +152,97 @@ const Updater = {
 	}
 };
 
+// locales.json
+const locales = {
+	"en-US": {
+	TYPING_LENGTH_1: "{{USER}} is typing...",
+	TYPING_LENGTH_2: "{{USER1}} and {{USER2}} are typing...",
+	TYPING_LENGTH_3: "{{USER1}}, {{USER2}}, and {{USER3}} are typing...",
+	TYPING_LENGTH_MANY: "Several people are typing..."
+}
+};
+
+// @discord/stores.ts
+const UserStore = betterdiscord.Webpack.getStore("UserStore");
+const GuildMemberStore = betterdiscord.Webpack.getStore("GuildMemberStore");
+const RelationshipStore = betterdiscord.Webpack.getStore("RelationshipStore");
+const TypingStore = betterdiscord.Webpack.getStore("TypingStore");
+const UserGuildSettingsStore = betterdiscord.Webpack.getStore("UserGuildSettingsStore");
+const JoinedThreadsStore = betterdiscord.Webpack.getStore("JoinedThreadsStore");
+const useStateFromStores = expectModule({
+	filter: betterdiscord.Webpack.Filters.byStrings("useStateFromStores"),
+	name: "Flux",
+	fallback(stores, callback) {
+		return callback();
+	},
+	searchExports: true
+});
+
+// modules/utils.ts
+const Strings = new StringsManager(locales, "en-US");
+const getDisplayName = (userId, guildId) => {
+	const { nick } = GuildMemberStore.getMember(guildId, userId);
+	if (nick) return nick;
+	const user = UserStore.getUser(userId);
+	return user.globalName || user.username;
+};
+
+// @lib/utils/string.ts
+function parseStringReact(string, parseObject) {
+	const delimiters = ["{{", "}}"];
+	const splitRegex = new RegExp(`(${delimiters[0]}.+?${delimiters[1]})`, "g");
+	const itemRegex = new RegExp(delimiters[0] + "(.+)" + delimiters[1]);
+	const parts = string.split(splitRegex).filter(Boolean);
+	return parts.map((part) => {
+		if (!itemRegex.test(part)) return part;
+		const key = part.replace(itemRegex, "$1");
+		return parseObject[key] ?? part;
+	});
+}
+
+// TypingIndicator.tsx
+function TextChannelTypingIndicator(props) {
+	const muted = useStateFromStores(
+		[UserGuildSettingsStore],
+		() => UserGuildSettingsStore.isChannelMuted(props.guildId, props.channelId)
+	);
+	if (muted) return null;
+	return BdApi.React.createElement(TypingIndicator, { ...props });
+}
+function ThreadTypingIndicator(props) {
+	const muted = useStateFromStores([JoinedThreadsStore], () => JoinedThreadsStore.isMuted(props.channelId));
+	if (muted) return null;
+	return BdApi.React.createElement(TypingIndicator, { ...props });
+}
+function TypingIndicator({ channelId, guildId }) {
+	const typingUsersState = useStateFromStores([TypingStore], () => TypingStore.getTypingUsers(channelId));
+	const typingUsersIds = Object.keys(typingUsersState).filter(
+		(id) => id !== UserStore.getCurrentUser().id && !RelationshipStore.isBlocked(id)
+	);
+	if (!typingUsersIds.length) return null;
+	let tooltip;
+	if (typingUsersIds.length > 3) {
+		tooltip = Strings.get("TYPING_LENGTH_MANY");
+	} else {
+		const typingUsersElements = typingUsersIds.map((id) => BdApi.React.createElement("strong", { style: { fontWeight: 700 } }, getDisplayName(id, guildId)));
+		if (typingUsersElements.length == 1) {
+			tooltip = parseStringReact(Strings.get("TYPING_LENGTH_1"), { USER: typingUsersElements[0] });
+		} else if (typingUsersElements.length == 2) {
+			tooltip = parseStringReact(Strings.get("TYPING_LENGTH_2"), {
+				USER1: typingUsersElements[0],
+				USER2: typingUsersElements[1]
+			});
+		} else {
+			tooltip = parseStringReact(Strings.get("TYPING_LENGTH_3"), {
+				USER1: typingUsersElements[0],
+				USER2: typingUsersElements[1],
+				USER3: typingUsersElements[2]
+			});
+		}
+	}
+	return BdApi.React.createElement(betterdiscord.Components.Tooltip, { text: tooltip, position: "top" }, (props) => BdApi.React.createElement("div", { ...props, className: "channelTypingIndicator" }, BdApi.React.createElement(TypingDots, { dotRadius: 3.5, themed: true })));
+}
+
 // index.tsx
 class ChannelTypingIndicator {
 	meta;
@@ -243,12 +258,13 @@ class ChannelTypingIndicator {
 	}
 	patchChannel() {
 		if (!Channel) return;
-		const [module, key] = Channel;
-		betterdiscord.Patcher.after(module, key, (_, [props], ret) => {
+		betterdiscord.Patcher.after(...Channel, (_, [props], ret) => {
 			const target = betterdiscord.Utils.findInTree(ret, (x) => x?.className?.includes("linkTop"), {
 				walkable: ["props", "children"]
 			});
-			target.children.push(BdApi.React.createElement(TypingIndicator, { channelId: props.channel.id, guildId: props.channel.guild_id }));
+			target.children.push(
+				BdApi.React.createElement(TextChannelTypingIndicator, { channelId: props.channel.id, guildId: props.channel.guild_id })
+			);
 		});
 	}
 	patchThread() {
@@ -257,7 +273,7 @@ class ChannelTypingIndicator {
 			const target = betterdiscord.Utils.findInTree(ret, (x) => x?.className?.includes("linkTop"), {
 				walkable: ["props", "children"]
 			});
-			target.children.push(BdApi.React.createElement(TypingIndicator, { channelId: props.thread.id, guildId: props.thread.guild_id }));
+			target.children.push(BdApi.React.createElement(ThreadTypingIndicator, { channelId: props.thread.id, guildId: props.thread.guild_id }));
 		});
 	}
 	stop() {
