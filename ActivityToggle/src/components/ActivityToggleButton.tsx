@@ -39,6 +39,7 @@ export default function ActivityToggleButton() {
 					])
 				);
 			}}
+			redGlow={!activityEnabled}
 		/>
 	);
 }

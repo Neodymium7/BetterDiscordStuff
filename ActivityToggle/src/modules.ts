@@ -33,4 +33,5 @@ export const AccountSelectors = expectSelectors("Account Classes", [
 	"avatarWrapper",
 	"accountProfilePopoutWrapper",
 	"container",
+	"micButtonParent",
 ]);
