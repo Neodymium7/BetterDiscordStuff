@@ -13,10 +13,7 @@ export default class ActivityToggle implements Plugin {
 
 	start() {
 		Updater.checkForUpdates(this.meta);
-		if (AccountSelectors)
-			DOM.addStyle(
-				`${AccountSelectors.avatarWrapper} { min-width: 70px; } ${AccountSelectors.micButtonParent} { margin-left: 4px; }`
-			);
+		if (AccountSelectors) DOM.addStyle(`${AccountSelectors.avatarWrapper} { min-width: 70px; }`);
 		this.patch();
 	}
 
