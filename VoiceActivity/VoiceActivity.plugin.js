@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.9.9
+ * @version 1.9.10
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -35,6 +35,8 @@
 
 const betterdiscord = new BdApi("VoiceActivity");
 const react = BdApi.React;
+require('fs');
+require('path');
 
 // styles
 let _styles = "";
@@ -145,18 +147,6 @@ function showChangelog(changes, meta) {
 	betterdiscord.Data.save("changelogVersion", meta.version);
 }
 
-// manifest.json
-const changelog = [
-	{
-		title: "Fixed",
-		type: "fixed",
-		items: [
-			"Fixed some minor visual issues.",
-			"Fixed console errors when opening server folder context menus."
-		]
-	}
-];
-
 // @lib/utils/webpack.ts
 function getClasses(...classes) {
 	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
@@ -211,6 +201,20 @@ function expectIcon(name, searchString) {
 function byType(type) {
 	return (e) => typeof e === type;
 }
+
+// @lib/updater.ts
+getClasses("anchorUnderlineOnHover")?.anchorUnderlineOnHover || "";
+
+// manifest.json
+const changelog = [
+	{
+		title: "Fixed",
+		type: "fixed",
+		items: [
+			"Updated styling for new UI refresh."
+		]
+	}
+];
 
 // @lib/utils/react.tsx
 const EmptyComponent = (props) => null;
@@ -750,6 +754,9 @@ const css$1 = `
 	border-radius: var(--radius-xs);
 	background: var(--bg-mod-faint);
 }
+.VoiceActivity-voiceprofilesection-section:hover {
+	background: var(--bg-mod-subtle);
+}
 .VoiceActivity-voiceprofilesection-panelSection {
 	padding: 12px;
 	border-radius: var(--radius-sm);
@@ -759,6 +766,9 @@ const css$1 = `
 }
 .theme-dark.custom-profile-theme .VoiceActivity-voiceprofilesection-section {
 	background: rgb(var(--bg-overlay-color)/var(--bg-overlay-opacity-5));
+}
+.custom-profile-theme .VoiceActivity-voiceprofilesection-section:hover {
+	background: linear-gradient(rgb(var(--bg-overlay-color-inverse)/0.05), rgb(var(--bg-overlay-color-inverse)/0.05)), var(--profile-gradient-end);
 }
 .VoiceActivity-voiceprofilesection-header {
 	margin-bottom: 8px;
@@ -829,24 +839,39 @@ const css$1 = `
 	justify-content: center;
 	align-items: center;
 	padding: 2px 16px;
-	border-radius: 3px;
-	color: var(--white-500);
+	border-radius: 8px;
+	color: var(--button-secondary-text);
 	font-size: 14px;
 	line-height: 16px;
 	font-weight: 500;
 	user-select: none;
-	background-color: var(--profile-gradient-button-color);
-	transition: opacity var(--custom-button-transition-duration) ease;
+	transition-duration: 0.2s;
+	border: 1px solid var(--opacity-white-8);
+	border-color: var(--border-faint);
+	background-color: var(--button-secondary-background);
+	transition: background-color var(--custom-button-transition-duration) ease, color var(--custom-button-transition-duration) ease;
 }
 .VoiceActivity-voiceprofilesection-button:hover {
-	opacity: 0.8;
+	background-color: var(--button-secondary-background-hover);
 }
 .VoiceActivity-voiceprofilesection-button:active {
-	opacity: 0.9;
+	background-color: var(--button-secondary-background-active);
 }
 .VoiceActivity-voiceprofilesection-button:disabled {
 	opacity: 0.5;
 	cursor: not-allowed;
+	background-color: --button-secondary-background-disabled;
+}
+.custom-profile-theme .VoiceActivity-voiceprofilesection-button {
+	transition: background var(--custom-button-transition-duration) ease-in-out;
+	background: var(--profile-gradient-button-color);
+	color: var(--white-500);
+}
+.custom-profile-theme .VoiceActivity-voiceprofilesection-button:hover {
+	background: color-mix(in srgb, var(--profile-gradient-button-color) 80%, transparent);
+}
+.custom-profile-theme .VoiceActivity-voiceprofilesection-button:active {
+	background: color-mix(in srgb, var(--profile-gradient-button-color) 90%, transparent);
 }
 .VoiceActivity-voiceprofilesection-joinWrapper .VoiceActivity-voiceprofilesection-joinButton {
 	min-width: 32px;
