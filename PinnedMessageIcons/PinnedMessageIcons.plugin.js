@@ -1,7 +1,7 @@
 /**
  * @name PinnedMessageIcons
  * @author Neodymium
- * @version 2.0.1
+ * @version 2.0.2
  * @description Displays an icon on and optionally adds a background to pinned messages.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/PinnedMessageIcons/PinnedMessageIcons.plugin.js
  * @invite fRbsqH87Av
@@ -56,7 +56,8 @@ function getIcon(searchString) {
 	});
 }
 
-// @lib/updater.tsx
+// @lib/updater.ts
+const hoverClass = getClasses("anchorUnderlineOnHover")?.anchorUnderlineOnHover || "";
 const findVersion = (pluginContents) => {
 	const lines = pluginContents.split("\n");
 	const versionLine = lines.find((line) => line.includes("@version"));
@@ -67,30 +68,20 @@ const updatePlugin = (name, newContents) => {
 	fs.writeFileSync(path$1, newContents);
 };
 const showUpdateNotice = (name, version, newContents) => {
-	const noticeElement = document.createElement("span");
-	const linkElementStyle = "color: #fff; font-weight: 700;";
-	const linkElementHTML = `<a href="https://github.com/Neodymium7/BetterDiscordStuff/blob/main/${name}/${name}.plugin.js" target="_blank" style="${linkElementStyle}">${name} v${version}</a>`;
-	const linkElement = betterdiscord.DOM.parseHTML(linkElementHTML);
-	const setStyle = (style) => linkElement.setAttribute("style", style);
-	linkElement.addEventListener("mouseenter", () => setStyle(linkElementStyle + " text-decoration: underline;"));
-	linkElement.addEventListener("mouseleave", () => setStyle(linkElementStyle));
-	betterdiscord.UI.createTooltip(linkElement, "View Source", { side: "bottom" });
-	noticeElement.appendChild(linkElement);
-	noticeElement.appendChild(document.createTextNode(" is available"));
-	const closeNotice = betterdiscord.UI.showNotice(noticeElement, {
+	const noticeElementHTML = `<span><a href="https://github.com/Neodymium7/BetterDiscordStuff/blob/main/${name}/${name}.plugin.js" target="_blank" class="${hoverClass}" style="color: #fff; font-weight: 700;">${name} v${version}</a> is available</span>`;
+	const noticeElement = betterdiscord.DOM.parseHTML(noticeElementHTML);
+	betterdiscord.UI.createTooltip(noticeElement.firstChild, "View Source", { side: "bottom" });
+	return betterdiscord.UI.showNotice(noticeElement, {
 		buttons: [
 			{
 				label: "Update",
-				onClick: () => {
-					updatePlugin(name, newContents);
-					closeNotice();
-				}
+				onClick: () => updatePlugin(name, newContents)
 			}
 		]
 	});
-	return closeNotice;
 };
 const Updater = {
+	closeUpdateNotice: void 0,
 	async checkForUpdates(meta) {
 		const url = `https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/${meta.name}/${meta.name}.plugin.js`;
 		const res = await betterdiscord.Net.fetch(url);
@@ -100,7 +91,7 @@ const Updater = {
 		}
 		const text = await res.text();
 		const version = findVersion(text);
-		if (version <= meta.version) return;
+		if (version === meta.version) return;
 		this.closeUpdateNotice = showUpdateNotice(meta.name, version, text);
 	},
 	closeNotice() {
@@ -109,11 +100,9 @@ const Updater = {
 };
 
 // index.tsx
-const { getModule } = betterdiscord.Webpack;
 const Pin = getIcon("M19.38 11.38a3 3 0 0 0 4.24 0l.03-.03a.5.5 0 0 0 0-.7L13.35.35a.5.5");
-const Message = getModule((m) => m.Z?.toString?.().includes("childrenRepliedMessage"));
+const Message = betterdiscord.Webpack.getWithKey(betterdiscord.Webpack.Filters.byStrings("childrenRepliedMessage", "focusProps"));
 const messageSelectors = getSelectors("message", "mentioned", "replying");
-if (!Message) betterdiscord.Logger.error("Message module not found");
 if (!Pin) betterdiscord.Logger.error("Pin icon not found.");
 if (!messageSelectors) betterdiscord.Logger.error("Message selectors icon not found.");
 class PinnedMessageIcons {
@@ -124,7 +113,6 @@ class PinnedMessageIcons {
 	}
 	start() {
 		Updater.checkForUpdates(this.meta);
-		if (!Message) return;
 		this.settings = betterdiscord.Data.load("settings");
 		if (!this.settings) {
 			this.settings = { backgroundEnabled: true };
@@ -134,7 +122,9 @@ class PinnedMessageIcons {
 		this.patch();
 	}
 	patch() {
-		betterdiscord.Patcher.after(Message, "Z", (_, [props], ret) => {
+		const [module, key] = Message;
+		if (!module) return betterdiscord.Logger.error("Message module not found");
+		betterdiscord.Patcher.after(module, key, (_, [props], ret) => {
 			if (!props.childrenMessageContent.props.message) return ret;
 			const isPinned = props.childrenMessageContent.props.message.pinned;
 			if (!isPinned) return ret;
@@ -157,10 +147,10 @@ class PinnedMessageIcons {
 		});
 	}
 	addStyle() {
-		let style = ".pinned-message-icon { position: absolute; bottom: calc(50% - 10px); right: 16px; }";
+		let style = ":root .pinned-message { padding-right: calc(var(--space-xl) + 36px) !important } .pinned-message-icon { position: absolute; bottom: calc(50% - 10px); right: 24px; }";
 		if (messageSelectors && this.settings.backgroundEnabled) {
 			const selector = `${messageSelectors.message}.pinned-message:not(${messageSelectors.mentioned}):not(${messageSelectors.replying})`;
-			style += `${selector}::after { content: ""; position: absolute; display: block; width: inherit; height: inherit; left: 0px; bottom: 0px; right: 0px; top: 0px; background: var(--channels-default); opacity: 0.08; z-index: -1; } ${selector}::before { content: ""; position: absolute; display: block; width: 2px; height: inherit; left: 0px; bottom: 0px; top: 0px; background: var(--channels-default); }`;
+			style += `${selector}::after { content: ""; position: absolute; display: block; width: inherit; height: inherit; left: 0px; bottom: 0px; right: 0px; top: 0px; background: var(--channels-default); opacity: 0.08; z-index: -1; border-radius: 4px; } ${selector}::before { content: ""; position: absolute; display: block; width: 2px; height: inherit; left: 0px; bottom: 0px; top: 0px; background: var(--channels-default); }`;
 		}
 		betterdiscord.DOM.addStyle(style);
 	}
@@ -180,8 +170,8 @@ class PinnedMessageIcons {
 					value: this.settings.backgroundEnabled
 				}
 			],
-			onChange: (_, id, value) => {
-				this.settings[id] = value;
+			onChange: (_, _id, value) => {
+				this.settings.backgroundEnabled = value;
 				betterdiscord.DOM.removeStyle();
 				this.addStyle();
 				betterdiscord.Data.save("settings", this.settings);
