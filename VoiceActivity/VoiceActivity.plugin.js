@@ -35,15 +35,13 @@
 
 const betterdiscord = new BdApi("VoiceActivity");
 const react = BdApi.React;
-require('fs');
-require('path');
 
 // styles
 let _styles = "";
 function _loadStyle(path, css) {
 	_styles += "/*" + path + "*/\n" + css + "\n";
 }
-function styles() {
+function styles$2() {
 	return _styles;
 }
 
@@ -201,9 +199,6 @@ function expectIcon(name, searchString) {
 function byType(type) {
 	return (e) => typeof e === type;
 }
-
-// @lib/updater.ts
-getClasses("anchorUnderlineOnHover")?.anchorUnderlineOnHover || "";
 
 // manifest.json
 const changelog = [
@@ -620,6 +615,7 @@ const modules_df1df857 = {
 	"tooltipIcon": "VoiceActivity-voiceicon-tooltipIcon",
 	"iconContainer": "VoiceActivity-voiceicon-iconContainer"
 };
+const iconStyles = modules_df1df857;
 
 // @discord/icons.tsx
 const CallJoin = expectIcon(
@@ -685,10 +681,10 @@ function VoiceIcon(props) {
 	let subtext;
 	let TooltipIcon;
 	let channelPath;
-	let className = modules_df1df857.icon;
+	let className = iconStyles.icon;
 	if (channel.id === currentUserVoiceState?.channelId && settingsState.currentChannelColor)
-		className = `${modules_df1df857.icon} ${modules_df1df857.iconCurrentCall}`;
-	if (voiceState.selfStream) className = modules_df1df857.iconLive;
+		className = `${iconStyles.icon} ${iconStyles.iconCurrentCall}`;
+	if (voiceState.selfStream) className = iconStyles.iconLive;
 	if (guild) {
 		text = guild.name;
 		subtext = channel.name;
@@ -730,10 +726,10 @@ function VoiceIcon(props) {
 		BdApi.React.createElement(
 			betterdiscord.Components.Tooltip,
 			{
-				text: BdApi.React.createElement("div", { className: modules_df1df857.tooltip }, BdApi.React.createElement("div", { className: modules_df1df857.header, style: { fontWeight: "600" } }, text), BdApi.React.createElement("div", { className: modules_df1df857.subtext }, BdApi.React.createElement(
+				text: BdApi.React.createElement("div", { className: iconStyles.tooltip }, BdApi.React.createElement("div", { className: iconStyles.header, style: { fontWeight: "600" } }, text), BdApi.React.createElement("div", { className: iconStyles.subtext }, BdApi.React.createElement(
 					TooltipIcon,
 					{
-						className: modules_df1df857.tooltipIcon,
+						className: iconStyles.tooltipIcon,
 						size: "16",
 						width: "16",
 						height: "16",
@@ -899,6 +895,7 @@ const modules_9dbd3268 = {
 	"joinButton": "VoiceActivity-voiceprofilesection-joinButton",
 	"joinWrapperDisabled": "VoiceActivity-voiceprofilesection-joinWrapperDisabled"
 };
+const styles$1 = modules_9dbd3268;
 
 // styles/guildimage.module.scss
 const css = `
@@ -923,9 +920,11 @@ _loadStyle("guildimage.module.scss", css);
 const modules_1a1e8d51 = {
 	"defaultIcon": "VoiceActivity-guildimage-defaultIcon"
 };
+const styles = modules_1a1e8d51;
 
 // assets/default_group_icon.png
 const img = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAABgmlDQ1BJQ0MgUHJvZmlsZQAAKM+VkTtIw1AYhb9WxQcVBzuIOGSoThZERRyliiIolFrB12CS2io0sSQtLo6Cq+DgY7Hq4OKsq4OrIAg+QBydnBRdROJ/U6FFqOCFcD/OzTnce34IFrOm5db2gGXnncRYTJuZndPqn6mlBmikTzfd3OTUaJKq6+OWgNpvoiqL/63m1JJrQkATHjJzTl54UXhgLZ9TvCscNpf1lPCpcLcjFxS+V7pR4hfFGZ+DKjPsJBPDwmFhLVPBRgWby44l3C8cSVm25AdnSpxSvK7YyhbMn3uqF4aW7OkppcvXwRjjTBJHw6DAClnyRGW3RXFJyHmsir/d98fFZYhrBVMcI6xioft+1Ax+d+um+3pLSaEY1D153lsn1G/D15bnfR563tcR1DzChV32rxZh8F30rbIWOYCWDTi7LGvGDpxvQttDTnd0X1LzD6bT8HoiY5qF1mtomi/19nPO8R0kpauJK9jbh66MZC9UeXdDZW9//uP3R+wbNjlyjzeozyoAAABgUExURVhl8oGK9LW7+erq/f///97i+7/F+mx38qGo92Ft8mFv8ujs/IuW9PP2/Wx384GM9Kux+MDF+urs/d/i+7S9+Jae9uDj/Jad9srO+tXY+4yU9aqy+MDE+qGn9/T1/neC9Liz/RcAAAAJcEhZcwAACxMAAAsTAQCanBgAAATqaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNC40LjAtRXhpdjIiPg0KICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPg0KICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOkdJTVA9Imh0dHA6Ly93d3cuZ2ltcC5vcmcveG1wLyIgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1wTU06RG9jdW1lbnRJRD0iZ2ltcDpkb2NpZDpnaW1wOmIzMjk5M2JmLTliZTUtNGJmMy04ZWEwLWY3ZDkzNTMyMTY2YiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowNjhkOWE3MS1lYWU3LTRmZjAtYmMxZS04MGUwYmMxMTFkZDUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDplZjU1ZGE0YS0wZTBhLTRjNTctODdmOC1lMmFmMGUyZGEzOGUiIGRjOkZvcm1hdD0iaW1hZ2UvcG5nIiBHSU1QOkFQST0iMi4wIiBHSU1QOlBsYXRmb3JtPSJXaW5kb3dzIiBHSU1QOlRpbWVTdGFtcD0iMTY0ODk0NDg1NjM4ODc5MSIgR0lNUDpWZXJzaW9uPSIyLjEwLjI0IiB0aWZmOk9yaWVudGF0aW9uPSIxIiB4bXA6Q3JlYXRvclRvb2w9IkdJTVAgMi4xMCI+DQogICAgICA8eG1wTU06SGlzdG9yeT4NCiAgICAgICAgPHJkZjpTZXE+DQogICAgICAgICAgPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDpjaGFuZ2VkPSIvIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ3NmFhOGE3LTVhNGEtNDcyNS05YTBjLWU1NzVmMzE1MzFmOCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iR2ltcCAyLjEwIChXaW5kb3dzKSIgc3RFdnQ6d2hlbj0iMjAyMi0wNC0wMlQxNzoxNDoxNiIgLz4NCiAgICAgICAgPC9yZGY6U2VxPg0KICAgICAgPC94bXBNTTpIaXN0b3J5Pg0KICAgIDwvcmRmOkRlc2NyaXB0aW9uPg0KICA8L3JkZjpSREY+DQo8L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9InIiPz6JoorbAAABV0lEQVRoQ+3W23KDIBAGYIOYBk20prWNPb7/W3Z3WQ9lGmeKe/l/N/+IzAYDggUAAAAAAMB/HVzpfXV8kIuTpp3gvHJ8WTcx7VRanlSBrs+aVubxMxn7RdNGq6VVR02Pmjb6WHjCQ+80baxmgDXUxA/FaSPWXUxtctOCVF2Z2uSmhauUnT1RU61p49cq9b6npoOmDV4yK7xN8G8abhfPsXIkq7MxfdGKOt0qBuOtoqjnZ3BcN9BmZ1qftP2L91cXt4ezJszCq7uVtENfytEN1ocZLZlRJ1iNQ2zvNHd6oyWfamLpd809wofWTBxllY6a+UJyFCzkPWsve9+35N9fG/k+nZySufjkveuTOvCuzZmp/WN+F1/859AjSuahLW0LD/2kmWdjBtiNunxr5kmOyhR/VfAk5H9dxDr3TX2kcw6psmHqI51zSJUNUx/pDAAAAAAAsKkofgB06RBbh+d86AAAAABJRU5ErkJggg==";
+	const defaultGroupIcon = img;
 
 // components/GuildImage.tsx
 const getIconFontSize = (name) => {
@@ -942,7 +941,7 @@ const getImageLink = (guild, channel) => {
 	} else if (channel.icon) {
 		image = `https://cdn.discordapp.com/channel-icons/${channel.id}/${channel.icon}.webp?size=32`;
 	} else if (channel.type === 3) {
-		image = img;
+		image = defaultGroupIcon;
 	}
 	return image;
 };
@@ -956,7 +955,7 @@ function GuildImage(props) {
 		return BdApi.React.createElement(
 			"img",
 			{
-				className: modules_1a1e8d51.icon,
+				className: styles.icon,
 				src: image,
 				width: "48",
 				height: "48",
@@ -968,7 +967,7 @@ function GuildImage(props) {
 		return BdApi.React.createElement(
 			"div",
 			{
-				className: modules_1a1e8d51.defaultIcon,
+				className: styles.defaultIcon,
 				onClick,
 				style: { fontSize: `${getIconFontSize(props.guild ? props.guild.name : props.channel.name)}px` }
 			},
@@ -1037,7 +1036,7 @@ function VoiceProfileSection(props) {
 			headerText = Strings.get("HEADER_STAGE");
 			Icon = Stage;
 	}
-	const section = BdApi.React.createElement("div", { className: props.panel ? `${modules_9dbd3268.section} ${modules_9dbd3268.panelSection}` : modules_9dbd3268.section }, BdApi.React.createElement("div", { className: modules_9dbd3268.header }, BdApi.React.createElement("h3", { className: modules_9dbd3268.headerText }, headerText), BdApi.React.createElement(MoreIcon, { user: UserStore.getUser(props.userId) })), !(channel.type === 1) && BdApi.React.createElement("div", { className: modules_9dbd3268.body }, BdApi.React.createElement(GuildImage, { guild, channel, channelPath }), BdApi.React.createElement("div", { className: modules_9dbd3268.details }, BdApi.React.createElement("div", { className: modules_9dbd3268.text }, text), BdApi.React.createElement(
+	const section = BdApi.React.createElement("div", { className: props.panel ? `${styles$1.section} ${styles$1.panelSection}` : styles$1.section }, BdApi.React.createElement("div", { className: styles$1.header }, BdApi.React.createElement("h3", { className: styles$1.headerText }, headerText), BdApi.React.createElement(MoreIcon, { user: UserStore.getUser(props.userId) })), !(channel.type === 1) && BdApi.React.createElement("div", { className: styles$1.body }, BdApi.React.createElement(GuildImage, { guild, channel, channelPath }), BdApi.React.createElement("div", { className: styles$1.details }, BdApi.React.createElement("div", { className: styles$1.text }, text), BdApi.React.createElement(
 		PartyMembers,
 		{
 			channelId: channel.id,
@@ -1048,16 +1047,16 @@ function VoiceProfileSection(props) {
 			overflowCountVariant: "text-xs/normal",
 			size: "SIZE_16"
 		}
-	))), BdApi.React.createElement("div", { className: modules_9dbd3268.buttonWrapper }, !isCurrentUser && BdApi.React.createElement(betterdiscord.Components.Tooltip, { text: joinButton, position: "top" }, (props2) => BdApi.React.createElement(
+	))), BdApi.React.createElement("div", { className: styles$1.buttonWrapper }, !isCurrentUser && BdApi.React.createElement(betterdiscord.Components.Tooltip, { text: joinButton, position: "top" }, (props2) => BdApi.React.createElement(
 		"div",
 		{
 			...props2,
-			className: inCurrentChannel ? `${modules_9dbd3268.joinWrapper} ${modules_9dbd3268.joinWrapperDisabled}` : modules_9dbd3268.joinWrapper
+			className: inCurrentChannel ? `${styles$1.joinWrapper} ${styles$1.joinWrapperDisabled}` : styles$1.joinWrapper
 		},
 		BdApi.React.createElement(
 			"button",
 			{
-				className: `${modules_9dbd3268.button} ${modules_9dbd3268.joinButton}`,
+				className: `${styles$1.button} ${styles$1.joinButton}`,
 				disabled: inCurrentChannel,
 				onClick: () => {
 					if (channel.id) ChannelActions?.selectVoiceChannel(channel.id);
@@ -1084,7 +1083,7 @@ function VoiceProfileSection(props) {
 	)), BdApi.React.createElement(
 		"button",
 		{
-			className: modules_9dbd3268.button,
+			className: styles$1.button,
 			disabled: channelSelected,
 			onClick: () => {
 				if (channelPath) transitionTo?.(channelPath);
@@ -1106,7 +1105,7 @@ class VoiceActivity {
 	start() {
 		showChangelog(changelog, this.meta);
 		betterdiscord.DOM.addStyle(
-			styles() + `${memberSelectors?.children}:empty { margin-left: 0; } ${memberSelectors?.children} { display: flex; gap: 8px; } ${memberSelectors?.layout} { width: 100%; }`
+			styles$2() + `${memberSelectors?.children}:empty { margin-left: 0; } ${memberSelectors?.children} { display: flex; gap: 8px; } ${memberSelectors?.layout} { width: 100%; }`
 		);
 		Strings.subscribe();
 		this.patchPeopleListItem();
@@ -1163,7 +1162,7 @@ class VoiceActivity {
 				});
 				privateChannel.children = [
 					privateChannel.children,
-					BdApi.React.createElement("div", { className: modules_df1df857.iconContainer }, BdApi.React.createElement(VoiceIcon, { userId: props.user.id, context: "dmlist" }))
+					BdApi.React.createElement("div", { className: iconStyles.iconContainer }, BdApi.React.createElement(VoiceIcon, { userId: props.user.id, context: "dmlist" }))
 				];
 				return childrenRet;
 			};
@@ -1195,7 +1194,7 @@ class VoiceActivity {
 				betterdiscord.Utils.findInTree(childrenRet, (i) => Array.isArray(i), { walkable: ["props", "children"] }).splice(
 					1,
 					0,
-					BdApi.React.createElement("div", { className: modules_df1df857.iconContainer }, BdApi.React.createElement(VoiceIcon, { userId: that.props.user.id, context: "peoplelist" }))
+					BdApi.React.createElement("div", { className: iconStyles.iconContainer }, BdApi.React.createElement(VoiceIcon, { userId: that.props.user.id, context: "peoplelist" }))
 				);
 				return childrenRet;
 			};
