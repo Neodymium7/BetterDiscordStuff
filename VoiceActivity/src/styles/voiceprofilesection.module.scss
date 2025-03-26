@@ -5,6 +5,10 @@
 	background: var(--bg-mod-faint);
 }
 
+.section:hover {
+	background: var(--bg-mod-subtle);
+}
+
 .panelSection {
 	padding: 12px;
 	border-radius: var(--radius-sm);
@@ -16,6 +20,14 @@
 
 :global(.theme-dark.custom-profile-theme) .section {
 	background: rgb(var(--bg-overlay-color) / var(--bg-overlay-opacity-5));
+}
+
+:global(.custom-profile-theme) .section:hover {
+	background: linear-gradient(
+			rgb(var(--bg-overlay-color-inverse) / 0.05),
+			rgb(var(--bg-overlay-color-inverse) / 0.05)
+		),
+		var(--profile-gradient-end);
 }
 
 .header {
@@ -98,26 +110,45 @@
 	justify-content: center;
 	align-items: center;
 	padding: 2px 16px;
-	border-radius: 3px;
-	color: var(--white-500);
+	border-radius: 8px;
+	color: var(--button-secondary-text);
 	font-size: 14px;
 	line-height: 16px;
 	font-weight: 500;
 	user-select: none;
-	background-color: var(--profile-gradient-button-color);
-	transition: opacity var(--custom-button-transition-duration) ease;
+	transition-duration: 0.2s;
+	border: 1px solid var(--opacity-white-8);
+	border-color: var(--border-faint);
+	background-color: var(--button-secondary-background);
+	transition: background-color var(--custom-button-transition-duration) ease,
+		color var(--custom-button-transition-duration) ease;
 
 	&:hover {
-		opacity: 0.8;
+		background-color: var(--button-secondary-background-hover);
 	}
 
 	&:active {
-		opacity: 0.9;
+		background-color: var(--button-secondary-background-active);
 	}
 
 	&:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
+		background-color: (--button-secondary-background-disabled);
+	}
+
+	:global(.custom-profile-theme) & {
+		transition: background var(--custom-button-transition-duration) ease-in-out;
+		background: var(--profile-gradient-button-color);
+		color: var(--white-500);
+	}
+
+	:global(.custom-profile-theme) &:hover {
+		background: color-mix(in srgb, var(--profile-gradient-button-color) 80%, transparent);
+	}
+
+	:global(.custom-profile-theme) &:active {
+		background: color-mix(in srgb, var(--profile-gradient-button-color) 90%, transparent);
 	}
 }
 
