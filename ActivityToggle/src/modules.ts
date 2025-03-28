@@ -4,7 +4,7 @@ import React from "react";
 import { EmptyComponent } from "@lib/utils/react";
 
 export const PanelButton = expectModule({
-	filter: Webpack.Filters.byStrings("PANEL_BUTTON"),
+	filter: (m) => m?.render?.toString().includes("PANEL_BUTTON"),
 	name: "PanelButton",
 	fallback: EmptyComponent,
 });

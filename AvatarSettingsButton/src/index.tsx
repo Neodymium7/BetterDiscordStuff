@@ -6,7 +6,7 @@ import { Settings, Strings } from "./modules/utils";
 import Tooltip from "./modules/tooltip";
 import { UserSettingsWindow, SettingsSections } from "@discord/modules";
 
-const settingsSelector = `.${accountClasses.container} button:nth-last-child(1):not(:first-child)`;
+const settingsSelector = `.${accountClasses.container} button:last-of-type:not(:first-child)`;
 
 export default class AvatarSettingsButton implements Plugin {
 	meta: Meta;
