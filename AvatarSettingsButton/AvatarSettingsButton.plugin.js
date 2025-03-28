@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 2.2.2
+ * @version 2.2.3
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
@@ -136,17 +136,6 @@ function showChangelog(changes, meta) {
 	betterdiscord.Data.save("changelogVersion", meta.version);
 }
 
-// manifest.json
-const changelog = [
-	{
-		title: "Fixed",
-		type: "fixed",
-		items: [
-			"Fixed hiding default settings button."
-		]
-	}
-];
-
 // @lib/utils/webpack.ts
 function getClasses(...classes) {
 	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
@@ -185,6 +174,17 @@ function expectSelectors(name, classes) {
 		name
 	});
 }
+
+// manifest.json
+const changelog = [
+	{
+		title: "Fixed",
+		type: "fixed",
+		items: [
+			"Fixed hiding default settings button."
+		]
+	}
+];
 
 // modules/discordmodules.tsx
 const accountClasses = expectClasses("Account Classes", [
@@ -343,7 +343,7 @@ const UserSettingsWindow = expectModule({
 });
 
 // index.tsx
-const settingsSelector = `.${accountClasses.container} button:nth-last-child(1):not(:first-child)`;
+const settingsSelector = `.${accountClasses.container} button:last-of-type:not(:first-child)`;
 class AvatarSettingsButton {
 	meta;
 	target = null;
