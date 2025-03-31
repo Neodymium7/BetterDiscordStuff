@@ -1,7 +1,7 @@
 /**
  * @name ClickableTextMentions
  * @author Neodymium
- * @version 1.0.3
+ * @version 1.0.4
  * @description Makes mentions in the message text area clickable.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ClickableTextMentions/ClickableTextMentions.plugin.js
  * @invite fRbsqH87Av
@@ -123,7 +123,7 @@ const UserPopout = expectModule({
 // @discord/modules.ts
 const loadProfile = expectModule({
 	filter: betterdiscord.Webpack.Filters.combine(
-		betterdiscord.Webpack.Filters.byStrings("preloadUserBanner"),
+		betterdiscord.Webpack.Filters.byStrings("preloadUser"),
 		byType("function")
 	),
 	name: "loadProfile"

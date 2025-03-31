@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.4.1
+ * @version 1.4.2
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @invite fRbsqH87Av
@@ -48,17 +48,6 @@ function showChangelog(changes, meta) {
 	betterdiscord.Data.save("changelogVersion", meta.version);
 }
 
-// manifest.json
-const changelog = [
-	{
-		title: "Fixed",
-		type: "fixed",
-		items: [
-			"Fixed opening popout."
-		]
-	}
-];
-
 // @lib/utils/webpack.ts
 function getClasses(...classes) {
 	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
@@ -102,6 +91,17 @@ function byType(type) {
 	return (e) => typeof e === type;
 }
 
+// manifest.json
+const changelog = [
+	{
+		title: "Fixed",
+		type: "fixed",
+		items: [
+			"Fixed loading user profile data."
+		]
+	}
+];
+
 // modules.tsx
 const TypingUsersContainer = expectWithKey({
 	filter: betterdiscord.Webpack.Filters.byStrings("typingUsers:"),
@@ -134,7 +134,7 @@ const UserPopout = expectModule({
 // @discord/modules.ts
 const loadProfile = expectModule({
 	filter: betterdiscord.Webpack.Filters.combine(
-		betterdiscord.Webpack.Filters.byStrings("preloadUserBanner"),
+		betterdiscord.Webpack.Filters.byStrings("preloadUser"),
 		byType("function")
 	),
 	name: "loadProfile"
@@ -182,8 +182,7 @@ class TypingUsersPopouts {
 			});
 		};
 		let patchedType;
-		const [module, key] = TypingUsersContainer;
-		betterdiscord.Patcher.after(module, key, (_, __, containerRet) => {
+		betterdiscord.Patcher.after(...TypingUsersContainer, (_, __, containerRet) => {
 			if (patchedType) {
 				containerRet.type = patchedType;
 				return containerRet;
