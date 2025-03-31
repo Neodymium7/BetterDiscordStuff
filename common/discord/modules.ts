@@ -14,7 +14,7 @@ export const loadProfile = /* @__PURE__ */ expectModule<
 	(userId: string, avatarURL: string, context: { guildId: string; channelId: string }) => void
 >({
 	filter: /* @__PURE__ */ Webpack.Filters.combine(
-		/* @__PURE__ */ Webpack.Filters.byStrings("preloadUserBanner"),
+		/* @__PURE__ */ Webpack.Filters.byStrings("preloadUser"),
 		/* @__PURE__ */ byType("function")
 	),
 	name: "loadProfile",
