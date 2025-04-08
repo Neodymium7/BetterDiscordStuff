@@ -1,7 +1,7 @@
 /**
  * @name ClickableTextMentions
  * @author Neodymium
- * @version 1.0.4
+ * @version 1.0.5
  * @description Makes mentions in the message text area clickable.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ClickableTextMentions/ClickableTextMentions.plugin.js
  * @invite fRbsqH87Av
@@ -109,7 +109,7 @@ const ErrorPopout = (props) => BdApi.React.createElement("div", { style: { backg
 
 // @discord/components.tsx
 const Popout = expectModule({
-	filter: (m) => m.defaultProps && m.Animation?.TRANSLATE,
+	filter: (m) => m.defaultProps && m.prototype.shouldShowPopout,
 	name: "Popout",
 	fallback: EmptyWrapperComponent,
 	searchExports: true

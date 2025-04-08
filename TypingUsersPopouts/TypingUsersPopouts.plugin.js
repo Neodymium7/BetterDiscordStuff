@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.4.2
+ * @version 1.4.3
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @invite fRbsqH87Av
@@ -97,7 +97,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed loading user profile data."
+			"Fixed rendering typing users."
 		]
 	}
 ];
@@ -120,7 +120,7 @@ const ErrorPopout = (props) => BdApi.React.createElement("div", { style: { backg
 
 // @discord/components.tsx
 const Popout = expectModule({
-	filter: (m) => m.defaultProps && m.Animation?.TRANSLATE,
+	filter: (m) => m.defaultProps && m.prototype.shouldShowPopout,
 	name: "Popout",
 	fallback: EmptyWrapperComponent,
 	searchExports: true
