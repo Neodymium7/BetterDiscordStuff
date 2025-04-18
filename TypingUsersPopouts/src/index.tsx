@@ -48,7 +48,13 @@ export default class TypingUsersPopouts implements Plugin {
 						position="top"
 						key={user.id}
 						renderPopout={(props: any) => (
-							<UserPopout {...props} userId={user.id} guildId={guildId} channelId={channel.id} />
+							<UserPopout
+								{...props}
+								user={user}
+								currentUser={UserStore.getCurrentUser()}
+								guildId={guildId}
+								channelId={channel.id}
+							/>
 						)}
 						preload={() =>
 							loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId: channel.id })

@@ -36,7 +36,13 @@ function PopoutWrapper({ id, guildId, channelId, children }: PopoutWrapperProps)
 			position="top"
 			key={user.id}
 			renderPopout={(props: any) => (
-				<UserPopout {...props} userId={user.id} guildId={guildId} channelId={channelId} />
+				<UserPopout
+					{...props}
+					currentUser={UserStore.getCurrentUser()}
+					user={user}
+					guildId={guildId}
+					channelId={channelId}
+				/>
 			)}
 			preload={() => loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId })}
 		>
