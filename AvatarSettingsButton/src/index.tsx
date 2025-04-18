@@ -56,12 +56,10 @@ export default class AvatarSettingsButton implements Plugin {
 
 	openSettings() {
 		UserSettingsWindow?.setSection(SettingsSections.ACCOUNT);
-		if (document.querySelector(`.${accountClasses.accountProfilePopoutWrapper}`)) this.openPopout();
 		UserSettingsWindow?.open();
 	}
 
 	openContextMenu(e: MouseEvent) {
-		if (document.querySelector(`.${accountClasses.accountProfilePopoutWrapper}`)) this.openPopout();
 		document.querySelector(settingsSelector)?.dispatchEvent(
 			new MouseEvent("contextmenu", {
 				bubbles: true,

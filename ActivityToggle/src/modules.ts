@@ -29,8 +29,4 @@ export const ShowCurrentGame = expectModule({
 	},
 })?.G6;
 
-export const AccountSelectors = expectSelectors("Account Classes", [
-	"avatarWrapper",
-	"accountProfilePopoutWrapper",
-	"container",
-]);
+export const AccountSelectors = expectSelectors("Account Classes", ["avatarWrapper", "nameTag", "container"]);
