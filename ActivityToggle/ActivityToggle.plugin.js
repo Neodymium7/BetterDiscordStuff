@@ -1,7 +1,7 @@
 /**
  * @name ActivityToggle
  * @author Neodymium
- * @version 1.2.23
+ * @version 1.2.24
  * @description Adds a button to quickly toggle Activity Status.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  * @invite fRbsqH87Av
@@ -110,11 +110,7 @@ const ShowCurrentGame = expectModule({
 		}
 	}
 })?.G6;
-const AccountSelectors = expectSelectors("Account Classes", [
-	"avatarWrapper",
-	"accountProfilePopoutWrapper",
-	"container"
-]);
+const AccountSelectors = expectSelectors("Account Classes", ["avatarWrapper", "nameTag", "container"]);
 
 // components/ActivityDisabledIcon.tsx
 function ActivityDisabled(props) {

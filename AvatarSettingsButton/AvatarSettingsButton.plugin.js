@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 2.2.3
+ * @version 2.2.4
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
@@ -181,17 +181,13 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed hiding default settings button."
+			"Fixed the plugin's functionality."
 		]
 	}
 ];
 
 // modules/discordmodules.tsx
-const accountClasses = expectClasses("Account Classes", [
-	"accountProfilePopoutWrapper",
-	"container",
-	"avatarWrapper"
-]);
+const accountClasses = expectClasses("Account Classes", ["nameTag", "container", "avatarWrapper"]);
 const tooltipClasses = expectClasses("Tooltip Classes", [
 	"tooltip",
 	"tooltipTop",
@@ -385,11 +381,9 @@ class AvatarSettingsButton {
 	}
 	openSettings() {
 		UserSettingsWindow?.setSection(SettingsSections.ACCOUNT);
-		if (document.querySelector(`.${accountClasses.accountProfilePopoutWrapper}`)) this.openPopout();
 		UserSettingsWindow?.open();
 	}
 	openContextMenu(e) {
-		if (document.querySelector(`.${accountClasses.accountProfilePopoutWrapper}`)) this.openPopout();
 		document.querySelector(settingsSelector)?.dispatchEvent(
 			new MouseEvent("contextmenu", {
 				bubbles: true,
