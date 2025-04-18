@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.4.3
+ * @version 1.4.4
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @invite fRbsqH87Av
@@ -97,7 +97,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed rendering typing users."
+			"Fixed opening popout."
 		]
 	}
 ];
@@ -126,7 +126,10 @@ const Popout = expectModule({
 	searchExports: true
 });
 const UserPopout = expectModule({
-	filter: (m) => m.toString?.().includes("UserProfilePopoutWrapper"),
+	filter: betterdiscord.Webpack.Filters.combine(
+		betterdiscord.Webpack.Filters.byStrings("isNonUserBot", "onHide"),
+		(m) => !m.toString?.().includes("Panel")
+	),
 	name: "UserPopout",
 	fallback: ErrorPopout
 });
@@ -174,7 +177,16 @@ class TypingUsersPopouts {
 						align: "left",
 						position: "top",
 						key: user.id,
-						renderPopout: (props2) => BdApi.React.createElement(UserPopout, { ...props2, userId: user.id, guildId, channelId: channel.id }),
+						renderPopout: (props2) => BdApi.React.createElement(
+							UserPopout,
+							{
+								...props2,
+								user,
+								currentUser: UserStore.getCurrentUser(),
+								guildId,
+								channelId: channel.id
+							}
+						),
 						preload: () => loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId: channel.id })
 					},
 					(props2) => BdApi.React.createElement("strong", { ...props2, ...e.props })

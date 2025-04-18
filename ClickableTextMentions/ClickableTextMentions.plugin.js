@@ -1,7 +1,7 @@
 /**
  * @name ClickableTextMentions
  * @author Neodymium
- * @version 1.0.5
+ * @version 1.0.6
  * @description Makes mentions in the message text area clickable.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ClickableTextMentions/ClickableTextMentions.plugin.js
  * @invite fRbsqH87Av
@@ -115,7 +115,10 @@ const Popout = expectModule({
 	searchExports: true
 });
 const UserPopout = expectModule({
-	filter: (m) => m.toString?.().includes("UserProfilePopoutWrapper"),
+	filter: betterdiscord.Webpack.Filters.combine(
+		betterdiscord.Webpack.Filters.byStrings("isNonUserBot", "onHide"),
+		(m) => !m.toString?.().includes("Panel")
+	),
 	name: "UserPopout",
 	fallback: ErrorPopout
 });
@@ -148,7 +151,16 @@ function PopoutWrapper({ id, guildId, channelId, children }) {
 			align: "left",
 			position: "top",
 			key: user.id,
-			renderPopout: (props) => BdApi.React.createElement(UserPopout, { ...props, userId: user.id, guildId, channelId }),
+			renderPopout: (props) => BdApi.React.createElement(
+				UserPopout,
+				{
+					...props,
+					currentUser: UserStore.getCurrentUser(),
+					user,
+					guildId,
+					channelId
+				}
+			),
 			preload: () => loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId })
 		},
 		(props) => BdApi.React.createElement("span", { ...props }, children)
