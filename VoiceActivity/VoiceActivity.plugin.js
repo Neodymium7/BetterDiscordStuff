@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.9.10
+ * @version 1.9.11
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -206,7 +206,8 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Updated styling for new UI refresh."
+			"Fixed profile section not rendering.",
+			"Fixed incorrect muted icon."
 		]
 	}
 ];
@@ -224,7 +225,7 @@ const UserPanelBody = expectWithKey({
 	name: "UserPanelBody"
 });
 const UserPopoutBody = expectWithKey({
-	filter: betterdiscord.Webpack.Filters.byStrings("BITE_SIZE", "UserProfilePopoutBody"),
+	filter: betterdiscord.Webpack.Filters.byStrings("BITE_SIZE", "usernameIcon", "hasAvatarForGuild"),
 	name: "UserPopoutBody"
 });
 const PrivateChannel = expectWithKey({
@@ -627,7 +628,10 @@ const People = expectIcon(
 	"M14.5 8a3 3 0 1 0-2.7-4.3c-.2.4.06.86.44 1.12a5 5 0 0 1 2.14 "
 );
 const Speaker = expectIcon("Speaker", "M12 3a1 1 0 0 0-1-1h-.06a1 1 0 0 0-.74.32L5.92 7H3a1 1");
-const Muted = expectIcon("Muted", "m2.7 22.7 20-20a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4");
+const Muted = expectIcon(
+	"Muted",
+	"m2.7 22.7 20-20a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4 1.4ZM10.8 17.32c-.21.21-.1.58.2.62V20H9a1"
+);
 const Deafened = expectIcon(
 	"Deafened",
 	"M22.7 2.7a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4 1.4l20-20ZM17.06"
