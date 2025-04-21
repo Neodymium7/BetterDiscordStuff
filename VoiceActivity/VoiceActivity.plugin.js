@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.9.11
+ * @version 1.10.0
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -41,7 +41,7 @@ let _styles = "";
 function _loadStyle(path, css) {
 	_styles += "/*" + path + "*/\n" + css + "\n";
 }
-function styles$2() {
+function styles() {
 	return _styles;
 }
 
@@ -203,11 +203,21 @@ function byType(type) {
 // manifest.json
 const changelog = [
 	{
+		title: "Improved",
+		type: "improved",
+		items: [
+			"Now uses Discord's new voice activity card in user popouts instead of a custom one.",
+			"While the native card can show up in profiles by default, VoiceActivity will now display it more consistently and alongside other activity cards.",
+			"Updated icon colors to better match Discord's new themes.",
+			"Other (mostly visual) minor improvements and fixes."
+		]
+	},
+	{
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed profile section not rendering.",
-			"Fixed incorrect muted icon."
+			"Removed server icons feature, since this is now a native part of Discord.",
+			"Fixed an occasional crashing issue as a result."
 		]
 	}
 ];
@@ -215,7 +225,41 @@ const changelog = [
 // @lib/utils/react.tsx
 const EmptyComponent = (props) => null;
 
+// @discord/stores.ts
+const UserStore = betterdiscord.Webpack.getStore("UserStore");
+const VoiceStateStore = betterdiscord.Webpack.getStore("VoiceStateStore");
+const GuildStore = betterdiscord.Webpack.getStore("GuildStore");
+const ChannelStore = betterdiscord.Webpack.getStore("ChannelStore");
+const PermissionStore = betterdiscord.Webpack.getStore("PermissionStore");
+const useStateFromStores = expectModule({
+	filter: betterdiscord.Webpack.Filters.byStrings("useStateFromStores"),
+	name: "Flux",
+	fallback(stores, callback) {
+		return callback();
+	},
+	searchExports: true
+});
+
 // modules/discordmodules.tsx
+function useUserVoiceStateFallback({ userId }) {
+	const voiceState = useStateFromStores(
+		[VoiceStateStore],
+		() => userId && VoiceStateStore.getDiscoverableVoiceStateForUser(userId)
+	);
+	const channel = useStateFromStores([ChannelStore], () => {
+		if (voiceState?.channelId) return ChannelStore.getChannel(voiceState?.channelId);
+	});
+	const visible = useStateFromStores(
+		[PermissionStore],
+		() => channel?.isPrivate() || PermissionStore.can(Permissions.VIEW_CHANNEL, channel)
+	);
+	if (visible) {
+		return {
+			voiceState,
+			voiceChannel: channel
+		};
+	} else return {};
+}
 const MemberListItem = expectWithKey({
 	filter: betterdiscord.Webpack.Filters.byStrings("memberInner", "renderPopout"),
 	name: "MemberListItem"
@@ -233,23 +277,18 @@ const PrivateChannel = expectWithKey({
 	name: "PrivateChannel",
 	defaultExport: false
 });
-const GuildIcon = expectModule({
-	filter: (m) => m?.type && betterdiscord.Webpack.Filters.byStrings("GuildItem", "mediaState")(m.type),
-	name: "GuildIcon"
-});
 const PeopleListItem = expectModule({
 	filter: (m) => m?.prototype?.render && betterdiscord.Webpack.Filters.byStrings("this.peopleListItemRef")(m),
 	name: "PeopleListItem"
 });
-const PartyMembers = expectModule({
-	filter: betterdiscord.Webpack.Filters.byStrings("overflowCountClassName"),
-	name: "PartyMembers",
+const VoiceActivityCard = expectWithKey({
+	filter: betterdiscord.Webpack.Filters.byStrings("UserProfileVoiceActivityCard"),
+	name: "VoiceActivityCard",
 	fallback: EmptyComponent
 });
-const MoreIcon = expectModule({
-	filter: betterdiscord.Webpack.Filters.byStrings(".contextMenu", "colors.INTERACTIVE_NORMAL"),
-	name: "MoreIcon",
-	fallback: EmptyComponent
+const UserPopoutActivity = expectWithKey({
+	filter: betterdiscord.Webpack.Filters.byStrings("UserProfileFeaturedActivity"),
+	name: "UserPopoutActivity"
 });
 const Permissions = expectModule({
 	filter: betterdiscord.Webpack.Filters.byKeys("VIEW_CREATOR_MONETIZATION_ANALYTICS"),
@@ -259,14 +298,12 @@ const Permissions = expectModule({
 		VIEW_CHANNEL: 1024n
 	}
 });
-const getAcronym = expectModule({
-	filter: betterdiscord.Webpack.Filters.byStrings(`.replace(/'s /g," ").replace(/\\w+/g,`),
-	searchExports: true,
-	name: "getAcronym",
-	fallback: (name) => name
-});
-const iconWrapperSelector = expectSelectors("Icon Wrapper Class", ["wrapper", "folderEndWrapper"])?.wrapper;
 const memberSelectors = expectSelectors("Children Class", ["avatar", "children", "layout"]);
+const useUserVoiceState = expectModule({
+	filter: betterdiscord.Webpack.Filters.byStrings("getDiscoverableVoiceState", "getDiscoverableVoiceStateForUser"),
+	name: "useUserVoiceState",
+	fallback: useUserVoiceStateFallback
+});
 
 // locales.json
 const el = {
@@ -455,30 +492,12 @@ const locales = {
 	fr: fr
 };
 
-// @discord/stores.ts
-const UserStore = betterdiscord.Webpack.getStore("UserStore");
-const GuildChannelStore = betterdiscord.Webpack.getStore("GuildChannelStore");
-const VoiceStateStore = betterdiscord.Webpack.getStore("VoiceStateStore");
-const GuildStore = betterdiscord.Webpack.getStore("GuildStore");
-const ChannelStore = betterdiscord.Webpack.getStore("ChannelStore");
-const SelectedChannelStore = betterdiscord.Webpack.getStore("SelectedChannelStore");
-const PermissionStore = betterdiscord.Webpack.getStore("PermissionStore");
-const useStateFromStores = expectModule({
-	filter: betterdiscord.Webpack.Filters.byStrings("useStateFromStores"),
-	name: "Flux",
-	fallback(stores, callback) {
-		return callback();
-	},
-	searchExports: true
-});
-
 // modules/utils.ts
 const Settings = new SettingsManager({
 	showProfileSection: true,
 	showMemberListIcons: true,
 	showDMListIcons: true,
 	showPeopleListIcons: true,
-	showGuildIcons: true,
 	currentChannelColor: true,
 	showStatusIcons: true,
 	ignoreEnabled: false,
@@ -486,127 +505,79 @@ const Settings = new SettingsManager({
 	ignoredGuilds: []
 });
 const Strings = new StringsManager(locales, "en-US");
-const canViewChannel = (channel) => {
-	return PermissionStore.can(Permissions.VIEW_CHANNEL, channel);
-};
-const getGuildMediaState = (guildId, ignoredChannels) => {
-	const vocalChannelIds = GuildChannelStore.getVocalChannelIds(guildId);
-	let audio = false;
-	let video = false;
-	let screenshare = false;
-	for (const id of vocalChannelIds) {
-		if (ignoredChannels.includes(id)) continue;
-		const voiceStates = Object.values(VoiceStateStore.getVoiceStatesForChannel(id));
-		if (!voiceStates.length) continue;
-		if (ChannelStore.getChannel(id).type !== 13) audio = true;
-		if (!video && VoiceStateStore.hasVideo(id)) video = true;
-		if (!screenshare && voiceStates.some((voiceState) => voiceState.selfStream)) screenshare = true;
-		if (audio && video && screenshare) break;
-	}
-	return { audio, video, screenshare };
-};
 function groupDMName(members) {
 	if (members.length === 1) {
-		return UserStore.getUser(members[0]).username;
+		return UserStore.getUser(members[0]).globalName;
 	} else if (members.length > 1) {
 		let name = "";
 		for (let i = 0; i < members.length; i++) {
-			if (i === members.length - 1) name += UserStore.getUser(members[i]).username;
-			else name += UserStore.getUser(members[i]).username + ", ";
+			if (i === members.length - 1) name += UserStore.getUser(members[i]).globalName;
+			else name += UserStore.getUser(members[i]).globalName + ", ";
 		}
 		return name;
 	}
 	return "Unnamed";
 }
-function forceRerender(element) {
-	if (!element) return betterdiscord.Logger.error("Force rerender failed: target element not found");
-	const ownerInstance = betterdiscord.ReactUtils.getOwnerInstance(element);
-	if (!ownerInstance) return betterdiscord.Logger.error("Force rerender failed: ownerInstance component not found");
-	const cancel = betterdiscord.Patcher.instead(ownerInstance, "render", () => {
-		cancel();
-		return null;
-	});
-	ownerInstance.forceUpdate(() => ownerInstance.forceUpdate());
-}
-function useUserVoiceState(userId) {
-	return useStateFromStores([VoiceStateStore], () => VoiceStateStore.getVoiceStateForUser(userId));
-}
 
-// styles/voiceicon.module.scss
-const css$2 = `
+// styles/voiceicon.module.css
+const css = `
 .VoiceActivity-voiceicon-icon {
 	height: 20px;
 	width: 20px;
 	min-width: 20px;
 	border-radius: 50%;
-	background-color: var(--background-floating);
+	background-color: var(--background-accent);
 	cursor: pointer;
-}
-.VoiceActivity-voiceicon-icon:hover {
-	background-color: var(--background-tertiary);
-}
-.VoiceActivity-voiceicon-icon svg {
-	padding: 3px;
-	color: var(--interactive-normal);
+	svg {
+		padding: 3px;
+		color: #fff;
+	}
 }
 .VoiceActivity-voiceicon-iconCurrentCall {
 	background-color: var(--status-positive);
 }
-.VoiceActivity-voiceicon-iconCurrentCall:hover {
-	background-color: var(--button-positive-background);
-}
-.VoiceActivity-voiceicon-iconCurrentCall svg {
-	color: #fff;
-}
 .VoiceActivity-voiceicon-iconLive {
 	height: 16px;
 	border-radius: 16px;
-	background-color: var(--status-danger);
+	background-color: var(--red-400);
 	color: #fff;
 	font-size: 12px;
 	line-height: 16px;
 	font-weight: 600;
 	font-family: var(--font-display);
 	text-transform: uppercase;
+	& > div {
+		padding: 0 6px;
+	}
 }
-.VoiceActivity-voiceicon-iconLive:hover {
-	background-color: var(--button-danger-background);
-}
-.VoiceActivity-voiceicon-iconLive > div {
-	padding: 0 6px;
-}
-.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-header {
-	display: block;
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-}
-.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-subtext {
-	display: flex;
-	flex-direction: row;
-	margin-top: 3px;
-}
-.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-subtext > div {
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-}
-.VoiceActivity-voiceicon-tooltip .VoiceActivity-voiceicon-tooltipIcon {
-	min-width: 16px;
-	margin-right: 3px;
-	color: var(--interactive-normal);
+.VoiceActivity-voiceicon-tooltip {
+	.VoiceActivity-voiceicon-header {
+		display: block;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+	.VoiceActivity-voiceicon-subtext {
+		display: flex;
+		flex-direction: row;
+		margin-top: 3px;
+		& > div {
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+		}
+	}
+	.VoiceActivity-voiceicon-tooltipIcon {
+		min-width: 16px;
+		margin-right: 3px;
+		color: var(--interactive-normal);
+	}
 }
 .VoiceActivity-voiceicon-iconContainer {
 	margin-left: auto;
-}
-.VoiceActivity-voiceicon-iconContainer .VoiceActivity-voiceicon-icon {
-	margin-inline: 8px;
-}
-.VoiceActivity-voiceicon-iconContainer .VoiceActivity-voiceicon-iconLive {
-	margin-inline: 8px;
 }`;
-_loadStyle("voiceicon.module.scss", css$2);
-const modules_df1df857 = {
+_loadStyle("voiceicon.module.css", css);
+const modules_1af761ba = {
 	"icon": "VoiceActivity-voiceicon-icon",
 	"iconCurrentCall": "VoiceActivity-voiceicon-iconCurrentCall",
 	"iconLive": "VoiceActivity-voiceicon-iconLive",
@@ -616,28 +587,32 @@ const modules_df1df857 = {
 	"tooltipIcon": "VoiceActivity-voiceicon-tooltipIcon",
 	"iconContainer": "VoiceActivity-voiceicon-iconContainer"
 };
-const iconStyles = modules_df1df857;
+const iconStyles = modules_1af761ba;
 
 // @discord/icons.tsx
-const CallJoin = expectIcon(
-	"CallJoin",
-	"M2 7.4A5.4 5.4 0 0 1 7.4 2c.36 0 .7.22.83.55l1.93 4.64a1 1"
-);
-const People = expectIcon(
-	"People",
-	"M14.5 8a3 3 0 1 0-2.7-4.3c-.2.4.06.86.44 1.12a5 5 0 0 1 2.14 "
-);
 const Speaker = expectIcon("Speaker", "M12 3a1 1 0 0 0-1-1h-.06a1 1 0 0 0-.74.32L5.92 7H3a1 1");
 const Muted = expectIcon(
 	"Muted",
 	"m2.7 22.7 20-20a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4 1.4ZM10.8 17.32c-.21.21-.1.58.2.62V20H9a1"
 );
+const ServerMuted = expectIcon(
+	"ServerMuted",
+	"M21.76.83a5.02 5.02 0 0 1 .78 7.7 5 5 0 0 1-7.07 0 5.02 5.02 0 0 1 0-7.07"
+);
 const Deafened = expectIcon(
 	"Deafened",
 	"M22.7 2.7a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4 1.4l20-20ZM17.06"
 );
+const ServerDeafened = expectIcon(
+	"ServerDeafened",
+	"M12.38 1c.38.02.58.45.4.78-.15.3-.3.62-.4.95A.4.4 0 0 1 12 3a9 9 0 0 0-8.95 10h1.87a5"
+);
 const Video = expectIcon("Video", "M4 4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h11a3 3");
-const Stage = expectIcon("Stage", "M19.61 18.25a1.08 1.08 0 0 1-.07-1.33 9 9 0 1 0-15.07");
+const ChannelIcon = expectModule({
+	filter: betterdiscord.Webpack.Filters.byStrings("isGuildStageVoice", "isNSFW"),
+	name: "ChannelIcon",
+	fallback: (_props) => null
+});
 
 // @discord/modules.ts
 const transitionTo = expectModule({
@@ -647,14 +622,6 @@ const transitionTo = expectModule({
 	),
 	searchExports: true,
 	name: "transitionTo"
-});
-const GuildActions = expectModule({
-	filter: betterdiscord.Webpack.Filters.byKeys("requestMembers", "transitionToGuildSync"),
-	name: "GuildActions"
-});
-const ChannelActions = expectModule({
-	filter: betterdiscord.Webpack.Filters.byKeys("selectChannel", "selectVoiceChannel"),
-	name: "ChannelActions"
 });
 
 // components/VoiceIcon.tsx
@@ -669,54 +636,49 @@ function VoiceIcon(props) {
 		"currentChannelColor",
 		"showStatusIcons"
 	);
-	const voiceState = useUserVoiceState(props.userId);
-	const currentUserVoiceState = useUserVoiceState(UserStore.getCurrentUser()?.id);
+	const { voiceState, voiceChannel: channel } = useUserVoiceState({ userId: props.userId });
+	const { voiceState: currentUserVoiceState } = useUserVoiceState({ userId: UserStore.getCurrentUser()?.id });
 	if (props.context === "memberlist" && !settingsState.showMemberListIcons) return null;
 	if (props.context === "dmlist" && !settingsState.showDMListIcons) return null;
 	if (props.context === "peoplelist" && !settingsState.showPeopleListIcons) return null;
 	if (!voiceState) return null;
-	const channel = ChannelStore.getChannel(voiceState.channelId);
-	if (!channel) return null;
 	const guild = GuildStore.getGuild(channel.guild_id);
-	if (guild && !canViewChannel(channel)) return null;
 	const ignored = settingsState.ignoredChannels.includes(channel.id) || settingsState.ignoredGuilds.includes(guild?.id);
 	if (settingsState.ignoreEnabled && ignored) return null;
 	let text;
 	let subtext;
-	let TooltipIcon;
 	let channelPath;
 	let className = iconStyles.icon;
-	if (channel.id === currentUserVoiceState?.channelId && settingsState.currentChannelColor)
+	if (settingsState.currentChannelColor && channel.id === currentUserVoiceState?.channelId)
 		className = `${iconStyles.icon} ${iconStyles.iconCurrentCall}`;
 	if (voiceState.selfStream) className = iconStyles.iconLive;
 	if (guild) {
 		text = guild.name;
 		subtext = channel.name;
-		TooltipIcon = Speaker;
 		channelPath = `/channels/${guild.id}/${channel.id}`;
 	} else {
 		text = channel.name;
 		subtext = Strings.get("VOICE_CALL");
-		TooltipIcon = CallJoin;
 		channelPath = `/channels/@me/${channel.id}`;
 	}
 	switch (channel.type) {
 		case 1:
-			text = UserStore.getUser(channel.recipients[0]).username;
+			text = UserStore.getUser(channel.recipients[0]).globalName;
 			subtext = Strings.get("PRIVATE_CALL");
 			break;
 		case 3:
 			text = channel.name || groupDMName(channel.recipients);
 			subtext = Strings.get("GROUP_CALL");
-			TooltipIcon = People;
 			break;
-		case 13:
-			TooltipIcon = Stage;
 	}
 	let Icon = Speaker;
-	if (settingsState.showStatusIcons && (voiceState.selfDeaf || voiceState.deaf)) Icon = Deafened;
-	else if (settingsState.showStatusIcons && (voiceState.selfMute || voiceState.mute)) Icon = Muted;
-	else if (settingsState.showStatusIcons && voiceState.selfVideo) Icon = Video;
+	if (settingsState.showStatusIcons) {
+		if (voiceState.selfVideo) Icon = Video;
+		else if (voiceState.deaf) Icon = ServerDeafened;
+		else if (voiceState.selfDeaf) Icon = Deafened;
+		else if (voiceState.mute) Icon = ServerMuted;
+		else if (voiceState.selfMute) Icon = Muted;
+	}
 	return BdApi.React.createElement(
 		"div",
 		{
@@ -731,13 +693,14 @@ function VoiceIcon(props) {
 			betterdiscord.Components.Tooltip,
 			{
 				text: BdApi.React.createElement("div", { className: iconStyles.tooltip }, BdApi.React.createElement("div", { className: iconStyles.header, style: { fontWeight: "600" } }, text), BdApi.React.createElement("div", { className: iconStyles.subtext }, BdApi.React.createElement(
-					TooltipIcon,
+					ChannelIcon,
 					{
 						className: iconStyles.tooltipIcon,
 						size: "16",
 						width: "16",
 						height: "16",
-						color: "currentColor"
+						color: "currentColor",
+						channel
 					}
 				), BdApi.React.createElement("div", { style: { fontWeight: "400" } }, subtext)))
 			},
@@ -746,241 +709,8 @@ function VoiceIcon(props) {
 	);
 }
 
-// styles/voiceprofilesection.module.scss
-const css$1 = `
-.VoiceActivity-voiceprofilesection-section {
-	position: relative;
-	padding: 8px;
-	border-radius: var(--radius-xs);
-	background: var(--bg-mod-faint);
-}
-.VoiceActivity-voiceprofilesection-section:hover {
-	background: var(--bg-mod-subtle);
-}
-.VoiceActivity-voiceprofilesection-panelSection {
-	padding: 12px;
-	border-radius: var(--radius-sm);
-}
-.theme-light.custom-profile-theme .VoiceActivity-voiceprofilesection-section {
-	background: rgb(var(--bg-overlay-color)/0.4);
-}
-.theme-dark.custom-profile-theme .VoiceActivity-voiceprofilesection-section {
-	background: rgb(var(--bg-overlay-color)/var(--bg-overlay-opacity-5));
-}
-.custom-profile-theme .VoiceActivity-voiceprofilesection-section:hover {
-	background: linear-gradient(rgb(var(--bg-overlay-color-inverse)/0.05), rgb(var(--bg-overlay-color-inverse)/0.05)), var(--profile-gradient-end);
-}
-.VoiceActivity-voiceprofilesection-header {
-	margin-bottom: 8px;
-	display: flex;
-	justify-content: space-between;
-	gap: 4px;
-}
-.VoiceActivity-voiceprofilesection-headerText {
-	color: var(--header-primary);
-	font-size: 12px;
-	line-height: 16px;
-	font-family: var(--font-primary);
-	font-weight: 500;
-}
-.VoiceActivity-voiceprofilesection-body {
-	display: flex;
-	flex-direction: row;
-	gap: 8px;
-}
-.VoiceActivity-voiceprofilesection-details {
-	display: flex;
-	flex-direction: row;
-	align-self: center;
-	justify-content: space-between;
-	width: 100%;
-	gap: 8px;
-	overflow: hidden;
-}
-.VoiceActivity-voiceprofilesection-text {
-	color: var(--text-normal);
-	overflow: hidden;
-}
-.VoiceActivity-voiceprofilesection-text > div, .VoiceActivity-voiceprofilesection-text > h3 {
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-}
-.VoiceActivity-voiceprofilesection-text > h3 {
-	font-size: 14px;
-	line-height: 18px;
-	font-weight: 600;
-	font-family: var(--font-display);
-}
-.VoiceActivity-voiceprofilesection-text > div {
-	font-size: 12px;
-	line-height: 16px;
-	font-weight: 400;
-	font-family: var(--font-primary);
-}
-.VoiceActivity-voiceprofilesection-buttonWrapper {
-	display: flex;
-	flex: 0 1 auto;
-	flex-direction: row;
-	flex-wrap: nowrap;
-	justify-content: flex-start;
-	align-items: stretch;
-	margin-top: 12px;
-}
-.VoiceActivity-voiceprofilesection-buttonWrapper > div[aria-label] {
-	width: 32px;
-	margin-right: 8px;
-}
-.VoiceActivity-voiceprofilesection-button {
-	height: 32px;
-	min-height: 32px;
-	width: 100%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding: 2px 16px;
-	border-radius: 8px;
-	color: var(--button-secondary-text);
-	font-size: 14px;
-	line-height: 16px;
-	font-weight: 500;
-	user-select: none;
-	transition-duration: 0.2s;
-	border: 1px solid var(--opacity-white-8);
-	border-color: var(--border-faint);
-	background-color: var(--button-secondary-background);
-	transition: background-color var(--custom-button-transition-duration) ease, color var(--custom-button-transition-duration) ease;
-}
-.VoiceActivity-voiceprofilesection-button:hover {
-	background-color: var(--button-secondary-background-hover);
-}
-.VoiceActivity-voiceprofilesection-button:active {
-	background-color: var(--button-secondary-background-active);
-}
-.VoiceActivity-voiceprofilesection-button:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-	background-color: --button-secondary-background-disabled;
-}
-.custom-profile-theme .VoiceActivity-voiceprofilesection-button {
-	transition: background var(--custom-button-transition-duration) ease-in-out;
-	background: var(--profile-gradient-button-color);
-	color: var(--white-500);
-}
-.custom-profile-theme .VoiceActivity-voiceprofilesection-button:hover {
-	background: color-mix(in srgb, var(--profile-gradient-button-color) 80%, transparent);
-}
-.custom-profile-theme .VoiceActivity-voiceprofilesection-button:active {
-	background: color-mix(in srgb, var(--profile-gradient-button-color) 90%, transparent);
-}
-.VoiceActivity-voiceprofilesection-joinWrapper .VoiceActivity-voiceprofilesection-joinButton {
-	min-width: 32px;
-	max-width: 32px;
-	padding: 0;
-}
-.VoiceActivity-voiceprofilesection-joinWrapper .VoiceActivity-voiceprofilesection-joinButton:disabled {
-	pointer-events: none;
-}
-.VoiceActivity-voiceprofilesection-joinWrapperDisabled {
-	cursor: not-allowed;
-}`;
-_loadStyle("voiceprofilesection.module.scss", css$1);
-const modules_9dbd3268 = {
-	"section": "VoiceActivity-voiceprofilesection-section",
-	"panelSection": "VoiceActivity-voiceprofilesection-panelSection",
-	"header": "VoiceActivity-voiceprofilesection-header",
-	"headerText": "VoiceActivity-voiceprofilesection-headerText",
-	"body": "VoiceActivity-voiceprofilesection-body",
-	"details": "VoiceActivity-voiceprofilesection-details",
-	"text": "VoiceActivity-voiceprofilesection-text",
-	"buttonWrapper": "VoiceActivity-voiceprofilesection-buttonWrapper",
-	"button": "VoiceActivity-voiceprofilesection-button",
-	"joinWrapper": "VoiceActivity-voiceprofilesection-joinWrapper",
-	"joinButton": "VoiceActivity-voiceprofilesection-joinButton",
-	"joinWrapperDisabled": "VoiceActivity-voiceprofilesection-joinWrapperDisabled"
-};
-const styles$1 = modules_9dbd3268;
-
-// styles/guildimage.module.scss
-const css = `
-.VoiceActivity-guildimage-defaultIcon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: 500;
-	line-height: 1.2em;
-	white-space: nowrap;
-	background-color: var(--background-primary);
-	color: var(--text-normal);
-	min-width: 48px;
-	width: 48px;
-	height: 48px;
-	border-radius: 16px;
-	cursor: pointer;
-	white-space: nowrap;
-	overflow: hidden;
-}`;
-_loadStyle("guildimage.module.scss", css);
-const modules_1a1e8d51 = {
-	"defaultIcon": "VoiceActivity-guildimage-defaultIcon"
-};
-const styles = modules_1a1e8d51;
-
-// assets/default_group_icon.png
-const img = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAABgmlDQ1BJQ0MgUHJvZmlsZQAAKM+VkTtIw1AYhb9WxQcVBzuIOGSoThZERRyliiIolFrB12CS2io0sSQtLo6Cq+DgY7Hq4OKsq4OrIAg+QBydnBRdROJ/U6FFqOCFcD/OzTnce34IFrOm5db2gGXnncRYTJuZndPqn6mlBmikTzfd3OTUaJKq6+OWgNpvoiqL/63m1JJrQkATHjJzTl54UXhgLZ9TvCscNpf1lPCpcLcjFxS+V7pR4hfFGZ+DKjPsJBPDwmFhLVPBRgWby44l3C8cSVm25AdnSpxSvK7YyhbMn3uqF4aW7OkppcvXwRjjTBJHw6DAClnyRGW3RXFJyHmsir/d98fFZYhrBVMcI6xioft+1Ax+d+um+3pLSaEY1D153lsn1G/D15bnfR563tcR1DzChV32rxZh8F30rbIWOYCWDTi7LGvGDpxvQttDTnd0X1LzD6bT8HoiY5qF1mtomi/19nPO8R0kpauJK9jbh66MZC9UeXdDZW9//uP3R+wbNjlyjzeozyoAAABgUExURVhl8oGK9LW7+erq/f///97i+7/F+mx38qGo92Ft8mFv8ujs/IuW9PP2/Wx384GM9Kux+MDF+urs/d/i+7S9+Jae9uDj/Jad9srO+tXY+4yU9aqy+MDE+qGn9/T1/neC9Liz/RcAAAAJcEhZcwAACxMAAAsTAQCanBgAAATqaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNC40LjAtRXhpdjIiPg0KICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPg0KICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOkdJTVA9Imh0dHA6Ly93d3cuZ2ltcC5vcmcveG1wLyIgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIgeG1wTU06RG9jdW1lbnRJRD0iZ2ltcDpkb2NpZDpnaW1wOmIzMjk5M2JmLTliZTUtNGJmMy04ZWEwLWY3ZDkzNTMyMTY2YiIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowNjhkOWE3MS1lYWU3LTRmZjAtYmMxZS04MGUwYmMxMTFkZDUiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDplZjU1ZGE0YS0wZTBhLTRjNTctODdmOC1lMmFmMGUyZGEzOGUiIGRjOkZvcm1hdD0iaW1hZ2UvcG5nIiBHSU1QOkFQST0iMi4wIiBHSU1QOlBsYXRmb3JtPSJXaW5kb3dzIiBHSU1QOlRpbWVTdGFtcD0iMTY0ODk0NDg1NjM4ODc5MSIgR0lNUDpWZXJzaW9uPSIyLjEwLjI0IiB0aWZmOk9yaWVudGF0aW9uPSIxIiB4bXA6Q3JlYXRvclRvb2w9IkdJTVAgMi4xMCI+DQogICAgICA8eG1wTU06SGlzdG9yeT4NCiAgICAgICAgPHJkZjpTZXE+DQogICAgICAgICAgPHJkZjpsaSBzdEV2dDphY3Rpb249InNhdmVkIiBzdEV2dDpjaGFuZ2VkPSIvIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjQ3NmFhOGE3LTVhNGEtNDcyNS05YTBjLWU1NzVmMzE1MzFmOCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iR2ltcCAyLjEwIChXaW5kb3dzKSIgc3RFdnQ6d2hlbj0iMjAyMi0wNC0wMlQxNzoxNDoxNiIgLz4NCiAgICAgICAgPC9yZGY6U2VxPg0KICAgICAgPC94bXBNTTpIaXN0b3J5Pg0KICAgIDwvcmRmOkRlc2NyaXB0aW9uPg0KICA8L3JkZjpSREY+DQo8L3g6eG1wbWV0YT4NCjw/eHBhY2tldCBlbmQ9InIiPz6JoorbAAABV0lEQVRoQ+3W23KDIBAGYIOYBk20prWNPb7/W3Z3WQ9lGmeKe/l/N/+IzAYDggUAAAAAAMB/HVzpfXV8kIuTpp3gvHJ8WTcx7VRanlSBrs+aVubxMxn7RdNGq6VVR02Pmjb6WHjCQ+80baxmgDXUxA/FaSPWXUxtctOCVF2Z2uSmhauUnT1RU61p49cq9b6npoOmDV4yK7xN8G8abhfPsXIkq7MxfdGKOt0qBuOtoqjnZ3BcN9BmZ1qftP2L91cXt4ezJszCq7uVtENfytEN1ocZLZlRJ1iNQ2zvNHd6oyWfamLpd809wofWTBxllY6a+UJyFCzkPWsve9+35N9fG/k+nZySufjkveuTOvCuzZmp/WN+F1/859AjSuahLW0LD/2kmWdjBtiNunxr5kmOyhR/VfAk5H9dxDr3TX2kcw6psmHqI51zSJUNUx/pDAAAAAAAsKkofgB06RBbh+d86AAAAABJRU5ErkJggg==";
-	const defaultGroupIcon = img;
-
-// components/GuildImage.tsx
-const getIconFontSize = (name) => {
-	const words = name.split(" ");
-	if (words.length > 7) return 10;
-	else if (words.length === 6) return 12;
-	else if (words.length === 5) return 14;
-	else return 16;
-};
-const getImageLink = (guild, channel) => {
-	let image = "";
-	if (guild && guild.icon) {
-		image = `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=96`;
-	} else if (channel.icon) {
-		image = `https://cdn.discordapp.com/channel-icons/${channel.id}/${channel.icon}.webp?size=32`;
-	} else if (channel.type === 3) {
-		image = defaultGroupIcon;
-	}
-	return image;
-};
-function GuildImage(props) {
-	const image = getImageLink(props.guild, props.channel);
-	const onClick = () => {
-		if (props.guild) GuildActions?.transitionToGuildSync(props.guild.id);
-		else if (props.channelPath) transitionTo?.(props.channelPath);
-	};
-	if (image) {
-		return BdApi.React.createElement(
-			"img",
-			{
-				className: styles.icon,
-				src: image,
-				width: "48",
-				height: "48",
-				style: { borderRadius: "16px", cursor: "pointer" },
-				onClick
-			}
-		);
-	} else {
-		return BdApi.React.createElement(
-			"div",
-			{
-				className: styles.defaultIcon,
-				onClick,
-				style: { fontSize: `${getIconFontSize(props.guild ? props.guild.name : props.channel.name)}px` }
-			},
-			getAcronym(props.guild ? props.guild.name : props.guild.id)
-		);
-	}
-}
-
 // components/VoiceProfileSection.tsx
+const [module$1, key] = VoiceActivityCard;
 function VoiceProfileSection(props) {
 	const settingsState = Settings.useSettingsState(
 		"showProfileSection",
@@ -988,118 +718,24 @@ function VoiceProfileSection(props) {
 		"ignoredChannels",
 		"ignoredGuilds"
 	);
-	const voiceState = useUserVoiceState(props.userId);
-	const currentUserVoiceState = useUserVoiceState(UserStore.getCurrentUser()?.id);
+	const { voiceState, voiceChannel: channel } = useUserVoiceState({ userId: props.user.id });
 	if (!settingsState.showProfileSection) return null;
 	if (!voiceState) return null;
-	const channel = ChannelStore.getChannel(voiceState.channelId);
-	if (!channel) return null;
-	const guild = GuildStore.getGuild(channel.guild_id);
-	if (guild && !canViewChannel(channel)) return null;
-	const ignored = settingsState.ignoredChannels.includes(channel.id) || settingsState.ignoredGuilds.includes(guild?.id);
+	const ignored = settingsState.ignoredChannels.includes(channel.id) || settingsState.ignoredGuilds.includes(channel.guild_id);
 	if (settingsState.ignoreEnabled && ignored) return null;
-	const members = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id)).map(
-		(id) => UserStore.getUser(id)
-	);
-	let headerText;
-	let text;
-	let viewButton;
-	let joinButton;
-	let Icon;
-	let channelPath;
-	const inCurrentChannel = channel.id === currentUserVoiceState?.channelId;
-	const channelSelected = channel.id === SelectedChannelStore.getChannelId();
-	const isCurrentUser = props.userId === UserStore.getCurrentUser().id;
-	if (guild) {
-		headerText = Strings.get("HEADER");
-		text = [BdApi.React.createElement("h3", null, guild.name), BdApi.React.createElement("div", null, channel.name)];
-		viewButton = Strings.get("VIEW");
-		joinButton = inCurrentChannel ? Strings.get("JOIN_DISABLED") : Strings.get("JOIN");
-		Icon = Speaker;
-		channelPath = `/channels/${guild.id}/${channel.id}`;
-	} else {
-		headerText = Strings.get("HEADER_VOICE");
-		text = BdApi.React.createElement("h3", null, channel.name);
-		viewButton = Strings.get("VIEW_CALL");
-		joinButton = inCurrentChannel ? Strings.get("JOIN_DISABLED_CALL") : Strings.get("JOIN_CALL");
-		Icon = CallJoin;
-		channelPath = `/channels/@me/${channel.id}`;
-	}
-	switch (channel.type) {
-		case 1:
-			headerText = Strings.get("HEADER_PRIVATE");
-			break;
-		case 3:
-			headerText = Strings.get("HEADER_GROUP");
-			text = [
-				BdApi.React.createElement("h3", null, channel.name || groupDMName(channel.recipients)),
-				BdApi.React.createElement("div", null, `${channel.recipients.length + 1} ${channel.recipients.length === 0 ? Strings.get("MEMBER") : Strings.get("MEMBERS")}`)
-			];
-			break;
-		case 13:
-			headerText = Strings.get("HEADER_STAGE");
-			Icon = Stage;
-	}
-	const section = BdApi.React.createElement("div", { className: props.panel ? `${styles$1.section} ${styles$1.panelSection}` : styles$1.section }, BdApi.React.createElement("div", { className: styles$1.header }, BdApi.React.createElement("h3", { className: styles$1.headerText }, headerText), BdApi.React.createElement(MoreIcon, { user: UserStore.getUser(props.userId) })), !(channel.type === 1) && BdApi.React.createElement("div", { className: styles$1.body }, BdApi.React.createElement(GuildImage, { guild, channel, channelPath }), BdApi.React.createElement("div", { className: styles$1.details }, BdApi.React.createElement("div", { className: styles$1.text }, text), BdApi.React.createElement(
-		PartyMembers,
+	const CardComponent = module$1[key];
+	return BdApi.React.createElement(
+		CardComponent,
 		{
-			channelId: channel.id,
-			guildId: guild?.id,
-			users: members,
-			disableUserPopout: true,
-			maxUsers: 3,
-			overflowCountVariant: "text-xs/normal",
-			size: "SIZE_16"
+			currentUser: UserStore.getCurrentUser(),
+			user: props.user,
+			voiceChannel: channel,
+			onClose: props.onClose
 		}
-	))), BdApi.React.createElement("div", { className: styles$1.buttonWrapper }, !isCurrentUser && BdApi.React.createElement(betterdiscord.Components.Tooltip, { text: joinButton, position: "top" }, (props2) => BdApi.React.createElement(
-		"div",
-		{
-			...props2,
-			className: inCurrentChannel ? `${styles$1.joinWrapper} ${styles$1.joinWrapperDisabled}` : styles$1.joinWrapper
-		},
-		BdApi.React.createElement(
-			"button",
-			{
-				className: `${styles$1.button} ${styles$1.joinButton}`,
-				disabled: inCurrentChannel,
-				onClick: () => {
-					if (channel.id) ChannelActions?.selectVoiceChannel(channel.id);
-				},
-				onContextMenu: (e) => {
-					if (channel.type === 13) return;
-					betterdiscord.ContextMenu.open(
-						e,
-						betterdiscord.ContextMenu.buildMenu([
-							{
-								label: Strings.get("JOIN_VIDEO"),
-								id: "voice-activity-join-with-video",
-								action: () => {
-									if (channel.id)
-										ChannelActions?.selectVoiceChannel(channel.id, true);
-								}
-							}
-						])
-					);
-				}
-			},
-			BdApi.React.createElement(Icon, { size: "18", width: "18", height: "18", color: "currentColor" })
-		)
-	)), BdApi.React.createElement(
-		"button",
-		{
-			className: styles$1.button,
-			disabled: channelSelected,
-			onClick: () => {
-				if (channelPath) transitionTo?.(channelPath);
-			}
-		},
-		viewButton
-	)));
-	return props.wrapper ? BdApi.React.createElement(props.wrapper, null, section) : section;
+	);
 }
 
 // index.tsx
-const guildIconSelector = `div:not([data-dnd-name]) + ${iconWrapperSelector}`;
 class VoiceActivity {
 	meta;
 	contextMenuUnpatches = new Set();
@@ -1109,35 +745,60 @@ class VoiceActivity {
 	start() {
 		showChangelog(changelog, this.meta);
 		betterdiscord.DOM.addStyle(
-			styles$2() + `${memberSelectors?.children}:empty { margin-left: 0; } ${memberSelectors?.children} { display: flex; gap: 8px; } ${memberSelectors?.layout} { width: 100%; }`
+			styles() + `${memberSelectors?.children}:empty { margin-left: 0; } ${memberSelectors?.children} { display: flex; gap: 8px; } ${memberSelectors?.layout} { width: 100%; }`
 		);
 		Strings.subscribe();
 		this.patchPeopleListItem();
 		this.patchMemberListItem();
 		this.patchUserPanel();
 		this.patchUserPopout();
+		this.patchVoiceActivityCard();
+		this.patchUserPopoutActivity();
 		this.patchPrivateChannel();
-		this.patchGuildIcon();
 		this.patchChannelContextMenu();
 		this.patchGuildContextMenu();
+		betterdiscord.Patcher.instead(VoiceStateStore, "getDiscoverableVoiceState", (_, [guildId, userId]) => {
+			return VoiceStateStore.getDiscoverableVoiceStateForUser(userId);
+		});
 	}
 	patchUserPanel() {
 		if (!UserPanelBody) return;
 		const [module, key] = UserPanelBody;
 		betterdiscord.Patcher.after(module, key, (_, [props], ret) => {
-			ret.props.children.splice(1, 0, BdApi.React.createElement(VoiceProfileSection, { userId: props.user.id, panel: true }));
+			ret.props.children.splice(1, 0, BdApi.React.createElement(VoiceProfileSection, { user: props.user }));
 		});
 	}
 	patchUserPopout() {
 		if (!UserPopoutBody) return;
 		betterdiscord.Patcher.after(...UserPopoutBody, (_, [props], ret) => {
-			ret.props.children.splice(7, 0, BdApi.React.createElement(VoiceProfileSection, { userId: props.user.id }));
+			ret.props.children.splice(7, 0, BdApi.React.createElement(VoiceProfileSection, { user: props.user, onClose: props.onClose }));
+		});
+	}
+	patchVoiceActivityCard() {
+		const filter = (e) => Array.isArray(e) && e[0].props.size && e[1].props.onClick;
+		if (!VoiceActivityCard) return;
+		betterdiscord.Patcher.after(...VoiceActivityCard, (_, [props], ret) => {
+			const channelPath = props.voiceChannel.guild_id ? `/channels/${props.voiceChannel.guild_id}/${props.voiceChannel.id}` : `/channels/@me/${props.voiceChannel.id}`;
+			const channelText = betterdiscord.Utils.findInTree(ret, filter, {
+				walkable: ["props", "children"]
+			})[1];
+			channelText.props.onClick = (e) => {
+				e.stopPropagation();
+				props.onClose?.();
+				if (channelPath) transitionTo?.(channelPath);
+			};
+		});
+	}
+	patchUserPopoutActivity() {
+		if (!UserPopoutActivity) return;
+		betterdiscord.Patcher.after(...UserPopoutActivity, (_, [props], ret) => {
+			const { showProfileSection } = Settings.useSettingsState("showProfileSection");
+			if (showProfileSection && ret?.props?.voiceChannel) return null;
 		});
 	}
 	patchMemberListItem() {
 		if (!MemberListItem) return;
-		const [module, key] = MemberListItem;
-		betterdiscord.Patcher.after(module, key, (_, [props], ret) => {
+		betterdiscord.Patcher.after(...MemberListItem, (_, [props], ret) => {
 			if (!props.user) return ret;
 			const children = ret.props.children;
 			ret.props.children = (childrenProps) => {
@@ -1172,8 +833,7 @@ class VoiceActivity {
 			};
 		};
 		let patchedType;
-		const [module, key] = PrivateChannel;
-		betterdiscord.Patcher.after(module, key, (_, __, containerRet) => {
+		betterdiscord.Patcher.after(...PrivateChannel, (_, __, containerRet) => {
 			let target = containerRet.children || containerRet;
 			if (patchedType) {
 				target.type = patchedType;
@@ -1204,27 +864,6 @@ class VoiceActivity {
 			};
 		});
 	}
-	patchGuildIcon() {
-		if (!GuildIcon) return;
-		betterdiscord.Patcher.before(GuildIcon, "type", (_, [props]) => {
-			if (!props?.guild) return;
-			const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState(
-				"showGuildIcons",
-				"ignoredGuilds",
-				"ignoredChannels"
-			);
-			const mediaState = useStateFromStores(
-				[VoiceStateStore],
-				() => getGuildMediaState(props.guild.id, ignoredChannels)
-			);
-			if (showGuildIcons && !ignoredGuilds.includes(props.guild.id)) {
-				props.mediaState = { ...props.mediaState, ...mediaState };
-			} else if (!props.mediaState.isCurrentUserConnected) {
-				props.mediaState = { ...props.mediaState, ...{ audio: false, video: false, screenshare: false } };
-			}
-		});
-		forceRerender(document.querySelector(guildIconSelector));
-	}
 	patchChannelContextMenu() {
 		const unpatch = betterdiscord.ContextMenu.patch("channel-context", (ret, props) => {
 			if (!Settings.get("ignoreEnabled")) return ret;
@@ -1246,7 +885,7 @@ class VoiceActivity {
 					}
 				}
 			});
-			ret.props.children[3].props.children.splice(2, 0, menuItem);
+			ret.props.children[3].props.children.splice(4, 0, menuItem);
 		});
 		this.contextMenuUnpatches.add(unpatch);
 	}
@@ -1278,7 +917,6 @@ class VoiceActivity {
 	stop() {
 		betterdiscord.DOM.removeStyle();
 		betterdiscord.Patcher.unpatchAll();
-		forceRerender(document.querySelector(guildIconSelector));
 		this.contextMenuUnpatches.forEach((unpatch) => unpatch());
 		this.contextMenuUnpatches.clear();
 		Strings.unsubscribe();
@@ -1308,12 +946,6 @@ class VoiceActivity {
 				type: "switch",
 				name: Strings.get("SETTINGS_PEOPLE_ICONS"),
 				note: Strings.get("SETTINGS_PEOPLE_ICONS_NOTE")
-			},
-			{
-				id: "showGuildIcons",
-				type: "switch",
-				name: Strings.get("SETTINGS_GUILD_ICONS"),
-				note: Strings.get("SETTINGS_GUILD_ICONS_NOTE")
 			},
 			{
 				id: "currentChannelColor",
