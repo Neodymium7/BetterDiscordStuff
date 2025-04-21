@@ -13,6 +13,7 @@ export const RelationshipStore = /* @__PURE__ */ Webpack.getStore<any>("Relation
 export const TypingStore = /* @__PURE__ */ Webpack.getStore<any>("TypingStore");
 export const UserGuildSettingsStore = /* @__PURE__ */ Webpack.getStore<any>("UserGuildSettingsStore");
 export const JoinedThreadsStore = /* @__PURE__ */ Webpack.getStore<any>("JoinedThreadsStore");
+export const PresenceStore = /* @__PURE__ */ Webpack.getStore<any>("PresenceStore");
 
 export const useStateFromStores = /* @__PURE__ */ expectModule({
 	filter: /* @__PURE__ */ Webpack.Filters.byStrings("useStateFromStores"),

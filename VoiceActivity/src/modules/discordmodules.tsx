@@ -1,6 +1,31 @@
 import { Webpack } from "betterdiscord";
 import { expectModule, expectSelectors, expectWithKey } from "@lib/utils/webpack";
-import { AnyComponent, AnyMemo, EmptyComponent } from "@lib/utils/react";
+import { AnyComponent, EmptyComponent } from "@lib/utils/react";
+import { ChannelStore, PermissionStore, useStateFromStores, VoiceStateStore } from "@discord/stores";
+
+// Adapted from Discord's useUserVoiceState function
+export function useUserVoiceStateFallback({ userId }: { userId: string; guildId?: string }) {
+	const voiceState = useStateFromStores(
+		[VoiceStateStore],
+		() => userId && VoiceStateStore.getDiscoverableVoiceStateForUser(userId)
+	);
+
+	const channel = useStateFromStores([ChannelStore], () => {
+		if (voiceState?.channelId) return ChannelStore.getChannel(voiceState?.channelId);
+	});
+
+	const visible = useStateFromStores(
+		[PermissionStore],
+		() => channel?.isPrivate() || PermissionStore.can(Permissions.VIEW_CHANNEL, channel)
+	);
+
+	if (visible) {
+		return {
+			voiceState: voiceState,
+			voiceChannel: channel,
+		};
+	} else return {};
+}
 
 export const MemberListItem = expectWithKey<AnyComponent>({
 	filter: Webpack.Filters.byStrings("memberInner", "renderPopout"),
@@ -23,26 +48,20 @@ export const PrivateChannel = expectWithKey<AnyComponent>({
 	defaultExport: false,
 });
 
-export const GuildIcon = expectModule<AnyMemo>({
-	filter: (m) => m?.type && Webpack.Filters.byStrings("GuildItem", "mediaState")(m.type),
-	name: "GuildIcon",
-});
-
 export const PeopleListItem = expectModule<React.ComponentClass<any>>({
 	filter: (m) => m?.prototype?.render && Webpack.Filters.byStrings("this.peopleListItemRef")(m),
 	name: "PeopleListItem",
 });
 
-export const PartyMembers = expectModule({
-	filter: Webpack.Filters.byStrings("overflowCountClassName"),
-	name: "PartyMembers",
-	fallback: EmptyComponent,
+export const VoiceActivityCard = expectWithKey<AnyComponent>({
+	filter: Webpack.Filters.byStrings("UserProfileVoiceActivityCard"),
+	name: "VoiceActivityCard",
+	fallback: EmptyComponent as AnyComponent,
 });
 
-export const MoreIcon = expectModule({
-	filter: Webpack.Filters.byStrings(".contextMenu", "colors.INTERACTIVE_NORMAL"),
-	name: "MoreIcon",
-	fallback: EmptyComponent,
+export const UserPopoutActivity = expectWithKey<AnyComponent>({
+	filter: Webpack.Filters.byStrings("UserProfileFeaturedActivity"),
+	name: "UserPopoutActivity",
 });
 
 export const Permissions = expectModule({
@@ -54,13 +73,10 @@ export const Permissions = expectModule({
 	},
 });
 
-export const getAcronym = expectModule({
-	filter: Webpack.Filters.byStrings('.replace(/\'s /g," ").replace(/\\w+/g,'),
-	searchExports: true,
-	name: "getAcronym",
-	fallback: (name: string) => name,
-});
-
-export const iconWrapperSelector = expectSelectors("Icon Wrapper Class", ["wrapper", "folderEndWrapper"])?.wrapper;
-
 export const memberSelectors = expectSelectors("Children Class", ["avatar", "children", "layout"]);
+
+export const useUserVoiceState = expectModule({
+	filter: Webpack.Filters.byStrings("getDiscoverableVoiceState", "getDiscoverableVoiceStateForUser"),
+	name: "useUserVoiceState",
+	fallback: useUserVoiceStateFallback,
+});

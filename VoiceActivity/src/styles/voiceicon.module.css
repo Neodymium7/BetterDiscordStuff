@@ -3,45 +3,29 @@
 	width: 20px;
 	min-width: 20px;
 	border-radius: 50%;
-	background-color: var(--background-floating);
+	background-color: var(--background-accent);
 	cursor: pointer;
-
-	&:hover {
-		background-color: var(--background-tertiary);
-	}
 
 	svg {
 		padding: 3px;
-		color: var(--interactive-normal);
+		color: #fff;
 	}
 }
 
 .iconCurrentCall {
 	background-color: var(--status-positive);
-
-	&:hover {
-		background-color: var(--button-positive-background);
-	}
-
-	svg {
-		color: #fff;
-	}
 }
 
 .iconLive {
 	height: 16px;
 	border-radius: 16px;
-	background-color: var(--status-danger);
+	background-color: var(--red-400);
 	color: #fff;
 	font-size: 12px;
 	line-height: 16px;
 	font-weight: 600;
 	font-family: var(--font-display);
 	text-transform: uppercase;
-
-	&:hover {
-		background-color: var(--button-danger-background);
-	}
 
 	& > div {
 		padding: 0 6px;
@@ -77,12 +61,4 @@
 
 .iconContainer {
 	margin-left: auto;
-
-	.icon {
-		margin-inline: 8px;
-	}
-
-	.iconLive {
-		margin-inline: 8px;
-	}
 }

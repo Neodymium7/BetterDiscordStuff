@@ -5,20 +5,19 @@ import { changelog } from "./manifest.json";
 import {
 	MemberListItem,
 	memberSelectors,
-	iconWrapperSelector,
 	UserPanelBody,
 	UserPopoutBody,
 	PrivateChannel,
-	GuildIcon,
 	PeopleListItem,
+	VoiceActivityCard,
+	UserPopoutActivity,
 } from "./modules/discordmodules";
-import { Settings, Strings, forceRerender, getGuildMediaState } from "./modules/utils";
-import iconStyles from "./styles/voiceicon.module.scss";
+import { Settings, Strings } from "./modules/utils";
+import iconStyles from "./styles/voiceicon.module.css";
 import VoiceIcon from "./components/VoiceIcon";
 import VoiceProfileSection from "./components/VoiceProfileSection";
-import { useStateFromStores, VoiceStateStore } from "@discord/stores";
-
-const guildIconSelector = `div:not([data-dnd-name]) + ${iconWrapperSelector}`;
+import { transitionTo } from "@discord/modules";
+import { VoiceStateStore } from "@discord/stores";
 
 export default class VoiceActivity implements Plugin {
 	meta: Meta;
@@ -39,31 +38,67 @@ export default class VoiceActivity implements Plugin {
 		this.patchMemberListItem();
 		this.patchUserPanel();
 		this.patchUserPopout();
+		this.patchVoiceActivityCard();
+		this.patchUserPopoutActivity();
 		this.patchPrivateChannel();
-		this.patchGuildIcon();
 		this.patchChannelContextMenu();
 		this.patchGuildContextMenu();
+
+		// Fix voice state not being discoverable when not navigated to specific guild
+		Patcher.instead(VoiceStateStore, "getDiscoverableVoiceState", (_, [guildId, userId]) => {
+			return VoiceStateStore.getDiscoverableVoiceStateForUser(userId);
+		});
 	}
 
 	patchUserPanel() {
 		if (!UserPanelBody) return;
 		const [module, key] = UserPanelBody;
 		Patcher.after(module, key, (_, [props], ret) => {
-			ret.props.children.splice(1, 0, <VoiceProfileSection userId={props.user.id} panel />);
+			ret.props.children.splice(1, 0, <VoiceProfileSection user={props.user} />);
 		});
 	}
 
 	patchUserPopout() {
 		if (!UserPopoutBody) return;
 		Patcher.after(...UserPopoutBody, (_, [props], ret) => {
-			ret.props.children.splice(7, 0, <VoiceProfileSection userId={props.user.id} />);
+			ret.props.children.splice(7, 0, <VoiceProfileSection user={props.user} onClose={props.onClose} />);
+		});
+	}
+
+	// Override channel name click action to navigate to channel instead of join
+	patchVoiceActivityCard() {
+		const filter = (e: any) => Array.isArray(e) && e[0].props.size && e[1].props.onClick;
+
+		if (!VoiceActivityCard) return;
+		Patcher.after(...VoiceActivityCard, (_, [props], ret) => {
+			const channelPath = props.voiceChannel.guild_id
+				? `/channels/${props.voiceChannel.guild_id}/${props.voiceChannel.id}`
+				: `/channels/@me/${props.voiceChannel.id}`;
+
+			const channelText = Utils.findInTree(ret, filter, {
+				walkable: ["props", "children"],
+			})[1];
+
+			channelText.props.onClick = (e: React.MouseEvent) => {
+				e.stopPropagation();
+				props.onClose?.();
+				if (channelPath) transitionTo?.(channelPath);
+			};
+		});
+	}
+
+	// Remove default voice channel activity card to prevent duplicates
+	patchUserPopoutActivity() {
+		if (!UserPopoutActivity) return;
+		Patcher.after(...UserPopoutActivity, (_, [props], ret) => {
+			const { showProfileSection } = Settings.useSettingsState("showProfileSection");
+			if (showProfileSection && ret?.props?.voiceChannel) return null;
 		});
 	}
 
 	patchMemberListItem() {
 		if (!MemberListItem) return;
-		const [module, key] = MemberListItem;
-		Patcher.after(module, key, (_, [props], ret) => {
+		Patcher.after(...MemberListItem, (_, [props], ret) => {
 			if (!props.user) return ret;
 			const children = ret.props.children;
 
@@ -116,8 +151,7 @@ export default class VoiceActivity implements Plugin {
 
 		let patchedType: ((props: any) => React.ReactNode) | undefined;
 
-		const [module, key] = PrivateChannel;
-		Patcher.after(module, key, (_, __, containerRet) => {
+		Patcher.after(...PrivateChannel, (_, __, containerRet) => {
 			// Compatibility fix (ChannelsPreview)
 			let target: React.ReactElement = (containerRet as any).children || containerRet;
 
@@ -161,30 +195,6 @@ export default class VoiceActivity implements Plugin {
 		});
 	}
 
-	patchGuildIcon() {
-		if (!GuildIcon) return;
-
-		Patcher.before(GuildIcon, "type", (_, [props]) => {
-			if (!props?.guild) return;
-
-			const { showGuildIcons, ignoredGuilds, ignoredChannels } = Settings.useSettingsState(
-				"showGuildIcons",
-				"ignoredGuilds",
-				"ignoredChannels"
-			);
-			const mediaState = useStateFromStores([VoiceStateStore], () =>
-				getGuildMediaState(props.guild.id, ignoredChannels)
-			);
-
-			if (showGuildIcons && !ignoredGuilds.includes(props.guild.id)) {
-				props.mediaState = { ...props.mediaState, ...mediaState };
-			} else if (!props.mediaState.isCurrentUserConnected) {
-				props.mediaState = { ...props.mediaState, ...{ audio: false, video: false, screenshare: false } };
-			}
-		});
-		forceRerender(document.querySelector(guildIconSelector));
-	}
-
 	patchChannelContextMenu() {
 		const unpatch = ContextMenu.patch("channel-context", (ret, props) => {
 			if (!Settings.get("ignoreEnabled")) return ret;
@@ -209,7 +219,7 @@ export default class VoiceActivity implements Plugin {
 				},
 			});
 
-			ret.props.children[3].props.children.splice(2, 0, menuItem);
+			ret.props.children[3].props.children.splice(4, 0, menuItem);
 		});
 
 		this.contextMenuUnpatches.add(unpatch);
@@ -248,7 +258,6 @@ export default class VoiceActivity implements Plugin {
 	stop() {
 		DOM.removeStyle();
 		Patcher.unpatchAll();
-		forceRerender(document.querySelector(guildIconSelector));
 		this.contextMenuUnpatches.forEach((unpatch) => unpatch());
 		this.contextMenuUnpatches.clear();
 		Strings.unsubscribe();
@@ -279,12 +288,6 @@ export default class VoiceActivity implements Plugin {
 				type: "switch",
 				name: Strings.get("SETTINGS_PEOPLE_ICONS"),
 				note: Strings.get("SETTINGS_PEOPLE_ICONS_NOTE"),
-			},
-			{
-				id: "showGuildIcons",
-				type: "switch",
-				name: Strings.get("SETTINGS_GUILD_ICONS"),
-				note: Strings.get("SETTINGS_GUILD_ICONS_NOTE"),
 			},
 			{
 				id: "currentChannelColor",

@@ -1,9 +1,10 @@
-import { ChannelStore, GuildStore, UserStore } from "@discord/stores";
-import { Settings, Strings, groupDMName, canViewChannel, useUserVoiceState } from "../modules/utils";
-import styles from "../styles/voiceicon.module.scss";
-import { CallJoin, Deafened, Muted, People, Speaker, Stage, Video } from "@discord/icons";
+import { GuildStore, UserStore } from "@discord/stores";
+import { Settings, Strings, groupDMName } from "../modules/utils";
+import styles from "../styles/voiceicon.module.css";
+import { ChannelIcon, Deafened, Muted, ServerDeafened, ServerMuted, Speaker, Video } from "@discord/icons";
 import { Components } from "betterdiscord";
 import { transitionTo } from "@discord/modules";
+import { useUserVoiceState } from "../modules/discordmodules";
 
 interface VoiceIconProps {
 	userId: string;
@@ -22,17 +23,15 @@ export default function VoiceIcon(props: VoiceIconProps): React.ReactNode {
 		"showStatusIcons"
 	);
 
-	const voiceState = useUserVoiceState(props.userId);
-	const currentUserVoiceState = useUserVoiceState(UserStore.getCurrentUser()?.id);
+	const { voiceState, voiceChannel: channel } = useUserVoiceState({ userId: props.userId });
+	const { voiceState: currentUserVoiceState } = useUserVoiceState({ userId: UserStore.getCurrentUser()?.id });
 
 	if (props.context === "memberlist" && !settingsState.showMemberListIcons) return null;
 	if (props.context === "dmlist" && !settingsState.showDMListIcons) return null;
 	if (props.context === "peoplelist" && !settingsState.showPeopleListIcons) return null;
 	if (!voiceState) return null;
-	const channel = ChannelStore.getChannel(voiceState.channelId);
-	if (!channel) return null;
+
 	const guild = GuildStore.getGuild(channel.guild_id);
-	if (guild && !canViewChannel(channel)) return null;
 
 	const ignored =
 		settingsState.ignoredChannels.includes(channel.id) || settingsState.ignoredGuilds.includes(guild?.id);
@@ -40,44 +39,42 @@ export default function VoiceIcon(props: VoiceIconProps): React.ReactNode {
 
 	let text: string;
 	let subtext: string;
-	let TooltipIcon: React.FunctionComponent<any>;
 	let channelPath: string;
 	let className = styles.icon;
 
-	if (channel.id === currentUserVoiceState?.channelId && settingsState.currentChannelColor)
+	if (settingsState.currentChannelColor && channel.id === currentUserVoiceState?.channelId)
 		className = `${styles.icon} ${styles.iconCurrentCall}`;
 	if (voiceState.selfStream) className = styles.iconLive;
 
 	if (guild) {
 		text = guild.name;
 		subtext = channel.name;
-		TooltipIcon = Speaker;
 		channelPath = `/channels/${guild.id}/${channel.id}`;
 	} else {
 		text = channel.name;
 		subtext = Strings.get("VOICE_CALL");
-		TooltipIcon = CallJoin;
 		channelPath = `/channels/@me/${channel.id}`;
 	}
 
 	switch (channel.type) {
 		case 1:
-			text = UserStore.getUser(channel.recipients[0]).username;
+			text = UserStore.getUser(channel.recipients[0]).globalName;
 			subtext = Strings.get("PRIVATE_CALL");
 			break;
 		case 3:
 			text = channel.name || groupDMName(channel.recipients);
 			subtext = Strings.get("GROUP_CALL");
-			TooltipIcon = People;
 			break;
-		case 13:
-			TooltipIcon = Stage;
 	}
 
 	let Icon = Speaker;
-	if (settingsState.showStatusIcons && (voiceState.selfDeaf || voiceState.deaf)) Icon = Deafened;
-	else if (settingsState.showStatusIcons && (voiceState.selfMute || voiceState.mute)) Icon = Muted;
-	else if (settingsState.showStatusIcons && voiceState.selfVideo) Icon = Video;
+	if (settingsState.showStatusIcons) {
+		if (voiceState.selfVideo) Icon = Video;
+		else if (voiceState.deaf) Icon = ServerDeafened;
+		else if (voiceState.selfDeaf) Icon = Deafened;
+		else if (voiceState.mute) Icon = ServerMuted;
+		else if (voiceState.selfMute) Icon = Muted;
+	}
 
 	return (
 		<div
@@ -95,12 +92,13 @@ export default function VoiceIcon(props: VoiceIconProps): React.ReactNode {
 							{text}
 						</div>
 						<div className={styles.subtext}>
-							<TooltipIcon
+							<ChannelIcon
 								className={styles.tooltipIcon}
 								size="16"
 								width="16"
 								height="16"
 								color="currentColor"
+								channel={channel}
 							/>
 							<div style={{ fontWeight: "400" }}>{subtext}</div>
 						</div>

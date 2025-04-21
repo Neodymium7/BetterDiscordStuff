@@ -1,7 +1,7 @@
 import { Webpack, Logger, ModuleFilter, ModuleQuery, ModuleKey, WithKeyResult } from "betterdiscord";
 import React from "react";
 
-interface IconProps {
+export interface IconProps {
 	width?: string;
 	height?: string;
 	size?: string;

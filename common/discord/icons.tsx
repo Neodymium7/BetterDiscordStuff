@@ -1,4 +1,5 @@
-import { expectIcon } from "@lib/utils/webpack";
+import { expectIcon, expectModule, IconProps } from "@lib/utils/webpack";
+import { Webpack } from "betterdiscord";
 
 export const CallJoin = /* @__PURE__ */ expectIcon(
 	"CallJoin",
@@ -13,9 +14,17 @@ export const Muted = /* @__PURE__ */ expectIcon(
 	"Muted",
 	"m2.7 22.7 20-20a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4 1.4ZM10.8 17.32c-.21.21-.1.58.2.62V20H9a1"
 );
+export const ServerMuted = /* @__PURE__ */ expectIcon(
+	"ServerMuted",
+	"M21.76.83a5.02 5.02 0 0 1 .78 7.7 5 5 0 0 1-7.07 0 5.02 5.02 0 0 1 0-7.07"
+);
 export const Deafened = /* @__PURE__ */ expectIcon(
 	"Deafened",
 	"M22.7 2.7a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4 1.4l20-20ZM17.06"
+);
+export const ServerDeafened = /* @__PURE__ */ expectIcon(
+	"ServerDeafened",
+	"M12.38 1c.38.02.58.45.4.78-.15.3-.3.62-.4.95A.4.4 0 0 1 12 3a9 9 0 0 0-8.95 10h1.87a5"
 );
 export const Video = /* @__PURE__ */ expectIcon("Video", "M4 4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h11a3 3");
 export const Stage = /* @__PURE__ */ expectIcon("Stage", "M19.61 18.25a1.08 1.08 0 0 1-.07-1.33 9 9 0 1 0-15.07");
@@ -43,3 +52,9 @@ export const Pin = /* @__PURE__ */ expectIcon(
 	"Pin",
 	"M19.38 11.38a3 3 0 0 0 4.24 0l.03-.03a.5.5 0 0 0 0-.7L13.35.35a.5.5"
 );
+
+export const ChannelIcon = /* @__PURE__ */ expectModule({
+	filter: Webpack.Filters.byStrings("isGuildStageVoice", "isNSFW"),
+	name: "ChannelIcon",
+	fallback: (_props: IconProps & { channel: any }) => null,
+});

@@ -1,15 +1,28 @@
 {
 	"name": "VoiceActivity",
 	"author": "Neodymium",
-	"version": "1.9.11",
+	"version": "1.10.0",
 	"description": "Shows icons and info in popouts, the member list, and more when someone is in a voice channel.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js",
 	"invite": "fRbsqH87Av",
 	"changelog": [
 		{
+			"title": "Improved",
+			"type": "improved",
+			"items": [
+				"Now uses Discord's new voice activity card in user popouts instead of a custom one.",
+				"While the native card can show up in profiles by default, VoiceActivity will now display it more consistently and alongside other activity cards.",
+				"Updated icon colors to better match Discord's new themes.",
+				"Other (mostly visual) minor improvements and fixes."
+			]
+		},
+		{
 			"title": "Fixed",
 			"type": "fixed",
-			"items": ["Fixed profile section not rendering.", "Fixed incorrect muted icon."]
+			"items": [
+				"Removed server icons feature, since this is now a native part of Discord.",
+				"Fixed an occasional crashing issue as a result."
+			]
 		}
 	]
 }
