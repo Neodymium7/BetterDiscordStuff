@@ -12,7 +12,7 @@ export const Popout = /* @__PURE__ */ expectModule({
 export const UserPopout = /* @__PURE__ */ expectModule({
 	filter: /* @__PURE__ */ Webpack.Filters.combine(
 		/* @__PURE__ */ Webpack.Filters.byStrings("isNonUserBot", "onHide"),
-		(m) => !m.toString?.().includes("Panel")
+		(m) => !m.toString?.().includes("Sidebar")
 	),
 	name: "UserPopout",
 	fallback: ErrorPopout,
