@@ -33,12 +33,12 @@ export const MemberListItem = expectWithKey<AnyComponent>({
 });
 
 export const UserPanelBody = expectWithKey<AnyComponent>({
-	filter: Webpack.Filters.byStrings("PANEL", "getUserProfile"),
+	filter: Webpack.Filters.byStrings("SIDEBAR", "nicknameIcons"),
 	name: "UserPanelBody",
 });
 
 export const UserPopoutBody = expectWithKey<AnyComponent>({
-	filter: Webpack.Filters.byStrings("BITE_SIZE", "usernameIcon", "hasAvatarForGuild"),
+	filter: Webpack.Filters.byStrings("usernameIcon", "hasAvatarForGuild"),
 	name: "UserPopoutBody",
 });
 
