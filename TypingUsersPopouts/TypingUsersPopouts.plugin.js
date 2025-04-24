@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.4.4
+ * @version 1.4.5
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @invite fRbsqH87Av
@@ -97,7 +97,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed opening popout."
+			"Fixed crashing when opening popout."
 		]
 	}
 ];
@@ -128,7 +128,7 @@ const Popout = expectModule({
 const UserPopout = expectModule({
 	filter: betterdiscord.Webpack.Filters.combine(
 		betterdiscord.Webpack.Filters.byStrings("isNonUserBot", "onHide"),
-		(m) => !m.toString?.().includes("Panel")
+		(m) => !m.toString?.().includes("Sidebar")
 	),
 	name: "UserPopout",
 	fallback: ErrorPopout
