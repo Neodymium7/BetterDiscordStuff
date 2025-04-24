@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.10.0
+ * @version 1.10.1
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -203,21 +203,10 @@ function byType(type) {
 // manifest.json
 const changelog = [
 	{
-		title: "Improved",
-		type: "improved",
-		items: [
-			"Now uses Discord's new voice activity card in user popouts instead of a custom one.",
-			"While the native card can show up in profiles by default, VoiceActivity will now display it more consistently and alongside other activity cards.",
-			"Updated icon colors to better match Discord's new themes.",
-			"Other (mostly visual) minor improvements and fixes."
-		]
-	},
-	{
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Removed server icons feature, since this is now a native part of Discord.",
-			"Fixed an occasional crashing issue as a result."
+			"Fixed popout card not rendering."
 		]
 	}
 ];
@@ -265,11 +254,11 @@ const MemberListItem = expectWithKey({
 	name: "MemberListItem"
 });
 const UserPanelBody = expectWithKey({
-	filter: betterdiscord.Webpack.Filters.byStrings("PANEL", "getUserProfile"),
+	filter: betterdiscord.Webpack.Filters.byStrings("SIDEBAR", "nicknameIcons"),
 	name: "UserPanelBody"
 });
 const UserPopoutBody = expectWithKey({
-	filter: betterdiscord.Webpack.Filters.byStrings("BITE_SIZE", "usernameIcon", "hasAvatarForGuild"),
+	filter: betterdiscord.Webpack.Filters.byStrings("usernameIcon", "hasAvatarForGuild"),
 	name: "UserPopoutBody"
 });
 const PrivateChannel = expectWithKey({
