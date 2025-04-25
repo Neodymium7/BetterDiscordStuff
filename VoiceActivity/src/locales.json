@@ -14,6 +14,8 @@
 		"SETTINGS_COLOR_NOTE": "Makes the Member List icons green when the user is in your current voice channel.",
 		"SETTINGS_STATUS": "Member List - Show Status Icons",
 		"SETTINGS_STATUS_NOTE": "Changes the Member List icons when a user is Muted, Deafened, or has Video enabled.",
+		"SETTINGS_CURRENT_USER": "Current User Icon",
+		"SETTINGS_CURRENT_USER_NOTE": "Toggles displaying a voice channel icon for the current user.",
 		"SETTINGS_IGNORE": "Ignore",
 		"SETTINGS_IGNORE_NOTE": "Adds an option on Voice Channel and Server context menus to ignore that channel/server in Member List Icons and User Popouts.",
 		"CONTEXT_IGNORE": "Ignore in Voice Activity",

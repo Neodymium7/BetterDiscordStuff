@@ -20,15 +20,19 @@ export default function VoiceIcon(props: VoiceIconProps): React.ReactNode {
 		"ignoredChannels",
 		"ignoredGuilds",
 		"currentChannelColor",
-		"showStatusIcons"
+		"showStatusIcons",
+		"currentUserIcon"
 	);
 
+	const currentUser = UserStore.getCurrentUser();
+
 	const { voiceState, voiceChannel: channel } = useUserVoiceState({ userId: props.userId });
-	const { voiceState: currentUserVoiceState } = useUserVoiceState({ userId: UserStore.getCurrentUser()?.id });
+	const { voiceState: currentUserVoiceState } = useUserVoiceState({ userId: currentUser?.id });
 
 	if (props.context === "memberlist" && !settingsState.showMemberListIcons) return null;
 	if (props.context === "dmlist" && !settingsState.showDMListIcons) return null;
 	if (props.context === "peoplelist" && !settingsState.showPeopleListIcons) return null;
+	if (props.userId === currentUser?.id && !settingsState.currentUserIcon) return null;
 	if (!voiceState) return null;
 
 	const guild = GuildStore.getGuild(channel.guild_id);

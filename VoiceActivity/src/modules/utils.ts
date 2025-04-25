@@ -9,6 +9,7 @@ export const Settings = new SettingsManager({
 	showPeopleListIcons: true,
 	currentChannelColor: true,
 	showStatusIcons: true,
+	currentUserIcon: true,
 	ignoreEnabled: false,
 	ignoredChannels: [] as string[],
 	ignoredGuilds: [] as string[],

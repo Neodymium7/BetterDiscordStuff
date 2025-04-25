@@ -302,6 +302,12 @@ export default class VoiceActivity implements Plugin {
 				note: Strings.get("SETTINGS_STATUS_NOTE"),
 			},
 			{
+				id: "currentUserIcon",
+				type: "switch",
+				name: Strings.get("SETTINGS_CURRENT_USER"),
+				note: Strings.get("SETTINGS_CURRENT_USER_NOTE"),
+			},
+			{
 				id: "ignoreEnabled",
 				type: "switch",
 				name: Strings.get("SETTINGS_IGNORE"),
