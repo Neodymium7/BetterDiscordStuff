@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.10.1
+ * @version 1.11.0
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -203,10 +203,10 @@ function byType(type) {
 // manifest.json
 const changelog = [
 	{
-		title: "Fixed",
-		type: "fixed",
+		title: "Improved",
+		type: "improved",
 		items: [
-			"Fixed popout card not rendering."
+			"Added a setting to toggle displaying a voice icon for the current user."
 		]
 	}
 ];
@@ -453,6 +453,8 @@ const locales = {
 	SETTINGS_COLOR_NOTE: "Makes the Member List icons green when the user is in your current voice channel.",
 	SETTINGS_STATUS: "Member List - Show Status Icons",
 	SETTINGS_STATUS_NOTE: "Changes the Member List icons when a user is Muted, Deafened, or has Video enabled.",
+	SETTINGS_CURRENT_USER: "Current User Icon",
+	SETTINGS_CURRENT_USER_NOTE: "Toggles displaying a voice channel icon for the current user.",
 	SETTINGS_IGNORE: "Ignore",
 	SETTINGS_IGNORE_NOTE: "Adds an option on Voice Channel and Server context menus to ignore that channel/server in Member List Icons and User Popouts.",
 	CONTEXT_IGNORE: "Ignore in Voice Activity",
@@ -489,6 +491,7 @@ const Settings = new SettingsManager({
 	showPeopleListIcons: true,
 	currentChannelColor: true,
 	showStatusIcons: true,
+	currentUserIcon: true,
 	ignoreEnabled: false,
 	ignoredChannels: [],
 	ignoredGuilds: []
@@ -623,13 +626,16 @@ function VoiceIcon(props) {
 		"ignoredChannels",
 		"ignoredGuilds",
 		"currentChannelColor",
-		"showStatusIcons"
+		"showStatusIcons",
+		"currentUserIcon"
 	);
+	const currentUser = UserStore.getCurrentUser();
 	const { voiceState, voiceChannel: channel } = useUserVoiceState({ userId: props.userId });
-	const { voiceState: currentUserVoiceState } = useUserVoiceState({ userId: UserStore.getCurrentUser()?.id });
+	const { voiceState: currentUserVoiceState } = useUserVoiceState({ userId: currentUser?.id });
 	if (props.context === "memberlist" && !settingsState.showMemberListIcons) return null;
 	if (props.context === "dmlist" && !settingsState.showDMListIcons) return null;
 	if (props.context === "peoplelist" && !settingsState.showPeopleListIcons) return null;
+	if (props.userId === currentUser?.id && !settingsState.currentUserIcon) return null;
 	if (!voiceState) return null;
 	const guild = GuildStore.getGuild(channel.guild_id);
 	const ignored = settingsState.ignoredChannels.includes(channel.id) || settingsState.ignoredGuilds.includes(guild?.id);
@@ -947,6 +953,12 @@ class VoiceActivity {
 				type: "switch",
 				name: Strings.get("SETTINGS_STATUS"),
 				note: Strings.get("SETTINGS_STATUS_NOTE")
+			},
+			{
+				id: "currentUserIcon",
+				type: "switch",
+				name: Strings.get("SETTINGS_CURRENT_USER"),
+				note: Strings.get("SETTINGS_CURRENT_USER_NOTE")
 			},
 			{
 				id: "ignoreEnabled",
