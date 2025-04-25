@@ -23,9 +23,11 @@ export default function VoiceIcon(props: VoiceIconProps): React.ReactNode {
 		"showStatusIcons"
 	);
 
+	const currentUserId = UserStore.getCurrentUser()?.id;
 	const { voiceState, voiceChannel: channel } = useUserVoiceState({ userId: props.userId });
-	const { voiceState: currentUserVoiceState } = useUserVoiceState({ userId: UserStore.getCurrentUser()?.id });
+	const { voiceState: currentUserVoiceState } = useUserVoiceState({ userId: currentUserId });
 
+	if (currentUserId === props.userId) return null;
 	if (props.context === "memberlist" && !settingsState.showMemberListIcons) return null;
 	if (props.context === "dmlist" && !settingsState.showDMListIcons) return null;
 	if (props.context === "peoplelist" && !settingsState.showPeopleListIcons) return null;
