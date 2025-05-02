@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.11.0
+ * @version 1.11.1
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -203,10 +203,10 @@ function byType(type) {
 // manifest.json
 const changelog = [
 	{
-		title: "Improved",
-		type: "improved",
+		title: "Fixed",
+		type: "fixed",
 		items: [
-			"Added a setting to toggle displaying a voice icon for the current user."
+			"Fixed patching activity card header."
 		]
 	}
 ];
@@ -270,10 +270,14 @@ const PeopleListItem = expectModule({
 	filter: (m) => m?.prototype?.render && betterdiscord.Webpack.Filters.byStrings("this.peopleListItemRef")(m),
 	name: "PeopleListItem"
 });
-const VoiceActivityCard = expectWithKey({
+const VoiceActivityCard = expectModule({
 	filter: betterdiscord.Webpack.Filters.byStrings("UserProfileVoiceActivityCard"),
 	name: "VoiceActivityCard",
 	fallback: EmptyComponent
+});
+const VoiceActivityCardText = expectWithKey({
+	filter: betterdiscord.Webpack.Filters.byStrings("TEXT_NORMAL", "OPEN_VOICE_CHANNEL"),
+	name: "VoiceActivityCardText"
 });
 const UserPopoutActivity = expectWithKey({
 	filter: betterdiscord.Webpack.Filters.byStrings("UserProfileFeaturedActivity"),
@@ -705,7 +709,6 @@ function VoiceIcon(props) {
 }
 
 // components/VoiceProfileSection.tsx
-const [module$1, key] = VoiceActivityCard;
 function VoiceProfileSection(props) {
 	const settingsState = Settings.useSettingsState(
 		"showProfileSection",
@@ -718,9 +721,8 @@ function VoiceProfileSection(props) {
 	if (!voiceState) return null;
 	const ignored = settingsState.ignoredChannels.includes(channel.id) || settingsState.ignoredGuilds.includes(channel.guild_id);
 	if (settingsState.ignoreEnabled && ignored) return null;
-	const CardComponent = module$1[key];
 	return BdApi.React.createElement(
-		CardComponent,
+		VoiceActivityCard,
 		{
 			currentUser: UserStore.getCurrentUser(),
 			user: props.user,
@@ -771,9 +773,9 @@ class VoiceActivity {
 	}
 	patchVoiceActivityCard() {
 		const filter = (e) => Array.isArray(e) && e[0].props.size && e[1].props.onClick;
-		if (!VoiceActivityCard) return;
-		betterdiscord.Patcher.after(...VoiceActivityCard, (_, [props], ret) => {
-			const channelPath = props.voiceChannel.guild_id ? `/channels/${props.voiceChannel.guild_id}/${props.voiceChannel.id}` : `/channels/@me/${props.voiceChannel.id}`;
+		if (!VoiceActivityCardText) return;
+		betterdiscord.Patcher.after(...VoiceActivityCardText, (_, [props], ret) => {
+			const channelPath = props.channel.guild_id ? `/channels/${props.channel.guild_id}/${props.channel.id}` : `/channels/@me/${props.channel.id}`;
 			const channelText = betterdiscord.Utils.findInTree(ret, filter, {
 				walkable: ["props", "children"]
 			})[1];
