@@ -9,7 +9,7 @@ import {
 	UserPopoutBody,
 	PrivateChannel,
 	PeopleListItem,
-	VoiceActivityCard,
+	VoiceActivityCardText,
 	UserPopoutActivity,
 } from "./modules/discordmodules";
 import { Settings, Strings } from "./modules/utils";
@@ -69,11 +69,11 @@ export default class VoiceActivity implements Plugin {
 	patchVoiceActivityCard() {
 		const filter = (e: any) => Array.isArray(e) && e[0].props.size && e[1].props.onClick;
 
-		if (!VoiceActivityCard) return;
-		Patcher.after(...VoiceActivityCard, (_, [props], ret) => {
-			const channelPath = props.voiceChannel.guild_id
-				? `/channels/${props.voiceChannel.guild_id}/${props.voiceChannel.id}`
-				: `/channels/@me/${props.voiceChannel.id}`;
+		if (!VoiceActivityCardText) return;
+		Patcher.after(...VoiceActivityCardText, (_, [props], ret) => {
+			const channelPath = props.channel.guild_id
+				? `/channels/${props.channel.guild_id}/${props.channel.id}`
+				: `/channels/@me/${props.channel.id}`;
 
 			const channelText = Utils.findInTree(ret, filter, {
 				walkable: ["props", "children"],

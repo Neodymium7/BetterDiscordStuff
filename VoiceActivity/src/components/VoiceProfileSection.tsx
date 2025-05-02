@@ -7,8 +7,6 @@ interface VoiceProfileSectionProps {
 	onClose?: any;
 }
 
-const [module, key] = VoiceActivityCard;
-
 export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 	const settingsState = Settings.useSettingsState(
 		"showProfileSection",
@@ -25,10 +23,8 @@ export default function VoiceProfileSection(props: VoiceProfileSectionProps) {
 		settingsState.ignoredChannels.includes(channel.id) || settingsState.ignoredGuilds.includes(channel.guild_id);
 	if (settingsState.ignoreEnabled && ignored) return null;
 
-	const CardComponent = module[key];
-
 	return (
-		<CardComponent
+		<VoiceActivityCard
 			currentUser={UserStore.getCurrentUser()}
 			user={props.user}
 			voiceChannel={channel}

@@ -53,10 +53,15 @@ export const PeopleListItem = expectModule<React.ComponentClass<any>>({
 	name: "PeopleListItem",
 });
 
-export const VoiceActivityCard = expectWithKey<AnyComponent>({
+export const VoiceActivityCard = expectModule({
 	filter: Webpack.Filters.byStrings("UserProfileVoiceActivityCard"),
 	name: "VoiceActivityCard",
-	fallback: EmptyComponent as AnyComponent,
+	fallback: EmptyComponent,
+});
+
+export const VoiceActivityCardText = expectWithKey<AnyComponent>({
+	filter: Webpack.Filters.byStrings("TEXT_NORMAL", "OPEN_VOICE_CHANNEL"),
+	name: "VoiceActivityCardText",
 });
 
 export const UserPopoutActivity = expectWithKey<AnyComponent>({
