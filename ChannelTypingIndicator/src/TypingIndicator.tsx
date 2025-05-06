@@ -36,7 +36,8 @@ function TypingIndicator({ channelId, guildId }: TypingIndicatorProps) {
 	const typingUsersState = useStateFromStores([TypingStore], () => TypingStore.getTypingUsers(channelId));
 
 	const typingUsersIds = Object.keys(typingUsersState).filter(
-		(id) => id !== UserStore.getCurrentUser().id && !RelationshipStore.isBlocked(id)
+		(id) =>
+			id !== UserStore.getCurrentUser().id && !RelationshipStore.isBlocked(id) && !RelationshipStore.isIgnored(id)
 	);
 
 	if (!typingUsersIds.length) return null;
