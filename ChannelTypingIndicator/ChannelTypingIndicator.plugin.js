@@ -1,7 +1,7 @@
 /**
  * @name ChannelTypingIndicator
  * @author Neodymium
- * @version 1.0.4
+ * @version 1.0.5
  * @description Adds an indicator to server channels when users are typing.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ChannelTypingIndicator/ChannelTypingIndicator.plugin.js
  * @invite fRbsqH87Av
@@ -217,7 +217,7 @@ function ThreadTypingIndicator(props) {
 function TypingIndicator({ channelId, guildId }) {
 	const typingUsersState = useStateFromStores([TypingStore], () => TypingStore.getTypingUsers(channelId));
 	const typingUsersIds = Object.keys(typingUsersState).filter(
-		(id) => id !== UserStore.getCurrentUser().id && !RelationshipStore.isBlocked(id)
+		(id) => id !== UserStore.getCurrentUser().id && !RelationshipStore.isBlocked(id) && !RelationshipStore.isIgnored(id)
 	);
 	if (!typingUsersIds.length) return null;
 	let tooltip;
