@@ -3,8 +3,7 @@ import { showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
 import { typingSelector, TypingUsersContainer } from "./modules";
 import { RelationshipStore, UserStore } from "@discord/stores";
-import { Popout, UserPopout } from "@discord/components";
-import { loadProfile } from "@discord/modules";
+import { UserPopoutWrapper } from "@lib/components";
 
 const nameSelector = `${typingSelector} strong`;
 
@@ -43,25 +42,9 @@ export default class TypingUsersPopouts implements Plugin {
 				const user = UserStore.getUser(typingUsersIds[i++]);
 
 				return (
-					<Popout
-						align="left"
-						position="top"
-						key={user.id}
-						renderPopout={(props: any) => (
-							<UserPopout
-								{...props}
-								user={user}
-								currentUser={UserStore.getCurrentUser()}
-								guildId={guildId}
-								channelId={channel.id}
-							/>
-						)}
-						preload={() =>
-							loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId: channel.id })
-						}
-					>
-						{(props: any) => <strong {...props} {...e.props} />}
-					</Popout>
+					<UserPopoutWrapper id={user.id} guildId={guildId} channelId={channel.id}>
+						{e}
+					</UserPopoutWrapper>
 				);
 			});
 		};

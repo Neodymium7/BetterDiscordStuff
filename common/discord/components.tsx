@@ -3,7 +3,7 @@ import { expectModule } from "@lib/utils/webpack";
 import { Webpack } from "betterdiscord";
 
 export const Popout = /* @__PURE__ */ expectModule({
-	filter: (m) => m.defaultProps && m.prototype.shouldShowPopout,
+	filter: (m) => m.Animation && m.prototype.render,
 	name: "Popout",
 	fallback: EmptyWrapperComponent,
 	searchExports: true,
