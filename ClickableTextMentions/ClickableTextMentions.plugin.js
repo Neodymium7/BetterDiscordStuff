@@ -1,7 +1,7 @@
 /**
  * @name ClickableTextMentions
  * @author Neodymium
- * @version 1.0.7
+ * @version 1.0.8
  * @description Makes mentions in the message text area clickable.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ClickableTextMentions/ClickableTextMentions.plugin.js
  * @invite fRbsqH87Av
@@ -34,6 +34,7 @@
 'use strict';
 
 const betterdiscord = new BdApi("ClickableTextMentions");
+const react = BdApi.React;
 const fs = require('fs');
 const path = require('path');
 
@@ -100,16 +101,13 @@ const Updater = {
 	}
 };
 
-// @discord/stores.ts
-const UserStore = betterdiscord.Webpack.getStore("UserStore");
-
 // @lib/utils/react.tsx
 const EmptyWrapperComponent = (props) => BdApi.React.createElement("span", { ...props });
 const ErrorPopout = (props) => BdApi.React.createElement("div", { style: { backgroundColor: "var(--background-floating)", color: "red", padding: "8px", borderRadius: "8px" } }, "Error: Popout component not found");
 
 // @discord/components.tsx
 const Popout = expectModule({
-	filter: (m) => m.defaultProps && m.prototype.shouldShowPopout,
+	filter: (m) => m.Animation && m.prototype.render,
 	name: "Popout",
 	fallback: EmptyWrapperComponent,
 	searchExports: true
@@ -132,25 +130,18 @@ const loadProfile = expectModule({
 	name: "loadProfile"
 });
 
-// index.tsx
-const {
-	getWithKey,
-	Filters: { byStrings }
-} = betterdiscord.Webpack;
-const [Module, key] = getWithKey(byStrings(".hidePersonalInformation", "#", "<@", ".discriminator"));
-if (!Module) betterdiscord.Logger.error("Text area mention module not found.");
-const onClick = (e) => {
-	e.preventDefault();
-};
-function PopoutWrapper({ id, guildId, channelId, children }) {
-	children.props.onClick = onClick;
+// @discord/stores.ts
+const UserStore = betterdiscord.Webpack.getStore("UserStore");
+
+// @lib/components.tsx
+function UserPopoutWrapper({ id, guildId, channelId, children }) {
+	const ref = react.useRef(null);
 	const user = UserStore.getUser(id);
 	return BdApi.React.createElement(
 		Popout,
 		{
 			align: "left",
 			position: "top",
-			key: user.id,
 			renderPopout: (props) => BdApi.React.createElement(
 				UserPopout,
 				{
@@ -161,11 +152,23 @@ function PopoutWrapper({ id, guildId, channelId, children }) {
 					channelId
 				}
 			),
-			preload: () => loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId })
+			preload: () => loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId }),
+			targetElementRef: ref
 		},
-		(props) => BdApi.React.createElement("span", { ...props }, children)
+		(props) => BdApi.React.createElement("span", { ref, ...props }, children)
 	);
 }
+
+// index.tsx
+const {
+	getWithKey,
+	Filters: { byStrings }
+} = betterdiscord.Webpack;
+const [Module, key] = getWithKey(byStrings(".hidePersonalInformation", "#", "<@", ".discriminator"));
+if (!Module) betterdiscord.Logger.error("Text area mention module not found.");
+const onClick = (e) => {
+	e.preventDefault();
+};
 class ClickableTextMentions {
 	meta;
 	constructor(meta) {
@@ -181,7 +184,8 @@ class ClickableTextMentions {
 			const original = ret.props.children;
 			ret.props.children = (childrenProps) => {
 				const mention = original(childrenProps).props.children;
-				return BdApi.React.createElement(PopoutWrapper, { ...props }, mention);
+				mention.props.onClick = onClick;
+				return BdApi.React.createElement(UserPopoutWrapper, { ...props }, mention);
 			};
 		});
 	}

@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.4.5
+ * @version 1.4.6
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @invite fRbsqH87Av
@@ -34,6 +34,7 @@
 'use strict';
 
 const betterdiscord = new BdApi("TypingUsersPopouts");
+const react = BdApi.React;
 
 // @lib/changelog.ts
 function showChangelog(changes, meta) {
@@ -97,7 +98,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed crashing when opening popout."
+			"Fixed popout not opening."
 		]
 	}
 ];
@@ -120,7 +121,7 @@ const ErrorPopout = (props) => BdApi.React.createElement("div", { style: { backg
 
 // @discord/components.tsx
 const Popout = expectModule({
-	filter: (m) => m.defaultProps && m.prototype.shouldShowPopout,
+	filter: (m) => m.Animation && m.prototype.render,
 	name: "Popout",
 	fallback: EmptyWrapperComponent,
 	searchExports: true
@@ -142,6 +143,32 @@ const loadProfile = expectModule({
 	),
 	name: "loadProfile"
 });
+
+// @lib/components.tsx
+function UserPopoutWrapper({ id, guildId, channelId, children }) {
+	const ref = react.useRef(null);
+	const user = UserStore.getUser(id);
+	return BdApi.React.createElement(
+		Popout,
+		{
+			align: "left",
+			position: "top",
+			renderPopout: (props) => BdApi.React.createElement(
+				UserPopout,
+				{
+					...props,
+					currentUser: UserStore.getCurrentUser(),
+					user,
+					guildId,
+					channelId
+				}
+			),
+			preload: () => loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId }),
+			targetElementRef: ref
+		},
+		(props) => BdApi.React.createElement("span", { ref, ...props }, children)
+	);
+}
 
 // index.tsx
 const nameSelector = `${typingSelector} strong`;
@@ -171,26 +198,7 @@ class TypingUsersPopouts {
 			text.children = text.children.map((e) => {
 				if (e.type !== "strong") return e;
 				const user = UserStore.getUser(typingUsersIds[i++]);
-				return BdApi.React.createElement(
-					Popout,
-					{
-						align: "left",
-						position: "top",
-						key: user.id,
-						renderPopout: (props2) => BdApi.React.createElement(
-							UserPopout,
-							{
-								...props2,
-								user,
-								currentUser: UserStore.getCurrentUser(),
-								guildId,
-								channelId: channel.id
-							}
-						),
-						preload: () => loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId: channel.id })
-					},
-					(props2) => BdApi.React.createElement("strong", { ...props2, ...e.props })
-				);
+				return BdApi.React.createElement(UserPopoutWrapper, { id: user.id, guildId, channelId: channel.id }, e);
 			});
 		};
 		let patchedType;
