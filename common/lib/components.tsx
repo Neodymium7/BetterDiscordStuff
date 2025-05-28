@@ -19,6 +19,7 @@ export function UserPopoutWrapper({ id, guildId, channelId, children }: UserPopo
 		<Popout
 			align="left"
 			position="top"
+			clickTrap
 			renderPopout={(props: any) => (
 				<UserPopout
 					{...props}
