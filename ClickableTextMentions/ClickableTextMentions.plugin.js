@@ -1,7 +1,7 @@
 /**
  * @name ClickableTextMentions
  * @author Neodymium
- * @version 1.0.8
+ * @version 1.0.9
  * @description Makes mentions in the message text area clickable.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ClickableTextMentions/ClickableTextMentions.plugin.js
  * @invite fRbsqH87Av
@@ -142,6 +142,7 @@ function UserPopoutWrapper({ id, guildId, channelId, children }) {
 		{
 			align: "left",
 			position: "top",
+			clickTrap: true,
 			renderPopout: (props) => BdApi.React.createElement(
 				UserPopout,
 				{
