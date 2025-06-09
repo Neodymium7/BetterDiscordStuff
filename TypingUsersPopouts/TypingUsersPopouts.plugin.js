@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.4.7
+ * @version 1.4.8
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @invite fRbsqH87Av
@@ -98,7 +98,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed popout click behavior."
+			"Fixed crashing."
 		]
 	}
 ];
@@ -114,6 +114,7 @@ const typingSelector = expectSelectors("Typing Class", ["typingDots", "typing"])
 // @discord/stores.ts
 const UserStore = betterdiscord.Webpack.getStore("UserStore");
 const RelationshipStore = betterdiscord.Webpack.getStore("RelationshipStore");
+const TypingStore = betterdiscord.Webpack.getStore("TypingStore");
 
 // @lib/utils/react.tsx
 const EmptyWrapperComponent = (props) => BdApi.React.createElement("span", { ...props });
@@ -190,11 +191,11 @@ class TypingUsersPopouts {
 				walkable: ["props", "children"]
 			});
 			if (!text) return;
-			const typingUsersIds = Object.keys(props.typingUsers).filter(
-				(id) => id !== UserStore.getCurrentUser().id && !RelationshipStore.isBlocked(id)
-			);
 			const channel = props.channel;
 			const guildId = channel.guild_id;
+			const typingUsersIds = Object.keys(TypingStore.getTypingUsers(channel.id)).filter(
+				(id) => id !== UserStore.getCurrentUser().id && !RelationshipStore.isBlocked(id) && !RelationshipStore.isIgnored(id)
+			);
 			let i = 0;
 			text.children = text.children.map((e) => {
 				if (e.type !== "strong") return e;
