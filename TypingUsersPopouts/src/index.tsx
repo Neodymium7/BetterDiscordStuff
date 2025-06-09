@@ -2,7 +2,7 @@ import { DOM, Patcher, Utils, Meta, Plugin, Changes } from "betterdiscord";
 import { showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
 import { typingSelector, TypingUsersContainer } from "./modules";
-import { RelationshipStore, UserStore } from "@discord/stores";
+import { RelationshipStore, TypingStore, UserStore } from "@discord/stores";
 import { UserPopoutWrapper } from "@lib/components";
 
 const nameSelector = `${typingSelector} strong`;
@@ -29,11 +29,15 @@ export default class TypingUsersPopouts implements Plugin {
 			});
 			if (!text) return;
 
-			const typingUsersIds = Object.keys(props.typingUsers).filter(
-				(id) => id !== UserStore.getCurrentUser().id && !RelationshipStore.isBlocked(id)
-			);
 			const channel = props.channel;
 			const guildId = channel.guild_id;
+
+			const typingUsersIds = Object.keys(TypingStore.getTypingUsers(channel.id)).filter(
+				(id) =>
+					id !== UserStore.getCurrentUser().id &&
+					!RelationshipStore.isBlocked(id) &&
+					!RelationshipStore.isIgnored(id)
+			);
 
 			let i = 0;
 			text.children = text.children.map((e: React.ReactElement) => {
