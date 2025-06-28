@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.11.1
+ * @version 1.11.2
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -276,7 +276,7 @@ const VoiceActivityCard = expectModule({
 	fallback: EmptyComponent
 });
 const VoiceActivityCardText = expectWithKey({
-	filter: betterdiscord.Webpack.Filters.byStrings("TEXT_NORMAL", "OPEN_VOICE_CHANNEL"),
+	filter: betterdiscord.Webpack.Filters.byStrings("voiceChannelHeading", "OPEN_VOICE_CHANNEL"),
 	name: "VoiceActivityCardText"
 });
 const UserPopoutActivity = expectWithKey({
