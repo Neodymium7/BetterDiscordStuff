@@ -60,7 +60,7 @@ export const VoiceActivityCard = expectModule({
 });
 
 export const VoiceActivityCardText = expectWithKey<AnyComponent>({
-	filter: Webpack.Filters.byStrings("TEXT_NORMAL", "OPEN_VOICE_CHANNEL"),
+	filter: Webpack.Filters.byStrings("voiceChannelHeading", "OPEN_VOICE_CHANNEL"),
 	name: "VoiceActivityCardText",
 });
 
