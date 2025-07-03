@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.4.8
+ * @version 1.4.9
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @invite fRbsqH87Av
@@ -187,7 +187,7 @@ class TypingUsersPopouts {
 	patch() {
 		if (!TypingUsersContainer) return;
 		const patchType = (props, ret) => {
-			const text = betterdiscord.Utils.findInTree(ret, (e) => e.children?.length && e.children[0]?.type === "strong", {
+			const text = betterdiscord.Utils.findInTree(ret, (e) => Array.isArray(e?.children) && e.children[0]?.type === "strong", {
 				walkable: ["props", "children"]
 			});
 			if (!text) return;

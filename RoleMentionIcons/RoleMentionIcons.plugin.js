@@ -1,7 +1,7 @@
 /**
  * @name RoleMentionIcons
  * @author Neodymium
- * @version 1.4.1
+ * @version 1.4.2
  * @description Displays icons next to role mentions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js
  * @invite fRbsqH87Av
@@ -87,6 +87,15 @@ class SettingsManager {
 		for (const listener of this.listeners) listener(key, value);
 	}
 }
+function buildSettingsPanel(settingsManager, settings) {
+	for (const setting of settings) {
+		setting.value = settingsManager.get(setting.id);
+	}
+	return betterdiscord.UI.buildSettingsPanel({
+		settings,
+		onChange: (_, id, value) => settingsManager.set(id, value)
+	});
+}
 
 // @lib/strings.ts
 const LocaleStore = betterdiscord.Webpack.getStore("LocaleStore");
@@ -127,16 +136,42 @@ function showChangelog(changes, meta) {
 	betterdiscord.Data.save("changelogVersion", meta.version);
 }
 
+// @lib/utils/webpack.ts
+function getClasses(...classes) {
+	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
+}
+function expect(object, options) {
+	if (object) return object;
+	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
+	const errorMessage = `Module ${options.name} not found.${fallbackMessage}\n\nContact the plugin developer to inform them of this error.`;
+	betterdiscord.Logger.error(errorMessage);
+	options.onError?.();
+	if (options.fatal) throw new Error(errorMessage);
+	return options.fallback;
+}
+function expectClasses(name, classes) {
+	return expect(getClasses(...classes), {
+		name,
+		fallback: classes.reduce((obj, key) => {
+			obj[key] = "unknown-class";
+			return obj;
+		}, {})
+	});
+}
+
 // manifest.json
 const changelog = [
 	{
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed settings not rendering."
+			"Fixed plugin not starting."
 		]
 	}
 ];
+
+// modules/discordmodules.tsx
+const roleMention = expectClasses("Role Mention Class", ["roleMention"]).roleMention.split(" ")[0];
 
 // locales.json
 const el = {
@@ -202,66 +237,8 @@ const getProps = (el, filter2) => {
 	return null;
 };
 
-// components/SettingsPanel.tsx
-const SwitchItem = (props) => {
-	const value = Settings.useSettingsState(props.setting)[props.setting];
-	return BdApi.React.createElement(betterdiscord.Components.SettingItem, { id: props.setting, name: props.name, note: props.note, inline: true }, BdApi.React.createElement(
-		betterdiscord.Components.SwitchInput,
-		{
-			id: props.setting,
-			value,
-			onChange: (v) => {
-				Settings.set(props.setting, v);
-			}
-		}
-	));
-};
-function SettingsPanel() {
-	return BdApi.React.createElement(BdApi.React.Fragment, null, BdApi.React.createElement(
-		SwitchItem,
-		{
-			name: Strings.get("SETTINGS_EVERYONE"),
-			note: Strings.get("SETTINGS_EVERYONE_NOTE"),
-			setting: "everyone"
-		}
-	), BdApi.React.createElement(SwitchItem, { name: Strings.get("SETTINGS_HERE"), note: Strings.get("SETTINGS_HERE_NOTE"), setting: "here" }), BdApi.React.createElement(
-		SwitchItem,
-		{
-			name: Strings.get("SETTINGS_ROLE_ICONS"),
-			note: Strings.get("SETTINGS_ROLE_ICONS_NOTE"),
-			setting: "showRoleIcons"
-		}
-	));
-}
-
-// @lib/utils/webpack.ts
-function getClasses(...classes) {
-	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
-}
-function expect(object, options) {
-	if (object) return object;
-	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
-	const errorMessage = `Module ${options.name} not found.${fallbackMessage}\n\nContact the plugin developer to inform them of this error.`;
-	betterdiscord.Logger.error(errorMessage);
-	options.onError?.();
-	if (options.fatal) throw new Error(errorMessage);
-	return options.fallback;
-}
-function expectClasses(name, classes) {
-	return expect(getClasses(...classes), {
-		name,
-		fallback: classes.reduce((obj, key) => {
-			obj[key] = "unknown-class";
-			return obj;
-		}, {})
-	});
-}
-
-// modules/discordmodules.tsx
-const roleMention = expectClasses("Role Mention Class", ["roleMention"]).roleMention.split(" ")[0];
-
 // @discord/stores.ts
-const GuildStore = betterdiscord.Webpack.getStore("GuildStore");
+const GuildRoleStore = betterdiscord.Webpack.getStore("GuildRoleStore");
 
 // index.tsx
 class RoleMentionIcons {
@@ -302,7 +279,7 @@ class RoleMentionIcons {
 			const isHere = props.roleName === "@here";
 			let role;
 			if (props.guildId) {
-				role = filter(GuildStore.getRoles(props.guildId), (r) => r.id === props.roleId);
+				role = filter(GuildRoleStore.getRoles(props.guildId), (r) => r.id === props.roleId);
 				role = role[Object.keys(role)[0]];
 			}
 			if ((Settings.get("everyone") || !isEveryone) && (Settings.get("here") || !isHere)) {
@@ -328,7 +305,21 @@ class RoleMentionIcons {
 		this.clearIcons();
 	}
 	getSettingsPanel() {
-		return BdApi.React.createElement(SettingsPanel, null);
+		return buildSettingsPanel(Settings, [
+			{
+				id: "everyone",
+				type: "switch",
+				name: Strings.get("SETTINGS_EVERYONE"),
+				note: Strings.get("SETTINGS_EVERYONE_NOTE")
+			},
+			{ name: Strings.get("SETTINGS_HERE"), note: Strings.get("SETTINGS_HERE_NOTE"), id: "here", type: "switch" },
+			{
+				id: "showRoleIcons",
+				type: "switch",
+				name: Strings.get("SETTINGS_ROLE_ICONS"),
+				note: Strings.get("SETTINGS_ROLE_ICONS_NOTE")
+			}
+		]);
 	}
 }
 
