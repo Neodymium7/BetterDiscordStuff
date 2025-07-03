@@ -24,7 +24,7 @@ export default class TypingUsersPopouts implements Plugin {
 		if (!TypingUsersContainer) return;
 
 		const patchType = (props: any, ret: any) => {
-			const text = Utils.findInTree(ret, (e) => e.children?.length && e.children[0]?.type === "strong", {
+			const text = Utils.findInTree(ret, (e) => Array.isArray(e?.children) && e.children[0]?.type === "strong", {
 				walkable: ["props", "children"],
 			});
 			if (!text) return;

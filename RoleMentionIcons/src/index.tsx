@@ -3,7 +3,7 @@ import { buildSettingsPanel, showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
 import { roleMention } from "./modules/discordmodules";
 import { Settings, Strings, filter, getIconElement, getProps, peopleSVG } from "./modules/utils";
-import { GuildStore } from "@discord/stores";
+import { GuildRoleStore } from "@discord/stores";
 
 export default class RoleMentionIcons implements Plugin {
 	clearCallbacks: Set<() => void>;
@@ -51,7 +51,7 @@ export default class RoleMentionIcons implements Plugin {
 			const isHere = props.roleName === "@here";
 			let role;
 			if (props.guildId) {
-				role = filter(GuildStore.getRoles(props.guildId), (r: any) => r.id === props.roleId);
+				role = filter(GuildRoleStore.getRoles(props.guildId), (r: any) => r.id === props.roleId);
 				role = role[Object.keys(role)[0]];
 			}
 			if ((Settings.get("everyone") || !isEveryone) && (Settings.get("here") || !isHere)) {

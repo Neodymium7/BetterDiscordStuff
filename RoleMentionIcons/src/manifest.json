@@ -1,7 +1,7 @@
 {
 	"name": "RoleMentionIcons",
 	"author": "Neodymium",
-	"version": "1.4.1",
+	"version": "1.4.2",
 	"description": "Displays icons next to role mentions.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js",
 	"invite": "fRbsqH87Av",
@@ -9,7 +9,7 @@
 		{
 			"title": "Fixed",
 			"type": "fixed",
-			"items": ["Fixed settings not rendering."]
+			"items": ["Fixed plugin not starting."]
 		}
 	]
 }

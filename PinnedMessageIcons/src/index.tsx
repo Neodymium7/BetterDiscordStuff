@@ -1,4 +1,4 @@
-import { DOM, Patcher, Webpack, Logger, UI, Data, Meta, Plugin } from "betterdiscord";
+import { DOM, Patcher, Webpack, Logger, UI, Data, Meta, Plugin, Utils } from "betterdiscord";
 import { getSelectors, getIcon } from "@lib/utils/webpack";
 import { Updater } from "@lib";
 import { AnyComponent } from "@lib/utils/react";
@@ -37,18 +37,21 @@ export default class PinnedMessageIcons implements Plugin {
 
 		Patcher.after(module, key, (_, [props], ret) => {
 			if (!props.childrenMessageContent.props.message) return ret;
-
-			const isPinned = props.childrenMessageContent.props.message.pinned;
-
-			if (!isPinned) return ret;
-			if (!Array.isArray(ret.props.children.props.children)) return ret;
 			if (props["data-list-item-id"].includes("pin")) return ret;
 
-			ret.props.children.props.className += " pinned-message";
+			const isPinned = props.childrenMessageContent.props.message.pinned;
+			if (!isPinned) return ret;
+
+			const message = Utils.findInTree(ret, (e) => Array.isArray(e?.props?.children) && e?.props?.className, {
+				walkable: ["props", "children"],
+			});
+			if (!message) return ret;
+
+			message.props.className += " pinned-message";
 
 			if (!Pin) return ret;
 
-			ret.props.children.props.children.push(
+			message.props.children.push(
 				<Pin
 					className="pinned-message-icon"
 					color="var(--interactive-normal)"
