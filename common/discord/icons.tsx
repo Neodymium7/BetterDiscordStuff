@@ -54,7 +54,10 @@ export const Pin = /* @__PURE__ */ expectIcon(
 );
 
 export const ChannelIcon = /* @__PURE__ */ expectModule({
-	filter: Webpack.Filters.byStrings("isGuildStageVoice", "isNSFW"),
+	filter: /* @__PURE__ */ Webpack.Filters.combine(
+		/* @__PURE__ */ Webpack.Filters.byStrings("isGuildStageVoice", "isGroupDM", "isPrivate"),
+		(m) => !m.toString?.().includes("intl")
+	),
 	name: "ChannelIcon",
 	fallback: (_props: IconProps & { channel: any }) => null,
 });
