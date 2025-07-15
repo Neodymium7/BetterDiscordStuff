@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.11.2
+ * @version 1.11.3
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -206,7 +206,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed patching activity card header."
+			"Fixed channel icon."
 		]
 	}
 ];
@@ -605,7 +605,10 @@ const ServerDeafened = expectIcon(
 );
 const Video = expectIcon("Video", "M4 4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h11a3 3");
 const ChannelIcon = expectModule({
-	filter: betterdiscord.Webpack.Filters.byStrings("isGuildStageVoice", "isNSFW"),
+	filter: betterdiscord.Webpack.Filters.combine(
+		betterdiscord.Webpack.Filters.byStrings("isGuildStageVoice", "isGroupDM", "isPrivate"),
+		(m) => !m.toString?.().includes("intl")
+	),
 	name: "ChannelIcon",
 	fallback: (_props) => null
 });
