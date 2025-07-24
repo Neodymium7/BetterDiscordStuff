@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.4.9
+ * @version 1.4.10
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @invite fRbsqH87Av
@@ -130,7 +130,7 @@ const Popout = expectModule({
 const UserPopout = expectModule({
 	filter: betterdiscord.Webpack.Filters.combine(
 		betterdiscord.Webpack.Filters.byStrings("isNonUserBot", "onHide"),
-		(m) => !m.toString?.().includes("Sidebar")
+		(m) => !m.toString?.().includes("sidebar")
 	),
 	name: "UserPopout",
 	fallback: ErrorPopout
@@ -139,7 +139,7 @@ const UserPopout = expectModule({
 // @discord/modules.ts
 const loadProfile = expectModule({
 	filter: betterdiscord.Webpack.Filters.combine(
-		betterdiscord.Webpack.Filters.byStrings("preloadUser"),
+		betterdiscord.Webpack.Filters.byStrings("getAvatarURL", "Refetch"),
 		byType("function")
 	),
 	name: "loadProfile"
@@ -149,23 +149,30 @@ const loadProfile = expectModule({
 function UserPopoutWrapper({ id, guildId, channelId, children }) {
 	const ref = react.useRef(null);
 	const user = UserStore.getUser(id);
+	const currentUser = UserStore.getCurrentUser();
 	return BdApi.React.createElement(
 		Popout,
 		{
 			align: "left",
 			position: "top",
 			clickTrap: true,
-			renderPopout: (props) => BdApi.React.createElement(
+			renderPopout: (props) => BdApi.React.createElement(betterdiscord.Components.ErrorBoundary, null, BdApi.React.createElement(
 				UserPopout,
 				{
 					...props,
-					currentUser: UserStore.getCurrentUser(),
+					currentUser,
 					user,
 					guildId,
 					channelId
 				}
-			),
-			preload: () => loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId }),
+			)),
+			preload: () => loadProfile?.(user.id, user.getAvatarURL(guildId, 80), {
+				type: "popout",
+				withMutualGuilds: user.id !== currentUser.id,
+				withMutualFriends: !user.bot && user.id !== currentUser.id,
+				guildId,
+				channelId
+			}),
 			targetElementRef: ref
 		},
 		(props) => BdApi.React.createElement("span", { ref, ...props }, children)
