@@ -1,7 +1,9 @@
 import { Popout, UserPopout } from "@discord/components";
 import { loadProfile } from "@discord/modules";
 import { UserStore } from "@discord/stores";
+import { Components } from "betterdiscord";
 import { useRef } from "react";
+import { ErrorPopout } from "./utils/react";
 
 interface UserPopoutWrapperProps {
 	id: string;
@@ -14,6 +16,7 @@ export function UserPopoutWrapper({ id, guildId, channelId, children }: UserPopo
 	const ref = useRef(null);
 
 	const user = UserStore.getUser(id);
+	const currentUser = UserStore.getCurrentUser();
 
 	return (
 		<Popout
@@ -21,15 +24,25 @@ export function UserPopoutWrapper({ id, guildId, channelId, children }: UserPopo
 			position="top"
 			clickTrap
 			renderPopout={(props: any) => (
-				<UserPopout
-					{...props}
-					currentUser={UserStore.getCurrentUser()}
-					user={user}
-					guildId={guildId}
-					channelId={channelId}
-				/>
+				<Components.ErrorBoundary>
+					<UserPopout
+						{...props}
+						currentUser={currentUser}
+						user={user}
+						guildId={guildId}
+						channelId={channelId}
+					/>
+				</Components.ErrorBoundary>
 			)}
-			preload={() => loadProfile?.(user.id, user.getAvatarURL(guildId, 80), { guildId, channelId })}
+			preload={() =>
+				loadProfile?.(user.id, user.getAvatarURL(guildId, 80), {
+					type: "popout",
+					withMutualGuilds: user.id !== currentUser.id,
+					withMutualFriends: !user.bot && user.id !== currentUser.id,
+					guildId,
+					channelId,
+				})
+			}
 			targetElementRef={ref}
 		>
 			{(props: any) => (

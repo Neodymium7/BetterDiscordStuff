@@ -10,11 +10,9 @@ export const transitionTo = /* @__PURE__ */ expectModule<(path: string) => void>
 	name: "transitionTo",
 });
 
-export const loadProfile = /* @__PURE__ */ expectModule<
-	(userId: string, avatarURL: string, context: { guildId: string; channelId: string }) => void
->({
+export const loadProfile = /* @__PURE__ */ expectModule<(userId: string, avatarURL: string, context: any) => void>({
 	filter: /* @__PURE__ */ Webpack.Filters.combine(
-		/* @__PURE__ */ Webpack.Filters.byStrings("preloadUser"),
+		/* @__PURE__ */ Webpack.Filters.byStrings("getAvatarURL", "Refetch"),
 		/* @__PURE__ */ byType("function")
 	),
 	name: "loadProfile",

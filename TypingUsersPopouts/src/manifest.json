@@ -1,7 +1,7 @@
 {
 	"name": "TypingUsersPopouts",
 	"author": "Neodymium",
-	"version": "1.4.9",
+	"version": "1.4.10",
 	"description": "Opens the user's popout when clicking on a name in the typing area.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js",
 	"invite": "fRbsqH87Av",
