@@ -1,7 +1,7 @@
 /**
  * @name RoleMentionIcons
  * @author Neodymium
- * @version 1.4.2
+ * @version 1.4.3
  * @description Displays icons next to role mentions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/RoleMentionIcons/RoleMentionIcons.plugin.js
  * @invite fRbsqH87Av
@@ -165,7 +165,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed plugin not starting."
+			"Fixed plugin not displaying role icons."
 		]
 	}
 ];
@@ -221,17 +221,11 @@ const getIconElement = (roleId, roleIcon) => {
 	icon.src = `https://cdn.discordapp.com/role-icons/${roleId}/${roleIcon}.webp?size=24&quality=lossless`;
 	return icon;
 };
-const from = (arr) => arr && arr.length > 0 && Object.assign(...arr.map(([k, v]) => ({ [k]: v })));
-const filter = (obj, predicate) => from(
-	Object.entries(obj).filter((o) => {
-		return predicate(o[1]);
-	})
-);
-const getProps = (el, filter2) => {
+const getProps = (el, filter) => {
 	const reactInstance = betterdiscord.ReactUtils.getInternalInstance(el);
 	let current = reactInstance?.return;
 	while (current) {
-		if (current.pendingProps && filter2(current.pendingProps)) return current.pendingProps;
+		if (current.pendingProps && filter(current.pendingProps)) return current.pendingProps;
 		current = current.return;
 	}
 	return null;
@@ -278,10 +272,7 @@ class RoleMentionIcons {
 			const isEveryone = props.roleName === "@everyone";
 			const isHere = props.roleName === "@here";
 			let role;
-			if (props.guildId) {
-				role = filter(GuildRoleStore.getRoles(props.guildId), (r) => r.id === props.roleId);
-				role = role[Object.keys(role)[0]];
-			}
+			if (props.guildId) role = GuildRoleStore.getRole(props.guildId, props.roleId);
 			if ((Settings.get("everyone") || !isEveryone) && (Settings.get("here") || !isHere)) {
 				if (role?.icon && Settings.get("showRoleIcons")) {
 					const icon = getIconElement(role.id, role.icon);
