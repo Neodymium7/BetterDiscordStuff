@@ -23,16 +23,6 @@ export const getIconElement = (roleId: string, roleIcon: string) => {
 	return icon;
 };
 
-// @ts-ignore
-// From https://github.com/rauenzi/BetterDiscordAddons/blob/692abbd1877ff6d837dc8a606767d019e52ebe23/Plugins/RoleMembers/RoleMembers.plugin.js#L60-L61
-const from = (arr) => arr && arr.length > 0 && Object.assign(...arr.map(([k, v]) => ({ [k]: v })));
-export const filter = (obj: any, predicate: any) =>
-	from(
-		Object.entries(obj).filter((o) => {
-			return predicate(o[1]);
-		})
-	);
-
 export const getProps = (el: HTMLElement, filter: (x: any) => boolean) => {
 	const reactInstance = ReactUtils.getInternalInstance(el);
 	let current = reactInstance?.return;

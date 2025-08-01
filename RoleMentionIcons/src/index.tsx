@@ -2,7 +2,7 @@ import { DOM, Meta, Plugin, Changes } from "betterdiscord";
 import { buildSettingsPanel, showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
 import { roleMention } from "./modules/discordmodules";
-import { Settings, Strings, filter, getIconElement, getProps, peopleSVG } from "./modules/utils";
+import { Settings, Strings, getIconElement, getProps, peopleSVG } from "./modules/utils";
 import { GuildRoleStore } from "@discord/stores";
 
 export default class RoleMentionIcons implements Plugin {
@@ -50,10 +50,7 @@ export default class RoleMentionIcons implements Plugin {
 			const isEveryone = props.roleName === "@everyone";
 			const isHere = props.roleName === "@here";
 			let role;
-			if (props.guildId) {
-				role = filter(GuildRoleStore.getRoles(props.guildId), (r: any) => r.id === props.roleId);
-				role = role[Object.keys(role)[0]];
-			}
+			if (props.guildId) role = GuildRoleStore.getRole(props.guildId, props.roleId);
 			if ((Settings.get("everyone") || !isEveryone) && (Settings.get("here") || !isHere)) {
 				if (role?.icon && Settings.get("showRoleIcons")) {
 					const icon = getIconElement(role.id, role.icon);
