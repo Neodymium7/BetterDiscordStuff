@@ -1,10 +1,9 @@
-import { DOM, Meta, Patcher, Plugin, ReactUtils, Utils } from "betterdiscord";
-import { AccountSelectors } from "./modules";
+import { DOM, Meta, Patcher, Plugin, Utils } from "betterdiscord";
 import ActivityToggleButton from "./components/ActivityToggleButton";
 import { Updater } from "@lib";
+import { Account } from "./modules";
 
 export default class ActivityToggle implements Plugin {
-	forceUpdate?: () => void;
 	meta: Meta;
 
 	constructor(meta: Meta) {
@@ -13,25 +12,18 @@ export default class ActivityToggle implements Plugin {
 
 	start() {
 		Updater.checkForUpdates(this.meta);
-		if (AccountSelectors) DOM.addStyle(`${AccountSelectors.avatarWrapper} { min-width: 70px; }`);
 		this.patch();
 	}
 
 	patch() {
-		if (!AccountSelectors) return;
-		const element = document.querySelector(AccountSelectors.container);
-		if (!element) return;
-		const owner: any = ReactUtils.getOwnerInstance(element as HTMLElement);
-		if (!owner) return;
-		const Account = owner._reactInternals.type;
-		this.forceUpdate = owner.forceUpdate.bind(owner);
+		if (!Account) return;
 
-		let buttonsComponent: ((props: any) => React.ReactElement) | null = null;
+		let ButtonsComponent: ((props: any) => React.ReactElement) | null = null;
 
 		const Wrapper = (props: any) => {
-			if (!buttonsComponent) return null;
+			if (!ButtonsComponent) return null;
 
-			const buttonsRet = buttonsComponent(props);
+			const buttonsRet = ButtonsComponent(props);
 			buttonsRet.props.children.unshift(<ActivityToggleButton />);
 			return buttonsRet;
 		};
@@ -42,7 +34,8 @@ export default class ActivityToggle implements Plugin {
 			ret.props.children = (childrenProps: any) => {
 				const childrenRet = children(childrenProps);
 
-				const buttonsFilter = (e: any) => e?.props?.hasOwnProperty("selfMute");
+				const buttonsFilter = (e: any) =>
+					e?.props?.hasOwnProperty("selfMute") && !e?.props?.hasOwnProperty("renderNameTag");
 				const containerFilter = (i: any) =>
 					Array.isArray(i?.props?.children) && i.props.children.some(buttonsFilter);
 
@@ -52,21 +45,18 @@ export default class ActivityToggle implements Plugin {
 
 				const buttonsIndex = container.props.children.findIndex(buttonsFilter);
 				const buttons = container.props.children[buttonsIndex];
-				if (!buttonsComponent) buttonsComponent = buttons.type;
+				if (!ButtonsComponent) ButtonsComponent = buttons.type;
 
 				container.props.children.splice(buttonsIndex, 1, <Wrapper {...buttons.props} />);
 
 				return childrenRet;
 			};
 		});
-
-		this.forceUpdate?.();
 	}
 
 	stop() {
 		DOM.removeStyle();
 		Patcher.unpatchAll();
-		this.forceUpdate?.();
 		Updater.closeNotice();
 	}
 }

@@ -1,5 +1,5 @@
 import { Webpack } from "betterdiscord";
-import { byType, expectModule, expectSelectors } from "@lib/utils/webpack";
+import { byType, expectModule } from "@lib/utils/webpack";
 import React from "react";
 import { EmptyComponent } from "@lib/utils/react";
 
@@ -29,4 +29,8 @@ export const ShowCurrentGame = expectModule({
 	},
 })?.G6;
 
-export const AccountSelectors = expectSelectors("Account Classes", ["avatarWrapper", "nameTag", "container"]);
+export const Account = expectModule<React.ComponentClass>({
+	filter: Webpack.Filters.byPrototypeKeys("renderNameZone"),
+	name: "Account",
+	searchExports: true,
+});

@@ -37,7 +37,9 @@ export default class AvatarSettingsButton implements Plugin {
 			if (node.nodeType === Node.TEXT_NODE) continue;
 			if (!(node instanceof HTMLElement)) continue;
 
-			const avatarWrapper = node.querySelector(`.${accountClasses.avatarWrapper}`);
+			const avatarWrapper = node.className.includes(accountClasses.avatarWrapper)
+				? node
+				: node.querySelector(`.${accountClasses.avatarWrapper}`);
 			if (avatarWrapper instanceof HTMLElement) {
 				this.target = avatarWrapper;
 				this.addListener();
