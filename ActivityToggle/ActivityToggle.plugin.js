@@ -1,7 +1,7 @@
 /**
  * @name ActivityToggle
  * @author Neodymium
- * @version 1.2.24
+ * @version 1.2.25
  * @description Adds a button to quickly toggle Activity Status.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  * @invite fRbsqH87Av
@@ -42,14 +42,6 @@ const path = require('path');
 function getClasses(...classes) {
 	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
 }
-function getSelectors(...classes) {
-	const module = getClasses(...classes);
-	if (!module) return void 0;
-	return Object.keys(module).reduce((obj, key) => {
-		obj[key] = "." + module[key].replaceAll(" ", ".");
-		return obj;
-	}, {});
-}
 function getIcon(searchString) {
 	const filter = (m) => betterdiscord.Webpack.Filters.byStrings(searchString, '"svg"')(m) && typeof m === "function";
 	return betterdiscord.Webpack.getModule(filter, {
@@ -67,11 +59,6 @@ function expect(object, options) {
 }
 function expectModule(options) {
 	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
-}
-function expectSelectors(name, classes) {
-	return expect(getSelectors(...classes), {
-		name
-	});
 }
 function expectIcon(name, searchString) {
 	return expect(getIcon(searchString), {
@@ -110,7 +97,11 @@ const ShowCurrentGame = expectModule({
 		}
 	}
 })?.G6;
-const AccountSelectors = expectSelectors("Account Classes", ["avatarWrapper", "nameTag", "container"]);
+const Account = expectModule({
+	filter: betterdiscord.Webpack.Filters.byPrototypeKeys("renderNameZone"),
+	name: "Account",
+	searchExports: true
+});
 
 // components/ActivityDisabledIcon.tsx
 function ActivityDisabled(props) {
@@ -231,28 +222,20 @@ const Updater = {
 
 // index.tsx
 class ActivityToggle {
-	forceUpdate;
 	meta;
 	constructor(meta) {
 		this.meta = meta;
 	}
 	start() {
 		Updater.checkForUpdates(this.meta);
-		if (AccountSelectors) betterdiscord.DOM.addStyle(`${AccountSelectors.avatarWrapper} { min-width: 70px; }`);
 		this.patch();
 	}
 	patch() {
-		if (!AccountSelectors) return;
-		const element = document.querySelector(AccountSelectors.container);
-		if (!element) return;
-		const owner = betterdiscord.ReactUtils.getOwnerInstance(element);
-		if (!owner) return;
-		const Account = owner._reactInternals.type;
-		this.forceUpdate = owner.forceUpdate.bind(owner);
-		let buttonsComponent = null;
+		if (!Account) return;
+		let ButtonsComponent = null;
 		const Wrapper = (props) => {
-			if (!buttonsComponent) return null;
-			const buttonsRet = buttonsComponent(props);
+			if (!ButtonsComponent) return null;
+			const buttonsRet = ButtonsComponent(props);
 			buttonsRet.props.children.unshift(BdApi.React.createElement(ActivityToggleButton, null));
 			return buttonsRet;
 		};
@@ -260,24 +243,22 @@ class ActivityToggle {
 			const children = ret.props.children;
 			ret.props.children = (childrenProps) => {
 				const childrenRet = children(childrenProps);
-				const buttonsFilter = (e) => e?.props?.hasOwnProperty("selfMute");
+				const buttonsFilter = (e) => e?.props?.hasOwnProperty("selfMute") && !e?.props?.hasOwnProperty("renderNameTag");
 				const containerFilter = (i) => Array.isArray(i?.props?.children) && i.props.children.some(buttonsFilter);
 				const container = betterdiscord.Utils.findInTree(childrenRet.props.children, containerFilter, {
 					walkable: ["children", "props"]
 				});
 				const buttonsIndex = container.props.children.findIndex(buttonsFilter);
 				const buttons = container.props.children[buttonsIndex];
-				if (!buttonsComponent) buttonsComponent = buttons.type;
+				if (!ButtonsComponent) ButtonsComponent = buttons.type;
 				container.props.children.splice(buttonsIndex, 1, BdApi.React.createElement(Wrapper, { ...buttons.props }));
 				return childrenRet;
 			};
 		});
-		this.forceUpdate?.();
 	}
 	stop() {
 		betterdiscord.DOM.removeStyle();
 		betterdiscord.Patcher.unpatchAll();
-		this.forceUpdate?.();
 		Updater.closeNotice();
 	}
 }
