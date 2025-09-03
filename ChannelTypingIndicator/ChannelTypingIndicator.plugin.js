@@ -1,7 +1,7 @@
 /**
  * @name ChannelTypingIndicator
  * @author Neodymium
- * @version 1.0.5
+ * @version 1.0.6
  * @description Adds an indicator to server channels when users are typing.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ChannelTypingIndicator/ChannelTypingIndicator.plugin.js
  * @invite fRbsqH87Av
@@ -77,7 +77,7 @@ const Thread = expectModule({
 	name: "Thread"
 });
 const TypingDots = expectModule({
-	filter: (m) => m?.type?.render?.toString().includes("dotRadius"),
+	filter: (m) => m?.type && betterdiscord.Webpack.Filters.byStrings("dotRadius", "themed")(m.type),
 	name: "TypingDots",
 	searchExports: true,
 	fallback: EmptyComponent
