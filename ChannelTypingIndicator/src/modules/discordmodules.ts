@@ -13,7 +13,7 @@ export const Thread = expectModule<AnyMemo>({
 });
 
 export const TypingDots = expectModule({
-	filter: (m) => m?.type?.render?.toString().includes("dotRadius"),
+	filter: (m) => m?.type && Webpack.Filters.byStrings("dotRadius", "themed")(m.type),
 	name: "TypingDots",
 	searchExports: true,
 	fallback: EmptyComponent,
