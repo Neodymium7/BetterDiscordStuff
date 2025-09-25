@@ -11,6 +11,10 @@ export default class Tooltip {
 		this.target = target;
 		this.layerContainer = document.querySelector(`${appSelector} ~ ${layerContainerSelector}`)!;
 
+		const pointerBg = document.createElement("div");
+		pointerBg.className = tooltipClasses.tooltipPointerBg + " " + tooltipClasses.tooltipPointer;
+		pointerBg.style.left = "calc(50% + 0px)";
+
 		const pointer = document.createElement("div");
 		pointer.className = tooltipClasses.tooltipPointer;
 		pointer.style.left = "calc(50% + 0px)";
@@ -25,6 +29,7 @@ export default class Tooltip {
 		this.tooltip.style.transform = "scale(0.95)";
 		this.tooltip.style.transition = "opacity 0.1s, transform 0.1s";
 		this.tooltip.className = `${tooltipClasses.tooltip} ${tooltipClasses.tooltipTop} ${tooltipClasses.tooltipPrimary}`;
+		this.tooltip.appendChild(pointerBg);
 		this.tooltip.appendChild(pointer);
 		this.tooltip.appendChild(content);
 
