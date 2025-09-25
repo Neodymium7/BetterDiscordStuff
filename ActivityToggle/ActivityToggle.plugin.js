@@ -1,7 +1,7 @@
 /**
  * @name ActivityToggle
  * @author Neodymium
- * @version 1.2.25
+ * @version 1.2.26
  * @description Adds a button to quickly toggle Activity Status.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  * @invite fRbsqH87Av
@@ -244,14 +244,11 @@ class ActivityToggle {
 			ret.props.children = (childrenProps) => {
 				const childrenRet = children(childrenProps);
 				const buttonsFilter = (e) => e?.props?.hasOwnProperty("selfMute") && !e?.props?.hasOwnProperty("renderNameTag");
-				const containerFilter = (i) => Array.isArray(i?.props?.children) && i.props.children.some(buttonsFilter);
-				const container = betterdiscord.Utils.findInTree(childrenRet.props.children, containerFilter, {
-					walkable: ["children", "props"]
-				});
-				const buttonsIndex = container.props.children.findIndex(buttonsFilter);
-				const buttons = container.props.children[buttonsIndex];
+				const buttonsIndex = childrenRet.props.children.findIndex(buttonsFilter);
+				if (buttonsIndex < 0) return childrenRet;
+				const buttons = childrenRet.props.children[buttonsIndex];
 				if (!ButtonsComponent) ButtonsComponent = buttons.type;
-				container.props.children.splice(buttonsIndex, 1, BdApi.React.createElement(Wrapper, { ...buttons.props }));
+				childrenRet.props.children.splice(buttonsIndex, 1, BdApi.React.createElement(Wrapper, { ...buttons.props }));
 				return childrenRet;
 			};
 		});

@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 2.2.5
+ * @version 2.2.6
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
@@ -181,7 +181,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed the plugin's functionality."
+			"Fixed tooltip and tooltip appearance."
 		]
 	}
 ];
@@ -193,9 +193,13 @@ const tooltipClasses = expectClasses("Tooltip Classes", [
 	"tooltipTop",
 	"tooltipPrimary",
 	"tooltipPointer",
-	"tooltipContent"
+	"tooltipContent",
+	"tooltipPointerBg"
 ]);
-const layerContainerSelector = expectSelectors("Layer Container Class", ["layerContainer"])?.layerContainer;
+const layerContainerSelector = expectSelectors("Layer Container Class", [
+	"layerContainer",
+	"layerHidden"
+])?.layerContainer;
 const appSelector = expectSelectors("App Class", ["appAsidePanelWrapper", "app"])?.app;
 
 // locales.json
@@ -277,6 +281,9 @@ class Tooltip {
 	constructor(target, text) {
 		this.target = target;
 		this.layerContainer = document.querySelector(`${appSelector} ~ ${layerContainerSelector}`);
+		const pointerBg = document.createElement("div");
+		pointerBg.className = tooltipClasses.tooltipPointerBg + " " + tooltipClasses.tooltipPointer;
+		pointerBg.style.left = "calc(50% + 0px)";
 		const pointer = document.createElement("div");
 		pointer.className = tooltipClasses.tooltipPointer;
 		pointer.style.left = "calc(50% + 0px)";
@@ -289,6 +296,7 @@ class Tooltip {
 		this.tooltip.style.transform = "scale(0.95)";
 		this.tooltip.style.transition = "opacity 0.1s, transform 0.1s";
 		this.tooltip.className = `${tooltipClasses.tooltip} ${tooltipClasses.tooltipTop} ${tooltipClasses.tooltipPrimary}`;
+		this.tooltip.appendChild(pointerBg);
 		this.tooltip.appendChild(pointer);
 		this.tooltip.appendChild(content);
 		const show = () => this.show();
