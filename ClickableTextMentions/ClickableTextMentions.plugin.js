@@ -1,7 +1,7 @@
 /**
  * @name ClickableTextMentions
  * @author Neodymium
- * @version 1.0.10
+ * @version 1.0.11
  * @description Makes mentions in the message text area clickable.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ClickableTextMentions/ClickableTextMentions.plugin.js
  * @invite fRbsqH87Av
@@ -189,12 +189,10 @@ class ClickableTextMentions {
 	patch() {
 		if (!Module) return;
 		betterdiscord.Patcher.after(Module, key, (_, [props], ret) => {
-			const original = ret.props.children;
-			ret.props.children = (childrenProps) => {
-				const mention = original(childrenProps).props.children;
-				mention.props.onClick = onClick;
-				return BdApi.React.createElement(UserPopoutWrapper, { ...props }, mention);
-			};
+			const mention = ret.props.children?.props?.children;
+			if (!mention) return ret;
+			mention.props.onClick = onClick;
+			return BdApi.React.createElement(UserPopoutWrapper, { ...props }, ret.props.children);
 		});
 	}
 	stop() {
