@@ -31,16 +31,14 @@ export default class ClickableTextMentions implements Plugin {
 		if (!Module) return;
 
 		Patcher.after(Module, key, (_, [props]: [any], ret) => {
-			const original = ret.props.children;
+			const mention = ret.props.children?.props?.children;
 
-			ret.props.children = (childrenProps: any) => {
-				const mention = original(childrenProps).props.children;
+			if (!mention) return ret;
 
-				// Disable default click action
-				mention.props.onClick = onClick;
+			// Disable default click action
+			mention.props.onClick = onClick;
 
-				return <UserPopoutWrapper {...props}>{mention}</UserPopoutWrapper>;
-			};
+			return <UserPopoutWrapper {...props}>{ret.props.children}</UserPopoutWrapper>;
 		});
 	}
 

@@ -1,7 +1,7 @@
 {
 	"name": "ClickableTextMentions",
 	"author": "Neodymium",
-	"version": "1.0.10",
+	"version": "1.0.11",
 	"description": "Makes mentions in the message text area clickable.",
 	"source": "https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ClickableTextMentions/ClickableTextMentions.plugin.js",
 	"invite": "fRbsqH87Av"
