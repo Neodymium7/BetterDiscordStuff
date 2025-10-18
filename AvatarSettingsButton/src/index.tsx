@@ -6,7 +6,7 @@ import { Settings, Strings } from "./modules/utils";
 import Tooltip from "./modules/tooltip";
 import { UserSettingsWindow, SettingsSections } from "@discord/modules";
 
-const settingsSelector = `.${accountClasses.container} button:last-of-type:not(:first-child)`;
+const settingsSelector = `.${accountClasses.container} > div > button:last-of-type`;
 
 export default class AvatarSettingsButton implements Plugin {
 	meta: Meta;
@@ -20,7 +20,7 @@ export default class AvatarSettingsButton implements Plugin {
 
 	start() {
 		showChangelog(changelog as Changes[], this.meta);
-		DOM.addStyle(`${settingsSelector} { display: none; } .${accountClasses.avatarWrapper} { width: 100%; }`);
+		DOM.addStyle(`${settingsSelector} { display: none; }`);
 		Strings.subscribe();
 		Settings.addListener(() => {
 			this.addListener();
