@@ -29,9 +29,10 @@ export default class ActivityToggle implements Plugin {
 		};
 
 		Patcher.after(Account.prototype, "render", (_that, _args, ret) => {
-			const children = ret.props.children;
+			const target = Utils.findInTree(ret, (e) => typeof e?.props?.children == "function");
+			const children = target.props.children;
 
-			ret.props.children = (childrenProps: any) => {
+			target.props.children = (childrenProps: any) => {
 				const childrenRet = children(childrenProps);
 
 				const buttonsFilter = (e: any) =>
