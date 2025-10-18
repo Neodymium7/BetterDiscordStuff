@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 2.2.6
+ * @version 2.2.7
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
@@ -181,7 +181,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed tooltip and tooltip appearance."
+			"Fixed plugin hiding mute/deafen submenu buttons."
 		]
 	}
 ];
@@ -347,7 +347,7 @@ const UserSettingsWindow = expectModule({
 });
 
 // index.tsx
-const settingsSelector = `.${accountClasses.container} button:last-of-type:not(:first-child)`;
+const settingsSelector = `.${accountClasses.container} > div > button:last-of-type`;
 class AvatarSettingsButton {
 	meta;
 	target = null;
@@ -358,7 +358,7 @@ class AvatarSettingsButton {
 	}
 	start() {
 		showChangelog(changelog, this.meta);
-		betterdiscord.DOM.addStyle(`${settingsSelector} { display: none; } .${accountClasses.avatarWrapper} { width: 100%; }`);
+		betterdiscord.DOM.addStyle(`${settingsSelector} { display: none; }`);
 		Strings.subscribe();
 		Settings.addListener(() => {
 			this.addListener();
