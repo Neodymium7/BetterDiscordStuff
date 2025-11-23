@@ -2,7 +2,7 @@ import { ContextMenu, UI } from "betterdiscord";
 import { PanelButton, playSound, ShowCurrentGame } from "../modules";
 import ActivityDisabledIcon from "./ActivityDisabledIcon";
 import { Activity, Settings } from "@discord/icons";
-import { SettingsSections, UserSettingsWindow } from "@discord/modules";
+import { SettingsSections, UserSettings } from "@discord/modules";
 
 export default function ActivityToggleButton() {
 	const activityEnabled = ShowCurrentGame.useSetting();
@@ -26,14 +26,13 @@ export default function ActivityToggleButton() {
 							label: "Activity Settings",
 							icon: Settings,
 							action: () => {
-								if (!UserSettingsWindow) {
+								if (!UserSettings) {
 									return UI.alert(
 										"Error",
 										"Could not open settings window. See the console for more information."
 									);
 								}
-								UserSettingsWindow.setSection(SettingsSections.ACTIVITY_PRIVACY);
-								UserSettingsWindow.open();
+								UserSettings.openUserSettings(SettingsSections.ACTIVITY_PRIVACY_PANEL);
 							},
 						},
 					])

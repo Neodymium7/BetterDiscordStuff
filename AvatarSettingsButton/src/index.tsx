@@ -4,9 +4,10 @@ import { changelog } from "./manifest.json";
 import { accountClasses } from "./modules/discordmodules";
 import { Settings, Strings } from "./modules/utils";
 import Tooltip from "./modules/tooltip";
-import { UserSettingsWindow, SettingsSections } from "@discord/modules";
 
 const settingsSelector = `.${accountClasses.container} > div > button:last-of-type`;
+const baseStyle = `.${accountClasses.avatarWrapper} { min-width: 0; }`;
+const hideStyle = `${settingsSelector} { display: none; }`;
 
 export default class AvatarSettingsButton implements Plugin {
 	meta: Meta;
@@ -20,9 +21,13 @@ export default class AvatarSettingsButton implements Plugin {
 
 	start() {
 		showChangelog(changelog as Changes[], this.meta);
-		DOM.addStyle(`${settingsSelector} { display: none; }`);
+		DOM.addStyle(Settings.get("hideSettingsButton") ? baseStyle + hideStyle : baseStyle);
 		Strings.subscribe();
-		Settings.addListener(() => {
+		Settings.addListener((key, value) => {
+			if (key === "hideSettingsButton") {
+				DOM.removeStyle();
+				DOM.addStyle(value ? baseStyle + hideStyle : baseStyle);
+			}
 			this.addListener();
 			this.addTooltip();
 		});
@@ -57,8 +62,11 @@ export default class AvatarSettingsButton implements Plugin {
 	}
 
 	openSettings() {
-		UserSettingsWindow?.setSection(SettingsSections.ACCOUNT);
-		UserSettingsWindow?.open();
+		document.querySelector(settingsSelector)?.dispatchEvent(
+			new MouseEvent("click", {
+				bubbles: true,
+			})
+		);
 	}
 
 	openContextMenu(e: MouseEvent) {
@@ -132,6 +140,12 @@ export default class AvatarSettingsButton implements Plugin {
 
 	getSettingsPanel() {
 		return buildSettingsPanel(Settings, [
+			{
+				id: "hideSettingsButton",
+				type: "switch",
+				name: Strings.get("SETTINGS_HIDE"),
+				note: Strings.get("SETTINGS_HIDE_NOTE"),
+			},
 			{
 				id: "click",
 				type: "radio",

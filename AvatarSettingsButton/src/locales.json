@@ -15,7 +15,9 @@
 		"SETTINGS_OPTIONS_STATUS_PICKER": "Status Picker",
 		"SETTINGS_OPTIONS_NOTHING": "Nothing",
 		"SETTINGS_TOOLTIP": "Tooltip",
-		"SETTINGS_TOOLTIP_NOTE": "Show tooltip when hovering over user avatar."
+		"SETTINGS_TOOLTIP_NOTE": "Show tooltip when hovering over user avatar.",
+		"SETTINGS_HIDE": "Hide Settings Button",
+		"SETTINGS_HIDE_NOTE": "Hide the default settings button."
 	},
 	"el": {
 		"TOOLTIP_USER_SETTINGS": "Ρυθμίσεις Χρήστη",

@@ -31,16 +31,15 @@ export const ChannelActions = /* @__PURE__ */ expectModule<{
 });
 
 export const SettingsSections = /* @__PURE__ */ expectModule({
-	filter: /* @__PURE__ */ Webpack.Filters.byKeys("ACCOUNT", "CHANGE_LOG"),
+	filter: /* @__PURE__ */ Webpack.Filters.byKeys("ACTIVITY_PRIVACY_PANEL", "ACCOUNT_PANEL"),
 	searchExports: true,
 	name: "SettingsSections",
-	fallback: { ACCOUNT: "My Account", ACTIVITY_PRIVACY: "Activity Privacy" },
+	fallback: { ACTIVITY_PRIVACY_PANEL: "activity_privacy_panel" },
 });
 
-export const UserSettingsWindow = /* @__PURE__ */ expectModule<{
-	setSection: (section: string) => void;
-	open: () => void;
+export const UserSettings = /* @__PURE__ */ expectModule<{
+	openUserSettings: (section: string) => void;
 }>({
-	filter: /* @__PURE__ */ Webpack.Filters.byKeys("saveAccountChanges", "setSection", "open"),
-	name: "UserSettingsWindow",
+	filter: /* @__PURE__ */ Webpack.Filters.byKeys("openUserSettings"),
+	name: "UserSettings",
 });
