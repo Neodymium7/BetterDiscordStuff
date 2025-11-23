@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 2.2.7
+ * @version 2.3.0
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
@@ -157,9 +157,6 @@ function expect(object, options) {
 	if (options.fatal) throw new Error(errorMessage);
 	return options.fallback;
 }
-function expectModule(options) {
-	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
-}
 function expectClasses(name, classes) {
 	return expect(getClasses(...classes), {
 		name,
@@ -178,10 +175,17 @@ function expectSelectors(name, classes) {
 // manifest.json
 const changelog = [
 	{
+		title: "Added",
+		type: "improved",
+		items: [
+			"Added option to disable hiding the default settings button."
+		]
+	},
+	{
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed plugin hiding mute/deafen submenu buttons."
+			"Fixed opening wrong settings panel."
 		]
 	}
 ];
@@ -256,7 +260,9 @@ const locales = {
 	SETTINGS_OPTIONS_STATUS_PICKER: "Status Picker",
 	SETTINGS_OPTIONS_NOTHING: "Nothing",
 	SETTINGS_TOOLTIP: "Tooltip",
-	SETTINGS_TOOLTIP_NOTE: "Show tooltip when hovering over user avatar."
+	SETTINGS_TOOLTIP_NOTE: "Show tooltip when hovering over user avatar.",
+	SETTINGS_HIDE: "Hide Settings Button",
+	SETTINGS_HIDE_NOTE: "Hide the default settings button."
 },
 	el: el,
 	fr: fr
@@ -265,6 +271,7 @@ const locales = {
 // modules/utils.ts
 const Settings = new SettingsManager({
 	showTooltip: true,
+	hideSettingsButton: true,
 	click: 1,
 	contextmenu: 3,
 	middleclick: 2
@@ -334,20 +341,10 @@ class Tooltip {
 	}
 }
 
-// @discord/modules.ts
-const SettingsSections = expectModule({
-	filter: betterdiscord.Webpack.Filters.byKeys("ACCOUNT", "CHANGE_LOG"),
-	searchExports: true,
-	name: "SettingsSections",
-	fallback: { ACCOUNT: "My Account", ACTIVITY_PRIVACY: "Activity Privacy" }
-});
-const UserSettingsWindow = expectModule({
-	filter: betterdiscord.Webpack.Filters.byKeys("saveAccountChanges", "setSection", "open"),
-	name: "UserSettingsWindow"
-});
-
 // index.tsx
 const settingsSelector = `.${accountClasses.container} > div > button:last-of-type`;
+const baseStyle = `.${accountClasses.avatarWrapper} { min-width: 0; }`;
+const hideStyle = `${settingsSelector} { display: none; }`;
 class AvatarSettingsButton {
 	meta;
 	target = null;
@@ -358,9 +355,13 @@ class AvatarSettingsButton {
 	}
 	start() {
 		showChangelog(changelog, this.meta);
-		betterdiscord.DOM.addStyle(`${settingsSelector} { display: none; }`);
+		betterdiscord.DOM.addStyle(Settings.get("hideSettingsButton") ? baseStyle + hideStyle : baseStyle);
 		Strings.subscribe();
-		Settings.addListener(() => {
+		Settings.addListener((key, value) => {
+			if (key === "hideSettingsButton") {
+				betterdiscord.DOM.removeStyle();
+				betterdiscord.DOM.addStyle(value ? baseStyle + hideStyle : baseStyle);
+			}
 			this.addListener();
 			this.addTooltip();
 		});
@@ -388,8 +389,11 @@ class AvatarSettingsButton {
 		);
 	}
 	openSettings() {
-		UserSettingsWindow?.setSection(SettingsSections.ACCOUNT);
-		UserSettingsWindow?.open();
+		document.querySelector(settingsSelector)?.dispatchEvent(
+			new MouseEvent("click", {
+				bubbles: true
+			})
+		);
 	}
 	openContextMenu(e) {
 		document.querySelector(settingsSelector)?.dispatchEvent(
@@ -452,6 +456,12 @@ class AvatarSettingsButton {
 	}
 	getSettingsPanel() {
 		return buildSettingsPanel(Settings, [
+			{
+				id: "hideSettingsButton",
+				type: "switch",
+				name: Strings.get("SETTINGS_HIDE"),
+				note: Strings.get("SETTINGS_HIDE_NOTE")
+			},
 			{
 				id: "click",
 				type: "radio",

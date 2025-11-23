@@ -1,7 +1,7 @@
 /**
  * @name ActivityToggle
  * @author Neodymium
- * @version 1.2.27
+ * @version 1.2.28
  * @description Adds a button to quickly toggle Activity Status.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  * @invite fRbsqH87Av
@@ -126,14 +126,14 @@ const Settings = expectIcon(
 
 // @discord/modules.ts
 const SettingsSections = expectModule({
-	filter: betterdiscord.Webpack.Filters.byKeys("ACCOUNT", "CHANGE_LOG"),
+	filter: betterdiscord.Webpack.Filters.byKeys("ACTIVITY_PRIVACY_PANEL", "ACCOUNT_PANEL"),
 	searchExports: true,
 	name: "SettingsSections",
-	fallback: { ACCOUNT: "My Account", ACTIVITY_PRIVACY: "Activity Privacy" }
+	fallback: { ACTIVITY_PRIVACY_PANEL: "activity_privacy_panel" }
 });
-const UserSettingsWindow = expectModule({
-	filter: betterdiscord.Webpack.Filters.byKeys("saveAccountChanges", "setSection", "open"),
-	name: "UserSettingsWindow"
+const UserSettings = expectModule({
+	filter: betterdiscord.Webpack.Filters.byKeys("openUserSettings"),
+	name: "UserSettings"
 });
 
 // components/ActivityToggleButton.tsx
@@ -159,14 +159,13 @@ function ActivityToggleButton() {
 							label: "Activity Settings",
 							icon: Settings,
 							action: () => {
-								if (!UserSettingsWindow) {
+								if (!UserSettings) {
 									return betterdiscord.UI.alert(
 										"Error",
 										"Could not open settings window. See the console for more information."
 									);
 								}
-								UserSettingsWindow.setSection(SettingsSections.ACTIVITY_PRIVACY);
-								UserSettingsWindow.open();
+								UserSettings.openUserSettings(SettingsSections.ACTIVITY_PRIVACY_PANEL);
 							}
 						}
 					])
