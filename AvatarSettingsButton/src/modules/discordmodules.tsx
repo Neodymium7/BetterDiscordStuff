@@ -13,7 +13,7 @@ export const tooltipClasses = expectClasses("Tooltip Classes", [
 
 export const layerContainerSelector = expectSelectors("Layer Container Class", [
 	"layerContainer",
-	"layerHidden",
+	"clickTrapContainer",
 ])?.layerContainer;
 
 export const appSelector = expectSelectors("App Class", ["appAsidePanelWrapper", "app"])?.app;
