@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 2.3.0
+ * @version 2.3.1
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
@@ -175,17 +175,10 @@ function expectSelectors(name, classes) {
 // manifest.json
 const changelog = [
 	{
-		title: "Added",
-		type: "improved",
-		items: [
-			"Added option to disable hiding the default settings button."
-		]
-	},
-	{
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed opening wrong settings panel."
+			"Fixed tooltip."
 		]
 	}
 ];
@@ -202,7 +195,7 @@ const tooltipClasses = expectClasses("Tooltip Classes", [
 ]);
 const layerContainerSelector = expectSelectors("Layer Container Class", [
 	"layerContainer",
-	"layerHidden"
+	"clickTrapContainer"
 ])?.layerContainer;
 const appSelector = expectSelectors("App Class", ["appAsidePanelWrapper", "app"])?.app;
 
