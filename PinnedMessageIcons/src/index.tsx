@@ -54,7 +54,7 @@ export default class PinnedMessageIcons implements Plugin {
 			message.props.children.push(
 				<Pin
 					className="pinned-message-icon"
-					color="var(--interactive-normal)"
+					color="var(--interactive-text-default)"
 					size="20px"
 					width="20px"
 					height="20px"
