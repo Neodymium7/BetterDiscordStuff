@@ -1,7 +1,7 @@
 /**
  * @name PinnedMessageIcons
  * @author Neodymium
- * @version 2.0.3
+ * @version 2.0.4
  * @description Displays an icon on and optionally adds a background to pinned messages.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/PinnedMessageIcons/PinnedMessageIcons.plugin.js
  * @invite fRbsqH87Av
@@ -140,7 +140,7 @@ class PinnedMessageIcons {
 					Pin,
 					{
 						className: "pinned-message-icon",
-						color: "var(--interactive-normal)",
+						color: "var(--interactive-text-default)",
 						size: "20px",
 						width: "20px",
 						height: "20px"

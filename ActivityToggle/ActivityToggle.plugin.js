@@ -1,7 +1,7 @@
 /**
  * @name ActivityToggle
  * @author Neodymium
- * @version 1.2.28
+ * @version 1.2.29
  * @description Adds a button to quickly toggle Activity Status.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  * @invite fRbsqH87Av
@@ -75,7 +75,7 @@ const EmptyComponent = (props) => null;
 
 // modules.ts
 const PanelButton = expectModule({
-	filter: (m) => m?.render?.toString().includes("PANEL_BUTTON"),
+	filter: (m) => m?.render?.toString().includes("tooltipText"),
 	name: "PanelButton",
 	fallback: EmptyComponent
 });
