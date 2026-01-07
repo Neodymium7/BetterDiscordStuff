@@ -2,21 +2,10 @@ import { ContextMenu, DOM, Patcher, Utils, Meta, Plugin, Changes } from "betterd
 import styles from "styles";
 import { buildSettingsPanel, showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
-import {
-	MemberListItem,
-	memberSelectors,
-	UserPanelBody,
-	UserPopoutBody,
-	PrivateChannel,
-	PeopleListItem,
-	VoiceActivityCardText,
-	UserPopoutActivity,
-} from "./modules/discordmodules";
+import { MemberListItem, memberSelectors, PrivateChannel, PeopleListItem } from "./modules/discordmodules";
 import { Settings, Strings } from "./modules/utils";
 import iconStyles from "./styles/voiceicon.module.css";
 import VoiceIcon from "./components/VoiceIcon";
-import VoiceProfileSection from "./components/VoiceProfileSection";
-import { transitionTo } from "@discord/modules";
 import { VoiceStateStore } from "@discord/stores";
 
 export default class VoiceActivity implements Plugin {
@@ -36,10 +25,6 @@ export default class VoiceActivity implements Plugin {
 		Strings.subscribe();
 		this.patchPeopleListItem();
 		this.patchMemberListItem();
-		this.patchUserPanel();
-		this.patchUserPopout();
-		this.patchVoiceActivityCard();
-		this.patchUserPopoutActivity();
 		this.patchPrivateChannel();
 		this.patchChannelContextMenu();
 		this.patchGuildContextMenu();
@@ -47,52 +32,6 @@ export default class VoiceActivity implements Plugin {
 		// Fix voice state not being discoverable when not navigated to specific guild
 		Patcher.instead(VoiceStateStore, "getDiscoverableVoiceState", (_, [guildId, userId]) => {
 			return VoiceStateStore.getDiscoverableVoiceStateForUser(userId);
-		});
-	}
-
-	patchUserPanel() {
-		if (!UserPanelBody) return;
-		const [module, key] = UserPanelBody;
-		Patcher.after(module, key, (_, [props], ret) => {
-			ret.props.children.splice(1, 0, <VoiceProfileSection user={props.user} />);
-		});
-	}
-
-	patchUserPopout() {
-		if (!UserPopoutBody) return;
-		Patcher.after(...UserPopoutBody, (_, [props], ret) => {
-			ret.props.children.splice(7, 0, <VoiceProfileSection user={props.user} onClose={props.onClose} />);
-		});
-	}
-
-	// Override channel name click action to navigate to channel instead of join
-	patchVoiceActivityCard() {
-		const filter = (e: any) => Array.isArray(e) && e[0].props.size && e[1].props.onClick;
-
-		if (!VoiceActivityCardText) return;
-		Patcher.after(...VoiceActivityCardText, (_, [props], ret) => {
-			const channelPath = props.channel.guild_id
-				? `/channels/${props.channel.guild_id}/${props.channel.id}`
-				: `/channels/@me/${props.channel.id}`;
-
-			const channelText = Utils.findInTree(ret, filter, {
-				walkable: ["props", "children"],
-			})[1];
-
-			channelText.props.onClick = (e: React.MouseEvent) => {
-				e.stopPropagation();
-				props.onClose?.();
-				if (channelPath) transitionTo?.(channelPath);
-			};
-		});
-	}
-
-	// Remove default voice channel activity card to prevent duplicates
-	patchUserPopoutActivity() {
-		if (!UserPopoutActivity) return;
-		Patcher.after(...UserPopoutActivity, (_, [props], ret) => {
-			const { showProfileSection } = Settings.useSettingsState("showProfileSection");
-			if (showProfileSection && ret?.props?.voiceChannel) return null;
 		});
 	}
 
@@ -122,6 +61,7 @@ export default class VoiceActivity implements Plugin {
 
 	patchPrivateChannel() {
 		if (!PrivateChannel) return;
+
 		const patchType = (props: any, ret: any) => {
 			if (props.channel.type !== 1) return;
 
@@ -130,6 +70,8 @@ export default class VoiceActivity implements Plugin {
 				Utils.findInTree(ret, (e) => typeof e?.props?.children !== "function", {
 					walkable: ["children", "props"],
 				})?.props?.children ?? ret;
+
+			if (!target) return;
 
 			const children = target.props.children;
 			target.props.children = (childrenProps: any) => {
@@ -185,7 +127,7 @@ export default class VoiceActivity implements Plugin {
 				Utils.findInTree(childrenRet, (i) => Array.isArray(i), { walkable: ["props", "children"] }).splice(
 					1,
 					0,
-					<div className={iconStyles.iconContainer}>
+					<div className={`${iconStyles.iconContainer} ${iconStyles.peopleListIcon}`}>
 						<VoiceIcon userId={that.props.user.id} context="peoplelist" />
 					</div>
 				);
@@ -265,12 +207,6 @@ export default class VoiceActivity implements Plugin {
 
 	getSettingsPanel() {
 		return buildSettingsPanel(Settings, [
-			{
-				id: "showProfileSection",
-				type: "switch",
-				name: Strings.get("SETTINGS_PROFILE"),
-				note: Strings.get("SETTINGS_PROFILE_NOTE"),
-			},
 			{
 				id: "showMemberListIcons",
 				type: "switch",

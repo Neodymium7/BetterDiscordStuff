@@ -3,7 +3,6 @@ import locales from "../locales.json";
 import { UserStore } from "@discord/stores";
 
 export const Settings = new SettingsManager({
-	showProfileSection: true,
 	showMemberListIcons: true,
 	showDMListIcons: true,
 	showPeopleListIcons: true,

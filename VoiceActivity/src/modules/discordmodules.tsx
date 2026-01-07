@@ -1,6 +1,6 @@
 import { Webpack } from "betterdiscord";
 import { expectModule, expectSelectors, expectWithKey } from "@lib/utils/webpack";
-import { AnyComponent, EmptyComponent } from "@lib/utils/react";
+import { AnyComponent } from "@lib/utils/react";
 import { ChannelStore, PermissionStore, useStateFromStores, VoiceStateStore } from "@discord/stores";
 
 // Adapted from Discord's useUserVoiceState function
@@ -32,16 +32,6 @@ export const MemberListItem = expectWithKey<AnyComponent>({
 	name: "MemberListItem",
 });
 
-export const UserPanelBody = expectWithKey<AnyComponent>({
-	filter: Webpack.Filters.byStrings("SIDEBAR", "nicknameIcons"),
-	name: "UserPanelBody",
-});
-
-export const UserPopoutBody = expectWithKey<AnyComponent>({
-	filter: Webpack.Filters.byStrings("usernameIcon", "hasAvatarForGuild"),
-	name: "UserPopoutBody",
-});
-
 export const PrivateChannel = expectWithKey<AnyComponent>({
 	filter: Webpack.Filters.byStrings("PrivateChannel", "getTypingUsers"),
 	name: "PrivateChannel",
@@ -51,22 +41,6 @@ export const PrivateChannel = expectWithKey<AnyComponent>({
 export const PeopleListItem = expectModule<React.ComponentClass<any>>({
 	filter: (m) => m?.prototype?.render && Webpack.Filters.byStrings("this.peopleListItemRef")(m),
 	name: "PeopleListItem",
-});
-
-export const VoiceActivityCard = expectModule({
-	filter: Webpack.Filters.byStrings("UserProfileVoiceActivityCard"),
-	name: "VoiceActivityCard",
-	fallback: EmptyComponent,
-});
-
-export const VoiceActivityCardText = expectWithKey<AnyComponent>({
-	filter: Webpack.Filters.byStrings("voiceChannelHeading", "OPEN_VOICE_CHANNEL"),
-	name: "VoiceActivityCardText",
-});
-
-export const UserPopoutActivity = expectWithKey<AnyComponent>({
-	filter: Webpack.Filters.byStrings("UserProfileFeaturedActivity"),
-	name: "UserPopoutActivity",
 });
 
 export const Permissions = expectModule({
