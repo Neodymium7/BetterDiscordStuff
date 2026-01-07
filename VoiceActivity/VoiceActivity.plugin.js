@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.11.3
+ * @version 1.12.0
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -203,16 +203,14 @@ function byType(type) {
 // manifest.json
 const changelog = [
 	{
-		title: "Fixed",
-		type: "fixed",
+		title: "Changed",
+		type: "improved",
 		items: [
-			"Fixed channel icon."
+			"Removed user profile section and related options. (Discord now has a native voice channel activity card, and also displays multiple activities in popouts!)",
+			"This plugin still corrects some of the native profile behavior, including displaying the voice channel info everywhere in the app, instead of only in relevant servers."
 		]
 	}
 ];
-
-// @lib/utils/react.tsx
-const EmptyComponent = (props) => null;
 
 // @discord/stores.ts
 const UserStore = betterdiscord.Webpack.getStore("UserStore");
@@ -253,14 +251,6 @@ const MemberListItem = expectWithKey({
 	filter: betterdiscord.Webpack.Filters.byStrings("memberInner", "renderPopout"),
 	name: "MemberListItem"
 });
-const UserPanelBody = expectWithKey({
-	filter: betterdiscord.Webpack.Filters.byStrings("SIDEBAR", "nicknameIcons"),
-	name: "UserPanelBody"
-});
-const UserPopoutBody = expectWithKey({
-	filter: betterdiscord.Webpack.Filters.byStrings("usernameIcon", "hasAvatarForGuild"),
-	name: "UserPopoutBody"
-});
 const PrivateChannel = expectWithKey({
 	filter: betterdiscord.Webpack.Filters.byStrings("PrivateChannel", "getTypingUsers"),
 	name: "PrivateChannel",
@@ -269,19 +259,6 @@ const PrivateChannel = expectWithKey({
 const PeopleListItem = expectModule({
 	filter: (m) => m?.prototype?.render && betterdiscord.Webpack.Filters.byStrings("this.peopleListItemRef")(m),
 	name: "PeopleListItem"
-});
-const VoiceActivityCard = expectModule({
-	filter: betterdiscord.Webpack.Filters.byStrings("UserProfileVoiceActivityCard"),
-	name: "VoiceActivityCard",
-	fallback: EmptyComponent
-});
-const VoiceActivityCardText = expectWithKey({
-	filter: betterdiscord.Webpack.Filters.byStrings("voiceChannelHeading", "OPEN_VOICE_CHANNEL"),
-	name: "VoiceActivityCardText"
-});
-const UserPopoutActivity = expectWithKey({
-	filter: betterdiscord.Webpack.Filters.byStrings("UserProfileFeaturedActivity"),
-	name: "UserPopoutActivity"
 });
 const Permissions = expectModule({
 	filter: betterdiscord.Webpack.Filters.byKeys("VIEW_CREATOR_MONETIZATION_ANALYTICS"),
@@ -489,7 +466,6 @@ const locales = {
 
 // modules/utils.ts
 const Settings = new SettingsManager({
-	showProfileSection: true,
 	showMemberListIcons: true,
 	showDMListIcons: true,
 	showPeopleListIcons: true,
@@ -571,6 +547,9 @@ const css = `
 }
 .VoiceActivity-voiceicon-iconContainer {
 	margin-left: auto;
+}
+.VoiceActivity-voiceicon-peopleListIcon {
+	margin-right: 16px;
 }`;
 _loadStyle("voiceicon.module.css", css);
 const modules_1af761ba = {
@@ -581,7 +560,8 @@ const modules_1af761ba = {
 	"header": "VoiceActivity-voiceicon-header",
 	"subtext": "VoiceActivity-voiceicon-subtext",
 	"tooltipIcon": "VoiceActivity-voiceicon-tooltipIcon",
-	"iconContainer": "VoiceActivity-voiceicon-iconContainer"
+	"iconContainer": "VoiceActivity-voiceicon-iconContainer",
+	"peopleListIcon": "VoiceActivity-voiceicon-peopleListIcon"
 };
 const iconStyles = modules_1af761ba;
 
@@ -711,30 +691,6 @@ function VoiceIcon(props) {
 	);
 }
 
-// components/VoiceProfileSection.tsx
-function VoiceProfileSection(props) {
-	const settingsState = Settings.useSettingsState(
-		"showProfileSection",
-		"ignoreEnabled",
-		"ignoredChannels",
-		"ignoredGuilds"
-	);
-	const { voiceState, voiceChannel: channel } = useUserVoiceState({ userId: props.user.id });
-	if (!settingsState.showProfileSection) return null;
-	if (!voiceState) return null;
-	const ignored = settingsState.ignoredChannels.includes(channel.id) || settingsState.ignoredGuilds.includes(channel.guild_id);
-	if (settingsState.ignoreEnabled && ignored) return null;
-	return BdApi.React.createElement(
-		VoiceActivityCard,
-		{
-			currentUser: UserStore.getCurrentUser(),
-			user: props.user,
-			voiceChannel: channel,
-			onClose: props.onClose
-		}
-	);
-}
-
 // index.tsx
 class VoiceActivity {
 	meta;
@@ -750,50 +706,11 @@ class VoiceActivity {
 		Strings.subscribe();
 		this.patchPeopleListItem();
 		this.patchMemberListItem();
-		this.patchUserPanel();
-		this.patchUserPopout();
-		this.patchVoiceActivityCard();
-		this.patchUserPopoutActivity();
 		this.patchPrivateChannel();
 		this.patchChannelContextMenu();
 		this.patchGuildContextMenu();
 		betterdiscord.Patcher.instead(VoiceStateStore, "getDiscoverableVoiceState", (_, [guildId, userId]) => {
 			return VoiceStateStore.getDiscoverableVoiceStateForUser(userId);
-		});
-	}
-	patchUserPanel() {
-		if (!UserPanelBody) return;
-		const [module, key] = UserPanelBody;
-		betterdiscord.Patcher.after(module, key, (_, [props], ret) => {
-			ret.props.children.splice(1, 0, BdApi.React.createElement(VoiceProfileSection, { user: props.user }));
-		});
-	}
-	patchUserPopout() {
-		if (!UserPopoutBody) return;
-		betterdiscord.Patcher.after(...UserPopoutBody, (_, [props], ret) => {
-			ret.props.children.splice(7, 0, BdApi.React.createElement(VoiceProfileSection, { user: props.user, onClose: props.onClose }));
-		});
-	}
-	patchVoiceActivityCard() {
-		const filter = (e) => Array.isArray(e) && e[0].props.size && e[1].props.onClick;
-		if (!VoiceActivityCardText) return;
-		betterdiscord.Patcher.after(...VoiceActivityCardText, (_, [props], ret) => {
-			const channelPath = props.channel.guild_id ? `/channels/${props.channel.guild_id}/${props.channel.id}` : `/channels/@me/${props.channel.id}`;
-			const channelText = betterdiscord.Utils.findInTree(ret, filter, {
-				walkable: ["props", "children"]
-			})[1];
-			channelText.props.onClick = (e) => {
-				e.stopPropagation();
-				props.onClose?.();
-				if (channelPath) transitionTo?.(channelPath);
-			};
-		});
-	}
-	patchUserPopoutActivity() {
-		if (!UserPopoutActivity) return;
-		betterdiscord.Patcher.after(...UserPopoutActivity, (_, [props], ret) => {
-			const { showProfileSection } = Settings.useSettingsState("showProfileSection");
-			if (showProfileSection && ret?.props?.voiceChannel) return null;
 		});
 	}
 	patchMemberListItem() {
@@ -819,6 +736,7 @@ class VoiceActivity {
 			const target = betterdiscord.Utils.findInTree(ret, (e) => typeof e?.props?.children !== "function", {
 				walkable: ["children", "props"]
 			})?.props?.children ?? ret;
+			if (!target) return;
 			const children = target.props.children;
 			target.props.children = (childrenProps) => {
 				const childrenRet = children(childrenProps);
@@ -858,7 +776,7 @@ class VoiceActivity {
 				betterdiscord.Utils.findInTree(childrenRet, (i) => Array.isArray(i), { walkable: ["props", "children"] }).splice(
 					1,
 					0,
-					BdApi.React.createElement("div", { className: iconStyles.iconContainer }, BdApi.React.createElement(VoiceIcon, { userId: that.props.user.id, context: "peoplelist" }))
+					BdApi.React.createElement("div", { className: `${iconStyles.iconContainer} ${iconStyles.peopleListIcon}` }, BdApi.React.createElement(VoiceIcon, { userId: that.props.user.id, context: "peoplelist" }))
 				);
 				return childrenRet;
 			};
@@ -923,12 +841,6 @@ class VoiceActivity {
 	}
 	getSettingsPanel() {
 		return buildSettingsPanel(Settings, [
-			{
-				id: "showProfileSection",
-				type: "switch",
-				name: Strings.get("SETTINGS_PROFILE"),
-				note: Strings.get("SETTINGS_PROFILE_NOTE")
-			},
 			{
 				id: "showMemberListIcons",
 				type: "switch",
