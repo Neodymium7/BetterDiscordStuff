@@ -1,7 +1,7 @@
 /**
  * @name PinnedMessageIcons
  * @author Neodymium
- * @version 2.0.4
+ * @version 2.0.5
  * @description Displays an icon on and optionally adds a background to pinned messages.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/PinnedMessageIcons/PinnedMessageIcons.plugin.js
  * @invite fRbsqH87Av
@@ -44,8 +44,8 @@ function getClasses(...classes) {
 function getSelectors(...classes) {
 	const module = getClasses(...classes);
 	if (!module) return void 0;
-	return Object.keys(module).reduce((obj, key) => {
-		obj[key] = "." + module[key].replaceAll(" ", ".");
+	return classes.reduce((obj, className) => {
+		obj[className] = "." + module[className].replaceAll(" ", ".");
 		return obj;
 	}, {});
 }

@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.12.0
+ * @version 1.12.1
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -152,8 +152,8 @@ function getClasses(...classes) {
 function getSelectors(...classes) {
 	const module = getClasses(...classes);
 	if (!module) return void 0;
-	return Object.keys(module).reduce((obj, key) => {
-		obj[key] = "." + module[key].replaceAll(" ", ".");
+	return classes.reduce((obj, className) => {
+		obj[className] = "." + module[className].replaceAll(" ", ".");
 		return obj;
 	}, {});
 }
@@ -203,11 +203,10 @@ function byType(type) {
 // manifest.json
 const changelog = [
 	{
-		title: "Changed",
-		type: "improved",
+		title: "Fixed",
+		type: "fixed",
 		items: [
-			"Removed user profile section and related options. (Discord now has a native voice channel activity card, and also displays multiple activities in popouts!)",
-			"This plugin still corrects some of the native profile behavior, including displaying the voice channel info everywhere in the app, instead of only in relevant servers."
+			"Fixed member list icons."
 		]
 	}
 ];
@@ -247,9 +246,10 @@ function useUserVoiceStateFallback({ userId }) {
 		};
 	} else return {};
 }
-const MemberListItem = expectWithKey({
-	filter: betterdiscord.Webpack.Filters.byStrings("memberInner", "renderPopout"),
-	name: "MemberListItem"
+const MemberListItem = expectModule({
+	filter: (m) => m.type?.toString?.().includes("MemberListItem"),
+	name: "MemberListItem",
+	searchExports: true
 });
 const PrivateChannel = expectWithKey({
 	filter: betterdiscord.Webpack.Filters.byStrings("PrivateChannel", "getTypingUsers"),
@@ -715,7 +715,7 @@ class VoiceActivity {
 	}
 	patchMemberListItem() {
 		if (!MemberListItem) return;
-		betterdiscord.Patcher.after(...MemberListItem, (_, [props], ret) => {
+		betterdiscord.Patcher.after(MemberListItem, "type", (_, [props], ret) => {
 			if (!props.user) return ret;
 			const children = ret.props.children;
 			ret.props.children = (childrenProps) => {

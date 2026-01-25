@@ -1,7 +1,7 @@
 /**
  * @name TypingUsersPopouts
  * @author Neodymium
- * @version 1.4.10
+ * @version 1.4.11
  * @description Opens the user's popout when clicking on a name in the typing area.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/TypingUsersPopouts/TypingUsersPopouts.plugin.js
  * @invite fRbsqH87Av
@@ -56,8 +56,8 @@ function getClasses(...classes) {
 function getSelectors(...classes) {
 	const module = getClasses(...classes);
 	if (!module) return void 0;
-	return Object.keys(module).reduce((obj, key) => {
-		obj[key] = "." + module[key].replaceAll(" ", ".");
+	return classes.reduce((obj, className) => {
+		obj[className] = "." + module[className].replaceAll(" ", ".");
 		return obj;
 	}, {});
 }
@@ -98,7 +98,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed crashing."
+			"Fixed minor styling issues."
 		]
 	}
 ];
