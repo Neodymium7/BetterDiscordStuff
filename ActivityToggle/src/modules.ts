@@ -19,15 +19,15 @@ export const playSound = expectModule<(sound: string, volume: number) => void>({
 });
 
 export const ShowCurrentGame = expectModule({
-	filter: (m) => m.G6?.useSetting,
+	filter: (m) => m.tz?.useSetting,
 	name: "ShowCurrentGame",
 	fallback: {
-		G6: {
+		tz: {
 			useSetting: () => React.useState(true),
 			updateSetting: undefined as ((...args: any) => void) | undefined,
 		},
 	},
-})?.G6;
+})?.tz;
 
 export const Account = expectModule<React.ComponentClass>({
 	filter: Webpack.Filters.byPrototypeKeys("renderNameZone"),

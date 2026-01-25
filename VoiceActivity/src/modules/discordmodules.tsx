@@ -27,9 +27,10 @@ export function useUserVoiceStateFallback({ userId }: { userId: string; guildId?
 	} else return {};
 }
 
-export const MemberListItem = expectWithKey<AnyComponent>({
-	filter: Webpack.Filters.byStrings("memberInner", "renderPopout"),
+export const MemberListItem = expectModule<React.MemoExoticComponent<AnyComponent>>({
+	filter: (m) => m.type?.toString?.().includes("MemberListItem"),
 	name: "MemberListItem",
+	searchExports: true,
 });
 
 export const PrivateChannel = expectWithKey<AnyComponent>({

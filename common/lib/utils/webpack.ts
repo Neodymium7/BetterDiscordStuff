@@ -30,8 +30,8 @@ export function getSelectors<T extends string>(...classes: T[]): { [key in T]: s
 
 	if (!module) return undefined;
 
-	return Object.keys(module).reduce((obj, key) => {
-		obj[key] = "." + module[key as T].replaceAll(" ", ".");
+	return classes.reduce((obj, className) => {
+		obj[className] = "." + module[className].replaceAll(" ", ".");
 		return obj;
 	}, {} as any);
 }
@@ -139,10 +139,13 @@ export function expectWithKey<T>(options: ExpectModuleOptions<T>): WithKeyResult
 export function expectClasses<T extends string>(name: string, classes: T[]) {
 	return expect(getClasses(...classes), {
 		name,
-		fallback: classes.reduce((obj, key) => {
-			obj[key] = "unknown-class";
-			return obj;
-		}, {} as { [key in T]: string }),
+		fallback: classes.reduce(
+			(obj, key) => {
+				obj[key] = "unknown-class";
+				return obj;
+			},
+			{} as { [key in T]: string }
+		),
 	});
 }
 

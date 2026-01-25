@@ -37,7 +37,7 @@ export default class VoiceActivity implements Plugin {
 
 	patchMemberListItem() {
 		if (!MemberListItem) return;
-		Patcher.after(...MemberListItem, (_, [props], ret) => {
+		Patcher.after(MemberListItem, "type", (_, [props], ret) => {
 			if (!props.user) return ret;
 			const children = ret.props.children;
 
