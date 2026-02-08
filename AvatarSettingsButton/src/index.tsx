@@ -6,7 +6,7 @@ import { Settings, Strings } from "./modules/utils";
 import Tooltip from "./modules/tooltip";
 
 const settingsSelector = `.${accountClasses.container} > div > button:last-of-type`;
-const baseStyle = `.${accountClasses.avatarWrapper} { min-width: 0; }`;
+const baseStyle = `.${accountClasses.accountPopoutButtonWrapper} { min-width: 0; }`;
 const hideStyle = `${settingsSelector} { display: none; }`;
 
 export default class AvatarSettingsButton implements Plugin {
@@ -32,7 +32,7 @@ export default class AvatarSettingsButton implements Plugin {
 			this.addTooltip();
 		});
 
-		this.target = document.querySelector("." + accountClasses.avatarWrapper);
+		this.target = document.querySelector("." + accountClasses.accountPopoutButtonWrapper);
 		this.addListener();
 		this.addTooltip();
 	}
@@ -42,11 +42,11 @@ export default class AvatarSettingsButton implements Plugin {
 			if (node.nodeType === Node.TEXT_NODE) continue;
 			if (!(node instanceof HTMLElement)) continue;
 
-			const avatarWrapper = node.className.includes(accountClasses.avatarWrapper)
+			const accountPopoutButtonWrapper = node.className.includes(accountClasses.accountPopoutButtonWrapper)
 				? node
-				: node.querySelector(`.${accountClasses.avatarWrapper}`);
-			if (avatarWrapper instanceof HTMLElement) {
-				this.target = avatarWrapper;
+				: node.querySelector(`.${accountClasses.accountPopoutButtonWrapper}`);
+			if (accountPopoutButtonWrapper instanceof HTMLElement) {
+				this.target = accountPopoutButtonWrapper;
 				this.addListener();
 				this.addTooltip();
 			}

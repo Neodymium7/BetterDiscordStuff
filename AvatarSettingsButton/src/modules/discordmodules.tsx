@@ -1,6 +1,6 @@
 import { expectClasses, expectSelectors } from "@lib/utils/webpack";
 
-export const accountClasses = expectClasses("Account Classes", ["nameTag", "container", "avatarWrapper"]);
+export const accountClasses = expectClasses("Account Classes", ["nameTag", "container", "accountPopoutButtonWrapper"]);
 
 export const tooltipClasses = expectClasses("Tooltip Classes", [
 	"tooltip",
