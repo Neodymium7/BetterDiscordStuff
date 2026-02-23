@@ -28,15 +28,15 @@ export function useUserVoiceStateFallback({ userId }: { userId: string; guildId?
 }
 
 export const MemberListItem = expectModule<React.MemoExoticComponent<AnyComponent>>({
-	filter: (m) => m.type?.toString?.().includes("MemberListItem"),
+	filter: (m) => m.type?.toString?.().includes("memberListItem"),
 	name: "MemberListItem",
 	searchExports: true,
 });
 
 export const PrivateChannel = expectWithKey<AnyComponent>({
-	filter: Webpack.Filters.byStrings("PrivateChannel", "getTypingUsers"),
+	filter: Webpack.Filters.byStrings("getTypingUsers", "isMultiUserDM", "getRecipientId"),
 	name: "PrivateChannel",
-	defaultExport: false,
+	searchExports: true,
 });
 
 export const PeopleListItem = expectModule<React.ComponentClass<any>>({

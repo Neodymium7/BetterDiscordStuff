@@ -2,7 +2,7 @@
 	"name": "betterdiscordstuff",
 	"description": "Plugins and CSS Snippets for BetterDiscord.",
 	"devDependencies": {
-		"bundlebd": "^5.0.4",
+		"bundlebd": "^5.1.2",
 		"typescript": "^5.7.2"
 	},
 	"scripts": {
