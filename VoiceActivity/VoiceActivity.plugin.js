@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.12.1
+ * @version 1.12.2
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -206,7 +206,7 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed member list icons."
+			"Fixed member list and DM icons."
 		]
 	}
 ];
@@ -247,14 +247,14 @@ function useUserVoiceStateFallback({ userId }) {
 	} else return {};
 }
 const MemberListItem = expectModule({
-	filter: (m) => m.type?.toString?.().includes("MemberListItem"),
+	filter: (m) => m.type?.toString?.().includes("memberListItem"),
 	name: "MemberListItem",
 	searchExports: true
 });
 const PrivateChannel = expectWithKey({
-	filter: betterdiscord.Webpack.Filters.byStrings("PrivateChannel", "getTypingUsers"),
+	filter: betterdiscord.Webpack.Filters.byStrings("getTypingUsers", "isMultiUserDM", "getRecipientId"),
 	name: "PrivateChannel",
-	defaultExport: false
+	searchExports: true
 });
 const PeopleListItem = expectModule({
 	filter: (m) => m?.prototype?.render && betterdiscord.Webpack.Filters.byStrings("this.peopleListItemRef")(m),
