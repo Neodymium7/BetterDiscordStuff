@@ -1,7 +1,7 @@
 /**
  * @name AvatarSettingsButton
  * @author Neodymium
- * @version 2.3.4
+ * @version 2.3.5
  * @description Moves the User Settings button to left clicking on the user avatar, with the status picker and context menu still available on configurable actions.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/AvatarSettingsButton/AvatarSettingsButton.plugin.js
  * @invite fRbsqH87Av
@@ -98,7 +98,7 @@ function buildSettingsPanel(settingsManager, settings) {
 }
 
 // @lib/strings.ts
-const LocaleStore = betterdiscord.Webpack.getStore("LocaleStore");
+const LocaleStore = betterdiscord.Webpack.Stores.LocaleStore;
 class StringsManager {
 	locales;
 	defaultLocale;
@@ -113,10 +113,10 @@ class StringsManager {
 	};
 	subscribe() {
 		this.setLocale();
-		LocaleStore.addReactChangeListener(this.setLocale);
+		LocaleStore.addChangeListener(this.setLocale);
 	}
 	unsubscribe() {
-		LocaleStore.removeReactChangeListener(this.setLocale);
+		LocaleStore.removeChangeListener(this.setLocale);
 	}
 	get(key) {
 		return this.strings[key] || this.locales[this.defaultLocale][key];
@@ -181,13 +181,18 @@ const changelog = [
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed settings context menu action."
+			"Fixed popout opening with settings after startup."
 		]
 	}
 ];
 
 // modules/discordmodules.tsx
-const accountClasses = expectClasses("Account Classes", ["nameTag", "container", "accountPopoutButtonWrapper"]);
+const accountClasses = expectClasses("Account Classes", [
+	"nameTag",
+	"container",
+	"accountPopoutButtonWrapper",
+	"accountPopoutButton"
+]);
 const tooltipClasses = expectClasses("Tooltip Classes", [
 	"tooltip",
 	"tooltipTop",
@@ -345,7 +350,7 @@ class AvatarSettingsButton {
 	meta;
 	target = null;
 	tooltip = null;
-	clearListener;
+	clearListeners;
 	constructor(meta) {
 		this.meta = meta;
 	}
@@ -358,11 +363,11 @@ class AvatarSettingsButton {
 				betterdiscord.DOM.removeStyle();
 				betterdiscord.DOM.addStyle(value ? baseStyle + hideStyle : baseStyle);
 			}
-			this.addListener();
+			this.addListeners();
 			this.addTooltip();
 		});
 		this.target = document.querySelector("." + accountClasses.accountPopoutButtonWrapper);
-		this.addListener();
+		this.addListeners();
 		this.addTooltip();
 	}
 	observer({ addedNodes }) {
@@ -372,7 +377,7 @@ class AvatarSettingsButton {
 			const accountPopoutButtonWrapper = node.className.includes(accountClasses.accountPopoutButtonWrapper) ? node : node.querySelector(`.${accountClasses.accountPopoutButtonWrapper}`);
 			if (accountPopoutButtonWrapper instanceof HTMLElement) {
 				this.target = accountPopoutButtonWrapper;
-				this.addListener();
+				this.addListeners();
 				this.addTooltip();
 			}
 		}
@@ -400,9 +405,9 @@ class AvatarSettingsButton {
 			})
 		);
 	}
-	addListener() {
+	addListeners() {
 		if (!this.target) return;
-		this.clearListener?.();
+		this.clearListeners?.();
 		const actions = [
 			null,
 			this.openSettings.bind(this),
@@ -413,17 +418,29 @@ class AvatarSettingsButton {
 		const contextmenuAction = actions[Settings.get("contextmenu")];
 		const middleclickAction = actions[Settings.get("middleclick")];
 		const clickHandler = (e) => {
-			if (e.button == 0 && e.isTrusted) {
+			if (e.isTrusted) {
 				e.preventDefault();
 				e.stopPropagation();
 				clickAction?.(e);
-			} else if (e.button == 2) contextmenuAction?.(e);
-			else if (e.button == 1) middleclickAction?.(e);
+			}
+		};
+		const contextmenuHandler = (e) => {
+			contextmenuAction?.(e);
 			this.tooltip?.forceHide();
 		};
-		this.target.addEventListener("mousedown", clickHandler);
-		this.clearListener = () => {
-			this.target?.removeEventListener("mousedown", clickHandler);
+		const auxclickHandler = (e) => {
+			if (e.button === 1) {
+				middleclickAction?.(e);
+				this.tooltip?.forceHide();
+			}
+		};
+		this.target.addEventListener("click", clickHandler);
+		this.target.addEventListener("contextmenu", contextmenuHandler);
+		this.target.addEventListener("auxclick", auxclickHandler);
+		this.clearListeners = () => {
+			this.target?.removeEventListener("click", clickHandler);
+			this.target?.removeEventListener("contextmenu", contextmenuHandler);
+			this.target?.removeEventListener("auxclick", auxclickHandler);
 		};
 	}
 	addTooltip() {
@@ -445,7 +462,7 @@ class AvatarSettingsButton {
 		betterdiscord.DOM.removeStyle();
 		Strings.unsubscribe();
 		Settings.clearListeners();
-		this.clearListener?.();
+		this.clearListeners?.();
 		this.tooltip?.remove();
 		this.target = null;
 		this.tooltip = null;

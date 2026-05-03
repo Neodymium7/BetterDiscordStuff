@@ -1,7 +1,7 @@
 /**
  * @name ClickableTextMentions
  * @author Neodymium
- * @version 1.0.11
+ * @version 1.0.12
  * @description Makes mentions in the message text area clickable.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ClickableTextMentions/ClickableTextMentions.plugin.js
  * @invite fRbsqH87Av
@@ -170,9 +170,12 @@ function UserPopoutWrapper({ id, guildId, channelId, children }) {
 // index.tsx
 const {
 	getWithKey,
-	Filters: { byStrings }
+	getModule,
+	Filters: { byStrings, bySource }
 } = betterdiscord.Webpack;
-const [Module, key] = getWithKey(byStrings(".hidePersonalInformation", "#", "<@", ".discriminator"));
+const [Module, key] = getWithKey(byStrings(".hidePersonalInformation", "#", "<@", ".discriminator"), {
+	target: getModule(bySource(".hidePersonalInformation", "#", "<@", ".discriminator"), { raw: true }).declarations
+});
 if (!Module) betterdiscord.Logger.error("Text area mention module not found.");
 const onClick = (e) => {
 	e.preventDefault();

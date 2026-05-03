@@ -1,7 +1,7 @@
 /**
  * @name PinnedMessageIcons
  * @author Neodymium
- * @version 2.0.5
+ * @version 2.0.6
  * @description Displays an icon on and optionally adds a background to pinned messages.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/PinnedMessageIcons/PinnedMessageIcons.plugin.js
  * @invite fRbsqH87Av
@@ -55,6 +55,11 @@ function getIcon(searchString) {
 		searchExports: true
 	});
 }
+async function waitForModuleWithKey(filter, options) {
+	return betterdiscord.Webpack.getWithKey(filter, {
+		target: await betterdiscord.Webpack.waitForModule((m) => Object.values(m).some(filter), options)
+	});
+}
 
 // @lib/updater.ts
 const hoverClass = getClasses("anchorUnderlineOnHover")?.anchorUnderlineOnHover || "";
@@ -101,41 +106,54 @@ const Updater = {
 
 // index.tsx
 const Pin = getIcon("M19.38 11.38a3 3 0 0 0 4.24 0l.03-.03a.5.5 0 0 0 0-.7L13.35.35a.5.5");
-const Message = betterdiscord.Webpack.getWithKey(betterdiscord.Webpack.Filters.byStrings("childrenRepliedMessage", "focusProps"));
-const messageSelectors = getSelectors("message", "mentioned", "replying");
 if (!Pin) betterdiscord.Logger.error("Pin icon not found.");
-if (!messageSelectors) betterdiscord.Logger.error("Message selectors icon not found.");
 class PinnedMessageIcons {
 	settings;
 	meta;
+	modules = {};
+	modulesLoaded = false;
 	constructor(meta) {
 		this.meta = meta;
 	}
-	start() {
+	async getModules() {
+		if (this.modulesLoaded) return;
+		this.modules.Message = [
+			...await waitForModuleWithKey(
+				betterdiscord.Webpack.Filters.byStrings("childrenRepliedMessage", "focusProps")
+			)
+		];
+		const [module] = this.modules.Message;
+		if (!module) return betterdiscord.Logger.error("Message module not found");
+		this.modules.messageSelectors = getSelectors("message", "mentioned", "replying");
+		if (!this.modules.messageSelectors) betterdiscord.Logger.error("Message selectors module not found.");
+		this.modulesLoaded = true;
+	}
+	async start() {
 		Updater.checkForUpdates(this.meta);
 		this.settings = betterdiscord.Data.load("settings");
 		if (!this.settings) {
 			this.settings = { backgroundEnabled: true };
 			betterdiscord.Data.save("settings", this.settings);
 		}
+		await this.getModules();
 		this.addStyle();
 		this.patch();
 	}
 	patch() {
-		const [module, key] = Message;
-		if (!module) return betterdiscord.Logger.error("Message module not found");
-		betterdiscord.Patcher.after(module, key, (_, [props], ret) => {
-			if (!props.childrenMessageContent.props.message) return ret;
-			if (props["data-list-item-id"].includes("pin")) return ret;
-			const isPinned = props.childrenMessageContent.props.message.pinned;
-			if (!isPinned) return ret;
-			const message = betterdiscord.Utils.findInTree(ret, (e) => Array.isArray(e?.props?.children) && e?.props?.className, {
-				walkable: ["props", "children"]
+		betterdiscord.Patcher.after(...this.modules.Message, (_, [props], ret) => {
+			const message = betterdiscord.Utils.findInTree(props.childrenMessageContent, (x) => x.author && x.content, {
+				walkable: ["props", "children", "message"]
 			});
 			if (!message) return ret;
-			message.props.className += " pinned-message";
+			if (props["data-list-item-id"].includes("pin")) return ret;
+			if (!message.pinned) return ret;
+			const messageNode = betterdiscord.Utils.findInTree(ret, (e) => Array.isArray(e?.props?.children) && e?.props?.className, {
+				walkable: ["props", "children"]
+			});
+			if (!messageNode) return ret;
+			messageNode.props.className += " pinned-message";
 			if (!Pin) return ret;
-			message.props.children.push(
+			messageNode.props.children.push(
 				BdApi.React.createElement(
 					Pin,
 					{
@@ -151,8 +169,8 @@ class PinnedMessageIcons {
 	}
 	addStyle() {
 		let style = ":root .pinned-message { padding-right: calc(var(--space-xl) + 36px) !important } .pinned-message-icon { position: absolute; bottom: calc(50% - 10px); right: 24px; }";
-		if (messageSelectors && this.settings.backgroundEnabled) {
-			const selector = `${messageSelectors.message}.pinned-message:not(${messageSelectors.mentioned}):not(${messageSelectors.replying})`;
+		if (this.modules.messageSelectors && this.settings.backgroundEnabled) {
+			const selector = `${this.modules.messageSelectors.message}.pinned-message:not(${this.modules.messageSelectors.mentioned}):not(${this.modules.messageSelectors.replying})`;
 			style += `${selector}::after { content: ""; position: absolute; display: block; width: inherit; height: inherit; left: 0px; bottom: 0px; right: 0px; top: 0px; background: var(--channels-default); opacity: 0.08; z-index: -1; border-radius: 4px; } ${selector}::before { content: ""; position: absolute; display: block; width: 2px; height: inherit; left: 0px; bottom: 0px; top: 0px; background: var(--channels-default); }`;
 		}
 		betterdiscord.DOM.addStyle(style);

@@ -1,10 +1,11 @@
 /**
  * @name ChannelTypingIndicator
  * @author Neodymium
- * @version 1.0.6
+ * @version 1.0.7
  * @description Adds an indicator to server channels when users are typing.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ChannelTypingIndicator/ChannelTypingIndicator.plugin.js
  * @invite fRbsqH87Av
+ * @runAt idle
  */
 
 /*@cc_on
@@ -53,27 +54,19 @@ function expect(object, options) {
 function expectModule(options) {
 	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
 }
-function expectWithKey(options) {
-	const [module, key] = betterdiscord.Webpack.getWithKey(options.filter, options);
-	if (module) return [module, key];
-	const fallback = expect(module, options);
-	if (fallback) {
-		const key2 = "__key";
-		return [{ [key2]: fallback }, key2];
-	}
-	return void 0;
+async function waitForModuleWithKey(filter, options) {
+	return betterdiscord.Webpack.getWithKey(filter, {
+		target: await betterdiscord.Webpack.waitForModule((m) => Object.values(m).some(filter), options)
+	});
 }
 
 // @lib/utils/react.tsx
 const EmptyComponent = (props) => null;
 
 // modules/discordmodules.ts
-const Channel = expectWithKey({
-	filter: betterdiscord.Webpack.Filters.byStrings("UNREAD_LESS_IMPORTANT"),
-	name: "TypingUsersContainer"
-});
 const Thread = expectModule({
-	filter: (m) => m?.type && betterdiscord.Webpack.Filters.byStrings("thread:", "GUILD_CHANNEL_LIST")(m.type),
+	filter: betterdiscord.Webpack.Filters.bySource("thread:", "CHANNEL_LIST"),
+	declarationFilter: betterdiscord.Webpack.Filters.byComponentType(betterdiscord.Webpack.Filters.byStrings("thread:", "CHANNEL_LIST")),
 	name: "Thread"
 });
 const TypingDots = expectModule({
@@ -84,7 +77,7 @@ const TypingDots = expectModule({
 });
 
 // @lib/strings.ts
-const LocaleStore = betterdiscord.Webpack.getStore("LocaleStore");
+const LocaleStore = betterdiscord.Webpack.Stores.LocaleStore;
 class StringsManager {
 	locales;
 	defaultLocale;
@@ -99,10 +92,10 @@ class StringsManager {
 	};
 	subscribe() {
 		this.setLocale();
-		LocaleStore.addReactChangeListener(this.setLocale);
+		LocaleStore.addChangeListener(this.setLocale);
 	}
 	unsubscribe() {
-		LocaleStore.removeReactChangeListener(this.setLocale);
+		LocaleStore.removeChangeListener(this.setLocale);
 	}
 	get(key) {
 		return this.strings[key] || this.locales[this.defaultLocale][key];
@@ -246,19 +239,31 @@ function TypingIndicator({ channelId, guildId }) {
 // index.tsx
 class ChannelTypingIndicator {
 	meta;
+	Channel;
+	moduleLoaded = false;
 	constructor(meta) {
 		this.meta = meta;
 	}
-	start() {
+	async start() {
 		Updater.checkForUpdates(this.meta);
 		Strings.subscribe();
 		betterdiscord.DOM.addStyle(".channelTypingIndicator { margin-left: 8px; display: flex; align-items: center; }");
-		this.patchChannel();
 		this.patchThread();
+		await this.getModule();
+		this.patchChannel();
+	}
+	async getModule() {
+		if (this.moduleLoaded) return;
+		this.Channel = [
+			...await waitForModuleWithKey(betterdiscord.Webpack.Filters.byStrings("UNREAD_LESS_IMPORTANT"))
+		];
+		const [module] = this.Channel;
+		if (!module) betterdiscord.Logger.error("Channel module not found");
+		this.moduleLoaded = true;
 	}
 	patchChannel() {
-		if (!Channel) return;
-		betterdiscord.Patcher.after(...Channel, (_, [props], ret) => {
+		if (!this.Channel) return;
+		betterdiscord.Patcher.after(...this.Channel, (_, [props], ret) => {
 			const target = betterdiscord.Utils.findInTree(ret, (x) => x?.className?.includes("linkTop"), {
 				walkable: ["props", "children"]
 			});
