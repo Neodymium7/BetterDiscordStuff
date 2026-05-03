@@ -13,7 +13,7 @@ export default class AvatarSettingsButton implements Plugin {
 	meta: Meta;
 	target: HTMLElement | null = null;
 	tooltip: Tooltip | null = null;
-	clearListener?: () => void;
+	clearListeners?: () => void;
 
 	constructor(meta: Meta) {
 		this.meta = meta;
@@ -28,12 +28,12 @@ export default class AvatarSettingsButton implements Plugin {
 				DOM.removeStyle();
 				DOM.addStyle(value ? baseStyle + hideStyle : baseStyle);
 			}
-			this.addListener();
+			this.addListeners();
 			this.addTooltip();
 		});
 
 		this.target = document.querySelector("." + accountClasses.accountPopoutButtonWrapper);
-		this.addListener();
+		this.addListeners();
 		this.addTooltip();
 	}
 
@@ -47,7 +47,7 @@ export default class AvatarSettingsButton implements Plugin {
 				: node.querySelector(`.${accountClasses.accountPopoutButtonWrapper}`);
 			if (accountPopoutButtonWrapper instanceof HTMLElement) {
 				this.target = accountPopoutButtonWrapper;
-				this.addListener();
+				this.addListeners();
 				this.addTooltip();
 			}
 		}
@@ -79,9 +79,9 @@ export default class AvatarSettingsButton implements Plugin {
 		);
 	}
 
-	addListener() {
+	addListeners() {
 		if (!this.target) return;
-		this.clearListener?.();
+		this.clearListeners?.();
 
 		const actions = [
 			null,
@@ -95,19 +95,33 @@ export default class AvatarSettingsButton implements Plugin {
 		const middleclickAction = actions[Settings.get("middleclick")];
 
 		const clickHandler = (e: MouseEvent) => {
-			if (e.button == 0 && e.isTrusted) {
+			if (e.isTrusted) {
 				e.preventDefault();
 				e.stopPropagation();
 				clickAction?.(e);
-			} else if (e.button == 2) contextmenuAction?.(e);
-			else if (e.button == 1) middleclickAction?.(e);
+			}
+		};
+
+		const contextmenuHandler = (e: MouseEvent) => {
+			contextmenuAction?.(e);
 			this.tooltip?.forceHide();
 		};
 
-		this.target.addEventListener("mousedown", clickHandler);
+		const auxclickHandler = (e: MouseEvent) => {
+			if (e.button === 1) {
+				middleclickAction?.(e);
+				this.tooltip?.forceHide();
+			}
+		};
 
-		this.clearListener = () => {
-			this.target?.removeEventListener("mousedown", clickHandler);
+		this.target.addEventListener("click", clickHandler);
+		this.target.addEventListener("contextmenu", contextmenuHandler);
+		this.target.addEventListener("auxclick", auxclickHandler);
+
+		this.clearListeners = () => {
+			this.target?.removeEventListener("click", clickHandler);
+			this.target?.removeEventListener("contextmenu", contextmenuHandler);
+			this.target?.removeEventListener("auxclick", auxclickHandler);
 		};
 	}
 
@@ -132,7 +146,7 @@ export default class AvatarSettingsButton implements Plugin {
 		DOM.removeStyle();
 		Strings.unsubscribe();
 		Settings.clearListeners();
-		this.clearListener?.();
+		this.clearListeners?.();
 		this.tooltip?.remove();
 		this.target = null;
 		this.tooltip = null;

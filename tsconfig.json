@@ -1,12 +1,15 @@
 {
 	"compilerOptions": {
-		"target": "es2022",
+		"target": "esnext",
 		"noImplicitAny": true,
 		"strict": true,
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
+		"module": "esnext",
+		"types": ["node", "bundlebd"],
 		"resolveJsonModule": true,
 		"esModuleInterop": true,
-		"jsx": "react-jsx",
+		"jsx": "preserve",
+		"noEmit": true,
 		"paths": {
 			"@lib": ["./common/lib"],
 			"@lib/*": ["./common/lib/*"],

@@ -17,11 +17,11 @@ type ChangeListener = () => void;
 
 interface LocaleStore {
 	locale: LocaleCode;
-	addReactChangeListener: (l: ChangeListener) => void;
-	removeReactChangeListener: (l: ChangeListener) => void;
+	addChangeListener: (l: ChangeListener) => void;
+	removeChangeListener: (l: ChangeListener) => void;
 }
 
-const LocaleStore: LocaleStore = /* @__PURE__ */ Webpack.getStore("LocaleStore");
+const LocaleStore: LocaleStore = /* @__PURE__ */ Webpack.Stores.LocaleStore;
 
 export class StringsManager<T extends LocalesObject, D extends keyof T> {
 	private locales: T;
@@ -49,14 +49,14 @@ export class StringsManager<T extends LocalesObject, D extends keyof T> {
 	 */
 	subscribe() {
 		this.setLocale();
-		LocaleStore.addReactChangeListener(this.setLocale);
+		LocaleStore.addChangeListener(this.setLocale);
 	}
 
 	/**
 	 * Unsubscribes from Discord's locale changes. Should be run on plugin stop.
 	 */
 	unsubscribe() {
-		LocaleStore.removeReactChangeListener(this.setLocale);
+		LocaleStore.removeChangeListener(this.setLocale);
 	}
 
 	/**

@@ -1,14 +1,10 @@
 import { Webpack } from "betterdiscord";
-import { expectModule, expectWithKey } from "@lib/utils/webpack";
-import { AnyComponent, AnyMemo, EmptyComponent } from "@lib/utils/react";
-
-export const Channel = expectWithKey<AnyComponent>({
-	filter: Webpack.Filters.byStrings("UNREAD_LESS_IMPORTANT"),
-	name: "TypingUsersContainer",
-});
+import { expectModule } from "@lib/utils/webpack";
+import { AnyMemo, EmptyComponent } from "@lib/utils/react";
 
 export const Thread = expectModule<AnyMemo>({
-	filter: (m) => m?.type && Webpack.Filters.byStrings("thread:", "GUILD_CHANNEL_LIST")(m.type),
+	filter: Webpack.Filters.bySource("thread:", "CHANNEL_LIST"),
+	declarationFilter: Webpack.Filters.byComponentType(Webpack.Filters.byStrings("thread:", "CHANNEL_LIST")),
 	name: "Thread",
 });
 

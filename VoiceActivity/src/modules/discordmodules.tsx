@@ -40,7 +40,8 @@ export const PrivateChannel = expectWithKey<AnyComponent>({
 });
 
 export const PeopleListItem = expectModule<React.ComponentClass<any>>({
-	filter: (m) => m?.prototype?.render && Webpack.Filters.byStrings("this.peopleListItemRef")(m),
+	filter: Webpack.Filters.bySource("peopleListItemRef"),
+	declarationFilter: Webpack.Filters.byStrings("peopleListItemRef"),
 	name: "PeopleListItem",
 });
 

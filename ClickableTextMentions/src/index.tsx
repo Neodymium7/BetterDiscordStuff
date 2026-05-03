@@ -5,10 +5,13 @@ import { UserPopoutWrapper } from "@lib/components";
 
 const {
 	getWithKey,
-	Filters: { byStrings },
+	getModule,
+	Filters: { byStrings, bySource },
 } = Webpack;
 
-const [Module, key] = getWithKey<AnyComponent>(byStrings(".hidePersonalInformation", "#", "<@", ".discriminator"));
+const [Module, key] = getWithKey<AnyComponent>(byStrings(".hidePersonalInformation", "#", "<@", ".discriminator"), {
+	target: getModule(bySource(".hidePersonalInformation", "#", "<@", ".discriminator"), { raw: true }).declarations,
+});
 if (!Module) Logger.error("Text area mention module not found.");
 
 const onClick = (e: React.MouseEvent) => {

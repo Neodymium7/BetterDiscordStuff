@@ -1,4 +1,12 @@
-import { Webpack, Logger, ModuleFilter, ModuleQuery, ModuleKey, WithKeyResult } from "betterdiscord";
+import {
+	Webpack,
+	Logger,
+	ModuleFilter,
+	ModuleQuery,
+	ModuleKey,
+	WithKeyResult,
+	WaitForModuleOptions,
+} from "betterdiscord";
 import React from "react";
 
 export interface IconProps {
@@ -205,4 +213,13 @@ export function byValues(...filters: ModuleFilter[]): ModuleFilter {
 
 		return match;
 	};
+}
+
+export async function waitForModuleWithKey<T>(
+	filter: ModuleFilter,
+	options?: WaitForModuleOptions
+): Promise<WithKeyResult<T>> {
+	return Webpack.getWithKey<T>(filter, {
+		target: await Webpack.waitForModule((m) => Object.values(m).some(filter as any), options),
+	});
 }

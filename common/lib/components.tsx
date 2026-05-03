@@ -3,7 +3,6 @@ import { loadProfile } from "@discord/modules";
 import { UserStore } from "@discord/stores";
 import { Components } from "betterdiscord";
 import { useRef } from "react";
-import { ErrorPopout } from "./utils/react";
 
 interface UserPopoutWrapperProps {
 	id: string;
