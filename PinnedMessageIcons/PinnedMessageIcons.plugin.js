@@ -1,7 +1,7 @@
 /**
  * @name PinnedMessageIcons
  * @author Neodymium
- * @version 2.0.6
+ * @version 2.0.7
  * @description Displays an icon on and optionally adds a background to pinned messages.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/PinnedMessageIcons/PinnedMessageIcons.plugin.js
  * @invite fRbsqH87Av
@@ -145,6 +145,7 @@ class PinnedMessageIcons {
 				walkable: ["props", "children", "message"]
 			});
 			if (!message) return ret;
+			if (!props["data-list-item-id"]) return ret;
 			if (props["data-list-item-id"].includes("pin")) return ret;
 			if (!message.pinned) return ret;
 			const messageNode = betterdiscord.Utils.findInTree(ret, (e) => Array.isArray(e?.props?.children) && e?.props?.className, {
