@@ -60,6 +60,7 @@ export default class PinnedMessageIcons implements Plugin {
 			});
 
 			if (!message) return ret;
+			if (!props["data-list-item-id"]) return ret;
 			if (props["data-list-item-id"].includes("pin")) return ret;
 
 			if (!message.pinned) return ret;
