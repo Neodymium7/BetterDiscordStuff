@@ -11,7 +11,7 @@ export const People = /* @__PURE__ */ expectIcon(
 );
 export const Speaker = /* @__PURE__ */ expectIcon(
 	"Speaker",
-	"M12 3a1 1 0 0 0-1-1h-.06a1 1 0 0 0-.74.32L5.92 7H3a1 1 0 0 0-1 1v8a1"
+	"M15.16 16.51c-.57.28-1.16-.2-1.16-.83v-.14c0-.43.28-.8.63-1.02a3"
 );
 export const Muted = /* @__PURE__ */ expectIcon(
 	"Muted",
