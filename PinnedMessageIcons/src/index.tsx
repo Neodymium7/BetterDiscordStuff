@@ -1,5 +1,5 @@
-import { DOM, Patcher, Webpack, Logger, UI, Data, Meta, Plugin, Utils, WithKeyResult } from "betterdiscord";
-import { getSelectors, getIcon, waitForModuleWithKey } from "@lib/utils/webpack";
+import { DOM, Patcher, Webpack, Logger, UI, Data, Utils } from "betterdiscord";
+import { getSelectors, getIcon, waitForModuleWithKey, WithKeyResult } from "@lib/utils/webpack";
 import { Updater } from "@lib";
 import { AnyComponent } from "@lib/utils/react";
 
@@ -7,16 +7,16 @@ const Pin = getIcon("M19.38 11.38a3 3 0 0 0 4.24 0l.03-.03a.5.5 0 0 0 0-.7L13.35
 
 if (!Pin) Logger.error("Pin icon not found.");
 
-export default class PinnedMessageIcons implements Plugin {
+export default class PinnedMessageIcons {
 	settings!: { backgroundEnabled: boolean };
-	meta: Meta;
+	meta: BetterDiscord.Addon;
 	modules: {
 		Message: WithKeyResult<AnyComponent>;
 		messageSelectors: any;
 	} = {} as any;
 	modulesLoaded = false;
 
-	constructor(meta: Meta) {
+	constructor(meta: BetterDiscord.Addon) {
 		this.meta = meta;
 	}
 
@@ -92,7 +92,7 @@ export default class PinnedMessageIcons implements Plugin {
 
 		if (this.modules.messageSelectors && this.settings.backgroundEnabled) {
 			const selector = `${this.modules.messageSelectors.message}.pinned-message:not(${this.modules.messageSelectors.mentioned}):not(${this.modules.messageSelectors.replying})`;
-			style += `${selector}::after { content: ""; position: absolute; display: block; width: inherit; height: inherit; left: 0px; bottom: 0px; right: 0px; top: 0px; background: var(--channels-default); opacity: 0.08; z-index: -1; border-radius: 4px; } ${selector}::before { content: ""; position: absolute; display: block; width: 2px; height: inherit; left: 0px; bottom: 0px; top: 0px; background: var(--channels-default); }`;
+			style += `${selector}::after { content: ""; position: absolute; display: block; width: inherit; height: inherit; left: 0px; bottom: 0px; right: 0px; top: 0px; background: var(--channels-default); opacity: 0.15; z-index: -1; border-radius: 4px; } ${selector}::before { content: ""; position: absolute; display: block; width: 2px; height: inherit; left: 0px; bottom: 0px; top: 0px; background: var(--channels-default); }`;
 		}
 
 		DOM.addStyle(style);

@@ -21,7 +21,7 @@ interface LocaleStore {
 	removeChangeListener: (l: ChangeListener) => void;
 }
 
-const LocaleStore: LocaleStore = Webpack.Stores.LocaleStore;
+const LocaleStore = Webpack.Stores.LocaleStore as unknown as LocaleStore;
 
 export class StringsManager<T extends LocalesObject, D extends keyof T> {
 	private locales: T;

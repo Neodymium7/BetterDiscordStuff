@@ -1,11 +1,11 @@
-import { Meta, Net, Logger, UI, Plugins, DOM, CloseNotice } from "betterdiscord";
+import { Net, Logger, UI, Plugins, DOM } from "betterdiscord";
 import { writeFileSync } from "fs";
 import { join } from "path";
 import { getClasses } from "./utils/webpack";
 
 interface Updater {
-	closeUpdateNotice: CloseNotice | undefined;
-	checkForUpdates(meta: Meta): void;
+	closeUpdateNotice: (() => void) | undefined;
+	checkForUpdates(meta: BetterDiscord.Addon): void;
 	closeNotice(): void;
 }
 
@@ -27,6 +27,7 @@ const showUpdateNotice = (name: string, version: string, newContents: string) =>
 	const noticeElement = DOM.parseHTML(noticeElementHTML) as HTMLElement;
 	UI.createTooltip(noticeElement.firstChild as HTMLElement, "View Source", { side: "bottom" });
 
+	//@ts-ignore
 	return UI.showNotice(noticeElement, {
 		buttons: [
 			{
@@ -40,7 +41,7 @@ const showUpdateNotice = (name: string, version: string, newContents: string) =>
 export const Updater: Updater = {
 	closeUpdateNotice: undefined,
 
-	async checkForUpdates(meta: Meta) {
+	async checkForUpdates(meta: BetterDiscord.Addon) {
 		const url = `https://raw.githubusercontent.com/Neodymium7/BetterDiscordStuff/main/${meta.name}/${meta.name}.plugin.js`;
 
 		const res = await Net.fetch(url);

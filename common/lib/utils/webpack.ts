@@ -1,12 +1,4 @@
-import {
-	Webpack,
-	Logger,
-	ModuleFilter,
-	ModuleQuery,
-	ModuleKey,
-	WithKeyResult,
-	WaitForModuleOptions,
-} from "betterdiscord";
+import { Webpack, Logger } from "betterdiscord";
 import React from "react";
 
 export interface IconProps {
@@ -19,13 +11,21 @@ export interface IconProps {
 
 type Icon = React.FunctionComponent<IconProps>;
 
+type ModuleKey = string & {
+	__MODULE_KEY_DUMMY_PROP: undefined;
+};
+
+export type WithKeyResult<T> = [{ [x: ModuleKey]: T }, ModuleKey];
+
 /**
  * Gets a module of classes using desired classes.
  * @param classes An array of desired classes (you may need to add other classes to find the correct module).
  * @returns An object of classes.
  */
 export function getClasses<T extends string>(...classes: T[]): { [key in T]: string } | undefined {
-	return Webpack.getModule((m) => Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
+	return (
+		Webpack.getModule((m) => Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string") ?? undefined
+	);
 }
 
 /**
@@ -50,11 +50,14 @@ export function getSelectors<T extends string>(...classes: T[]): { [key in T]: s
  * @returns The icon component.
  */
 export function getIcon(searchString: string): Icon | undefined {
-	const filter: ModuleFilter = (m) => Webpack.Filters.byStrings(searchString, '"svg"')(m) && typeof m === "function";
+	const filter: BetterDiscord.ModuleFilter = (m) =>
+		Webpack.Filters.byStrings(searchString, '"svg"')(m) && typeof m === "function";
 
-	return Webpack.getModule(filter, {
-		searchExports: true,
-	});
+	return (
+		Webpack.getModule(filter, {
+			searchExports: true,
+		}) ?? undefined
+	);
 }
 
 /**
@@ -87,7 +90,7 @@ type ExpectOptionsNotNull<T> = ExpectOptionsFallback<T> | ExpectOptionsFatal<T>;
  * - `fallback`: A fallback value to use when the module is not found
  * - `onError`: A callback function that is run when the module is not found
  */
-type ExpectModuleOptions<T> = ExpectOptions<T> & ModuleQuery;
+type ExpectModuleOptions<T> = ExpectOptions<T> & BetterDiscord.BulkQueries;
 
 type ExpectModuleOptionsFallback<T> = ExpectModuleOptions<T> & {
 	fallback: NonNullable<T>;
@@ -120,13 +123,16 @@ export function expect<T>(object: T, options: ExpectOptions<T>): T | undefined {
 export function expectModule<T>(options: ExpectModuleOptionsNotNull<T>): T;
 export function expectModule<T>(options: ExpectModuleOptions<T>): T | undefined;
 export function expectModule<T>(options: ExpectModuleOptions<T>): T | undefined {
-	return expect(Webpack.getModule(options.filter, options), options);
+	return expect(Webpack.getModule(options.filter, options), options) ?? undefined;
 }
 
 export function expectWithKey<T>(options: ExpectModuleOptionsNotNull<T>): WithKeyResult<T>;
 export function expectWithKey<T>(options: ExpectModuleOptions<T>): WithKeyResult<T> | undefined;
 export function expectWithKey<T>(options: ExpectModuleOptions<T>): WithKeyResult<T> | undefined {
-	const [module, key] = Webpack.getWithKey<T>(options.filter, options);
+	const [module, key] = Webpack.getWithKey(
+		options.filter as BetterDiscord.ExportedOnlyFilter,
+		options
+	) as unknown as WithKeyResult<T>;
 	if (module) return [module, key];
 
 	const fallback = expect(module, options);
@@ -187,11 +193,11 @@ export function expectIcon(name: string, searchString: string) {
  * @param id The Webpack module id.
  * @returns The generated filter.
  */
-export function byId(id: string): ModuleFilter {
+export function byId(id: string): BetterDiscord.ModuleFilter {
 	return (_e, _m, i) => i === id;
 }
 
-export function byType(type: string): ModuleFilter {
+export function byType(type: string): BetterDiscord.ModuleFilter {
 	return (e) => typeof e === type;
 }
 
@@ -200,7 +206,7 @@ export function byType(type: string): ModuleFilter {
  * @param filters Filters that property values on the module must satisfy.
  * @returns The generated filter.
  */
-export function byValues(...filters: ModuleFilter[]): ModuleFilter {
+export function byValues(...filters: BetterDiscord.ModuleFilter[]): BetterDiscord.ModuleFilter {
 	return (e, m, i) => {
 		let match = true;
 
@@ -216,10 +222,10 @@ export function byValues(...filters: ModuleFilter[]): ModuleFilter {
 }
 
 export async function waitForModuleWithKey<T>(
-	filter: ModuleFilter,
-	options?: WaitForModuleOptions
+	filter: BetterDiscord.ModuleFilter,
+	options?: BetterDiscord.LazyOptions
 ): Promise<WithKeyResult<T>> {
-	return Webpack.getWithKey<T>(filter, {
+	return Webpack.getWithKey(filter as BetterDiscord.ExportedOnlyFilter, {
 		target: await Webpack.waitForModule((m) => Object.values(m).some(filter as any), options),
-	});
+	}) as unknown as WithKeyResult<T>;
 }

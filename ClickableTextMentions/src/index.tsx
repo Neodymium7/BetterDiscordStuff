@@ -1,7 +1,8 @@
-import { Patcher, Webpack, Logger, Meta, Plugin } from "betterdiscord";
+import { Patcher, Webpack, Logger } from "betterdiscord";
 import { Updater } from "@lib";
 import { AnyComponent } from "@lib/utils/react";
 import { UserPopoutWrapper } from "@lib/components";
+import { WithKeyResult } from "@lib/utils/webpack";
 
 const {
 	getWithKey,
@@ -9,19 +10,20 @@ const {
 	Filters: { byStrings, bySource },
 } = Webpack;
 
-const [Module, key] = getWithKey<AnyComponent>(byStrings(".hidePersonalInformation", "#", "<@", ".discriminator"), {
-	target: getModule(bySource(".hidePersonalInformation", "#", "<@", ".discriminator"), { raw: true }).declarations,
-});
+const [Module, key] = getWithKey(byStrings(".hidePersonalInformation", "#", "<@", ".discriminator"), {
+	target: getModule<any>(bySource(".hidePersonalInformation", "#", "<@", ".discriminator"), { raw: true })
+		?.declarations,
+}) as unknown as WithKeyResult<AnyComponent>;
 if (!Module) Logger.error("Text area mention module not found.");
 
 const onClick = (e: React.MouseEvent) => {
 	e.preventDefault();
 };
 
-export default class ClickableTextMentions implements Plugin {
-	meta: Meta;
+export default class ClickableTextMentions {
+	meta: BetterDiscord.Addon;
 
-	constructor(meta: Meta) {
+	constructor(meta: BetterDiscord.Addon) {
 		this.meta = meta;
 	}
 

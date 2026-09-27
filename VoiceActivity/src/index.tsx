@@ -1,4 +1,4 @@
-import { ContextMenu, DOM, Patcher, Utils, Meta, Plugin, Changes } from "betterdiscord";
+import { ContextMenu, DOM, Patcher, Utils } from "betterdiscord";
 import styles from "styles";
 import { buildSettingsPanel, showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
@@ -8,16 +8,16 @@ import iconStyles from "./styles/voiceicon.module.css";
 import VoiceIcon from "./components/VoiceIcon";
 import { VoiceStateStore } from "@discord/stores";
 
-export default class VoiceActivity implements Plugin {
-	meta: Meta;
+export default class VoiceActivity {
+	meta: BetterDiscord.Addon;
 	contextMenuUnpatches = new Set<() => void>();
 
-	constructor(meta: Meta) {
+	constructor(meta: BetterDiscord.Addon) {
 		this.meta = meta;
 	}
 
 	start() {
-		showChangelog(changelog as Changes[], this.meta);
+		showChangelog(changelog as BetterDiscord.ChangelogEntry[], this.meta);
 		DOM.addStyle(
 			styles() +
 				`${memberSelectors?.children}:empty { margin-left: 0; } ${memberSelectors?.children} { display: flex; gap: 8px; } ${memberSelectors?.layout} { width: 100%; }`
@@ -76,16 +76,20 @@ export default class VoiceActivity implements Plugin {
 			const children = target.props.children;
 			target.props.children = (childrenProps: any) => {
 				const childrenRet = children(childrenProps);
-
-				const privateChannel = Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
-					walkable: ["children", "props"],
-				});
-				privateChannel.children = [
-					privateChannel.children,
+				const iconsContainer = Utils.findInTree(
+					childrenRet,
+					(e) => e?.props?.className?.includes("iconsContainer"),
+					{
+						walkable: ["children", "props"],
+					}
+				);
+				iconsContainer.props.children.splice(
+					-1,
+					0,
 					<div className={iconStyles.iconContainer}>
 						<VoiceIcon userId={props.user.id} context="dmlist" />
-					</div>,
-				];
+					</div>
+				);
 
 				return childrenRet;
 			};

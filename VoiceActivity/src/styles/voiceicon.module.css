@@ -12,6 +12,10 @@
 	}
 }
 
+.icon.dmlist {
+	margin-right: 6px;
+}
+
 .iconCurrentCall {
 	background-color: var(--status-positive);
 }

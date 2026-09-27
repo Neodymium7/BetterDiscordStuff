@@ -1,12 +1,12 @@
-import { DOM, Meta, Patcher, Plugin, Utils } from "betterdiscord";
+import { DOM, Patcher, Utils } from "betterdiscord";
 import ActivityToggleButton from "./components/ActivityToggleButton";
 import { Updater } from "@lib";
 import { Account } from "./modules";
 
-export default class ActivityToggle implements Plugin {
-	meta: Meta;
+export default class ActivityToggle {
+	meta: BetterDiscord.Addon;
 
-	constructor(meta: Meta) {
+	constructor(meta: BetterDiscord.Addon) {
 		this.meta = meta;
 	}
 

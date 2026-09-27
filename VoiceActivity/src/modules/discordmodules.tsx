@@ -59,5 +59,6 @@ export const memberSelectors = expectSelectors("Children Class", ["avatar", "chi
 export const useUserVoiceState = expectModule({
 	filter: Webpack.Filters.byStrings("getDiscoverableVoiceState", "getDiscoverableVoiceStateForUser"),
 	name: "useUserVoiceState",
+	searchExports: true,
 	fallback: useUserVoiceStateFallback,
 });

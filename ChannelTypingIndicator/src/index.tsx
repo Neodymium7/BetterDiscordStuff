@@ -1,17 +1,17 @@
-import { DOM, Logger, Meta, Patcher, Plugin, Utils, Webpack, WithKeyResult } from "betterdiscord";
+import { DOM, Logger, Patcher, Utils, Webpack } from "betterdiscord";
 import { Thread } from "./modules/discordmodules";
 import { TextChannelTypingIndicator, ThreadTypingIndicator } from "./TypingIndicator";
 import { Strings } from "./modules/utils";
 import { Updater } from "@lib";
 import { AnyComponent } from "@lib/utils/react";
-import { waitForModuleWithKey } from "@lib/utils/webpack";
+import { waitForModuleWithKey, WithKeyResult } from "@lib/utils/webpack";
 
-export default class ChannelTypingIndicator implements Plugin {
-	meta: Meta;
+export default class ChannelTypingIndicator {
+	meta: BetterDiscord.Addon;
 	Channel!: WithKeyResult<AnyComponent>;
 	moduleLoaded = false;
 
-	constructor(meta: Meta) {
+	constructor(meta: BetterDiscord.Addon) {
 		this.meta = meta;
 	}
 

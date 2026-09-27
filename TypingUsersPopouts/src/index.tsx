@@ -1,25 +1,25 @@
-import { DOM, Patcher, Utils, Meta, Plugin, Changes, Webpack, WithKeyResult, Logger } from "betterdiscord";
+import { DOM, Patcher, Utils, Webpack, Logger } from "betterdiscord";
 import { showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
 import { RelationshipStore, TypingStore, UserStore } from "@discord/stores";
 import { UserPopoutWrapper } from "@lib/components";
-import { expectSelectors, waitForModuleWithKey } from "@lib/utils/webpack";
+import { expectSelectors, waitForModuleWithKey, WithKeyResult } from "@lib/utils/webpack";
 import { AnyComponent } from "@lib/utils/react";
 
-export default class TypingUsersPopouts implements Plugin {
-	meta: Meta;
+export default class TypingUsersPopouts {
+	meta: BetterDiscord.Addon;
 	modules: {
 		TypingUsersContainer: WithKeyResult<AnyComponent>;
 		typingSelector: string | undefined;
 	} = {} as any;
 	modulesLoaded = false;
 
-	constructor(meta: Meta) {
+	constructor(meta: BetterDiscord.Addon) {
 		this.meta = meta;
 	}
 
 	async start() {
-		showChangelog(changelog as Changes[], this.meta);
+		showChangelog(changelog as BetterDiscord.ChangelogEntry[], this.meta);
 
 		await this.getModules();
 		DOM.addStyle(

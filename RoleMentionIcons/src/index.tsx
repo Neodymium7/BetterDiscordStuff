@@ -1,21 +1,21 @@
-import { DOM, Meta, Plugin, Changes } from "betterdiscord";
+import { DOM } from "betterdiscord";
 import { buildSettingsPanel, showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
 import { roleMention } from "./modules/discordmodules";
 import { Settings, Strings, getIconElement, getProps, peopleSVG } from "./modules/utils";
 import { GuildRoleStore } from "@discord/stores";
 
-export default class RoleMentionIcons implements Plugin {
+export default class RoleMentionIcons {
 	clearCallbacks: Set<() => void>;
-	meta: Meta;
+	meta: BetterDiscord.Addon;
 
-	constructor(meta: Meta) {
+	constructor(meta: BetterDiscord.Addon) {
 		this.meta = meta;
 		this.clearCallbacks = new Set();
 	}
 
 	start() {
-		showChangelog(changelog as Changes[], this.meta);
+		showChangelog(changelog as BetterDiscord.ChangelogEntry[], this.meta);
 		DOM.addStyle(
 			`.role-mention-icon { position: relative; height: 1em; width: 1em; margin-left: 4px; } .${roleMention} { display: inline-flex; align-items: center; }`
 		);

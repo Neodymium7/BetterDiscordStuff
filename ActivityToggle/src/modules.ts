@@ -3,8 +3,10 @@ import { byType, expectModule } from "@lib/utils/webpack";
 import React from "react";
 import { EmptyComponent } from "@lib/utils/react";
 
+const { byStrings } = Webpack.Filters;
+
 export const PanelButton = expectModule({
-	filter: (m) => m?.render?.toString().includes("tooltipText"),
+	filter: byStrings("tooltipText", "onBlur"),
 	name: "PanelButton",
 	fallback: EmptyComponent,
 });

@@ -82,7 +82,7 @@ export default function VoiceIcon(props: VoiceIconProps): React.ReactNode {
 
 	return (
 		<div
-			className={className}
+			className={props.context === "dmlist" ? className + " " + styles.dmlist : className}
 			onClick={(e) => {
 				e.stopPropagation();
 				e.preventDefault();

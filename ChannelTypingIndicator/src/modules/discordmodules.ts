@@ -3,8 +3,10 @@ import { expectModule } from "@lib/utils/webpack";
 import { AnyMemo, EmptyComponent } from "@lib/utils/react";
 
 export const Thread = expectModule<AnyMemo>({
-	filter: Webpack.Filters.bySource("thread:", "CHANNEL_LIST"),
-	declarationFilter: Webpack.Filters.byComponentType(Webpack.Filters.byStrings("thread:", "CHANNEL_LIST")),
+	filter: Webpack.Filters.bySource("thread:", "CHANNEL_LIST", "isSelectedChannel:"),
+	declarationFilter: Webpack.Filters.byComponentType(
+		Webpack.Filters.byStrings("thread:", "CHANNEL_LIST", "isSelectedChannel:")
+	),
 	name: "Thread",
 });
 

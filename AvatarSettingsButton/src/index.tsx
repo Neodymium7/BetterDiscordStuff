@@ -1,4 +1,4 @@
-import { Changes, DOM, Meta, Plugin } from "betterdiscord";
+import { DOM } from "betterdiscord";
 import { buildSettingsPanel, showChangelog } from "@lib";
 import { changelog } from "./manifest.json";
 import { accountClasses } from "./modules/discordmodules";
@@ -9,18 +9,18 @@ const settingsSelector = `.${accountClasses.container} > div > button:last-of-ty
 const baseStyle = `.${accountClasses.accountPopoutButtonWrapper} { min-width: 0; }`;
 const hideStyle = `${settingsSelector} { display: none; }`;
 
-export default class AvatarSettingsButton implements Plugin {
-	meta: Meta;
+export default class AvatarSettingsButton {
+	meta: BetterDiscord.Addon;
 	target: HTMLElement | null = null;
 	tooltip: Tooltip | null = null;
 	clearListeners?: () => void;
 
-	constructor(meta: Meta) {
+	constructor(meta: BetterDiscord.Addon) {
 		this.meta = meta;
 	}
 
 	start() {
-		showChangelog(changelog as Changes[], this.meta);
+		showChangelog(changelog as BetterDiscord.ChangelogEntry[], this.meta);
 		DOM.addStyle(Settings.get("hideSettingsButton") ? baseStyle + hideStyle : baseStyle);
 		Strings.subscribe();
 		Settings.addListener((key, value) => {
