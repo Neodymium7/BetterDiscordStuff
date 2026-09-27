@@ -1,7 +1,7 @@
 /**
  * @name PinnedMessageIcons
  * @author Neodymium
- * @version 2.0.7
+ * @version 2.0.8
  * @description Displays an icon on and optionally adds a background to pinned messages.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/PinnedMessageIcons/PinnedMessageIcons.plugin.js
  * @invite fRbsqH87Av
@@ -39,7 +39,7 @@ const path = require('path');
 
 // @lib/utils/webpack.ts
 function getClasses(...classes) {
-	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
+	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string") ?? void 0;
 }
 function getSelectors(...classes) {
 	const module = getClasses(...classes);
@@ -53,7 +53,7 @@ function getIcon(searchString) {
 	const filter = (m) => betterdiscord.Webpack.Filters.byStrings(searchString, '"svg"')(m) && typeof m === "function";
 	return betterdiscord.Webpack.getModule(filter, {
 		searchExports: true
-	});
+	}) ?? void 0;
 }
 async function waitForModuleWithKey(filter, options) {
 	return betterdiscord.Webpack.getWithKey(filter, {
@@ -104,7 +104,7 @@ const Updater = {
 	}
 };
 
-// index.tsx
+// ./index.tsx
 const Pin = getIcon("M19.38 11.38a3 3 0 0 0 4.24 0l.03-.03a.5.5 0 0 0 0-.7L13.35.35a.5.5");
 if (!Pin) betterdiscord.Logger.error("Pin icon not found.");
 class PinnedMessageIcons {
@@ -172,7 +172,7 @@ class PinnedMessageIcons {
 		let style = ":root .pinned-message { padding-right: calc(var(--space-xl) + 36px) !important } .pinned-message-icon { position: absolute; bottom: calc(50% - 10px); right: 24px; }";
 		if (this.modules.messageSelectors && this.settings.backgroundEnabled) {
 			const selector = `${this.modules.messageSelectors.message}.pinned-message:not(${this.modules.messageSelectors.mentioned}):not(${this.modules.messageSelectors.replying})`;
-			style += `${selector}::after { content: ""; position: absolute; display: block; width: inherit; height: inherit; left: 0px; bottom: 0px; right: 0px; top: 0px; background: var(--channels-default); opacity: 0.08; z-index: -1; border-radius: 4px; } ${selector}::before { content: ""; position: absolute; display: block; width: 2px; height: inherit; left: 0px; bottom: 0px; top: 0px; background: var(--channels-default); }`;
+			style += `${selector}::after { content: ""; position: absolute; display: block; width: inherit; height: inherit; left: 0px; bottom: 0px; right: 0px; top: 0px; background: var(--channels-default); opacity: 0.15; z-index: -1; border-radius: 4px; } ${selector}::before { content: ""; position: absolute; display: block; width: 2px; height: inherit; left: 0px; bottom: 0px; top: 0px; background: var(--channels-default); }`;
 		}
 		betterdiscord.DOM.addStyle(style);
 	}

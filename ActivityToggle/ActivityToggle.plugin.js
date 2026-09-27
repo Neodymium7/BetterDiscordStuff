@@ -1,7 +1,7 @@
 /**
  * @name ActivityToggle
  * @author Neodymium
- * @version 1.2.30
+ * @version 1.2.31
  * @description Adds a button to quickly toggle Activity Status.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ActivityToggle/ActivityToggle.plugin.js
  * @invite fRbsqH87Av
@@ -40,25 +40,27 @@ const path = require('path');
 
 // @lib/utils/webpack.ts
 function getClasses(...classes) {
-	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
+	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string") ?? void 0;
 }
 function getIcon(searchString) {
 	const filter = (m) => betterdiscord.Webpack.Filters.byStrings(searchString, '"svg"')(m) && typeof m === "function";
 	return betterdiscord.Webpack.getModule(filter, {
 		searchExports: true
-	});
+	}) ?? void 0;
 }
 function expect(object, options) {
 	if (object) return object;
 	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
-	const errorMessage = `Module ${options.name} not found.${fallbackMessage}\n\nContact the plugin developer to inform them of this error.`;
+	const errorMessage = `Module ${options.name} not found.${fallbackMessage}
+
+Contact the plugin developer to inform them of this error.`;
 	betterdiscord.Logger.error(errorMessage);
 	options.onError?.();
 	if (options.fatal) throw new Error(errorMessage);
 	return options.fallback;
 }
 function expectModule(options) {
-	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
+	return expect(betterdiscord.Webpack.getModule(options.filter, options), options) ?? void 0;
 }
 function expectIcon(name, searchString) {
 	return expect(getIcon(searchString), {
@@ -73,9 +75,10 @@ function byType(type) {
 // @lib/utils/react.tsx
 const EmptyComponent = (props) => null;
 
-// modules.ts
+// ./modules.ts
+const { byStrings } = betterdiscord.Webpack.Filters;
 const PanelButton = expectModule({
-	filter: (m) => m?.render?.toString().includes("tooltipText"),
+	filter: byStrings("tooltipText", "onBlur"),
 	name: "PanelButton",
 	fallback: EmptyComponent
 });
@@ -103,7 +106,7 @@ const Account = expectModule({
 	searchExports: true
 });
 
-// components/ActivityDisabledIcon.tsx
+// ./components/ActivityDisabledIcon.tsx
 function ActivityDisabled(props) {
 	return BdApi.React.createElement("svg", { width: props.width ? props.width : 24, height: props.height ? props.height : 24, viewBox: "0 0 24 24" }, BdApi.React.createElement(
 		"path",
@@ -136,7 +139,7 @@ const UserSettings = expectModule({
 	name: "UserSettings"
 });
 
-// components/ActivityToggleButton.tsx
+// ./components/ActivityToggleButton.tsx
 function ActivityToggleButton() {
 	const activityEnabled = ShowCurrentGame.useSetting();
 	return BdApi.React.createElement(
@@ -156,7 +159,7 @@ function ActivityToggleButton() {
 					e,
 					betterdiscord.ContextMenu.buildMenu([
 						{
-							label: "Activity Settings",
+							label: "Activity Privacy Settings",
 							icon: Settings,
 							action: () => {
 								if (!UserSettings) {
@@ -219,7 +222,7 @@ const Updater = {
 	}
 };
 
-// index.tsx
+// ./index.tsx
 class ActivityToggle {
 	meta;
 	constructor(meta) {

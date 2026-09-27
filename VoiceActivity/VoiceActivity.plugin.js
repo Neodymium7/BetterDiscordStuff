@@ -1,7 +1,7 @@
 /**
  * @name VoiceActivity
  * @author Neodymium
- * @version 1.12.5
+ * @version 1.12.6
  * @description Shows icons and info in popouts, the member list, and more when someone is in a voice channel.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/VoiceActivity/VoiceActivity.plugin.js
  * @invite fRbsqH87Av
@@ -147,7 +147,7 @@ function showChangelog(changes, meta) {
 
 // @lib/utils/webpack.ts
 function getClasses(...classes) {
-	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
+	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string") ?? void 0;
 }
 function getSelectors(...classes) {
 	const module = getClasses(...classes);
@@ -161,22 +161,27 @@ function getIcon(searchString) {
 	const filter = (m) => betterdiscord.Webpack.Filters.byStrings(searchString, '"svg"')(m) && typeof m === "function";
 	return betterdiscord.Webpack.getModule(filter, {
 		searchExports: true
-	});
+	}) ?? void 0;
 }
 function expect(object, options) {
 	if (object) return object;
 	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
-	const errorMessage = `Module ${options.name} not found.${fallbackMessage}\n\nContact the plugin developer to inform them of this error.`;
+	const errorMessage = `Module ${options.name} not found.${fallbackMessage}
+
+Contact the plugin developer to inform them of this error.`;
 	betterdiscord.Logger.error(errorMessage);
 	options.onError?.();
 	if (options.fatal) throw new Error(errorMessage);
 	return options.fallback;
 }
 function expectModule(options) {
-	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
+	return expect(betterdiscord.Webpack.getModule(options.filter, options), options) ?? void 0;
 }
 function expectWithKey(options) {
-	const [module, key] = betterdiscord.Webpack.getWithKey(options.filter, options);
+	const [module, key] = betterdiscord.Webpack.getWithKey(
+		options.filter,
+		options
+	);
 	if (module) return [module, key];
 	const fallback = expect(module, options);
 	if (fallback) {
@@ -200,13 +205,13 @@ function byType(type) {
 	return (e) => typeof e === type;
 }
 
-// manifest.json
+// ./manifest.json
 const changelog = [
 	{
 		title: "Fixed",
 		type: "fixed",
 		items: [
-			"Fixed speaker icon."
+			"Fixed minor visual issue."
 		]
 	}
 ];
@@ -237,7 +242,7 @@ const useStateFromStores = expectModule({
 	searchExports: true
 });
 
-// modules/discordmodules.tsx
+// ./modules/discordmodules.tsx
 function useUserVoiceStateFallback({ userId }) {
 	const voiceState = useStateFromStores(
 		[VoiceStateStore],
@@ -284,10 +289,11 @@ const memberSelectors = expectSelectors("Children Class", ["avatar", "children",
 const useUserVoiceState = expectModule({
 	filter: betterdiscord.Webpack.Filters.byStrings("getDiscoverableVoiceState", "getDiscoverableVoiceStateForUser"),
 	name: "useUserVoiceState",
+	searchExports: true,
 	fallback: useUserVoiceStateFallback
 });
 
-// locales.json
+// ./locales.json
 const el = {
 	SETTINGS_PROFILE: "Τομέας Προφίλ",
 	SETTINGS_PROFILE_NOTE: "Εμφανίζει τον τομέα προφίλ για την τρέχουσα δραστηριότητα φωνής στα αναδυόμενα χρήστη και στην πλευρικές μπάρες προφίλ των Άμεσων Μηνυμάτων.",
@@ -476,7 +482,7 @@ const locales = {
 	fr: fr
 };
 
-// modules/utils.ts
+// ./modules/utils.ts
 const Settings = new SettingsManager({
 	showMemberListIcons: true,
 	showDMListIcons: true,
@@ -503,7 +509,7 @@ function groupDMName(members) {
 	return "Unnamed";
 }
 
-// styles/voiceicon.module.css
+// ./styles/voiceicon.module.css
 const css = `
 .VoiceActivity-voiceicon-icon {
 	height: 20px;
@@ -516,6 +522,9 @@ const css = `
 		padding: 3px;
 		color: #fff;
 	}
+}
+.VoiceActivity-voiceicon-icon.VoiceActivity-voiceicon-dmlist {
+	margin-right: 6px;
 }
 .VoiceActivity-voiceicon-iconCurrentCall {
 	background-color: var(--status-positive);
@@ -566,6 +575,7 @@ const css = `
 _loadStyle("voiceicon.module.css", css);
 const modules_1af761ba = {
 	"icon": "VoiceActivity-voiceicon-icon",
+	"dmlist": "VoiceActivity-voiceicon-dmlist",
 	"iconCurrentCall": "VoiceActivity-voiceicon-iconCurrentCall",
 	"iconLive": "VoiceActivity-voiceicon-iconLive",
 	"tooltip": "VoiceActivity-voiceicon-tooltip",
@@ -618,7 +628,7 @@ const transitionTo = expectModule({
 	name: "transitionTo"
 });
 
-// components/VoiceIcon.tsx
+// ./components/VoiceIcon.tsx
 function VoiceIcon(props) {
 	const settingsState = Settings.useSettingsState(
 		"showMemberListIcons",
@@ -679,7 +689,7 @@ function VoiceIcon(props) {
 	return BdApi.React.createElement(
 		"div",
 		{
-			className,
+			className: props.context === "dmlist" ? className + " " + iconStyles.dmlist : className,
 			onClick: (e) => {
 				e.stopPropagation();
 				e.preventDefault();
@@ -706,7 +716,7 @@ function VoiceIcon(props) {
 	);
 }
 
-// index.tsx
+// ./index.tsx
 class VoiceActivity {
 	meta;
 	contextMenuUnpatches = new Set();
@@ -755,13 +765,18 @@ class VoiceActivity {
 			const children = target.props.children;
 			target.props.children = (childrenProps) => {
 				const childrenRet = children(childrenProps);
-				const privateChannel = betterdiscord.Utils.findInTree(childrenRet, (e) => e?.children?.props?.avatar, {
-					walkable: ["children", "props"]
-				});
-				privateChannel.children = [
-					privateChannel.children,
+				const iconsContainer = betterdiscord.Utils.findInTree(
+					childrenRet,
+					(e) => e?.props?.className?.includes("iconsContainer"),
+					{
+						walkable: ["children", "props"]
+					}
+				);
+				iconsContainer.props.children.splice(
+					-1,
+					0,
 					BdApi.React.createElement("div", { className: iconStyles.iconContainer }, BdApi.React.createElement(VoiceIcon, { userId: props.user.id, context: "dmlist" }))
-				];
+				);
 				return childrenRet;
 			};
 		};

@@ -1,7 +1,7 @@
 /**
  * @name ChannelTypingIndicator
  * @author Neodymium
- * @version 1.0.7
+ * @version 1.0.8
  * @description Adds an indicator to server channels when users are typing.
  * @source https://github.com/Neodymium7/BetterDiscordStuff/blob/main/ChannelTypingIndicator/ChannelTypingIndicator.plugin.js
  * @invite fRbsqH87Av
@@ -40,19 +40,21 @@ const path = require('path');
 
 // @lib/utils/webpack.ts
 function getClasses(...classes) {
-	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string");
+	return betterdiscord.Webpack.getModule((m) => betterdiscord.Webpack.Filters.byKeys(...classes)(m) && typeof m[classes[0]] == "string") ?? void 0;
 }
 function expect(object, options) {
 	if (object) return object;
 	const fallbackMessage = !options.fatal && options.fallback ? " Using fallback value instead." : "";
-	const errorMessage = `Module ${options.name} not found.${fallbackMessage}\n\nContact the plugin developer to inform them of this error.`;
+	const errorMessage = `Module ${options.name} not found.${fallbackMessage}
+
+Contact the plugin developer to inform them of this error.`;
 	betterdiscord.Logger.error(errorMessage);
 	options.onError?.();
 	if (options.fatal) throw new Error(errorMessage);
 	return options.fallback;
 }
 function expectModule(options) {
-	return expect(betterdiscord.Webpack.getModule(options.filter, options), options);
+	return expect(betterdiscord.Webpack.getModule(options.filter, options), options) ?? void 0;
 }
 async function waitForModuleWithKey(filter, options) {
 	return betterdiscord.Webpack.getWithKey(filter, {
@@ -63,10 +65,12 @@ async function waitForModuleWithKey(filter, options) {
 // @lib/utils/react.tsx
 const EmptyComponent = (props) => null;
 
-// modules/discordmodules.ts
+// ./modules/discordmodules.ts
 const Thread = expectModule({
-	filter: betterdiscord.Webpack.Filters.bySource("thread:", "CHANNEL_LIST"),
-	declarationFilter: betterdiscord.Webpack.Filters.byComponentType(betterdiscord.Webpack.Filters.byStrings("thread:", "CHANNEL_LIST")),
+	filter: betterdiscord.Webpack.Filters.bySource("thread:", "CHANNEL_LIST", "isSelectedChannel:"),
+	declarationFilter: betterdiscord.Webpack.Filters.byComponentType(
+		betterdiscord.Webpack.Filters.byStrings("thread:", "CHANNEL_LIST", "isSelectedChannel:")
+	),
 	name: "Thread"
 });
 const TypingDots = expectModule({
@@ -145,7 +149,7 @@ const Updater = {
 	}
 };
 
-// locales.json
+// ./locales.json
 const locales = {
 	"en-US": {
 	TYPING_LENGTH_1: "{{USER}} is typing...",
@@ -156,12 +160,22 @@ const locales = {
 };
 
 // @discord/stores.ts
-const UserStore = betterdiscord.Webpack.getStore("UserStore");
-const GuildMemberStore = betterdiscord.Webpack.getStore("GuildMemberStore");
-const RelationshipStore = betterdiscord.Webpack.getStore("RelationshipStore");
-const TypingStore = betterdiscord.Webpack.getStore("TypingStore");
-const UserGuildSettingsStore = betterdiscord.Webpack.getStore("UserGuildSettingsStore");
-const JoinedThreadsStore = betterdiscord.Webpack.getStore("JoinedThreadsStore");
+const {
+	UserStore,
+	GuildChannelStore,
+	VoiceStateStore,
+	GuildStore,
+	GuildRoleStore,
+	ChannelStore,
+	SelectedChannelStore,
+	GuildMemberStore,
+	PermissionStore,
+	RelationshipStore,
+	TypingStore,
+	UserGuildSettingsStore,
+	JoinedThreadsStore,
+	PresenceStore
+} = betterdiscord.Webpack.Stores;
 const useStateFromStores = expectModule({
 	filter: betterdiscord.Webpack.Filters.byStrings("useStateFromStores"),
 	name: "Flux",
@@ -171,7 +185,7 @@ const useStateFromStores = expectModule({
 	searchExports: true
 });
 
-// modules/utils.ts
+// ./modules/utils.ts
 const Strings = new StringsManager(locales, "en-US");
 const getDisplayName = (userId, guildId) => {
 	const { nick } = GuildMemberStore.getMember(guildId, userId);
@@ -193,7 +207,7 @@ function parseStringReact(string, parseObject) {
 	});
 }
 
-// TypingIndicator.tsx
+// ./TypingIndicator.tsx
 function TextChannelTypingIndicator(props) {
 	const muted = useStateFromStores(
 		[UserGuildSettingsStore],
@@ -236,7 +250,7 @@ function TypingIndicator({ channelId, guildId }) {
 	return BdApi.React.createElement(betterdiscord.Components.Tooltip, { text: tooltip, position: "top" }, (props) => BdApi.React.createElement("div", { ...props, className: "channelTypingIndicator" }, BdApi.React.createElement(TypingDots, { dotRadius: 3.5, themed: true })));
 }
 
-// index.tsx
+// ./index.tsx
 class ChannelTypingIndicator {
 	meta;
 	Channel;
