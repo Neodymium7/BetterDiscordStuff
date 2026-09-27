@@ -23,7 +23,7 @@ export default function ActivityToggleButton() {
 					e,
 					ContextMenu.buildMenu([
 						{
-							label: "Activity Settings",
+							label: "Activity Privacy Settings",
 							icon: Settings,
 							action: () => {
 								if (!UserSettings) {
