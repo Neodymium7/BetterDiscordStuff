@@ -1,4 +1,6 @@
-# ClickableTextMentions
+# ClickableTextMentions - DEPRECATED
+
+**As of November 2026, Discord has this feature natively! 🎉**
 
 Makes mentions in the message text area clickable.
 
